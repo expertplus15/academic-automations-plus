@@ -103,7 +103,7 @@ export default function Students() {
               <UserPlus className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-foreground">Inscription Automatisée < 30 secondes</h2>
+              <h2 className="text-xl font-bold text-foreground">Inscription Automatisée &lt; 30 secondes</h2>
               <p className="text-muted-foreground">Fonctionnalité signature d'Academic+</p>
             </div>
           </div>
@@ -265,7 +265,7 @@ export default function Students() {
                 </div>
               </div>
               <div className="mt-4 p-3 bg-students/5 rounded-lg">
-                <p className="text-sm text-students font-medium">🎯 Objectif: < 30 secondes</p>
+                <p className="text-sm text-students font-medium">🎯 Objectif: &lt; 30 secondes</p>
                 <p className="text-xs text-muted-foreground">Performance actuelle: 25.4s (Excellent!)</p>
               </div>
             </CardContent>
