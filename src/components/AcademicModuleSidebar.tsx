@@ -101,7 +101,7 @@ export function AcademicModuleSidebar() {
           </div>
           <div className="flex-1">
             <h1 className="text-base font-semibold text-sidebar-foreground tracking-tight">Gestion Académique</h1>
-            <p className="text-xs text-sidebar-foreground/60 mt-0.5">Module de gestion</p>
+            <p className="text-xs text-sidebar-foreground/60 mt-0.5">Module actif</p>
           </div>
         </div>
       </SidebarHeader>
@@ -150,20 +150,20 @@ export function AcademicModuleSidebar() {
 
       <SidebarFooter className="p-4 border-t border-sidebar-border/30">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-sm">
-            <User className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+            <User className="w-4 h-4 text-gray-600" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-sidebar-foreground truncate">Administrateur Principal</p>
-            <p className="text-xs text-sidebar-foreground/70 truncate">admin@academic.edu</p>
+            <p className="text-xs text-sidebar-foreground/70 truncate">admin</p>
           </div>
         </div>
         <div className="space-y-1 text-xs text-sidebar-foreground/50">
-          <div className="flex items-center justify-between">
-            <span>Academic+ v1.0</span>
+          <p>version 2.1.4</p>
+          <div className="flex items-center gap-2">
+            <span>Système OK</span>
             <span className="w-2 h-2 bg-green-500 rounded-full"></span>
           </div>
-          <p className="text-[10px]">© 2025 MyAcademics</p>
         </div>
       </SidebarFooter>
     </Sidebar>
