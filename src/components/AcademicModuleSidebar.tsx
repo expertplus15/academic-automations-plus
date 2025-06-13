@@ -21,6 +21,11 @@ import {
   Building2,
   Clock,
   User,
+  ArrowLeft,
+  Eye,
+  BarChart,
+  Settings,
+  LogOut,
 } from "lucide-react";
 
 const mainModules = [
@@ -95,14 +100,19 @@ export function AcademicModuleSidebar() {
   return (
     <Sidebar className="border-r-0">
       <SidebarHeader className="p-4 border-b border-sidebar-border/30">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-[#4f7cff] rounded-xl flex items-center justify-center shadow-sm">
-            <GraduationCap className="w-5 h-5 text-white" />
-          </div>
-          <div className="flex-1">
-            <h1 className="text-base font-semibold text-sidebar-foreground tracking-tight">Gestion Académique</h1>
-            <p className="text-xs text-sidebar-foreground/60 mt-0.5">Module actif</p>
-          </div>
+        <div className="flex items-center justify-between gap-2">
+          <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors">
+            <ArrowLeft className="w-4 h-4 text-sidebar-foreground" />
+            <span className="text-sm text-sidebar-foreground">Retour</span>
+          </button>
+          <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors">
+            <Eye className="w-4 h-4 text-sidebar-foreground" />
+            <span className="text-sm text-sidebar-foreground">Vue</span>
+          </button>
+          <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors">
+            <BarChart className="w-4 h-4 text-sidebar-foreground" />
+            <span className="text-sm text-sidebar-foreground">Stats</span>
+          </button>
         </div>
       </SidebarHeader>
 
@@ -157,6 +167,20 @@ export function AcademicModuleSidebar() {
             <p className="text-sm font-medium text-sidebar-foreground truncate">Administrateur Principal</p>
             <p className="text-xs text-sidebar-foreground/70 truncate">admin</p>
           </div>
+        </div>
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <button className="flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-sidebar-accent transition-colors">
+            <User className="w-3 h-3 text-sidebar-foreground" />
+            <span className="text-xs text-sidebar-foreground">Profil</span>
+          </button>
+          <button className="flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-sidebar-accent transition-colors">
+            <Settings className="w-3 h-3 text-sidebar-foreground" />
+            <span className="text-xs text-sidebar-foreground">Config</span>
+          </button>
+          <button className="flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-sidebar-accent transition-colors">
+            <LogOut className="w-3 h-3 text-sidebar-foreground" />
+            <span className="text-xs text-sidebar-foreground">Sortir</span>
+          </button>
         </div>
         <div className="space-y-1 text-xs text-sidebar-foreground/50">
           <p>version 2.1.4</p>
