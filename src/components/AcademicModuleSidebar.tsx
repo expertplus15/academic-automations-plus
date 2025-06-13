@@ -1,61 +1,62 @@
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter } from "@/components/ui/sidebar";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, GraduationCap, BookOpen, Users, Calendar, ClipboardList, Building2, Clock, User, ArrowLeft, Eye, BarChart, Settings, LogOut } from "lucide-react";
-const mainModules = [{
+import { LayoutDashboard, GraduationCap, BookOpen, Users, Calendar, Building, Clock, User, ArrowLeft, Settings, LogOut } from "lucide-react";
+
+const academicSubModules = [{
   title: "Tableau de Bord",
   url: "/",
   icon: LayoutDashboard,
   color: "#64748b",
-  isActive: false
-}, {
-  title: "Gestion Académique",
-  url: "/academic",
-  icon: GraduationCap,
-  color: "#4f7cff",
-  isActive: true
+  description: "Vue d'ensemble"
 }, {
   title: "Programmes",
   url: "/academic/programs",
-  icon: BookOpen,
-  color: "#10b981",
-  isActive: false
+  icon: GraduationCap,
+  color: "#4f7cff",
+  description: "Gestion des programmes d'études"
 }, {
   title: "Filières",
   url: "/academic/pathways",
   icon: BookOpen,
   color: "#06b6d4",
-  isActive: false
+  description: "Organisation des filières"
 }, {
   title: "Niveaux d'Études",
   url: "/academic/levels",
   icon: Users,
   color: "#f59e0b",
-  isActive: false
+  description: "Structure des niveaux"
 }, {
   title: "Classes",
   url: "/academic/groups",
-  icon: Building2,
+  icon: Building,
   color: "#8b5cf6",
-  isActive: false
+  description: "Gestion des groupes d'étudiants"
 }, {
   title: "Cours",
   url: "/academic/subjects",
   icon: BookOpen,
   color: "#10b981",
-  isActive: false
+  description: "Gestion des matières enseignées"
 }, {
   title: "Infrastructures",
   url: "/academic/infrastructure",
-  icon: Building2,
+  icon: Building,
   color: "#f59e0b",
-  isActive: false
+  description: "Salles et équipements"
 }, {
   title: "Emploi du Temps",
   url: "/academic/timetables",
-  icon: Clock,
+  icon: Calendar,
   color: "#4f7cff",
-  isActive: false
+  description: "Planning intelligent et automatisé"
+}, {
+  title: "Évaluations",
+  url: "/academic/evaluations",
+  icon: Users,
+  color: "#8b5cf6",
+  description: "Notes et bulletins de performance"
 }];
 export function AcademicModuleSidebar() {
   const location = useLocation();
@@ -82,9 +83,9 @@ export function AcademicModuleSidebar() {
         <SidebarGroup className="py-[22px] my-0">
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
-              {mainModules.map(module => {
+              {academicSubModules.map(module => {
               const Icon = module.icon;
-              const isActive = module.isActive || location.pathname === module.url;
+              const isActive = location.pathname === module.url;
               return <SidebarMenuItem key={module.title}>
                     <SidebarMenuButton asChild>
                       <Link to={module.url} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors relative", "text-sidebar-foreground hover:bg-sidebar-accent", isActive && "text-sidebar-foreground")}>
