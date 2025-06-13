@@ -6,11 +6,11 @@
 
 @layer base {
   :root {
-    /* Base colors */
-    --background: 218 18% 16%;
+    /* Base colors - Exact screenshot colors */
+    --background: 210 27% 10%;     /* #1a1f2e */
     --foreground: 210 40% 98%;
 
-    --card: 218 18% 20%;
+    --card: 217 20% 18%;           /* #2a3441 */
     --card-foreground: 210 40% 98%;
 
     --popover: 0 0% 100%;
