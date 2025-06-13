@@ -94,13 +94,14 @@ export function AcademicModuleSidebar() {
 
   return (
     <Sidebar className="border-r-0">
-      <SidebarHeader className="p-6 border-b border-sidebar-border">
+      <SidebarHeader className="p-4 border-b border-sidebar-border/30">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#4f7cff] rounded-lg flex items-center justify-center">
+          <div className="w-9 h-9 bg-[#4f7cff] rounded-xl flex items-center justify-center shadow-sm">
             <GraduationCap className="w-5 h-5 text-white" />
           </div>
-          <div>
-            <h1 className="text-lg font-bold text-sidebar-foreground">Gestion Académique</h1>
+          <div className="flex-1">
+            <h1 className="text-base font-semibold text-sidebar-foreground tracking-tight">Gestion Académique</h1>
+            <p className="text-xs text-sidebar-foreground/60 mt-0.5">Module de gestion</p>
           </div>
         </div>
       </SidebarHeader>
@@ -147,19 +148,22 @@ export function AcademicModuleSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gray-400 rounded-full flex items-center justify-center">
-            <User className="w-5 h-5 text-white" />
+      <SidebarFooter className="p-4 border-t border-sidebar-border/30">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-sm">
+            <User className="w-4 h-4 text-white" />
           </div>
-          <div className="flex-1">
-            <p className="text-sm font-medium text-sidebar-foreground">Administrateur Principal</p>
-            <p className="text-xs text-sidebar-foreground/60">admin</p>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-sidebar-foreground truncate">Administrateur Principal</p>
+            <p className="text-xs text-sidebar-foreground/70 truncate">admin@academic.edu</p>
           </div>
         </div>
-        <div className="mt-4 text-xs text-sidebar-foreground/40">
-          <p>Academic+ v1.0</p>
-          <p>© 2025 MyAcademics</p>
+        <div className="space-y-1 text-xs text-sidebar-foreground/50">
+          <div className="flex items-center justify-between">
+            <span>Academic+ v1.0</span>
+            <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+          </div>
+          <p className="text-[10px]">© 2025 MyAcademics</p>
         </div>
       </SidebarFooter>
     </Sidebar>
