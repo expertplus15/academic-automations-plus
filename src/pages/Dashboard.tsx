@@ -1,6 +1,7 @@
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { 
   GraduationCap, 
   Users, 
@@ -22,144 +23,110 @@ import { Link } from "react-router-dom";
 export default function Dashboard() {
   const mainStats = [
     { 
-      title: "Modules", 
+      title: "Modules Actifs", 
       value: "11", 
-      description: "Modules actifs",
-      icon: Target,
-      color: "text-green-400",
-      bgColor: "bg-green-400/10"
+      description: "",
+      icon: GraduationCap,
+      color: "text-white",
+      bgColor: "bg-blue-500"
     },
     { 
       title: "Système", 
       value: "Actif", 
-      description: "Plateforme opérationnelle",
-      icon: Settings,
-      color: "text-blue-400",
-      bgColor: "bg-blue-400/10"
+      description: "",
+      icon: Users,
+      color: "text-white",
+      bgColor: "bg-green-500"
     },
     { 
-      title: "Utilisateurs", 
-      value: "1,247", 
-      description: "Connectés aujourd'hui",
-      icon: Users,
-      color: "text-purple-400",
-      bgColor: "bg-purple-400/10"
+      title: "Année Académique", 
+      value: "2024-25", 
+      description: "",
+      icon: Calendar,
+      color: "text-white",
+      bgColor: "bg-purple-500"
     }
   ];
 
   const modules = [
     {
-      title: "Gestion Étudiants",
-      description: "Inscriptions automatisées",
-      icon: Users,
-      color: "students",
-      notifications: 12,
-      route: "/students"
-    },
-    {
-      title: "Programmes Académiques",
-      description: "Cursus et formations",
+      title: "Académique",
       icon: GraduationCap,
       color: "academic",
-      notifications: 3,
+      notifications: 5,
       route: "/academic"
     },
     {
-      title: "Examens & Organisation",
-      description: "Planning IA optimisé",
-      icon: FileText,
-      color: "exams",
-      notifications: 8,
-      route: "/exams"
+      title: "Gestion Étudiants",
+      icon: Users,
+      color: "students",
+      notifications: "9+",
+      route: "/students"
     },
     {
-      title: "Évaluations & Résultats",
-      description: "Notes et bulletins",
-      icon: BarChart3,
-      color: "results",
-      notifications: 5,
-      route: "/results"
-    },
-    {
-      title: "Finance & Comptabilité",
-      description: "Facturation automatique",
+      title: "Finance",
       icon: CreditCard,
       color: "finance",
-      notifications: 2,
+      notifications: 3,
       route: "/finance"
     },
     {
+      title: "Ressources Humaines",
+      icon: UserCheck,
+      color: "hr",
+      notifications: 1,
+      route: "/hr"
+    },
+    {
+      title: "Communication",
+      icon: Building,
+      color: "partnerships",
+      notifications: 8,
+      route: "/communication"
+    },
+    {
+      title: "Examens",
+      icon: FileText,
+      color: "exams",
+      notifications: 2,
+      route: "/exams"
+    },
+    {
       title: "E-Learning",
-      description: "Plateforme numérique",
       icon: BookOpen,
       color: "elearning",
       notifications: 0,
       route: "/elearning"
     },
     {
-      title: "Ressources Humaines",
-      description: "Gestion du personnel",
-      icon: UserCheck,
-      color: "hr",
-      notifications: 4,
-      route: "/hr"
-    },
-    {
-      title: "Ressources & Équipements",
-      description: "Matériel et infrastructures",
-      icon: Building,
+      title: "Ressources",
+      icon: Settings,
       color: "resources",
-      notifications: 1,
+      notifications: 4,
       route: "/resources"
-    },
-    {
-      title: "Partenariats & Relations",
-      description: "Entreprises et institutions",
-      icon: HeartHandshake,
-      color: "partnerships",
-      notifications: 0,
-      route: "/partnerships"
-    },
-    {
-      title: "Services aux Étudiants",
-      description: "Transport, restauration",
-      icon: Coffee,
-      color: "services",
-      notifications: 0,
-      route: "/services"
-    },
-    {
-      title: "Santé & Services",
-      description: "Bien-être étudiant",
-      icon: Stethoscope,
-      color: "health",
-      notifications: 3,
-      route: "/health"
     }
   ];
 
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Bonjour";
-    if (hour < 18) return "Bon après-midi";
-    return "Bonsoir";
-  };
-
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-background">
       <DashboardHeader />
       
       <main className="p-8 space-y-8">
         {/* Welcome Message */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">
-            <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-transparent">
-              {getGreeting()}, Dr. Martin
-            </span>
-          </h1>
-          <p className="text-slate-400 text-lg">
-            Voici un aperçu de votre plateforme de gestion éducative
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">
+              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-transparent">
+                Bon après-midi, Administrateur
+              </span>
+            </h1>
+            <p className="text-muted-foreground text-lg max-w-3xl">
+              Bienvenue sur votre tableau de bord de gestion académique. Gérez efficacement vos modules et suivez l'activité de votre établissement.
+            </p>
+          </div>
+          <Button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3">
+            Accès Rapide
+          </Button>
         </div>
 
         {/* Main Statistics */}
@@ -167,16 +134,15 @@ export default function Dashboard() {
           {mainStats.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <Card key={index} className="bg-slate-900/50 backdrop-blur border-slate-800">
+              <Card key={index} className={`${stat.bgColor} border-0 text-white`}>
                 <CardContent className="p-6">
                   <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.bgColor}`}>
-                      <Icon className={`w-6 h-6 ${stat.color}`} />
+                    <div className="w-12 h-12 rounded-lg flex items-center justify-center bg-white/20">
+                      <Icon className="w-6 h-6 text-white" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm text-slate-400">{stat.title}</p>
+                      <p className="text-sm text-white/80">{stat.title}</p>
                       <p className="text-2xl font-bold text-white">{stat.value}</p>
-                      <p className="text-xs text-slate-500">{stat.description}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -187,31 +153,31 @@ export default function Dashboard() {
 
         {/* Module Grid */}
         <div>
-          <h3 className="text-xl font-semibold text-white mb-6">Modules Academic+</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold text-foreground mb-2">Modules de gestion</h3>
+            <p className="text-muted-foreground">Accédez aux outils de gestion de votre établissement</p>
+          </div>
+          <div className="grid grid-cols-4 gap-6">
             {modules.map((module, index) => {
               const Icon = module.icon;
               return (
                 <Link key={index} to={module.route}>
-                  <Card className="group hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer bg-slate-900/50 backdrop-blur border-slate-800 hover:border-slate-700">
-                    <CardContent className="p-6 text-center relative">
-                      {module.notifications > 0 && (
+                  <Card className="group hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer bg-card border-border/20 hover:border-border/40">
+                    <CardContent className="p-8 text-center relative">
+                      {(typeof module.notifications === 'number' ? module.notifications > 0 : module.notifications !== "0") && (
                         <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 min-w-0 h-6 border-0">
                           {module.notifications}
                         </Badge>
                       )}
                       <div 
-                        className="w-12 h-12 mx-auto mb-3 rounded-xl flex items-center justify-center text-white shadow-lg"
+                        className="w-16 h-16 mx-auto mb-4 rounded-xl flex items-center justify-center text-white shadow-lg"
                         style={{ backgroundColor: `rgb(var(--${module.color}))` }}
                       >
-                        <Icon className="w-6 h-6" />
+                        <Icon className="w-8 h-8" />
                       </div>
-                      <h4 className="font-semibold text-sm text-white mb-1 line-clamp-2 leading-tight">
+                      <h4 className="font-medium text-foreground text-sm">
                         {module.title}
                       </h4>
-                      <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
-                        {module.description}
-                      </p>
                     </CardContent>
                   </Card>
                 </Link>
