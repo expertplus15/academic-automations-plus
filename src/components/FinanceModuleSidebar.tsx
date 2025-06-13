@@ -87,7 +87,7 @@ export function FinanceModuleSidebar() {
 
       <SidebarContent className="px-4">
         <div className="pt-4 pb-2">
-          <Link to="/finance" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors w-full">
+          <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors w-full">
             <ArrowLeft className="w-4 h-4 text-sidebar-foreground" />
             <span className="text-sm text-sidebar-foreground">Retour</span>
           </Link>
