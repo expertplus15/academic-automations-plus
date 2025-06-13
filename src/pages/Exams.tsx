@@ -108,10 +108,7 @@ export default function Exams() {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader 
-        title="Examens & Organisation" 
-        subtitle="Planification intelligente et gestion des épreuves"
-      />
+      <DashboardHeader />
       
       <main className="p-6 space-y-6">
         {/* Feature Highlight */}

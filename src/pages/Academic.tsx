@@ -105,10 +105,7 @@ export default function Academic() {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader 
-        title="Académique & Pédagogie" 
-        subtitle="Gestion des programmes, matières et emplois du temps"
-      />
+      <DashboardHeader />
       
       <main className="p-6 space-y-6">
         {/* Feature Highlight */}

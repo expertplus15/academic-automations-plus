@@ -1,15 +1,12 @@
 import { DashboardHeader } from "@/components/DashboardHeader";
-import { ModuleCard } from "@/components/ModuleCard";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   GraduationCap, 
   Users, 
   FileText, 
   BarChart3, 
-  TrendingUp, 
-  Calendar, 
-  Clock,
+  Calendar,
   Target,
   BookOpen,
   CreditCard,
@@ -17,34 +14,36 @@ import {
   Settings,
   HeartHandshake,
   Stethoscope,
-  Building
+  Building,
+  Coffee
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Dashboard() {
   const mainStats = [
     { 
-      title: "Modules Actifs", 
-      value: "12/12", 
-      description: "Tous les modules fonctionnels",
+      title: "Modules", 
+      value: "11", 
+      description: "Modules actifs",
       icon: Target,
-      color: "text-green-500",
-      bgColor: "bg-green-500/10"
+      color: "text-green-400",
+      bgColor: "bg-green-400/10"
     },
     { 
       title: "Système", 
-      value: "99.8%", 
-      description: "Disponibilité plateforme",
+      value: "Actif", 
+      description: "Plateforme opérationnelle",
       icon: Settings,
-      color: "text-blue-500",
-      bgColor: "bg-blue-500/10"
+      color: "text-blue-400",
+      bgColor: "bg-blue-400/10"
     },
     { 
-      title: "Année Académique", 
-      value: "2024-25", 
-      description: "Semestre 1 en cours",
-      icon: Calendar,
-      color: "text-purple-500",
-      bgColor: "bg-purple-500/10"
+      title: "Utilisateurs", 
+      value: "1,247", 
+      description: "Connectés aujourd'hui",
+      icon: Users,
+      color: "text-purple-400",
+      bgColor: "bg-purple-400/10"
     }
   ];
 
@@ -122,6 +121,14 @@ export default function Dashboard() {
       route: "/partnerships"
     },
     {
+      title: "Services aux Étudiants",
+      description: "Transport, restauration",
+      icon: Coffee,
+      color: "services",
+      notifications: 0,
+      route: "/services"
+    },
+    {
       title: "Santé & Services",
       description: "Bien-être étudiant",
       icon: Stethoscope,
@@ -131,29 +138,45 @@ export default function Dashboard() {
     }
   ];
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Bonjour";
+    if (hour < 18) return "Bon après-midi";
+    return "Bonsoir";
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader 
-        title="Tableau de Bord" 
-        subtitle="Vue d'ensemble de votre établissement"
-      />
+    <div className="min-h-screen bg-slate-950">
+      <DashboardHeader />
       
-      <main className="p-6 space-y-8">
+      <main className="p-8 space-y-8">
+        {/* Welcome Message */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-2">
+            <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-blue-600 bg-clip-text text-transparent">
+              {getGreeting()}, Dr. Martin
+            </span>
+          </h1>
+          <p className="text-slate-400 text-lg">
+            Voici un aperçu de votre plateforme de gestion éducative
+          </p>
+        </div>
+
         {/* Main Statistics */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {mainStats.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <Card key={index} className="bg-card/50 backdrop-blur border-border/50">
+              <Card key={index} className="bg-slate-900/50 backdrop-blur border-slate-800">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${stat.bgColor}`}>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.bgColor}`}>
                       <Icon className={`w-6 h-6 ${stat.color}`} />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm text-muted-foreground">{stat.title}</p>
-                      <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                      <p className="text-xs text-muted-foreground">{stat.description}</p>
+                      <p className="text-sm text-slate-400">{stat.title}</p>
+                      <p className="text-2xl font-bold text-white">{stat.value}</p>
+                      <p className="text-xs text-slate-500">{stat.description}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -164,111 +187,37 @@ export default function Dashboard() {
 
         {/* Module Grid */}
         <div>
-          <h3 className="text-xl font-semibold text-foreground mb-6">Modules Academic+</h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <h3 className="text-xl font-semibold text-white mb-6">Modules Academic+</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {modules.map((module, index) => {
               const Icon = module.icon;
               return (
-                <Card 
-                  key={index} 
-                  className="group hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer bg-card/80 backdrop-blur border-border/50"
-                >
-                  <CardContent className="p-6 text-center relative">
-                    {module.notifications > 0 && (
-                      <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 min-w-0 h-6">
-                        {module.notifications}
-                      </Badge>
-                    )}
-                    <div 
-                      className="w-12 h-12 mx-auto mb-3 rounded-lg flex items-center justify-center text-white"
-                      style={{ backgroundColor: `rgb(var(--${module.color}))` }}
-                    >
-                      <Icon className="w-6 h-6" />
-                    </div>
-                    <h4 className="font-semibold text-sm text-foreground mb-1 line-clamp-2">
-                      {module.title}
-                    </h4>
-                    <p className="text-xs text-muted-foreground line-clamp-2">
-                      {module.description}
-                    </p>
-                  </CardContent>
-                </Card>
+                <Link key={index} to={module.route}>
+                  <Card className="group hover:shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer bg-slate-900/50 backdrop-blur border-slate-800 hover:border-slate-700">
+                    <CardContent className="p-6 text-center relative">
+                      {module.notifications > 0 && (
+                        <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 min-w-0 h-6 border-0">
+                          {module.notifications}
+                        </Badge>
+                      )}
+                      <div 
+                        className="w-12 h-12 mx-auto mb-3 rounded-xl flex items-center justify-center text-white shadow-lg"
+                        style={{ backgroundColor: `rgb(var(--${module.color}))` }}
+                      >
+                        <Icon className="w-6 h-6" />
+                      </div>
+                      <h4 className="font-semibold text-sm text-white mb-1 line-clamp-2 leading-tight">
+                        {module.title}
+                      </h4>
+                      <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                        {module.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
               );
             })}
           </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <Card className="bg-card/50 backdrop-blur border-border/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="w-5 h-5 text-academic" />
-                Activités Récentes
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-                <div className="w-2 h-2 bg-students rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">47 nouvelles inscriptions</p>
-                  <p className="text-xs text-muted-foreground">Il y a 2 heures</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-                <div className="w-2 h-2 bg-exams rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Examen de Mathématiques planifié</p>
-                  <p className="text-xs text-muted-foreground">Il y a 4 heures</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-                <div className="w-2 h-2 bg-results rounded-full"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">89 bulletins générés</p>
-                  <p className="text-xs text-muted-foreground">Il y a 6 heures</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-card/50 backdrop-blur border-border/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-academic" />
-                Performance Globale
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Inscriptions ce mois</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-24 h-2 bg-muted rounded-full">
-                    <div className="w-[85%] h-full bg-students rounded-full"></div>
-                  </div>
-                  <span className="text-sm font-medium">+12%</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Taux de réussite</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-24 h-2 bg-muted rounded-full">
-                    <div className="w-[89%] h-full bg-results rounded-full"></div>
-                  </div>
-                  <span className="text-sm font-medium">89%</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Satisfaction</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-24 h-2 bg-muted rounded-full">
-                    <div className="w-[94%] h-full bg-academic rounded-full"></div>
-                  </div>
-                  <span className="text-sm font-medium">94%</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </main>
     </div>

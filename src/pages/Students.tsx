@@ -90,10 +90,7 @@ export default function Students() {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader 
-        title="Gestion Étudiants" 
-        subtitle="Inscriptions automatisées et gestion des profils"
-      />
+      <DashboardHeader />
       
       <main className="p-6 space-y-6">
         {/* Feature Highlight */}
