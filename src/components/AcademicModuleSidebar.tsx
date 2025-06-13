@@ -14,7 +14,7 @@ const academicSubModules = [{
   url: "/academic/programs",
   icon: GraduationCap,
   color: "#4f7cff",
-  description: "Gestion des programmes d'études"
+  description: "Gestion des programmes"
 }, {
   title: "Filières",
   url: "/academic/pathways",
@@ -32,13 +32,13 @@ const academicSubModules = [{
   url: "/academic/groups",
   icon: Building,
   color: "#8b5cf6",
-  description: "Gestion des groupes d'étudiants"
+  description: "Gestion des groupes"
 }, {
   title: "Cours",
   url: "/academic/subjects",
   icon: BookOpen,
   color: "#10b981",
-  description: "Gestion des matières enseignées"
+  description: "Gestion des matières"
 }, {
   title: "Infrastructures",
   url: "/academic/infrastructure",
@@ -50,13 +50,13 @@ const academicSubModules = [{
   url: "/academic/timetables",
   icon: Calendar,
   color: "#4f7cff",
-  description: "Planning intelligent et automatisé"
+  description: "Planning intelligent"
 }, {
   title: "Évaluations",
   url: "/academic/evaluations",
   icon: Users,
   color: "#8b5cf6",
-  description: "Notes et bulletins de performance"
+  description: "Notes et bulletins"
 }];
 export function AcademicModuleSidebar() {
   const location = useLocation();
@@ -75,10 +75,10 @@ export function AcademicModuleSidebar() {
 
       <SidebarContent className="px-4">
         <div className="pt-4 pb-2">
-          <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors w-full">
+          <Link to="/academic" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors w-full">
             <ArrowLeft className="w-4 h-4 text-sidebar-foreground" />
             <span className="text-sm text-sidebar-foreground">Retour</span>
-          </button>
+          </Link>
         </div>
         <SidebarGroup className="py-[22px] my-0">
           <SidebarGroupContent>

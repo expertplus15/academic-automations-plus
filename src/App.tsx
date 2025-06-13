@@ -21,6 +21,14 @@ import Students from "./pages/Students";
 import Academic from "./pages/Academic";
 import Exams from "./pages/Exams";
 import NotFound from "./pages/NotFound";
+import Programs from "./pages/academic/Programs";
+import Pathways from "./pages/academic/Pathways";
+import Levels from "./pages/academic/Levels";
+import Groups from "./pages/academic/Groups";
+import Subjects from "./pages/academic/Subjects";
+import Infrastructure from "./pages/academic/Infrastructure";
+import Timetables from "./pages/academic/Timetables";
+import Evaluations from "./pages/academic/Evaluations";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +71,14 @@ function AppContent() {
           <Routes>
             <Route path="/students" element={<Students />} />
             <Route path="/academic" element={<Academic />} />
+            <Route path="/academic/programs" element={<Programs />} />
+            <Route path="/academic/pathways" element={<Pathways />} />
+            <Route path="/academic/levels" element={<Levels />} />
+            <Route path="/academic/groups" element={<Groups />} />
+            <Route path="/academic/subjects" element={<Subjects />} />
+            <Route path="/academic/infrastructure" element={<Infrastructure />} />
+            <Route path="/academic/timetables" element={<Timetables />} />
+            <Route path="/academic/evaluations" element={<Evaluations />} />
             <Route path="/exams" element={<Exams />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
