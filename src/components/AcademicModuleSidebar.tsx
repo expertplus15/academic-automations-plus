@@ -100,19 +100,14 @@ export function AcademicModuleSidebar() {
   return (
     <Sidebar className="border-r-0">
       <SidebarHeader className="p-4 border-b border-sidebar-border/30">
-        <div className="flex items-center justify-between gap-2">
-          <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors">
-            <ArrowLeft className="w-4 h-4 text-sidebar-foreground" />
-            <span className="text-sm text-sidebar-foreground">Retour</span>
-          </button>
-          <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors">
-            <Eye className="w-4 h-4 text-sidebar-foreground" />
-            <span className="text-sm text-sidebar-foreground">Vue</span>
-          </button>
-          <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors">
-            <BarChart className="w-4 h-4 text-sidebar-foreground" />
-            <span className="text-sm text-sidebar-foreground">Stats</span>
-          </button>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 bg-[#4f7cff] rounded-xl flex items-center justify-center shadow-sm">
+            <GraduationCap className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1">
+            <h1 className="text-base font-semibold text-sidebar-foreground tracking-tight">Gestion Académique</h1>
+            <p className="text-xs text-sidebar-foreground/60 mt-0.5">Module actif</p>
+          </div>
         </div>
       </SidebarHeader>
 
