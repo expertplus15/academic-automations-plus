@@ -61,7 +61,20 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Academic+ Module Colors
+				academic: 'rgb(var(--academic))',
+				students: 'rgb(var(--students))',
+				exams: 'rgb(var(--exams))',
+				results: 'rgb(var(--results))',
+				finance: 'rgb(var(--finance))',
+				elearning: 'rgb(var(--elearning))',
+				hr: 'rgb(var(--hr))',
+				resources: 'rgb(var(--resources))',
+				partnerships: 'rgb(var(--partnerships))',
+				settings: 'rgb(var(--settings))',
+				services: 'rgb(var(--services))',
+				health: 'rgb(var(--health))'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

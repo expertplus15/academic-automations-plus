@@ -2,10 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+/* Academic+ Design System - Plateforme de Gestion Éducative */
 
 @layer base {
   :root {
+    /* Base colors */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -36,20 +37,28 @@
 
     --radius: 0.5rem;
 
+    /* Academic+ Module Colors */
+    --academic: 59 130 246;       /* #3b82f6 - Bleu */
+    --students: 16 185 129;       /* #10b981 - Vert */
+    --exams: 99 102 241;          /* #6366f1 - Indigo */
+    --results: 139 92 246;        /* #8b5cf6 - Violet */
+    --finance: 245 158 11;        /* #f59e0b - Orange */
+    --elearning: 6 182 212;       /* #06b6d4 - Cyan */
+    --hr: 5 150 105;              /* #059669 - Émeraude */
+    --resources: 217 119 6;       /* #d97706 - Amber */
+    --partnerships: 236 72 153;   /* #ec4899 - Rose */
+    --settings: 100 116 139;      /* #64748b - Slate */
+    --services: 101 163 13;       /* #65a30d - Lime */
+    --health: 220 38 38;          /* #dc2626 - Rouge */
+
+    /* Sidebar colors */
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -81,6 +90,7 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+    
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
