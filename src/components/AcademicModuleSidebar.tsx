@@ -3,7 +3,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -13,118 +12,131 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
+  LayoutDashboard,
   GraduationCap,
   BookOpen,
   Users,
   Calendar,
+  ClipboardList,
+  Building2,
   Clock,
-  Settings,
-  Building,
-  ArrowLeft,
+  User,
 } from "lucide-react";
 
-const academicSubModules = [
+const mainModules = [
   {
-    title: "Programmes d'études",
-    url: "/academic/programs",
-    icon: GraduationCap,
-    description: "Cursus, diplômes, certifications"
+    title: "Tableau de Bord",
+    url: "/",
+    icon: LayoutDashboard,
+    color: "#64748b",
+    isActive: false
   },
   {
-    title: "Filières & Parcours",
+    title: "Gestion Académique",
+    url: "/academic",
+    icon: GraduationCap,
+    color: "#4f7cff",
+    isActive: true
+  },
+  {
+    title: "Programmes",
+    url: "/academic/programs",
+    icon: BookOpen,
+    color: "#10b981",
+    isActive: false
+  },
+  {
+    title: "Filières",
     url: "/academic/pathways",
     icon: BookOpen,
-    description: "Spécialisations, options, prérequis"
+    color: "#06b6d4",
+    isActive: false
   },
   {
-    title: "Matières & Coefficients",
-    url: "/academic/subjects",
-    icon: Settings,
-    description: "UE, crédits ECTS, pondérations"
-  },
-  {
-    title: "Niveaux d'études",
+    title: "Niveaux d'Études",
     url: "/academic/levels",
     icon: Users,
-    description: "DUT 1-2, L1-L3, M1-M2, doctorat"
+    color: "#f59e0b",
+    isActive: false
   },
   {
-    title: "Emplois du temps",
+    title: "Classes",
+    url: "/academic/groups",
+    icon: Building2,
+    color: "#8b5cf6",
+    isActive: false
+  },
+  {
+    title: "Cours",
+    url: "/academic/subjects",
+    icon: BookOpen,
+    color: "#10b981",
+    isActive: false
+  },
+  {
+    title: "Infrastructures",
+    url: "/academic/infrastructure",
+    icon: Building2,
+    color: "#f59e0b",
+    isActive: false
+  },
+  {
+    title: "Emploi du Temps",
     url: "/academic/timetables",
     icon: Clock,
-    description: "Planning intelligent anti-conflits"
-  },
-  {
-    title: "Calendrier académique",
-    url: "/academic/calendar",
-    icon: Calendar,
-    description: "Semestres, vacances, examens"
-  },
-  {
-    title: "Classes & Groupes",
-    url: "/academic/groups",
-    icon: Users,
-    description: "Effectifs, répartitions automatiques"
-  },
+    color: "#4f7cff",
+    isActive: false
+  }
 ];
 
 export function AcademicModuleSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar className="border-r border-border/50">
-      <SidebarHeader className="border-b border-border/50 p-4">
+    <Sidebar className="border-r-0">
+      <SidebarHeader className="p-6 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-academic rounded-lg flex items-center justify-center">
-            <GraduationCap className="w-4 h-4 text-white" />
+          <div className="w-10 h-10 bg-[#4f7cff] rounded-lg flex items-center justify-center">
+            <GraduationCap className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-foreground">Académique</h1>
-            <p className="text-xs text-muted-foreground">& Pédagogie</p>
+            <h1 className="text-lg font-bold text-sidebar-foreground">Gestion Académique</h1>
           </div>
         </div>
-        <Link 
-          to="/" 
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mt-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Retour au tableau de bord
-        </Link>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-4">
         <SidebarGroup>
-          <SidebarGroupLabel>Fonctionnalités</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {academicSubModules.map((subModule) => {
-                const Icon = subModule.icon;
-                const isActive = location.pathname === subModule.url;
+            <SidebarMenu className="space-y-1">
+              {mainModules.map((module) => {
+                const Icon = module.icon;
+                const isActive = module.isActive || location.pathname === module.url;
                 
                 return (
-                  <SidebarMenuItem key={subModule.title}>
+                  <SidebarMenuItem key={module.title}>
                     <SidebarMenuButton asChild>
                       <Link
-                        to={subModule.url}
+                        to={module.url}
                         className={cn(
-                          "group flex items-start gap-3 p-3 rounded-lg transition-all hover:scale-[1.02]",
-                          isActive && "bg-sidebar-accent"
+                          "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors relative",
+                          "text-sidebar-foreground hover:bg-sidebar-accent",
+                          isActive && "text-sidebar-foreground"
                         )}
                       >
+                        {isActive && (
+                          <div className="absolute left-0 w-1 h-6 bg-[#4f7cff] rounded-r" />
+                        )}
                         <div 
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-white transition-all group-hover:scale-110"
-                          style={{ backgroundColor: "rgb(var(--academic))" }}
+                          className="w-5 h-5 flex items-center justify-center"
+                          style={{ color: module.color }}
                         >
-                          <Icon className="w-4 h-4" />
+                          <Icon className="w-5 h-5" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-sidebar-foreground truncate">
-                            {subModule.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {subModule.description}
-                          </p>
-                        </div>
+                        <span className="text-sm font-medium">{module.title}</span>
+                        {isActive && (
+                          <div className="ml-auto w-2 h-2 bg-[#4f7cff] rounded-full" />
+                        )}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -135,8 +147,17 @@ export function AcademicModuleSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-border/50 p-4">
-        <div className="text-xs text-muted-foreground">
+      <SidebarFooter className="p-4 border-t border-sidebar-border">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gray-400 rounded-full flex items-center justify-center">
+            <User className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-sidebar-foreground">Administrateur Principal</p>
+            <p className="text-xs text-sidebar-foreground/60">admin</p>
+          </div>
+        </div>
+        <div className="mt-4 text-xs text-sidebar-foreground/40">
           <p>Academic+ v1.0</p>
           <p>© 2025 MyAcademics</p>
         </div>
