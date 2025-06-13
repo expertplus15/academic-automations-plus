@@ -79,7 +79,7 @@ export function AcademicModuleSidebar() {
             <span className="text-sm text-sidebar-foreground">Retour</span>
           </button>
         </div>
-        <SidebarGroup className="my-[34px] py-[22px]">
+        <SidebarGroup className="py-[22px] my-0">
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
               {mainModules.map(module => {
