@@ -88,7 +88,7 @@ export default function Signup() {
               <GraduationCap className="h-8 w-8 text-primary-foreground" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">EduPlatform</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Academic</h1>
           <p className="text-muted-foreground">Créer votre compte</p>
         </div>
 
@@ -240,7 +240,7 @@ export default function Signup() {
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            © 2024 EduPlatform. Tous droits réservés.
+            © 2024 Academic. Tous droits réservés.
           </p>
         </div>
       </div>

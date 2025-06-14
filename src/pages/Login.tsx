@@ -60,8 +60,8 @@ export default function Login() {
               <GraduationCap className="h-8 w-8 text-primary-foreground" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">EduPlatform</h1>
-          <p className="text-muted-foreground">Plateforme de Gestion Éducative</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Academic</h1>
+          <p className="text-muted-foreground">Plateforme de Gestion Académique</p>
         </div>
 
         {/* Formulaire de connexion */}
@@ -170,8 +170,8 @@ export default function Login() {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setEmail('admin@eduplatform.com');
-                    setPassword('demo123');
+                    setEmail('admin@academic.com');
+                    setPassword('admin123');
                   }}
                   className="text-xs"
                 >
@@ -181,8 +181,8 @@ export default function Login() {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setEmail('teacher@eduplatform.com');
-                    setPassword('demo123');
+                    setEmail('teacher@academic.com');
+                    setPassword('teacher123');
                   }}
                   className="text-xs"
                 >
@@ -206,7 +206,7 @@ export default function Login() {
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            © 2024 EduPlatform. Tous droits réservés.
+            © 2024 Academic. Tous droits réservés.
           </p>
         </div>
       </div>
