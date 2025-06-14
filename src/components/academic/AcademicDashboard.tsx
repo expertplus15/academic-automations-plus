@@ -90,9 +90,9 @@ export function AcademicDashboard() {
                 </Link>
               </Button>
               <Button size="sm" asChild>
-                <Link to="/academic/programs/new">
+                <Link to="/academic/programs">
                   <Plus className="h-4 w-4 mr-2" />
-                  Nouveau Programme
+                  Gérer les Programmes
                 </Link>
               </Button>
             </div>
@@ -216,21 +216,21 @@ export function AcademicDashboard() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Button className="h-20 flex-col" variant="outline" asChild>
-                    <Link to="/academic/programs/new">
+                    <Link to="/academic/programs">
                       <GraduationCap className="h-6 w-6 mb-2" />
-                      Créer un Programme
+                      Gérer les Programmes
                     </Link>
                   </Button>
                   <Button className="h-20 flex-col" variant="outline" asChild>
-                    <Link to="/academic/courses/new">
+                    <Link to="/academic/courses">
                       <BookOpen className="h-6 w-6 mb-2" />
-                      Ajouter un Cours
+                      Gérer les Cours
                     </Link>
                   </Button>
                   <Button className="h-20 flex-col" variant="outline" asChild>
-                    <Link to="/academic/schedule/new">
+                    <Link to="/academic/timetables">
                       <Calendar className="h-6 w-6 mb-2" />
-                      Générer Emploi du Temps
+                      Emploi du Temps
                     </Link>
                   </Button>
                 </div>
