@@ -1,22 +1,24 @@
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AcademicPageHeader } from "@/components/AcademicPageHeader";
+import { ProgramsList } from '@/components/academic/ProgramsList';
+import { usePrograms } from '@/hooks/useSupabase';
 
 export default function Programs() {
+  const { data: programs, loading } = usePrograms();
+
   return (
-    <div className="min-h-screen bg-background">
-      <AcademicPageHeader 
-        title="Programmes" 
-        subtitle="Gestion des programmes d'études" 
-      />
-      <div className="p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-card rounded-lg border p-6">
-            <h2 className="text-xl font-semibold mb-4">Programmes d'Études</h2>
-            <p className="text-muted-foreground">
-              Interface de gestion des programmes d'études à venir.
-            </p>
+    <ProtectedRoute allowedRoles={['admin', 'teacher']}>
+      <div className="min-h-screen bg-background">
+        <AcademicPageHeader 
+          title="Programmes" 
+          subtitle="Gestion des programmes d'études" 
+        />
+        <div className="p-6">
+          <div className="max-w-6xl mx-auto">
+            <ProgramsList programs={programs} loading={loading} />
           </div>
         </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }
