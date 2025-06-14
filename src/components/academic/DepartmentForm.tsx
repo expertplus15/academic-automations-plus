@@ -125,12 +125,12 @@ export function DepartmentForm({ department, onSuccess, onCancel }: DepartmentFo
 
           <div className="space-y-2">
             <Label>Chef de département</Label>
-            <Select onValueChange={(value) => setValue('head_id', value)}>
+            <Select onValueChange={(value) => setValue('head_id', value === 'none' ? '' : value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Sélectionner un enseignant" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Aucun</SelectItem>
+                <SelectItem value="none">Aucun</SelectItem>
                 {teachers?.map((teacher) => (
                   <SelectItem key={teacher.id} value={teacher.id}>
                     {teacher.full_name} ({teacher.email})
