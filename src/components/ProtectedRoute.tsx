@@ -20,7 +20,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
       }
 
       if (allowedRoles && profile && !allowedRoles.includes(profile.role)) {
-        navigate('/unauthorized');
+        navigate('/dashboard');
         return;
       }
     }
