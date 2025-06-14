@@ -246,6 +246,10 @@ export type Database = {
         Args: { program_code: string; enrollment_year: number }
         Returns: string
       }
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
     }
     Enums: {
       student_status: "active" | "suspended" | "graduated" | "dropped"
