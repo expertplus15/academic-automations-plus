@@ -189,63 +189,6 @@ export type Database = {
           },
         ]
       }
-      courses: {
-        Row: {
-          code: string
-          created_at: string
-          credits: number
-          description: string | null
-          id: string
-          name: string
-          program_id: string
-          semester: number
-          teacher_id: string | null
-          updated_at: string
-          year_level: number
-        }
-        Insert: {
-          code: string
-          created_at?: string
-          credits?: number
-          description?: string | null
-          id?: string
-          name: string
-          program_id: string
-          semester?: number
-          teacher_id?: string | null
-          updated_at?: string
-          year_level?: number
-        }
-        Update: {
-          code?: string
-          created_at?: string
-          credits?: number
-          description?: string | null
-          id?: string
-          name?: string
-          program_id?: string
-          semester?: number
-          teacher_id?: string | null
-          updated_at?: string
-          year_level?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "courses_program_id_fkey"
-            columns: ["program_id"]
-            isOneToOne: false
-            referencedRelation: "programs"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "courses_teacher_id_fkey"
-            columns: ["teacher_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       departments: {
         Row: {
           code: string
@@ -563,6 +506,7 @@ export type Database = {
       }
       subjects: {
         Row: {
+          class_group_id: string | null
           code: string
           coefficient: number
           created_at: string | null
@@ -573,13 +517,16 @@ export type Database = {
           hours_project: number | null
           hours_theory: number | null
           id: string
+          level_id: string | null
           name: string
           prerequisites: Json | null
+          program_id: string | null
           status: string | null
           teaching_methods: Json | null
           updated_at: string | null
         }
         Insert: {
+          class_group_id?: string | null
           code: string
           coefficient?: number
           created_at?: string | null
@@ -590,13 +537,16 @@ export type Database = {
           hours_project?: number | null
           hours_theory?: number | null
           id?: string
+          level_id?: string | null
           name: string
           prerequisites?: Json | null
+          program_id?: string | null
           status?: string | null
           teaching_methods?: Json | null
           updated_at?: string | null
         }
         Update: {
+          class_group_id?: string | null
           code?: string
           coefficient?: number
           created_at?: string | null
@@ -607,8 +557,10 @@ export type Database = {
           hours_project?: number | null
           hours_theory?: number | null
           id?: string
+          level_id?: string | null
           name?: string
           prerequisites?: Json | null
+          program_id?: string | null
           status?: string | null
           teaching_methods?: Json | null
           updated_at?: string | null

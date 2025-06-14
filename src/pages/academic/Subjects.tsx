@@ -1,22 +1,85 @@
+import { useState } from 'react';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AcademicPageHeader } from "@/components/AcademicPageHeader";
+import { SubjectsList } from '@/components/academic/SubjectsList';
+import { SubjectForm } from '@/components/academic/SubjectForm';
+import { useSubjects } from '@/hooks/useSupabase';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 
 export default function Subjects() {
+  const { data: subjects, loading, refetch } = useSubjects();
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingSubject, setEditingSubject] = useState<any>(null);
+
+  const handleCreateSuccess = () => {
+    setShowCreateForm(false);
+    refetch();
+  };
+
+  const handleEditSuccess = () => {
+    setEditingSubject(null);
+    refetch();
+  };
+
+  const handleEdit = (subject: any) => {
+    setEditingSubject(subject);
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      <AcademicPageHeader 
-        title="Cours" 
-        subtitle="Gestion des matières" 
-      />
-      <div className="p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-card rounded-lg border p-6">
-            <h2 className="text-xl font-semibold mb-4">Cours et Matières</h2>
-            <p className="text-muted-foreground">
-              Interface de gestion des cours et matières enseignées à venir.
-            </p>
+    <ProtectedRoute allowedRoles={['admin', 'teacher']}>
+      <div className="min-h-screen bg-background">
+        <AcademicPageHeader 
+          title="Matières" 
+          subtitle="Gestion des matières et programmes d'études" 
+        />
+        <div className="p-6">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-2xl font-bold">Matières et programmes</h1>
+              <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nouvelle Matière
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Créer une matière</DialogTitle>
+                  </DialogHeader>
+                  <SubjectForm 
+                    onSuccess={handleCreateSuccess}
+                    onCancel={() => setShowCreateForm(false)}
+                  />
+                </DialogContent>
+              </Dialog>
+            </div>
+            
+            <SubjectsList 
+              subjects={subjects} 
+              loading={loading}
+              onEdit={handleEdit}
+              onRefresh={refetch}
+            />
+
+            {/* Edit Dialog */}
+            <Dialog open={!!editingSubject} onOpenChange={() => setEditingSubject(null)}>
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Modifier la matière</DialogTitle>
+                </DialogHeader>
+                <SubjectForm 
+                  subject={editingSubject}
+                  onSuccess={handleEditSuccess}
+                  onCancel={() => setEditingSubject(null)}
+                />
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

@@ -5,8 +5,10 @@ type Tables = {
   profiles: any;
   students: any;
   programs: any;
-  courses: any;
+  subjects: any;
   departments: any;
+  academic_levels: any;
+  class_groups: any;
 };
 
 export function useTable<T extends keyof Tables>(
@@ -72,12 +74,13 @@ export function useDepartments() {
   return useTable('departments');
 }
 
-// Hook spécialisé pour les cours
-export function useCourses() {
-  return useTable('courses', `
+// Hook spécialisé pour les matières
+export function useSubjects() {
+  return useTable('subjects', `
     *,
-    programs!courses_program_id_fkey(*),
-    profiles!courses_teacher_id_fkey(*)
+    programs!subjects_program_id_fkey(*),
+    academic_levels!subjects_level_id_fkey(*),
+    class_groups!subjects_class_group_id_fkey(*)
   `);
 }
 

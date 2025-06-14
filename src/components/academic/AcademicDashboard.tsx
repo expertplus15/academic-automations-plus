@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { usePrograms, useCourses, useDepartments, useTable } from '@/hooks/useSupabase';
+import { usePrograms, useSubjects, useDepartments, useTable } from '@/hooks/useSupabase';
 import { 
   GraduationCap, 
   BookOpen, 
@@ -16,13 +16,13 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ProgramsList } from './ProgramsList';
-import { CoursesList } from './CoursesList';
+
 import { ScheduleView } from './ScheduleView';
 import { DepartmentsList } from './DepartmentsList';
 
 export function AcademicDashboard() {
   const { data: programs, loading: programsLoading } = usePrograms();
-  const { data: courses, loading: coursesLoading } = useCourses();
+  const { data: subjects, loading: subjectsLoading } = useSubjects();
   const { data: departments } = useDepartments();
 
   const stats = [
@@ -34,8 +34,8 @@ export function AcademicDashboard() {
       change: '+2 ce mois'
     },
     {
-      label: 'Cours Disponibles',
-      value: courses?.length || 0,
+      label: 'Matières Disponibles',
+      value: subjects?.length || 0,
       icon: BookOpen,
       color: 'bg-secondary',
       change: '+15 ce semestre'
@@ -132,7 +132,7 @@ export function AcademicDashboard() {
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
             <TabsTrigger value="programs">Programmes</TabsTrigger>
-            <TabsTrigger value="courses">Cours</TabsTrigger>
+            <TabsTrigger value="subjects">Matières</TabsTrigger>
             <TabsTrigger value="schedule">Emplois du temps</TabsTrigger>
             <TabsTrigger value="departments">Départements</TabsTrigger>
           </TabsList>
@@ -173,35 +173,35 @@ export function AcademicDashboard() {
                 </CardContent>
               </Card>
 
-              {/* Cours récents */}
+              {/* Matières récentes */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    Cours Récents
-                    <Badge variant="secondary">{courses?.slice(0, 5).length}</Badge>
+                    Matières Récentes
+                    <Badge variant="secondary">{subjects?.slice(0, 5).length}</Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {coursesLoading ? (
+                    {subjectsLoading ? (
                       <div className="animate-pulse space-y-2">
                         {[1, 2, 3].map((i) => (
                           <div key={i} className="h-12 bg-muted rounded"></div>
                         ))}
                       </div>
                     ) : (
-                      courses?.slice(0, 5).map((course) => (
-                        <div key={course.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      subjects?.slice(0, 5).map((subject) => (
+                        <div key={subject.id} className="flex items-center justify-between p-3 border rounded-lg">
                           <div>
-                            <p className="font-medium">{course.name}</p>
-                            <p className="text-sm text-muted-foreground">{course.code}</p>
+                            <p className="font-medium">{subject.name}</p>
+                            <p className="text-sm text-muted-foreground">{subject.code}</p>
                           </div>
-                          <Badge variant="outline">{course.credits} crédits</Badge>
+                          <Badge variant="outline">{subject.credits_ects} ECTS</Badge>
                         </div>
                       ))
                     )}
                     <Button variant="outline" className="w-full" asChild>
-                      <Link to="/academic/courses">Voir tous les cours</Link>
+                      <Link to="/academic/subjects">Voir toutes les matières</Link>
                     </Button>
                   </div>
                 </CardContent>
@@ -222,9 +222,9 @@ export function AcademicDashboard() {
                     </Link>
                   </Button>
                   <Button className="h-20 flex-col" variant="outline" asChild>
-                    <Link to="/academic/courses">
+                    <Link to="/academic/subjects">
                       <BookOpen className="h-6 w-6 mb-2" />
-                      Gérer les Cours
+                      Gérer les Matières
                     </Link>
                   </Button>
                   <Button className="h-20 flex-col" variant="outline" asChild>
@@ -242,8 +242,15 @@ export function AcademicDashboard() {
             <ProgramsList programs={programs} loading={programsLoading} />
           </TabsContent>
 
-          <TabsContent value="courses">
-            <CoursesList courses={courses} loading={coursesLoading} />
+          <TabsContent value="subjects">
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">
+                Gestion des matières à implémenter. 
+                <Link to="/academic/subjects" className="text-primary hover:underline ml-1">
+                  Accéder au module complet
+                </Link>
+              </p>
+            </div>
           </TabsContent>
 
           <TabsContent value="schedule">
