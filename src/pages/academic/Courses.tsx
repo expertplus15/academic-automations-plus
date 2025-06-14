@@ -11,10 +11,20 @@ import { Plus } from 'lucide-react';
 export default function Courses() {
   const { data: courses, loading, refetch } = useCourses();
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<any>(null);
 
   const handleCreateSuccess = () => {
     setShowCreateForm(false);
     refetch();
+  };
+
+  const handleEditSuccess = () => {
+    setEditingCourse(null);
+    refetch();
+  };
+
+  const handleEdit = (course: any) => {
+    setEditingCourse(course);
   };
 
   return (
@@ -47,7 +57,26 @@ export default function Courses() {
               </Dialog>
             </div>
             
-            <CoursesList courses={courses} loading={loading} />
+            <CoursesList 
+              courses={courses} 
+              loading={loading}
+              onEdit={handleEdit}
+              onRefresh={refetch}
+            />
+
+            {/* Edit Dialog */}
+            <Dialog open={!!editingCourse} onOpenChange={() => setEditingCourse(null)}>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Modifier le cours</DialogTitle>
+                </DialogHeader>
+                <CourseForm 
+                  course={editingCourse}
+                  onSuccess={handleEditSuccess}
+                  onCancel={() => setEditingCourse(null)}
+                />
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>

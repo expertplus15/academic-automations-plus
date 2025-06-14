@@ -3,8 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, Clock } from 'lucide-react';
+import { Search, Plus, Clock, Edit, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 interface Course {
   id: string;
@@ -21,10 +24,37 @@ interface Course {
 interface CoursesListProps {
   courses: Course[] | undefined;
   loading: boolean;
+  onEdit?: (course: Course) => void;
+  onRefresh?: () => void;
 }
 
-export function CoursesList({ courses, loading }: CoursesListProps) {
+export function CoursesList({ courses, loading, onEdit, onRefresh }: CoursesListProps) {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
+
+  const handleDelete = async (courseId: string, courseName: string) => {
+    try {
+      const { error } = await supabase
+        .from('courses')
+        .delete()
+        .eq('id', courseId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Cours supprimé',
+        description: `Le cours "${courseName}" a été supprimé avec succès.`,
+      });
+
+      onRefresh?.();
+    } catch (error) {
+      toast({
+        title: 'Erreur',
+        description: error instanceof Error ? error.message : 'Une erreur est survenue',
+        variant: 'destructive'
+      });
+    }
+  };
 
   const filteredCourses = courses?.filter(course =>
     course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -94,9 +124,36 @@ export function CoursesList({ courses, loading }: CoursesListProps) {
                 )}
               </div>
               <div className="flex items-center space-x-2">
-                <Button variant="ghost" size="sm">
-                  <Clock className="h-4 w-4" />
-                </Button>
+                {onEdit && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => onEdit(course)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                )}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Supprimer le cours</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Êtes-vous sûr de vouloir supprimer le cours "{course.name}" ? Cette action est irréversible.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Annuler</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDelete(course.id, course.name)}>
+                        Supprimer
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           ))}

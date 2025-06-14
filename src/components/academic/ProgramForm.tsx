@@ -23,11 +23,12 @@ const programSchema = z.object({
 type ProgramFormData = z.infer<typeof programSchema>;
 
 interface ProgramFormProps {
+  program?: any;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export function ProgramForm({ onSuccess, onCancel }: ProgramFormProps) {
+export function ProgramForm({ program, onSuccess, onCancel }: ProgramFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { data: departments, loading: departmentsLoading } = useDepartments();
@@ -39,27 +40,44 @@ export function ProgramForm({ onSuccess, onCancel }: ProgramFormProps) {
     setValue,
     watch
   } = useForm<ProgramFormData>({
-    resolver: zodResolver(programSchema)
+    resolver: zodResolver(programSchema),
+    defaultValues: program ? {
+      name: program.name,
+      code: program.code,
+      description: program.description || '',
+      duration_years: program.duration_years,
+      department_id: program.department_id
+    } : {}
   });
 
   const onSubmit = async (data: ProgramFormData) => {
     setIsSubmitting(true);
     try {
-      const { error } = await supabase
-        .from('programs')
-        .insert({
-          name: data.name,
-          code: data.code,
-          description: data.description || null,
-          duration_years: data.duration_years,
-          department_id: data.department_id
-        });
+      const payload = {
+        name: data.name,
+        code: data.code,
+        description: data.description || null,
+        duration_years: data.duration_years,
+        department_id: data.department_id
+      };
 
-      if (error) throw error;
+      let result;
+      if (program) {
+        result = await supabase
+          .from('programs')
+          .update(payload)
+          .eq('id', program.id);
+      } else {
+        result = await supabase
+          .from('programs')
+          .insert(payload);
+      }
+
+      if (result.error) throw result.error;
 
       toast({
-        title: 'Programme créé',
-        description: 'Le programme a été créé avec succès.',
+        title: program ? 'Programme modifié' : 'Programme créé',
+        description: `Le programme a été ${program ? 'modifié' : 'créé'} avec succès.`,
       });
 
       onSuccess?.();
@@ -77,7 +95,7 @@ export function ProgramForm({ onSuccess, onCancel }: ProgramFormProps) {
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>Créer un nouveau programme</CardTitle>
+        <CardTitle>{program ? 'Modifier le programme' : 'Créer un nouveau programme'}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -160,7 +178,7 @@ export function ProgramForm({ onSuccess, onCancel }: ProgramFormProps) {
               </Button>
             )}
             <Button type="submit" disabled={isSubmitting || departmentsLoading}>
-              {isSubmitting ? 'Création...' : 'Créer le programme'}
+              {isSubmitting ? (program ? 'Modification...' : 'Création...') : (program ? 'Modifier' : 'Créer le programme')}
             </Button>
           </div>
         </form>

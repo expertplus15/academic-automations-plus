@@ -3,8 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Plus, Users } from 'lucide-react';
+import { Search, Plus, Users, Edit, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 interface Program {
   id: string;
@@ -19,10 +22,37 @@ interface Program {
 interface ProgramsListProps {
   programs: Program[] | undefined;
   loading: boolean;
+  onEdit?: (program: Program) => void;
+  onRefresh?: () => void;
 }
 
-export function ProgramsList({ programs, loading }: ProgramsListProps) {
+export function ProgramsList({ programs, loading, onEdit, onRefresh }: ProgramsListProps) {
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
+
+  const handleDelete = async (programId: string, programName: string) => {
+    try {
+      const { error } = await supabase
+        .from('programs')
+        .delete()
+        .eq('id', programId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Programme supprimé',
+        description: `Le programme "${programName}" a été supprimé avec succès.`,
+      });
+
+      onRefresh?.();
+    } catch (error) {
+      toast({
+        title: 'Erreur',
+        description: error instanceof Error ? error.message : 'Une erreur est survenue',
+        variant: 'destructive'
+      });
+    }
+  };
 
   const filteredPrograms = programs?.filter(program =>
     program.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -94,6 +124,36 @@ export function ProgramsList({ programs, loading }: ProgramsListProps) {
                     <Users className="h-4 w-4" />
                   </Link>
                 </Button>
+                {onEdit && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => onEdit(program)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                )}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Supprimer le programme</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Êtes-vous sûr de vouloir supprimer le programme "{program.name}" ? Cette action est irréversible.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Annuler</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDelete(program.id, program.name)}>
+                        Supprimer
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           ))}

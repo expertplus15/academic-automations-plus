@@ -25,11 +25,12 @@ const courseSchema = z.object({
 type CourseFormData = z.infer<typeof courseSchema>;
 
 interface CourseFormProps {
+  course?: any;
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-export function CourseForm({ onSuccess, onCancel }: CourseFormProps) {
+export function CourseForm({ course, onSuccess, onCancel }: CourseFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { data: programs, loading: programsLoading } = usePrograms();
@@ -41,29 +42,48 @@ export function CourseForm({ onSuccess, onCancel }: CourseFormProps) {
     setValue,
     watch
   } = useForm<CourseFormData>({
-    resolver: zodResolver(courseSchema)
+    resolver: zodResolver(courseSchema),
+    defaultValues: course ? {
+      name: course.name,
+      code: course.code,
+      description: course.description || '',
+      credits: course.credits,
+      program_id: course.program_id,
+      year_level: course.year_level,
+      semester: course.semester
+    } : {}
   });
 
   const onSubmit = async (data: CourseFormData) => {
     setIsSubmitting(true);
     try {
-      const { error } = await supabase
-        .from('courses')
-        .insert({
-          name: data.name,
-          code: data.code,
-          description: data.description || null,
-          credits: data.credits,
-          program_id: data.program_id,
-          year_level: data.year_level,
-          semester: data.semester
-        });
+      const payload = {
+        name: data.name,
+        code: data.code,
+        description: data.description || null,
+        credits: data.credits,
+        program_id: data.program_id,
+        year_level: data.year_level,
+        semester: data.semester
+      };
 
-      if (error) throw error;
+      let result;
+      if (course) {
+        result = await supabase
+          .from('courses')
+          .update(payload)
+          .eq('id', course.id);
+      } else {
+        result = await supabase
+          .from('courses')
+          .insert(payload);
+      }
+
+      if (result.error) throw result.error;
 
       toast({
-        title: 'Cours créé',
-        description: 'Le cours a été créé avec succès.',
+        title: course ? 'Cours modifié' : 'Cours créé',
+        description: `Le cours a été ${course ? 'modifié' : 'créé'} avec succès.`,
       });
 
       onSuccess?.();
@@ -81,7 +101,7 @@ export function CourseForm({ onSuccess, onCancel }: CourseFormProps) {
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>Créer un nouveau cours</CardTitle>
+        <CardTitle>{course ? 'Modifier le cours' : 'Créer un nouveau cours'}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -199,7 +219,7 @@ export function CourseForm({ onSuccess, onCancel }: CourseFormProps) {
               </Button>
             )}
             <Button type="submit" disabled={isSubmitting || programsLoading}>
-              {isSubmitting ? 'Création...' : 'Créer le cours'}
+              {isSubmitting ? (course ? 'Modification...' : 'Création...') : (course ? 'Modifier' : 'Créer le cours')}
             </Button>
           </div>
         </form>

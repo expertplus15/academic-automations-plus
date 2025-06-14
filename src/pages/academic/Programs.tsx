@@ -11,10 +11,20 @@ import { Plus } from 'lucide-react';
 export default function Programs() {
   const { data: programs, loading, refetch } = usePrograms();
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingProgram, setEditingProgram] = useState<any>(null);
 
   const handleCreateSuccess = () => {
     setShowCreateForm(false);
     refetch();
+  };
+
+  const handleEditSuccess = () => {
+    setEditingProgram(null);
+    refetch();
+  };
+
+  const handleEdit = (program: any) => {
+    setEditingProgram(program);
   };
 
   return (
@@ -47,7 +57,26 @@ export default function Programs() {
               </Dialog>
             </div>
             
-            <ProgramsList programs={programs} loading={loading} />
+            <ProgramsList 
+              programs={programs} 
+              loading={loading}
+              onEdit={handleEdit}
+              onRefresh={refetch}
+            />
+
+            {/* Edit Dialog */}
+            <Dialog open={!!editingProgram} onOpenChange={() => setEditingProgram(null)}>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Modifier le programme</DialogTitle>
+                </DialogHeader>
+                <ProgramForm 
+                  program={editingProgram}
+                  onSuccess={handleEditSuccess}
+                  onCancel={() => setEditingProgram(null)}
+                />
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
