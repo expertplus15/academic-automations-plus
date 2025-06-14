@@ -42,7 +42,9 @@ export default function Timetables() {
     }
   };
 
-  const groupedTimetables = timetables.reduce((acc, timetable) => {
+  const timetablesArray = Array.isArray(timetables) ? timetables : [];
+  
+  const groupedTimetables = timetablesArray.reduce((acc, timetable) => {
     const day = getDayName(timetable.day_of_week);
     if (!acc[day]) acc[day] = [];
     acc[day].push(timetable);
@@ -82,7 +84,6 @@ export default function Timetables() {
                     <SelectValue placeholder="Sélectionner un programme" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tous les programmes</SelectItem>
                     {programs.map((program) => (
                       <SelectItem key={program.id} value={program.id}>
                         {program.code} - {program.name}
@@ -99,7 +100,7 @@ export default function Timetables() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
               <p className="mt-2 text-muted-foreground">Chargement des emplois du temps...</p>
             </div>
-          ) : timetables.length === 0 ? (
+          ) : timetablesArray.length === 0 ? (
             <Card>
               <CardContent className="text-center py-8">
                 <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -112,18 +113,20 @@ export default function Timetables() {
             </Card>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-              {Object.entries(groupedTimetables).map(([day, dayTimetables]) => (
+              {Object.entries(groupedTimetables).map(([day, dayTimetables]) => {
+                const timetablesList = Array.isArray(dayTimetables) ? dayTimetables : [];
+                return (
                 <Card key={day}>
                   <CardHeader>
                     <CardTitle className="text-lg">{day}</CardTitle>
                     <CardDescription>
-                      {dayTimetables.length} cours programmé{dayTimetables.length > 1 ? 's' : ''}
+                      {timetablesList.length} cours programmé{timetablesList.length > 1 ? 's' : ''}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {dayTimetables
-                        .sort((a, b) => a.start_time.localeCompare(b.start_time))
+                      {timetablesList
+                        .sort((a: any, b: any) => a.start_time.localeCompare(b.start_time))
                         .map((timetable) => (
                           <div
                             key={timetable.id}
@@ -173,7 +176,8 @@ export default function Timetables() {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
