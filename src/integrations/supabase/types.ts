@@ -9,186 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      academic_calendar: {
-        Row: {
-          academic_year_id: string | null
-          affects_programs: Json | null
-          created_at: string | null
-          description: string | null
-          end_date: string
-          event_type: string
-          id: string
-          is_holiday: boolean | null
-          name: string
-          start_date: string
-          updated_at: string | null
-        }
-        Insert: {
-          academic_year_id?: string | null
-          affects_programs?: Json | null
-          created_at?: string | null
-          description?: string | null
-          end_date: string
-          event_type: string
-          id?: string
-          is_holiday?: boolean | null
-          name: string
-          start_date: string
-          updated_at?: string | null
-        }
-        Update: {
-          academic_year_id?: string | null
-          affects_programs?: Json | null
-          created_at?: string | null
-          description?: string | null
-          end_date?: string
-          event_type?: string
-          id?: string
-          is_holiday?: boolean | null
-          name?: string
-          start_date?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "academic_calendar_academic_year_id_fkey"
-            columns: ["academic_year_id"]
-            isOneToOne: false
-            referencedRelation: "academic_years"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      academic_levels: {
-        Row: {
-          code: string
-          created_at: string | null
-          education_cycle: string
-          id: string
-          name: string
-          order_index: number
-          updated_at: string | null
-        }
-        Insert: {
-          code: string
-          created_at?: string | null
-          education_cycle: string
-          id?: string
-          name: string
-          order_index: number
-          updated_at?: string | null
-        }
-        Update: {
-          code?: string
-          created_at?: string | null
-          education_cycle?: string
-          id?: string
-          name?: string
-          order_index?: number
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      academic_years: {
-        Row: {
-          created_at: string | null
-          end_date: string
-          id: string
-          is_current: boolean | null
-          name: string
-          start_date: string
-          status: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          end_date: string
-          id?: string
-          is_current?: boolean | null
-          name: string
-          start_date: string
-          status?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          end_date?: string
-          id?: string
-          is_current?: boolean | null
-          name?: string
-          start_date?: string
-          status?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      class_groups: {
-        Row: {
-          academic_year_id: string | null
-          code: string
-          created_at: string | null
-          current_students: number | null
-          group_type: string
-          id: string
-          max_students: number
-          metadata: Json | null
-          name: string
-          parent_group_id: string | null
-          program_id: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          academic_year_id?: string | null
-          code: string
-          created_at?: string | null
-          current_students?: number | null
-          group_type: string
-          id?: string
-          max_students: number
-          metadata?: Json | null
-          name: string
-          parent_group_id?: string | null
-          program_id?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          academic_year_id?: string | null
-          code?: string
-          created_at?: string | null
-          current_students?: number | null
-          group_type?: string
-          id?: string
-          max_students?: number
-          metadata?: Json | null
-          name?: string
-          parent_group_id?: string | null
-          program_id?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "class_groups_academic_year_id_fkey"
-            columns: ["academic_year_id"]
-            isOneToOne: false
-            referencedRelation: "academic_years"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "class_groups_parent_group_id_fkey"
-            columns: ["parent_group_id"]
-            isOneToOne: false
-            referencedRelation: "class_groups"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "class_groups_program_id_fkey"
-            columns: ["program_id"]
-            isOneToOne: false
-            referencedRelation: "programs"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       courses: {
         Row: {
           code: string
@@ -325,51 +145,6 @@ export type Database = {
           },
         ]
       }
-      program_subjects: {
-        Row: {
-          created_at: string | null
-          id: string
-          is_mandatory: boolean | null
-          min_grade_to_pass: number | null
-          program_id: string | null
-          semester: number
-          subject_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          is_mandatory?: boolean | null
-          min_grade_to_pass?: number | null
-          program_id?: string | null
-          semester: number
-          subject_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          is_mandatory?: boolean | null
-          min_grade_to_pass?: number | null
-          program_id?: string | null
-          semester?: number
-          subject_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "program_subjects_program_id_fkey"
-            columns: ["program_id"]
-            isOneToOne: false
-            referencedRelation: "programs"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "program_subjects_subject_id_fkey"
-            columns: ["subject_id"]
-            isOneToOne: false
-            referencedRelation: "subjects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       programs: {
         Row: {
           code: string
@@ -378,7 +153,6 @@ export type Database = {
           description: string | null
           duration_years: number
           id: string
-          level_id: string | null
           name: string
           updated_at: string
         }
@@ -389,7 +163,6 @@ export type Database = {
           description?: string | null
           duration_years?: number
           id?: string
-          level_id?: string | null
           name: string
           updated_at?: string
         }
@@ -400,7 +173,6 @@ export type Database = {
           description?: string | null
           duration_years?: number
           id?: string
-          level_id?: string | null
           name?: string
           updated_at?: string
         }
@@ -410,102 +182,6 @@ export type Database = {
             columns: ["department_id"]
             isOneToOne: false
             referencedRelation: "departments"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "programs_level_id_fkey"
-            columns: ["level_id"]
-            isOneToOne: false
-            referencedRelation: "academic_levels"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      rooms: {
-        Row: {
-          building: string | null
-          capacity: number
-          code: string
-          created_at: string | null
-          equipment: Json | null
-          id: string
-          name: string
-          room_type: string
-          status: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          building?: string | null
-          capacity: number
-          code: string
-          created_at?: string | null
-          equipment?: Json | null
-          id?: string
-          name: string
-          room_type: string
-          status?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          building?: string | null
-          capacity?: number
-          code?: string
-          created_at?: string | null
-          equipment?: Json | null
-          id?: string
-          name?: string
-          room_type?: string
-          status?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      specializations: {
-        Row: {
-          code: string
-          created_at: string | null
-          credits_required: number | null
-          description: string | null
-          id: string
-          is_mandatory: boolean | null
-          max_students: number | null
-          name: string
-          prerequisites: Json | null
-          program_id: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          code: string
-          created_at?: string | null
-          credits_required?: number | null
-          description?: string | null
-          id?: string
-          is_mandatory?: boolean | null
-          max_students?: number | null
-          name: string
-          prerequisites?: Json | null
-          program_id?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          code?: string
-          created_at?: string | null
-          credits_required?: number | null
-          description?: string | null
-          id?: string
-          is_mandatory?: boolean | null
-          max_students?: number | null
-          name?: string
-          prerequisites?: Json | null
-          program_id?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "specializations_program_id_fkey"
-            columns: ["program_id"]
-            isOneToOne: false
-            referencedRelation: "programs"
             referencedColumns: ["id"]
           },
         ]
@@ -561,160 +237,6 @@ export type Database = {
           },
         ]
       }
-      subjects: {
-        Row: {
-          code: string
-          coefficient: number
-          created_at: string | null
-          credits_ects: number
-          description: string | null
-          evaluation_methods: Json | null
-          hours_practice: number | null
-          hours_project: number | null
-          hours_theory: number | null
-          id: string
-          name: string
-          prerequisites: Json | null
-          status: string | null
-          teaching_methods: Json | null
-          updated_at: string | null
-        }
-        Insert: {
-          code: string
-          coefficient?: number
-          created_at?: string | null
-          credits_ects: number
-          description?: string | null
-          evaluation_methods?: Json | null
-          hours_practice?: number | null
-          hours_project?: number | null
-          hours_theory?: number | null
-          id?: string
-          name: string
-          prerequisites?: Json | null
-          status?: string | null
-          teaching_methods?: Json | null
-          updated_at?: string | null
-        }
-        Update: {
-          code?: string
-          coefficient?: number
-          created_at?: string | null
-          credits_ects?: number
-          description?: string | null
-          evaluation_methods?: Json | null
-          hours_practice?: number | null
-          hours_project?: number | null
-          hours_theory?: number | null
-          id?: string
-          name?: string
-          prerequisites?: Json | null
-          status?: string | null
-          teaching_methods?: Json | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      timetables: {
-        Row: {
-          academic_year_id: string | null
-          created_at: string | null
-          day_of_week: number | null
-          end_time: string
-          exceptions: Json | null
-          group_id: string | null
-          id: string
-          program_id: string | null
-          recurrence_pattern: Json | null
-          room_id: string | null
-          slot_type: string
-          start_time: string
-          status: string | null
-          subject_id: string | null
-          teacher_id: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          academic_year_id?: string | null
-          created_at?: string | null
-          day_of_week?: number | null
-          end_time: string
-          exceptions?: Json | null
-          group_id?: string | null
-          id?: string
-          program_id?: string | null
-          recurrence_pattern?: Json | null
-          room_id?: string | null
-          slot_type: string
-          start_time: string
-          status?: string | null
-          subject_id?: string | null
-          teacher_id?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          academic_year_id?: string | null
-          created_at?: string | null
-          day_of_week?: number | null
-          end_time?: string
-          exceptions?: Json | null
-          group_id?: string | null
-          id?: string
-          program_id?: string | null
-          recurrence_pattern?: Json | null
-          room_id?: string | null
-          slot_type?: string
-          start_time?: string
-          status?: string | null
-          subject_id?: string | null
-          teacher_id?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "timetables_academic_year_id_fkey"
-            columns: ["academic_year_id"]
-            isOneToOne: false
-            referencedRelation: "academic_years"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "timetables_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "class_groups"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "timetables_program_id_fkey"
-            columns: ["program_id"]
-            isOneToOne: false
-            referencedRelation: "programs"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "timetables_room_id_fkey"
-            columns: ["room_id"]
-            isOneToOne: false
-            referencedRelation: "rooms"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "timetables_subject_id_fkey"
-            columns: ["subject_id"]
-            isOneToOne: false
-            referencedRelation: "subjects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "timetables_teacher_id_fkey"
-            columns: ["teacher_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       [_ in never]: never
@@ -722,10 +244,6 @@ export type Database = {
     Functions: {
       generate_student_number: {
         Args: { program_code: string; enrollment_year: number }
-        Returns: string
-      }
-      generate_unique_code: {
-        Args: { prefix: string; table_name: string; column_name: string }
         Returns: string
       }
       get_current_user_role: {
