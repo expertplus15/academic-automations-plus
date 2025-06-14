@@ -9,16 +9,247 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      courses: {
+        Row: {
+          code: string
+          created_at: string
+          credits: number
+          description: string | null
+          id: string
+          name: string
+          program_id: string
+          semester: number
+          teacher_id: string | null
+          updated_at: string
+          year_level: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          credits?: number
+          description?: string | null
+          id?: string
+          name: string
+          program_id: string
+          semester?: number
+          teacher_id?: string | null
+          updated_at?: string
+          year_level?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          credits?: number
+          description?: string | null
+          id?: string
+          name?: string
+          program_id?: string
+          semester?: number
+          teacher_id?: string | null
+          updated_at?: string
+          year_level?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "courses_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "courses_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      departments: {
+        Row: {
+          code: string
+          created_at: string
+          head_id: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          head_id?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          head_id?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "departments_head_id_fkey"
+            columns: ["head_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          department_id: string | null
+          email: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          department_id?: string | null
+          email: string
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          department_id?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      programs: {
+        Row: {
+          code: string
+          created_at: string
+          department_id: string
+          description: string | null
+          duration_years: number
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          department_id: string
+          description?: string | null
+          duration_years?: number
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          department_id?: string
+          description?: string | null
+          duration_years?: number
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "programs_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      students: {
+        Row: {
+          created_at: string
+          enrollment_date: string
+          id: string
+          profile_id: string
+          program_id: string
+          status: Database["public"]["Enums"]["student_status"]
+          student_number: string
+          updated_at: string
+          year_level: number
+        }
+        Insert: {
+          created_at?: string
+          enrollment_date?: string
+          id?: string
+          profile_id: string
+          program_id: string
+          status?: Database["public"]["Enums"]["student_status"]
+          student_number: string
+          updated_at?: string
+          year_level?: number
+        }
+        Update: {
+          created_at?: string
+          enrollment_date?: string
+          id?: string
+          profile_id?: string
+          program_id?: string
+          status?: Database["public"]["Enums"]["student_status"]
+          student_number?: string
+          updated_at?: string
+          year_level?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "students_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "students_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_student_number: {
+        Args: { program_code: string; enrollment_year: number }
+        Returns: string
+      }
     }
     Enums: {
-      [_ in never]: never
+      student_status: "active" | "suspended" | "graduated" | "dropped"
+      user_role: "admin" | "teacher" | "student" | "hr" | "finance"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +364,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      student_status: ["active", "suspended", "graduated", "dropped"],
+      user_role: ["admin", "teacher", "student", "hr", "finance"],
+    },
   },
 } as const
