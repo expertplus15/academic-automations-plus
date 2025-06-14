@@ -1,4 +1,4 @@
-import { AcademicPageHeader } from "@/components/AcademicPageHeader";
+
 import { useState } from 'react';
 import { useTimetables, useCurrentAcademicYear } from '@/hooks/useAcademic';
 import { usePrograms } from '@/hooks/useSupabase';
@@ -52,13 +52,7 @@ export default function Timetables() {
   }, {} as Record<string, any[]>);
 
   return (
-    <div className="min-h-screen bg-background">
-      <AcademicPageHeader 
-        title="Emploi du Temps" 
-        subtitle="Planning intelligent" 
-      />
-      
-      <div className="p-6">
+    <div className="p-6 bg-background min-h-full">
         <div className="max-w-7xl mx-auto space-y-6">
           <Card>
             <CardHeader>
@@ -181,7 +175,6 @@ export default function Timetables() {
             </div>
           )}
         </div>
-      </div>
     </div>
   );
 }

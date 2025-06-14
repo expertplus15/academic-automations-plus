@@ -3,18 +3,21 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { usePrograms, useCourses, useDepartments, useStudents } from '@/hooks/useSupabase';
 import { useSubjects, useCurrentAcademicYear, useTimetables } from '@/hooks/useAcademic';
+import { MetricCard } from './MetricCard';
 import { 
   GraduationCap, 
   BookOpen, 
   Users, 
   Calendar,
-  TrendingUp,
-  AlertTriangle,
+  Building,
   Clock,
-  Building
+  Plus,
+  AlertTriangle,
+  TrendingUp
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-export function EnhancedAcademicDashboard() {
+export function UnifiedAcademicDashboard() {
   const { data: programs, loading: programsLoading } = usePrograms();
   const { data: subjects, loading: subjectsLoading } = useSubjects();
   const { data: students, loading: studentsLoading } = useStudents();
@@ -26,15 +29,15 @@ export function EnhancedAcademicDashboard() {
 
   const isLoading = programsLoading || subjectsLoading || studentsLoading || departmentsLoading;
 
-  // Calculate metrics
+  // Calculs des métriques
   const activePrograms = programs.filter(p => p.status !== 'inactive').length;
   const totalSubjects = subjects.length;
   const totalStudents = students.length;
   const totalDepartments = departments.length;
   const scheduledHours = timetables.length;
 
-  // Calculate conflicts (simplified logic)
-  const conflicts = 0; // This would be calculated based on overlapping schedules
+  // Calcul des conflits (logique simplifiée)
+  const conflicts = 0;
 
   const metrics = [
     {
@@ -42,79 +45,58 @@ export function EnhancedAcademicDashboard() {
       value: activePrograms,
       icon: GraduationCap,
       trend: "+2 ce mois",
-      color: "text-blue-600"
+      color: "text-blue-600",
+      loading: programsLoading
     },
     {
       title: "Matières",
       value: totalSubjects,
       icon: BookOpen,
       trend: `${Math.floor(totalSubjects * 0.1)} nouvelles`,
-      color: "text-green-600"
+      color: "text-green-600",
+      loading: subjectsLoading
     },
     {
       title: "Étudiants",
       value: totalStudents,
       icon: Users,
       trend: "+12% cette année",
-      color: "text-purple-600"
+      color: "text-purple-600",
+      loading: studentsLoading
     },
     {
       title: "Heures programmées",
       value: scheduledHours,
       icon: Clock,
       trend: "Cette semaine",
-      color: "text-orange-600"
+      color: "text-orange-600",
+      loading: false
     }
   ];
 
   const recentPrograms = programs.slice(0, 5);
   const recentSubjects = subjects.slice(0, 5);
 
-  if (isLoading) {
-    return (
+  return (
+    <div className="p-6 space-y-6">
+      {/* Métriques principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <CardContent className="p-6">
-              <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
-              <div className="h-8 bg-muted rounded w-1/2"></div>
-            </CardContent>
-          </Card>
+        {metrics.map((metric) => (
+          <MetricCard
+            key={metric.title}
+            title={metric.title}
+            value={metric.value}
+            icon={metric.icon}
+            trend={metric.trend}
+            color={metric.color}
+            loading={metric.loading}
+          />
         ))}
       </div>
-    );
-  }
 
-  return (
-    <div className="space-y-6">
-      {/* Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {metrics.map((metric) => {
-          const Icon = metric.icon;
-          return (
-            <Card key={metric.title} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      {metric.title}
-                    </p>
-                    <p className="text-3xl font-bold">{metric.value}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {metric.trend}
-                    </p>
-                  </div>
-                  <Icon className={`w-8 h-8 ${metric.color}`} />
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Status Cards */}
+      {/* Cartes de statut */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Conflicts Status */}
+        {/* Statut des conflits */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -141,7 +123,7 @@ export function EnhancedAcademicDashboard() {
           </CardContent>
         </Card>
 
-        {/* Academic Year Info */}
+        {/* Année académique */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -167,7 +149,7 @@ export function EnhancedAcademicDashboard() {
           </CardContent>
         </Card>
 
-        {/* Departments */}
+        {/* Départements */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -200,15 +182,15 @@ export function EnhancedAcademicDashboard() {
         </Card>
       </div>
 
-      {/* Recent Activities */}
+      {/* Activités récentes */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Programs */}
+        {/* Programmes récents */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Programmes récents</CardTitle>
-              <Button variant="outline" size="sm">
-                Voir tout
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/academic/programs">Voir tout</Link>
               </Button>
             </div>
           </CardHeader>
@@ -216,7 +198,7 @@ export function EnhancedAcademicDashboard() {
             {recentPrograms.length > 0 ? (
               <div className="space-y-3">
                 {recentPrograms.map((program) => (
-                  <div key={program.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div key={program.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors">
                     <div>
                       <p className="font-medium">{program.name}</p>
                       <p className="text-sm text-muted-foreground">{program.code}</p>
@@ -235,13 +217,13 @@ export function EnhancedAcademicDashboard() {
           </CardContent>
         </Card>
 
-        {/* Recent Subjects */}
+        {/* Matières récentes */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Matières récentes</CardTitle>
-              <Button variant="outline" size="sm">
-                Voir tout
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/academic/subjects">Voir tout</Link>
               </Button>
             </div>
           </CardHeader>
@@ -249,7 +231,7 @@ export function EnhancedAcademicDashboard() {
             {recentSubjects.length > 0 ? (
               <div className="space-y-3">
                 {recentSubjects.map((subject) => (
-                  <div key={subject.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div key={subject.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors">
                     <div>
                       <p className="font-medium">{subject.name}</p>
                       <p className="text-sm text-muted-foreground">{subject.code}</p>
@@ -273,6 +255,47 @@ export function EnhancedAcademicDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Actions rapides */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Actions Rapides</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <Button className="h-20 flex-col" variant="outline" asChild>
+              <Link to="/academic/programs">
+                <GraduationCap className="h-6 w-6 mb-2" />
+                Programmes
+              </Link>
+            </Button>
+            <Button className="h-20 flex-col" variant="outline" asChild>
+              <Link to="/academic/subjects">
+                <BookOpen className="h-6 w-6 mb-2" />
+                Matières
+              </Link>
+            </Button>
+            <Button className="h-20 flex-col" variant="outline" asChild>
+              <Link to="/academic/timetables">
+                <Calendar className="h-6 w-6 mb-2" />
+                Emploi du temps
+              </Link>
+            </Button>
+            <Button className="h-20 flex-col" variant="outline" asChild>
+              <Link to="/academic/groups">
+                <Users className="h-6 w-6 mb-2" />
+                Classes
+              </Link>
+            </Button>
+            <Button className="h-20 flex-col" variant="outline" asChild>
+              <Link to="/academic/infrastructure">
+                <Building className="h-6 w-6 mb-2" />
+                Infrastructures
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

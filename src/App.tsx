@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { AcademicModuleSidebar } from "@/components/AcademicModuleSidebar";
+import { AcademicRoutes } from "@/routes/AcademicRoutes";
 import { StudentsModuleSidebar } from "@/components/StudentsModuleSidebar";
 import { ExamsModuleSidebar } from "@/components/ExamsModuleSidebar";
 import { ResultsModuleSidebar } from "@/components/ResultsModuleSidebar";
@@ -22,7 +22,6 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Index from "./pages/Index";
 import Students from "./pages/Students";
-import Academic from "./pages/Academic";
 import Exams from "./pages/Exams";
 import Finance from "./pages/Finance";
 import Elearning from "./pages/Elearning";
@@ -34,14 +33,6 @@ import Results from "./pages/Results";
 import Health from "./pages/Health";
 import Services from "./pages/Services";
 import NotFound from "./pages/NotFound";
-import Programs from "./pages/academic/Programs";
-import Pathways from "./pages/academic/Pathways";
-import Levels from "./pages/academic/Levels";
-import Groups from "./pages/academic/Groups";
-import Subjects from "./pages/academic/Subjects";
-import Infrastructure from "./pages/academic/Infrastructure";
-import Timetables from "./pages/academic/Timetables";
-import Evaluations from "./pages/academic/Evaluations";
 // Students module
 import Registration from "./pages/students/Registration";
 import Profiles from "./pages/students/Profiles";
@@ -119,21 +110,8 @@ const queryClient = new QueryClient();
 
 function AppContent() {
   const location = useLocation();
-  const isDashboard = location.pathname === "/" || location.pathname === "/dashboard";
-
-  if (isDashboard) {
-    return (
-      <div className="min-h-screen w-full">
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Routes>
-      </div>
-    );
-  }
 
   const getSidebarForPath = () => {
-    if (location.pathname.startsWith('/academic')) return <AcademicModuleSidebar />;
     if (location.pathname.startsWith('/students')) return <StudentsModuleSidebar />;
     if (location.pathname.startsWith('/exams')) return <ExamsModuleSidebar />;
     if (location.pathname.startsWith('/results')) return <ResultsModuleSidebar />;
@@ -148,6 +126,20 @@ function AppContent() {
     return null;
   };
 
+  // Route académique avec sa propre mise en page
+  if (location.pathname.startsWith('/academic')) {
+    return <AcademicRoutes />;
+  }
+
+  // Dashboard principal
+  if (location.pathname === "/" || location.pathname === "/dashboard") {
+    return (
+      <div className="min-h-screen w-full">
+        <Dashboard />
+      </div>
+    );
+  }
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -156,7 +148,6 @@ function AppContent() {
           <Routes>
             {/* Main modules */}
             <Route path="/students" element={<Students />} />
-            <Route path="/academic" element={<Academic />} />
             <Route path="/exams" element={<Exams />} />
             <Route path="/finance" element={<Finance />} />
             <Route path="/elearning" element={<Elearning />} />
@@ -167,16 +158,6 @@ function AppContent() {
             <Route path="/results" element={<Results />} />
             <Route path="/health" element={<Health />} />
             <Route path="/services" element={<Services />} />
-            
-            {/* Academic sub-modules */}
-            <Route path="/academic/programs" element={<Programs />} />
-            <Route path="/academic/pathways" element={<Pathways />} />
-            <Route path="/academic/levels" element={<Levels />} />
-            <Route path="/academic/groups" element={<Groups />} />
-            <Route path="/academic/subjects" element={<Subjects />} />
-            <Route path="/academic/infrastructure" element={<Infrastructure />} />
-            <Route path="/academic/timetables" element={<Timetables />} />
-            <Route path="/academic/evaluations" element={<Evaluations />} />
             
             {/* Students sub-modules */}
             <Route path="/students/registration" element={<Registration />} />
@@ -281,6 +262,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/academic/*" element={<AcademicRoutes />} />
             <Route path="/*" element={<AppContent />} />
           </Routes>
         </BrowserRouter>

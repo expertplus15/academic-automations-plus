@@ -5,7 +5,7 @@ import { LayoutDashboard, GraduationCap, BookOpen, Users, Calendar, Building, Cl
 
 const academicSubModules = [{
   title: "Tableau de Bord",
-  url: "/",
+  url: "/academic",
   icon: LayoutDashboard,
   color: "#64748b",
   description: "Vue d'ensemble"
