@@ -20,6 +20,7 @@ import Unauthorized from "@/pages/Unauthorized";
 // Academic sub-modules
 import Programs from "@/pages/academic/Programs";
 import Courses from "@/pages/academic/Courses";
+import Departments from "@/pages/academic/Departments";
 import Pathways from "@/pages/academic/Pathways";
 import Levels from "@/pages/academic/Levels";
 import Groups from "@/pages/academic/Groups";
@@ -135,6 +136,7 @@ export function ModuleRoutes() {
         {/* Academic sub-modules */}
         <Route path="/academic/programs" element={<Programs />} />
         <Route path="/academic/courses" element={<Courses />} />
+        <Route path="/academic/departments" element={<Departments />} />
         <Route path="/academic/pathways" element={<Pathways />} />
         <Route path="/academic/levels" element={<Levels />} />
         <Route path="/academic/groups" element={<Groups />} />

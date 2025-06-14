@@ -16,6 +16,18 @@ const academicSubModules = [{
   color: "#4f7cff",
   description: "Gestion des programmes"
 }, {
+  title: "Cours",
+  url: "/academic/courses",
+  icon: BookOpen,
+  color: "#10b981",
+  description: "Gestion des cours"
+}, {
+  title: "Départements",
+  url: "/academic/departments",
+  icon: Building,
+  color: "#ef4444",
+  description: "Structure organisationnelle"
+}, {
   title: "Filières",
   url: "/academic/pathways",
   icon: BookOpen,
@@ -34,7 +46,7 @@ const academicSubModules = [{
   color: "#8b5cf6",
   description: "Gestion des groupes"
 }, {
-  title: "Cours",
+  title: "Matières",
   url: "/academic/subjects",
   icon: BookOpen,
   color: "#10b981",
