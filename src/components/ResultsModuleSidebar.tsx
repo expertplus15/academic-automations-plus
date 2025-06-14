@@ -27,31 +27,36 @@ const resultsSubModules = [
     title: "Interface matricielle",
     url: "/results/matrix",
     icon: Grid,
-    description: "Saisie notes collaborative"
+    color: "#4f7cff",
+    description: "Saisie collaborative"
   },
   {
     title: "Bulletins personnalisables",
     url: "/results/reports",
     icon: FileOutput,
-    description: "< 5 secondes - unique"
+    color: "#10b981",
+    description: "< 5 secondes"
   },
   {
     title: "Calculs automatiques",
     url: "/results/calculations",
     icon: Calculator,
-    description: "Moyennes, coefficients, ECTS"
+    color: "#f59e0b",
+    description: "Moyennes, ECTS"
   },
   {
     title: "Relevés standards",
     url: "/results/transcripts",
     icon: Award,
-    description: "Conformes standards académiques"
+    color: "#8b5cf6",
+    description: "Standards académiques"
   },
   {
     title: "Analytics performance",
     url: "/results/analytics",
     icon: TrendingUp,
-    description: "Avancés - insights"
+    color: "#06b6d4",
+    description: "Insights avancés"
   },
 ];
 
@@ -59,59 +64,42 @@ export function ResultsModuleSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar className="border-r border-border/50">
-      <SidebarHeader className="border-b border-border/50 p-4">
+    <Sidebar className="border-r-0">
+      <SidebarHeader className="p-4 border-b border-sidebar-border/30">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-results rounded-lg flex items-center justify-center">
-            <BarChart3 className="w-4 h-4 text-white" />
+          <div className="w-9 h-9 bg-results rounded-xl flex items-center justify-center shadow-sm">
+            <BarChart3 className="w-5 h-5 text-white" />
           </div>
-          <div>
-            <h1 className="text-lg font-bold text-foreground">Évaluations</h1>
-            <p className="text-xs text-muted-foreground">& Résultats</p>
+          <div className="flex-1">
+            <h1 className="text-base font-semibold text-sidebar-foreground tracking-tight">Évaluations & Résultats</h1>
+            <p className="text-xs text-sidebar-foreground/60 mt-0.5">Module actif</p>
           </div>
         </div>
-        <Link 
-          to="/" 
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mt-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Retour au tableau de bord
-        </Link>
       </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Fonctionnalités</SidebarGroupLabel>
+      <SidebarContent className="px-4">
+        <div className="pt-4 pb-2">
+          <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors w-full">
+            <ArrowLeft className="w-4 h-4 text-sidebar-foreground" />
+            <span className="text-sm text-sidebar-foreground">Retour</span>
+          </Link>
+        </div>
+        <SidebarGroup className="py-[22px] my-0">
           <SidebarGroupContent>
-            <SidebarMenu>
-              {resultsSubModules.map((subModule) => {
-                const Icon = subModule.icon;
-                const isActive = location.pathname === subModule.url;
-                
+            <SidebarMenu className="space-y-1">
+              {resultsSubModules.map(module => {
+                const Icon = module.icon;
+                const isActive = location.pathname === module.url;
                 return (
-                  <SidebarMenuItem key={subModule.title}>
+                  <SidebarMenuItem key={module.title}>
                     <SidebarMenuButton asChild>
-                      <Link
-                        to={subModule.url}
-                        className={cn(
-                          "group flex items-start gap-3 p-3 rounded-lg transition-all hover:scale-[1.02]",
-                          isActive && "bg-sidebar-accent"
-                        )}
-                      >
-                        <div 
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-white transition-all group-hover:scale-110"
-                          style={{ backgroundColor: "rgb(var(--results))" }}
-                        >
-                          <Icon className="w-4 h-4" />
+                      <Link to={module.url} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors relative", "text-sidebar-foreground hover:bg-sidebar-accent", isActive && "text-sidebar-foreground")}>
+                        {isActive && <div className="absolute left-0 w-1 h-6 bg-results rounded-r" />}
+                        <div className="w-5 h-5 flex items-center justify-center" style={{ color: module.color }}>
+                          <Icon className="w-5 h-5" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-sidebar-foreground truncate">
-                            {subModule.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {subModule.description}
-                          </p>
-                        </div>
+                        <span className="text-sm font-medium">{module.title}</span>
+                        {isActive && <div className="ml-auto w-2 h-2 bg-results rounded-full" />}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -122,10 +110,22 @@ export function ResultsModuleSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-border/50 p-4">
-        <div className="text-xs text-muted-foreground">
-          <p>Academic+ v1.0</p>
-          <p>© 2025 MyAcademics</p>
+      <SidebarFooter className="p-4 border-t border-sidebar-border/30">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+            <BarChart3 className="w-4 h-4 text-gray-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-sidebar-foreground truncate">Administrateur Principal</p>
+            <p className="text-xs text-sidebar-foreground/70 truncate">admin</p>
+          </div>
+        </div>
+        <div className="space-y-1 text-xs text-sidebar-foreground/50">
+          <p>version 2.1.4</p>
+          <div className="flex items-center gap-2">
+            <span>Système OK</span>
+            <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+          </div>
         </div>
       </SidebarFooter>
     </Sidebar>
