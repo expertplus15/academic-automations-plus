@@ -114,6 +114,8 @@ export function GroupsList({ groups, loading, onEdit, onRefresh }: GroupsListPro
                 <TableHead>Code</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Programme</TableHead>
+                <TableHead>Filière</TableHead>
+                <TableHead>Niveau</TableHead>
                 <TableHead>Étudiants</TableHead>
                 <TableHead>Capacité</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -148,6 +150,20 @@ export function GroupsList({ groups, loading, onEdit, onRefresh }: GroupsListPro
                       </div>
                     ) : (
                       <span className="text-muted-foreground text-sm">Non spécifié</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {group.metadata?.specialization_id ? (
+                      <span className="text-sm">Spécialisée</span>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">Générale</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {group.metadata?.level_id ? (
+                      <span className="text-sm">Défini</span>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">Mixte</span>
                     )}
                   </TableCell>
                   <TableCell>

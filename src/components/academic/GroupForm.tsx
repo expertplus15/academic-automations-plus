@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { usePrograms } from '@/hooks/useSupabase';
+import { usePrograms, useSpecializations, useAcademicLevels } from '@/hooks/useSupabase';
 
 const groupFormSchema = z.object({
   name: z.string().min(1, 'Le nom est requis'),
@@ -19,6 +19,8 @@ const groupFormSchema = z.object({
     required_error: 'Le type de groupe est requis',
   }),
   program_id: z.string().optional(),
+  specialization_id: z.string().optional(),
+  level_id: z.string().optional(),
   max_students: z.number().min(1, 'Le nombre maximum d\'étudiants doit être supérieur à 0'),
   description: z.string().optional(),
 });
@@ -42,6 +44,8 @@ export function GroupForm({ group, onSuccess, onCancel }: GroupFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { data: programs, loading: programsLoading } = usePrograms();
+  const { data: specializations, loading: specializationsLoading } = useSpecializations();
+  const { data: levels, loading: levelsLoading } = useAcademicLevels();
 
   const form = useForm<GroupFormData>({
     resolver: zodResolver(groupFormSchema),
@@ -50,6 +54,8 @@ export function GroupForm({ group, onSuccess, onCancel }: GroupFormProps) {
       code: group?.code || '',
       group_type: group?.group_type || 'class',
       program_id: group?.program_id || 'none',
+      specialization_id: group?.metadata?.specialization_id || 'none',
+      level_id: group?.metadata?.level_id || 'none',
       max_students: group?.max_students || 30,
       description: group?.metadata?.description || '',
     },
@@ -66,6 +72,8 @@ export function GroupForm({ group, onSuccess, onCancel }: GroupFormProps) {
         max_students: data.max_students,
         metadata: {
           description: data.description || '',
+          specialization_id: data.specialization_id === 'none' ? null : data.specialization_id,
+          level_id: data.level_id === 'none' ? null : data.level_id,
         },
       };
 
@@ -194,23 +202,77 @@ export function GroupForm({ group, onSuccess, onCancel }: GroupFormProps) {
               />
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="program_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Programme (optionnel)</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner un programme" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="none">Aucun programme spécifique</SelectItem>
+                        {!programsLoading && programs?.map((program) => (
+                          <SelectItem key={program.id} value={program.id}>
+                            {program.name} ({program.code})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="specialization_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Filière (optionnelle)</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner une filière" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="none">Aucune filière spécifique</SelectItem>
+                        {!specializationsLoading && specializations?.map((specialization) => (
+                          <SelectItem key={specialization.id} value={specialization.id}>
+                            {specialization.name} ({specialization.code})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             <FormField
               control={form.control}
-              name="program_id"
+              name="level_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Programme (optionnel)</FormLabel>
+                  <FormLabel>Niveau d'études (optionnel)</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Sélectionner un programme" />
+                        <SelectValue placeholder="Sélectionner un niveau" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="none">Aucun programme spécifique</SelectItem>
-                      {!programsLoading && programs?.map((program) => (
-                        <SelectItem key={program.id} value={program.id}>
-                          {program.name} ({program.code})
+                      <SelectItem value="none">Aucun niveau spécifique</SelectItem>
+                      {!levelsLoading && levels?.map((level) => (
+                        <SelectItem key={level.id} value={level.id}>
+                          {level.name} ({level.code})
                         </SelectItem>
                       ))}
                     </SelectContent>
