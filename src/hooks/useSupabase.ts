@@ -9,6 +9,7 @@ type Tables = {
   departments: any;
   academic_levels: any;
   class_groups: any;
+  specializations: any;
 };
 
 export function useTable<T extends keyof Tables>(
@@ -81,6 +82,14 @@ export function useSubjects() {
     programs!subjects_program_id_fkey(*),
     academic_levels!subjects_level_id_fkey(*),
     class_groups!subjects_class_group_id_fkey(*)
+  `);
+}
+
+// Hook spécialisé pour les filières/spécialisations
+export function useSpecializations() {
+  return useTable('specializations', `
+    *,
+    programs!specializations_program_id_fkey(*)
   `);
 }
 
