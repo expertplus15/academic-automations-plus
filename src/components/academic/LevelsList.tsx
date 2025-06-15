@@ -21,6 +21,7 @@ const cycleLabels: Record<string, string> = {
   doctorat: 'Doctorat',
   prepa: 'Classes Préparatoires',
   bts: 'BTS/DUT',
+  custom: 'Cycle Personnalisé',
 };
 
 const cycleColors: Record<string, string> = {
@@ -29,6 +30,7 @@ const cycleColors: Record<string, string> = {
   doctorat: 'destructive',
   prepa: 'outline',
   bts: 'secondary',
+  custom: 'outline',
 };
 
 export function LevelsList({ levels, loading, onEdit, onRefresh }: LevelsListProps) {
@@ -118,6 +120,9 @@ export function LevelsList({ levels, loading, onEdit, onRefresh }: LevelsListPro
                 <TableHead>Nom</TableHead>
                 <TableHead>Code</TableHead>
                 <TableHead>Cycle</TableHead>
+                <TableHead>Durée</TableHead>
+                <TableHead>Semestres</TableHead>
+                <TableHead>ECTS</TableHead>
                 <TableHead>Ordre</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -135,6 +140,21 @@ export function LevelsList({ levels, loading, onEdit, onRefresh }: LevelsListPro
                     <Badge variant={cycleColors[level.education_cycle] as any}>
                       {cycleLabels[level.education_cycle] || level.education_cycle}
                     </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm text-muted-foreground">
+                      {level.duration_years ? `${level.duration_years} an${level.duration_years > 1 ? 's' : ''}` : '-'}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm text-muted-foreground">
+                      {level.semesters || '-'}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm text-muted-foreground">
+                      {level.ects_credits || '-'}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">

@@ -15,6 +15,9 @@ const levelSchema = z.object({
   code: z.string().min(2, 'Le code doit contenir au moins 2 caractères'),
   education_cycle: z.string().min(1, 'Veuillez sélectionner un cycle'),
   order_index: z.number().min(1, 'L\'ordre doit être supérieur à 0'),
+  ects_credits: z.number().min(1, 'Les crédits ECTS doivent être supérieurs à 0').optional(),
+  duration_years: z.number().min(1, 'La durée doit être supérieure à 0'),
+  semesters: z.number().min(1, 'Le nombre de semestres doit être supérieur à 0'),
 });
 
 type LevelFormData = z.infer<typeof levelSchema>;
@@ -31,6 +34,7 @@ const educationCycles = [
   { value: 'doctorat', label: 'Doctorat' },
   { value: 'prepa', label: 'Classes Préparatoires' },
   { value: 'bts', label: 'BTS/DUT' },
+  { value: 'custom', label: 'Cycle Personnalisé' },
 ];
 
 export function LevelForm({ level, onSuccess, onCancel }: LevelFormProps) {
@@ -44,6 +48,9 @@ export function LevelForm({ level, onSuccess, onCancel }: LevelFormProps) {
       code: level?.code || '',
       education_cycle: level?.education_cycle || '',
       order_index: level?.order_index || 1,
+      ects_credits: level?.ects_credits || undefined,
+      duration_years: level?.duration_years || 1,
+      semesters: level?.semesters || 2,
     },
   });
 
@@ -55,6 +62,9 @@ export function LevelForm({ level, onSuccess, onCancel }: LevelFormProps) {
         code: data.code,
         education_cycle: data.education_cycle,
         order_index: data.order_index,
+        ects_credits: data.ects_credits,
+        duration_years: data.duration_years,
+        semesters: data.semesters,
       };
 
       if (level) {
@@ -168,6 +178,65 @@ export function LevelForm({ level, onSuccess, onCancel }: LevelFormProps) {
                     placeholder="Ex: 1"
                     {...field}
                     onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <FormField
+            control={form.control}
+            name="ects_credits"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Crédits ECTS (optionnel)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    placeholder="Ex: 60"
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="duration_years"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Durée (années)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    placeholder="Ex: 3"
+                    {...field}
+                    onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="semesters"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nombre de semestres</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    placeholder="Ex: 6"
+                    {...field}
+                    onChange={(e) => field.onChange(parseInt(e.target.value) || 2)}
                   />
                 </FormControl>
                 <FormMessage />

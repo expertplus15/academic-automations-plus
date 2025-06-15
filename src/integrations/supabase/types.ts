@@ -63,28 +63,37 @@ export type Database = {
         Row: {
           code: string
           created_at: string | null
+          duration_years: number | null
+          ects_credits: number | null
           education_cycle: string
           id: string
           name: string
           order_index: number
+          semesters: number | null
           updated_at: string | null
         }
         Insert: {
           code: string
           created_at?: string | null
+          duration_years?: number | null
+          ects_credits?: number | null
           education_cycle: string
           id?: string
           name: string
           order_index: number
+          semesters?: number | null
           updated_at?: string | null
         }
         Update: {
           code?: string
           created_at?: string | null
+          duration_years?: number | null
+          ects_credits?: number | null
           education_cycle?: string
           id?: string
           name?: string
           order_index?: number
+          semesters?: number | null
           updated_at?: string | null
         }
         Relationships: []
