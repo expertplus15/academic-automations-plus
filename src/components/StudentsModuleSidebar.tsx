@@ -1,3 +1,4 @@
+
 import {
   Sidebar,
   SidebarContent,
@@ -23,9 +24,17 @@ import {
   ArrowLeft,
   Settings,
   LogOut,
+  LayoutDashboard,
 } from "lucide-react";
 
 const studentsSubModules = [
+  {
+    title: "Tableau de bord",
+    url: "/students",
+    icon: LayoutDashboard,
+    color: "#4f7cff",
+    description: "Vue d'ensemble"
+  },
   {
     title: "Inscription automatisée",
     url: "/students/registration",
