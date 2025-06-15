@@ -47,7 +47,8 @@ export function useSubjectForm(subject?: any, onSuccess?: () => void) {
       hours_theory: 0,
       hours_practice: 0,
       hours_project: 0,
-      coefficient: 1
+      coefficient: 1,
+      credits_ects: 6
     }
   });
 
