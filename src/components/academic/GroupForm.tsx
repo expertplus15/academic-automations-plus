@@ -49,7 +49,7 @@ export function GroupForm({ group, onSuccess, onCancel }: GroupFormProps) {
       name: group?.name || '',
       code: group?.code || '',
       group_type: group?.group_type || 'class',
-      program_id: group?.program_id || '',
+      program_id: group?.program_id || 'none',
       max_students: group?.max_students || 30,
       description: group?.metadata?.description || '',
     },
@@ -62,7 +62,7 @@ export function GroupForm({ group, onSuccess, onCancel }: GroupFormProps) {
         name: data.name,
         code: data.code,
         group_type: data.group_type,
-        program_id: data.program_id || null,
+        program_id: data.program_id === 'none' ? null : data.program_id || null,
         max_students: data.max_students,
         metadata: {
           description: data.description || '',
@@ -207,7 +207,7 @@ export function GroupForm({ group, onSuccess, onCancel }: GroupFormProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Aucun programme spécifique</SelectItem>
+                      <SelectItem value="none">Aucun programme spécifique</SelectItem>
                       {!programsLoading && programs?.map((program) => (
                         <SelectItem key={program.id} value={program.id}>
                           {program.name} ({program.code})
