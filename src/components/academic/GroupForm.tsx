@@ -15,7 +15,7 @@ import { usePrograms, useSpecializations, useAcademicLevels } from '@/hooks/useS
 const groupFormSchema = z.object({
   name: z.string().min(1, 'Le nom est requis'),
   code: z.string().min(1, 'Le code est requis'),
-  group_type: z.enum(['class', 'td', 'tp', 'project'], {
+  group_type: z.enum(['main', 'td', 'tp'], {
     required_error: 'Le type de groupe est requis',
   }),
   program_id: z.string().optional(),
@@ -34,10 +34,9 @@ interface GroupFormProps {
 }
 
 const groupTypeLabels = {
-  class: 'Classe',
+  main: 'Classe Principale',
   td: 'Travaux Dirigés (TD)',
   tp: 'Travaux Pratiques (TP)',
-  project: 'Groupe de Projet',
 };
 
 export function GroupForm({ group, onSuccess, onCancel }: GroupFormProps) {
@@ -52,7 +51,7 @@ export function GroupForm({ group, onSuccess, onCancel }: GroupFormProps) {
     defaultValues: {
       name: group?.name || '',
       code: group?.code || '',
-      group_type: group?.group_type || 'class',
+      group_type: group?.group_type || 'main',
       program_id: group?.program_id || 'none',
       specialization_id: group?.metadata?.specialization_id || 'none',
       level_id: group?.metadata?.level_id || 'none',

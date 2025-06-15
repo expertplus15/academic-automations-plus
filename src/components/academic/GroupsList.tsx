@@ -16,17 +16,15 @@ interface GroupsListProps {
 }
 
 const groupTypeLabels: Record<string, string> = {
-  class: 'Classe',
+  main: 'Classe Principale',
   td: 'Travaux Dirigés',
   tp: 'Travaux Pratiques',
-  project: 'Groupe de Projet',
 };
 
 const groupTypeColors: Record<string, string> = {
-  class: 'default',
+  main: 'default',
   td: 'secondary',
   tp: 'outline',
-  project: 'destructive',
 };
 
 export function GroupsList({ groups, loading, onEdit, onRefresh }: GroupsListProps) {
