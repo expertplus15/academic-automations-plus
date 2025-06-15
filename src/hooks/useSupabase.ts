@@ -77,12 +77,7 @@ export function useDepartments() {
 
 // Hook spécialisé pour les matières
 export function useSubjects() {
-  return useTable('subjects', `
-    *,
-    programs!subjects_program_id_fkey(*),
-    academic_levels!subjects_level_id_fkey(*),
-    class_groups!subjects_class_group_id_fkey(*)
-  `);
+  return useTable('subjects');
 }
 
 // Hook spécialisé pour les filières/spécialisations
