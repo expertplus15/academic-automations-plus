@@ -24,7 +24,6 @@ export type SubjectFormData = z.infer<typeof subjectSchema>;
 
 export function useSubjectForm(subject?: any, onSuccess?: () => void) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
   const { toast } = useToast();
 
   const form = useForm<SubjectFormData>({
@@ -107,27 +106,9 @@ export function useSubjectForm(subject?: any, onSuccess?: () => void) {
     }
   };
 
-  const handleNextStep = async () => {
-    const stepFields = currentStep === 1 
-      ? ['name', 'code', 'description', 'status'] 
-      : ['credits_ects', 'coefficient', 'program_id', 'level_id', 'class_group_id', 'hours_theory', 'hours_practice', 'hours_project'];
-    
-    const isStepValid = await form.trigger(stepFields as any);
-    if (isStepValid) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const handlePrevStep = () => {
-    setCurrentStep(currentStep - 1);
-  };
-
   return {
     form,
     isSubmitting,
-    currentStep,
-    onSubmit,
-    handleNextStep,
-    handlePrevStep
+    onSubmit
   };
 }
