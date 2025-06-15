@@ -80,8 +80,12 @@ export function RoomForm({ room, onSuccess }: RoomFormProps) {
 
     try {
       const payload = {
-        ...data,
+        name: data.name,
+        code: data.code,
+        room_type: data.room_type,
+        capacity: data.capacity,
         building: data.building || null,
+        status: data.status,
         equipment: equipment,
       };
 

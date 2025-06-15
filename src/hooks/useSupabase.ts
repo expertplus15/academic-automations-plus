@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -10,6 +11,7 @@ type Tables = {
   academic_levels: any;
   class_groups: any;
   specializations: any;
+  rooms: any;
 };
 
 export function useTable<T extends keyof Tables>(
