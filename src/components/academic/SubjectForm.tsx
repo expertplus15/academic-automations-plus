@@ -22,7 +22,7 @@ const subjectSchema = z.object({
   hours_theory: z.coerce.number().min(0).max(200),
   hours_practice: z.coerce.number().min(0).max(200),
   hours_project: z.coerce.number().min(0).max(200),
-  status: z.string(),
+  status: z.enum(['active', 'inactive', 'archived']),
   program_id: z.string().optional(),
   level_id: z.string().optional(),
   class_group_id: z.string().optional(),
@@ -181,14 +181,14 @@ export function SubjectForm({ subject, onSuccess, onCancel }: SubjectFormProps) 
 
               <div className="space-y-2">
                 <Label>Statut</Label>
-                <Select onValueChange={(value) => setValue('status', value)}>
+                <Select onValueChange={(value) => setValue('status', value as 'active' | 'inactive' | 'archived')} defaultValue={subject?.status || 'active'}>
                   <SelectTrigger>
                     <SelectValue placeholder="Statut de la matière" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="active">Actif</SelectItem>
                     <SelectItem value="inactive">Inactif</SelectItem>
-                    <SelectItem value="draft">Brouillon</SelectItem>
+                    <SelectItem value="archived">Archivé</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -237,7 +237,7 @@ export function SubjectForm({ subject, onSuccess, onCancel }: SubjectFormProps) 
 
               <div className="space-y-2">
                 <Label>Programme</Label>
-                <Select onValueChange={(value) => setValue('program_id', value)}>
+                <Select onValueChange={(value) => setValue('program_id', value)} defaultValue={subject?.program_id || ''}>
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner un programme (optionnel)" />
                   </SelectTrigger>
@@ -254,7 +254,7 @@ export function SubjectForm({ subject, onSuccess, onCancel }: SubjectFormProps) 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Niveau académique</Label>
-                  <Select onValueChange={(value) => setValue('level_id', value)}>
+                  <Select onValueChange={(value) => setValue('level_id', value)} defaultValue={subject?.level_id || ''}>
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionner un niveau (optionnel)" />
                     </SelectTrigger>
@@ -270,7 +270,7 @@ export function SubjectForm({ subject, onSuccess, onCancel }: SubjectFormProps) 
 
                 <div className="space-y-2">
                   <Label>Classe</Label>
-                  <Select onValueChange={(value) => setValue('class_group_id', value)}>
+                  <Select onValueChange={(value) => setValue('class_group_id', value)} defaultValue={subject?.class_group_id || ''}>
                     <SelectTrigger>
                       <SelectValue placeholder="Sélectionner une classe (optionnel)" />
                     </SelectTrigger>
