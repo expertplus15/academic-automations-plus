@@ -44,7 +44,7 @@ export function useRegistrationForm() {
       departmentId: '',
       programId: '',
       yearLevel: 1,
-      specialization: '',
+      specialization: undefined,
     }
   });
 

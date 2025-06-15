@@ -115,12 +115,11 @@ export function ProgramSelectionStep({ form }: ProgramSelectionStepProps) {
             <FormItem>
               <FormLabel>Spécialisation (optionnel)</FormLabel>
               <FormControl>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select onValueChange={field.onChange} value={field.value || undefined}>
                   <SelectTrigger>
                     <SelectValue placeholder="Aucune spécialisation" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Aucune spécialisation</SelectItem>
                     <SelectItem value="intelligence-artificielle">Intelligence Artificielle</SelectItem>
                     <SelectItem value="cybersecurite">Cybersécurité</SelectItem>
                     <SelectItem value="developpement-web">Développement Web</SelectItem>
