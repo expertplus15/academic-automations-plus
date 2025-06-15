@@ -36,36 +36,90 @@ export function SubjectAcademicConfigStep({
           <CardTitle>Configuration académique</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="credits_ects">Crédits ECTS *</Label>
-              <Input
-                id="credits_ects"
-                type="number"
-                min="1"
-                max="30"
-                {...register('credits_ects')}
-                placeholder="6"
-              />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label htmlFor="credits_ects" className="text-sm font-semibold">Crédits ECTS *</Label>
+                <p className="text-xs text-muted-foreground">
+                  Système européen de transfert et d'accumulation de crédits (1-30)
+                </p>
+              </div>
+              <div className="relative">
+                <Input
+                  id="credits_ects"
+                  type="number"
+                  min="1"
+                  max="30"
+                  {...register('credits_ects')}
+                  placeholder="6"
+                  className="pr-16"
+                />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium">
+                  ECTS
+                </div>
+              </div>
               {errors.credits_ects && (
-                <p className="text-sm text-destructive">{errors.credits_ects.message}</p>
+                <p className="text-xs text-destructive flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-full bg-destructive/20 flex items-center justify-center">!</span>
+                  {errors.credits_ects.message}
+                </p>
               )}
+              <div className="bg-muted/50 p-2 rounded-md">
+                <p className="text-xs text-muted-foreground">
+                  💡 Référence: Licence (6 ECTS), Master (3-9 ECTS)
+                </p>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="coefficient">Coefficient *</Label>
-              <Input
-                id="coefficient"
-                type="number"
-                step="0.5"
-                min="0.5"
-                max="5"
-                {...register('coefficient')}
-                placeholder="1"
-              />
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label htmlFor="coefficient" className="text-sm font-semibold">Coefficient *</Label>
+                <p className="text-xs text-muted-foreground">
+                  Poids de la matière dans le calcul des moyennes (0.5-5.0)
+                </p>
+              </div>
+              <div className="relative">
+                <Input
+                  id="coefficient"
+                  type="number"
+                  step="0.5"
+                  min="0.5"
+                  max="5"
+                  {...register('coefficient')}
+                  placeholder="1.0"
+                  className="pr-12"
+                />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground font-medium">
+                  x{watch('coefficient') || '1'}
+                </div>
+              </div>
               {errors.coefficient && (
-                <p className="text-sm text-destructive">{errors.coefficient.message}</p>
+                <p className="text-xs text-destructive flex items-center gap-1">
+                  <span className="w-3 h-3 rounded-full bg-destructive/20 flex items-center justify-center">!</span>
+                  {errors.coefficient.message}
+                </p>
               )}
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Impact</span>
+                  <span className={`font-medium ${
+                    (watch('coefficient') || 1) >= 2 ? 'text-orange-600' : 
+                    (watch('coefficient') || 1) >= 1.5 ? 'text-blue-600' : 'text-green-600'
+                  }`}>
+                    {(watch('coefficient') || 1) >= 2 ? 'Élevé' : 
+                     (watch('coefficient') || 1) >= 1.5 ? 'Moyen' : 'Standard'}
+                  </span>
+                </div>
+                <div className="w-full bg-muted h-1.5 rounded-full overflow-hidden">
+                  <div 
+                    className={`h-full transition-all duration-300 ${
+                      (watch('coefficient') || 1) >= 2 ? 'bg-orange-500' : 
+                      (watch('coefficient') || 1) >= 1.5 ? 'bg-blue-500' : 'bg-green-500'
+                    }`}
+                    style={{ width: `${Math.min(((watch('coefficient') || 1) / 5) * 100, 100)}%` }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
