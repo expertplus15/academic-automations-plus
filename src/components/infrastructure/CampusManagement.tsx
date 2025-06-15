@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, MapPin, Plus } from "lucide-react";
+import { Building, MapPin, Plus } from "lucide-react";
 import { useTable } from "@/hooks/useSupabase";
 import { CampusForm } from "./campus/CampusForm";
 import { SitesList } from "./campus/SitesList";
@@ -47,7 +47,7 @@ export function CampusManagement() {
           >
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Building2 className="w-5 h-5" />
+                <Building className="w-5 h-5" />
                 {campus.name}
               </CardTitle>
               <p className="text-sm text-muted-foreground">Code: {campus.code}</p>

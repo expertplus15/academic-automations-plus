@@ -14,9 +14,9 @@ interface SitesListProps {
 export function SitesList({ campusId }: SitesListProps) {
   const [isCreateSiteOpen, setIsCreateSiteOpen] = useState(false);
   const { data: sites, refetch: refetchSites } = useTable('sites', '*', { campus_id: campusId });
-  const { data: campus } = useTable('campuses');
+  const { data: campuses } = useTable('campuses');
 
-  const selectedCampus = campus.find(c => c.id === campusId);
+  const selectedCampus = campuses.find(c => c.id === campusId);
 
   const handleSiteSuccess = () => {
     setIsCreateSiteOpen(false);
