@@ -93,6 +93,11 @@ export function useSpecializations() {
   `);
 }
 
+// Hook spécialisé pour les niveaux d'études
+export function useAcademicLevels() {
+  return useTable('academic_levels');
+}
+
 // Utilitaires pour inscription automatisée
 export async function generateStudentNumber(programCode: string, year: number) {
   const { data, error } = await supabase.rpc('generate_student_number', {
