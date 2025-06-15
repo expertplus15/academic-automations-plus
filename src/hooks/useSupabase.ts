@@ -119,6 +119,8 @@ export async function autoEnrollStudent(studentData: {
   yearLevel: number;
 }) {
   try {
+    console.log('Starting auto enrollment for:', studentData.email);
+
     // 1. Récupérer le code du programme
     const { data: program } = await supabase
       .from('programs')
@@ -126,11 +128,17 @@ export async function autoEnrollStudent(studentData: {
       .eq('id', studentData.programId)
       .single();
 
+    if (!program) {
+      throw new Error('Programme non trouvé');
+    }
+
     // 2. Générer le numéro étudiant
     const studentNumber = await generateStudentNumber(
-      program?.code || 'STD',
+      program.code,
       new Date().getFullYear()
     );
+
+    console.log('Generated student number:', studentNumber);
 
     // 3. Créer l'utilisateur avec signup
     const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -145,16 +153,63 @@ export async function autoEnrollStudent(studentData: {
       }
     });
 
-    if (authError) throw authError;
+    if (authError) {
+      console.error('Auth signup error:', authError);
+      throw authError;
+    }
 
-    // 4. Créer l'enregistrement étudiant (sera fait automatiquement par le trigger)
-    // Le profil sera créé automatiquement par le trigger handle_new_user
-    
-    // 5. Créer l'enregistrement étudiant spécifique
+    if (!authData.user) {
+      throw new Error('Aucun utilisateur créé');
+    }
+
+    console.log('User created:', authData.user.id);
+
+    // 4. Attendre que le profil soit créé par le trigger
+    // On utilise une approche de polling pour vérifier que le profil existe
+    let profileExists = false;
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    while (!profileExists && attempts < maxAttempts) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', authData.user.id)
+        .single();
+
+      if (profile) {
+        profileExists = true;
+        console.log('Profile found');
+      } else {
+        console.log(`Profile not found yet, attempt ${attempts + 1}`);
+        await new Promise(resolve => setTimeout(resolve, 500)); // Attendre 500ms
+        attempts++;
+      }
+    }
+
+    if (!profileExists) {
+      // Si le profil n'existe toujours pas, on le crée manuellement
+      console.log('Creating profile manually');
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: authData.user.id,
+          email: studentData.email,
+          full_name: studentData.fullName,
+          role: 'student'
+        });
+
+      if (profileError) {
+        console.error('Profile creation error:', profileError);
+        throw profileError;
+      }
+    }
+
+    // 5. Créer l'enregistrement étudiant
     const { data: student, error: studentError } = await supabase
       .from('students')
       .insert({
-        profile_id: authData.user!.id,
+        profile_id: authData.user.id,
         student_number: studentNumber,
         program_id: studentData.programId,
         year_level: studentData.yearLevel,
@@ -164,7 +219,12 @@ export async function autoEnrollStudent(studentData: {
       .select()
       .single();
 
-    if (studentError) throw studentError;
+    if (studentError) {
+      console.error('Student creation error:', studentError);
+      throw studentError;
+    }
+
+    console.log('Student created successfully:', student);
 
     return { success: true, student, studentNumber };
   } catch (error) {
