@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -47,12 +48,18 @@ export function useSubjectForm(subject?: any, onSuccess?: () => void) {
       hours_practice: 0,
       hours_project: 0,
       coefficient: 1,
-      credits_ects: 6
+      credits_ects: 6,
+      description: '',
+      program_id: '',
+      level_id: '',
+      class_group_id: ''
     }
   });
 
   const onSubmit = async (data: SubjectFormData) => {
     setIsSubmitting(true);
+    console.log('Submitting subject data:', data);
+    
     try {
       const payload = {
         name: data.name,
@@ -64,13 +71,15 @@ export function useSubjectForm(subject?: any, onSuccess?: () => void) {
         hours_practice: data.hours_practice,
         hours_project: data.hours_project,
         status: data.status,
-        program_id: data.program_id || null,
-        level_id: data.level_id || null,
-        class_group_id: data.class_group_id || null,
+        program_id: data.program_id && data.program_id.trim() !== '' ? data.program_id : null,
+        level_id: data.level_id && data.level_id.trim() !== '' ? data.level_id : null,
+        class_group_id: data.class_group_id && data.class_group_id.trim() !== '' ? data.class_group_id : null,
         teaching_methods: [],
         evaluation_methods: [],
         prerequisites: []
       };
+
+      console.log('Payload being sent to Supabase:', payload);
 
       let result;
       if (subject) {
@@ -84,7 +93,12 @@ export function useSubjectForm(subject?: any, onSuccess?: () => void) {
           .insert(payload);
       }
 
-      if (result.error) throw result.error;
+      console.log('Supabase result:', result);
+
+      if (result.error) {
+        console.error('Supabase error:', result.error);
+        throw result.error;
+      }
 
       toast({
         title: subject ? 'Matière modifiée' : 'Matière créée',
@@ -96,6 +110,7 @@ export function useSubjectForm(subject?: any, onSuccess?: () => void) {
         onSuccess?.();
       }, 100);
     } catch (error) {
+      console.error('Error submitting subject:', error);
       toast({
         title: 'Erreur',
         description: error instanceof Error ? error.message : 'Une erreur est survenue',
