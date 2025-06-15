@@ -2,15 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
-
-type RoomFormData = {
-  name: string;
-  code: string;
-  room_type: string;
-  capacity: number;
-  building: string;
-  status: 'available' | 'occupied' | 'maintenance';
-};
+import { RoomFormData } from './useRoomForm';
 
 interface BasicInfoFieldsProps {
   register: UseFormRegister<RoomFormData>;

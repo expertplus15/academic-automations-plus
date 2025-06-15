@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { BasicInfoFields } from "./form/BasicInfoFields";
 import { RoomTypeSelect } from "./form/RoomTypeSelect";
 import { StatusSelect } from "./form/StatusSelect";
+import { SiteSelector } from "./form/SiteSelector";
 import { EquipmentManager } from "./form/EquipmentManager";
 import { useRoomForm } from "./form/useRoomForm";
 
@@ -19,6 +20,12 @@ export function RoomForm({ room, onSuccess }: RoomFormProps) {
       <BasicInfoFields 
         register={form.register}
         errors={form.formState.errors}
+      />
+
+      <SiteSelector
+        value={form.watch('site_id')}
+        onChange={(value) => form.setValue('site_id', value)}
+        error={form.formState.errors.site_id?.message}
       />
 
       <div className="grid grid-cols-2 gap-4">

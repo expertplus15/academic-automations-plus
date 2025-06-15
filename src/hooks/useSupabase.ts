@@ -12,6 +12,8 @@ type Tables = {
   class_groups: any;
   specializations: any;
   rooms: any;
+  campuses: any;
+  sites: any;
 };
 
 export function useTable<T extends keyof Tables>(

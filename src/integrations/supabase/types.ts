@@ -131,6 +131,36 @@ export type Database = {
         }
         Relationships: []
       }
+      campuses: {
+        Row: {
+          address: string | null
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       class_groups: {
         Row: {
           academic_year_id: string | null
@@ -383,6 +413,7 @@ export type Database = {
           id: string
           name: string
           room_type: string
+          site_id: string | null
           status: string | null
           updated_at: string | null
         }
@@ -395,6 +426,7 @@ export type Database = {
           id?: string
           name: string
           room_type: string
+          site_id?: string | null
           status?: string | null
           updated_at?: string | null
         }
@@ -407,10 +439,60 @@ export type Database = {
           id?: string
           name?: string
           room_type?: string
+          site_id?: string | null
           status?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "rooms_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sites: {
+        Row: {
+          address: string | null
+          campus_id: string
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          campus_id: string
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          campus_id?: string
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sites_campus_id_fkey"
+            columns: ["campus_id"]
+            isOneToOne: false
+            referencedRelation: "campuses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       specializations: {
         Row: {

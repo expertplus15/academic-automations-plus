@@ -12,6 +12,7 @@ const roomSchema = z.object({
   room_type: z.string().min(1, 'Le type de salle est requis'),
   capacity: z.coerce.number().min(1, 'La capacité doit être d\'au moins 1'),
   building: z.string().optional(),
+  site_id: z.string().min(1, 'Le site est requis'),
   status: z.enum(['available', 'occupied', 'maintenance']),
 });
 
@@ -35,12 +36,14 @@ export function useRoomForm({ room, onSuccess }: UseRoomFormProps) {
       room_type: room.room_type,
       capacity: room.capacity,
       building: room.building || '',
+      site_id: room.site_id || '',
       status: room.status || 'available',
     } : {
       status: 'available',
       room_type: 'classroom',
       capacity: 30,
       building: '',
+      site_id: '',
     }
   });
 
@@ -55,6 +58,7 @@ export function useRoomForm({ room, onSuccess }: UseRoomFormProps) {
         room_type: data.room_type,
         capacity: data.capacity,
         building: data.building || null,
+        site_id: data.site_id,
         status: data.status,
         equipment: equipment,
       };
