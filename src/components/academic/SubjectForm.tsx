@@ -160,8 +160,8 @@ export function SubjectForm({ subject, onSuccess, onCancel }: SubjectFormProps) 
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">Impact</span>
                   <span className={`font-medium ${
-                    (form.watch('coefficient') || 1) >= 2 ? 'text-orange-600' : 
-                    (form.watch('coefficient') || 1) >= 1.5 ? 'text-blue-600' : 'text-green-600'
+                    (form.watch('coefficient') || 1) >= 2 ? 'text-destructive' : 
+                    (form.watch('coefficient') || 1) >= 1.5 ? 'text-primary' : 'text-accent-foreground'
                   }`}>
                     {(form.watch('coefficient') || 1) >= 2 ? 'Élevé' : 
                      (form.watch('coefficient') || 1) >= 1.5 ? 'Moyen' : 'Standard'}
@@ -170,8 +170,8 @@ export function SubjectForm({ subject, onSuccess, onCancel }: SubjectFormProps) 
                 <div className="w-full bg-muted h-1.5 rounded-full overflow-hidden">
                   <div 
                     className={`h-full transition-all duration-300 ${
-                      (form.watch('coefficient') || 1) >= 2 ? 'bg-orange-500' : 
-                      (form.watch('coefficient') || 1) >= 1.5 ? 'bg-blue-500' : 'bg-green-500'
+                      (form.watch('coefficient') || 1) >= 2 ? 'bg-destructive' : 
+                      (form.watch('coefficient') || 1) >= 1.5 ? 'bg-primary' : 'bg-accent'
                     }`}
                     style={{ width: `${Math.min(((form.watch('coefficient') || 1) / 5) * 100, 100)}%` }}
                   />
