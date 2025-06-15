@@ -164,32 +164,51 @@ export async function autoEnrollStudent(studentData: {
 
     console.log('User created:', authData.user.id);
 
-    // 4. Attendre que le profil soit créé par le trigger
-    // On utilise une approche de polling pour vérifier que le profil existe
+    // 4. Attendre que l'utilisateur soit confirmé et que le profil soit créé
+    // Vérifier d'abord si l'utilisateur existe vraiment dans auth.users
+    const { data: authUser } = await supabase.auth.getUser();
+    console.log('Current auth user:', authUser);
+
+    // 5. Attendre que le trigger crée le profil ou le créer nous-mêmes
     let profileExists = false;
     let attempts = 0;
-    const maxAttempts = 10;
+    const maxAttempts = 15; // Augmenter le nombre de tentatives
 
     while (!profileExists && attempts < maxAttempts) {
-      const { data: profile } = await supabase
+      console.log(`Checking for profile, attempt ${attempts + 1}`);
+      
+      const { data: profile, error: profileCheckError } = await supabase
         .from('profiles')
         .select('id')
         .eq('id', authData.user.id)
-        .single();
+        .maybeSingle(); // Utiliser maybeSingle au lieu de single
+
+      if (profileCheckError) {
+        console.error('Error checking profile:', profileCheckError);
+      }
 
       if (profile) {
         profileExists = true;
         console.log('Profile found');
+        break;
       } else {
         console.log(`Profile not found yet, attempt ${attempts + 1}`);
-        await new Promise(resolve => setTimeout(resolve, 500)); // Attendre 500ms
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Attendre 1 seconde
         attempts++;
       }
     }
 
+    // Si le profil n'existe toujours pas, essayer de le créer
     if (!profileExists) {
-      // Si le profil n'existe toujours pas, on le crée manuellement
       console.log('Creating profile manually');
+      
+      // D'abord, vérifier que l'utilisateur existe dans auth.users
+      const { data: userData } = await supabase.auth.admin.getUserById(authData.user.id);
+      
+      if (!userData.user) {
+        throw new Error('Utilisateur non trouvé dans la base de données d\'authentification');
+      }
+
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
@@ -201,11 +220,14 @@ export async function autoEnrollStudent(studentData: {
 
       if (profileError) {
         console.error('Profile creation error:', profileError);
-        throw profileError;
+        throw new Error(`Erreur lors de la création du profil: ${profileError.message}`);
       }
+
+      console.log('Profile created manually');
     }
 
-    // 5. Créer l'enregistrement étudiant
+    // 6. Créer l'enregistrement étudiant
+    console.log('Creating student record');
     const { data: student, error: studentError } = await supabase
       .from('students')
       .insert({
@@ -221,7 +243,7 @@ export async function autoEnrollStudent(studentData: {
 
     if (studentError) {
       console.error('Student creation error:', studentError);
-      throw studentError;
+      throw new Error(`Erreur lors de la création de l'étudiant: ${studentError.message}`);
     }
 
     console.log('Student created successfully:', student);
@@ -229,7 +251,10 @@ export async function autoEnrollStudent(studentData: {
     return { success: true, student, studentNumber };
   } catch (error) {
     console.error('Auto enrollment error:', error);
-    return { success: false, error };
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Une erreur inconnue est survenue'
+    };
   }
 }
 
