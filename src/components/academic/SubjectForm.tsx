@@ -38,6 +38,7 @@ interface SubjectFormProps {
 
 export function SubjectForm({ subject, onSuccess, onCancel }: SubjectFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
   const { toast } = useToast();
   const { data: programs, loading: programsLoading } = usePrograms();
   const { data: levels } = useTable('academic_levels');
@@ -48,7 +49,8 @@ export function SubjectForm({ subject, onSuccess, onCancel }: SubjectFormProps) 
     handleSubmit,
     formState: { errors },
     setValue,
-    watch
+    watch,
+    trigger
   } = useForm<SubjectFormData>({
     resolver: zodResolver(subjectSchema),
     defaultValues: subject ? {
@@ -113,7 +115,10 @@ export function SubjectForm({ subject, onSuccess, onCancel }: SubjectFormProps) 
         description: `La matière a été ${subject ? 'modifiée' : 'créée'} avec succès.`,
       });
 
-      onSuccess?.();
+      // Force refetch after a small delay to ensure data is updated
+      setTimeout(() => {
+        onSuccess?.();
+      }, 100);
     } catch (error) {
       toast({
         title: 'Erreur',
@@ -128,75 +133,103 @@ export function SubjectForm({ subject, onSuccess, onCancel }: SubjectFormProps) 
   const watchedHours = watch(['hours_theory', 'hours_practice', 'hours_project']);
   const totalHours = (watchedHours[0] || 0) + (watchedHours[1] || 0) + (watchedHours[2] || 0);
 
+  const handleNextStep = async () => {
+    const stepFields = currentStep === 1 
+      ? ['name', 'code', 'description', 'status'] 
+      : ['credits_ects', 'coefficient', 'program_id', 'level_id', 'class_group_id', 'hours_theory', 'hours_practice', 'hours_project'];
+    
+    const isStepValid = await trigger(stepFields as any);
+    if (isStepValid) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handlePrevStep = () => {
+    setCurrentStep(currentStep - 1);
+  };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <Tabs defaultValue="general" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="general">Informations générales</TabsTrigger>
-          <TabsTrigger value="academic">Configuration académique</TabsTrigger>
-          <TabsTrigger value="schedule">Horaires et volumes</TabsTrigger>
-        </TabsList>
+      {/* Progress indicator */}
+      <div className="flex items-center justify-center space-x-4 mb-6">
+        <div className={`flex items-center space-x-2 ${currentStep >= 1 ? 'text-primary' : 'text-muted-foreground'}`}>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+            1
+          </div>
+          <span className="text-sm font-medium">Références</span>
+        </div>
+        <div className="w-8 h-px bg-border"></div>
+        <div className={`flex items-center space-x-2 ${currentStep >= 2 ? 'text-primary' : 'text-muted-foreground'}`}>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+            2
+          </div>
+          <span className="text-sm font-medium">Configuration académique</span>
+        </div>
+      </div>
 
-        <TabsContent value="general" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Informations de base</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nom de la matière *</Label>
-                  <Input
-                    id="name"
-                    {...register('name')}
-                    placeholder="Ex: Bases de données relationnelles"
-                  />
-                  {errors.name && (
-                    <p className="text-sm text-destructive">{errors.name.message}</p>
-                  )}
-                </div>
+      {currentStep === 1 && (
 
-                <div className="space-y-2">
-                  <Label htmlFor="code">Code de la matière *</Label>
-                  <Input
-                    id="code"
-                    {...register('code')}
-                    placeholder="Ex: BD101"
-                  />
-                  {errors.code && (
-                    <p className="text-sm text-destructive">{errors.code.message}</p>
-                  )}
-                </div>
-              </div>
-
+        <Card>
+          <CardHeader>
+            <CardTitle>Références de la matière</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  {...register('description')}
-                  placeholder="Description détaillée de la matière..."
-                  rows={4}
+                <Label htmlFor="name">Nom de la matière *</Label>
+                <Input
+                  id="name"
+                  {...register('name')}
+                  placeholder="Ex: Bases de données relationnelles"
                 />
+                {errors.name && (
+                  <p className="text-sm text-destructive">{errors.name.message}</p>
+                )}
               </div>
 
               <div className="space-y-2">
-                <Label>Statut</Label>
-                <Select onValueChange={(value) => setValue('status', value as 'active' | 'inactive' | 'archived')} defaultValue={subject?.status || 'active'}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Statut de la matière" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">Actif</SelectItem>
-                    <SelectItem value="inactive">Inactif</SelectItem>
-                    <SelectItem value="archived">Archivé</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="code">Code de la matière *</Label>
+                <Input
+                  id="code"
+                  {...register('code')}
+                  placeholder="Ex: BD101"
+                />
+                {errors.code && (
+                  <p className="text-sm text-destructive">{errors.code.message}</p>
+                )}
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </div>
 
-        <TabsContent value="academic" className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                {...register('description')}
+                placeholder="Description détaillée de la matière..."
+                rows={4}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Statut</Label>
+              <Select onValueChange={(value) => setValue('status', value as 'active' | 'inactive' | 'archived')} defaultValue={subject?.status || 'active'}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Statut de la matière" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Actif</SelectItem>
+                  <SelectItem value="inactive">Inactif</SelectItem>
+                  <SelectItem value="archived">Archivé</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {currentStep === 2 && (
+
+        <div className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Configuration académique</CardTitle>
@@ -286,9 +319,7 @@ export function SubjectForm({ subject, onSuccess, onCancel }: SubjectFormProps) 
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
 
-        <TabsContent value="schedule" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Volume horaire</CardTitle>
@@ -349,18 +380,33 @@ export function SubjectForm({ subject, onSuccess, onCancel }: SubjectFormProps) 
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+        </div>
+      )}
 
-      <div className="flex justify-end space-x-4">
-        {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Annuler
-          </Button>
-        )}
-        <Button type="submit" disabled={isSubmitting || programsLoading}>
-          {isSubmitting ? (subject ? 'Modification...' : 'Création...') : (subject ? 'Modifier' : 'Créer la matière')}
-        </Button>
+      <div className="flex justify-between">
+        <div className="flex space-x-2">
+          {currentStep > 1 && (
+            <Button type="button" variant="outline" onClick={handlePrevStep}>
+              Précédent
+            </Button>
+          )}
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Annuler
+            </Button>
+          )}
+        </div>
+        <div className="flex space-x-2">
+          {currentStep < 2 ? (
+            <Button type="button" onClick={handleNextStep}>
+              Suivant
+            </Button>
+          ) : (
+            <Button type="submit" disabled={isSubmitting || programsLoading}>
+              {isSubmitting ? (subject ? 'Modification...' : 'Création...') : (subject ? 'Modifier' : 'Créer la matière')}
+            </Button>
+          )}
+        </div>
       </div>
     </form>
   );
