@@ -3,7 +3,7 @@ import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft, ArrowRight, AlertCircle } from 'lucide-react';
-import { useEnhancedRegistrationForm } from './useEnhancedRegistrationForm';
+import { useEnhancedRegistrationForm } from './hooks/useEnhancedRegistrationForm';
 import { RegistrationProgress } from './RegistrationProgress';
 import { EnhancedPersonalInfoStep } from './EnhancedPersonalInfoStep';
 import { ProgramSelectionStep } from './ProgramSelectionStep';

@@ -83,7 +83,7 @@ export function useRegistrationSubmission({
         }
         
         if (result.error?.includes('synchronisation') && retryCount < 2) {
-          setRetryCount(prev => prev + 1);
+          setRetryCount(retryCount + 1);
           toast({
             title: "Synchronisation en cours...",
             description: "Nouvelle tentative dans 3 secondes",
