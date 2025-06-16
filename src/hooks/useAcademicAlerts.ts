@@ -6,7 +6,7 @@ export interface AcademicAlert {
   id: string;
   student_id: string;
   alert_type: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: string; // Changed from literal type to string
   title: string;
   message: string;
   related_subject_id?: string;
@@ -19,6 +19,17 @@ export interface AcademicAlert {
   expires_at?: string;
   created_at: string;
   updated_at: string;
+  // Add relation data
+  students?: {
+    id: string;
+    student_number: string;
+    profiles: {
+      full_name: string;
+    };
+  };
+  subjects?: {
+    name: string;
+  };
 }
 
 export interface AlertsFilters {
@@ -71,7 +82,7 @@ export function useAcademicAlerts(filters?: AlertsFilters) {
       if (error) {
         setError(error.message);
       } else {
-        setAlerts(data || []);
+        setAlerts(data as AcademicAlert[] || []);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');

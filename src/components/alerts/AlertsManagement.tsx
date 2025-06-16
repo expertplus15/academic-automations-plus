@@ -9,33 +9,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { AlertTriangle, CheckCircle, Eye, EyeOff, Filter, Search } from 'lucide-react';
 import { useAcademicAlerts, type AlertsFilters } from '@/hooks/useAcademicAlerts';
 import { useToast } from '@/hooks/use-toast';
+import { getSeverityColor, getAlertTypeLabel } from './AlertsHelpers';
 
 export function AlertsManagement() {
   const [filters, setFilters] = useState<AlertsFilters>({});
   const [searchTerm, setSearchTerm] = useState('');
   const { alerts, loading, markAsRead, acknowledgeAlert, deactivateAlert } = useAcademicAlerts(filters);
   const { toast } = useToast();
-
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'critical': return 'destructive';
-      case 'high': return 'destructive';
-      case 'medium': return 'default';
-      case 'low': return 'secondary';
-      default: return 'default';
-    }
-  };
-
-  const getAlertTypeLabel = (type: string) => {
-    switch (type) {
-      case 'low_grade': return 'Note faible';
-      case 'excessive_absences': return 'Absences excessives';
-      case 'failing_subject': return 'Échec matière';
-      case 'attendance_drop': return 'Chute assiduité';
-      case 'at_risk': return 'Risque d\'échec';
-      default: return type;
-    }
-  };
 
   const handleMarkAsRead = async (alertId: string) => {
     const { error } = await markAsRead(alertId);
@@ -257,8 +237,8 @@ export function AlertsManagement() {
                 <TableRow key={alert.id} className={!alert.is_read ? 'bg-muted/50' : ''}>
                   <TableCell>
                     <div>
-                      <p className="font-medium">{alert.students?.profiles?.full_name}</p>
-                      <p className="text-sm text-muted-foreground">{alert.students?.student_number}</p>
+                      <p className="font-medium">{alert.students?.profiles?.full_name || 'N/A'}</p>
+                      <p className="text-sm text-muted-foreground">{alert.students?.student_number || 'N/A'}</p>
                     </div>
                   </TableCell>
                   <TableCell>

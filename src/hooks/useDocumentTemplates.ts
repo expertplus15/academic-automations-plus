@@ -7,7 +7,7 @@ export interface DocumentTemplate {
   name: string;
   code: string;
   description?: string;
-  template_type: 'certificate' | 'transcript' | 'attestation';
+  template_type: string; // Changed from literal type to string
   template_content: {
     title: string;
     fields: string[];
@@ -23,7 +23,7 @@ export interface DocumentRequest {
   id: string;
   student_id: string;
   template_id: string;
-  status: 'pending' | 'approved' | 'generated' | 'delivered' | 'rejected';
+  status: string; // Changed from literal type to string
   request_data?: any;
   requested_by?: string;
   approved_by?: string;
@@ -55,7 +55,7 @@ export function useDocumentTemplates() {
       if (error) {
         setError(error.message);
       } else {
-        setTemplates(data || []);
+        setTemplates(data as DocumentTemplate[] || []);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
@@ -94,7 +94,7 @@ export function useDocumentRequests() {
       if (error) {
         setError(error.message);
       } else {
-        setRequests(data || []);
+        setRequests(data as DocumentRequest[] || []);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');

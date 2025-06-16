@@ -10,6 +10,7 @@ import { FileText, Download, Plus, Clock, CheckCircle, XCircle, AlertCircle } fr
 import { useDocumentTemplates, useDocumentRequests } from '@/hooks/useDocumentTemplates';
 import { useStudents } from '@/hooks/useSupabase';
 import { useToast } from '@/hooks/use-toast';
+import { getStatusColor, getStatusLabel, getTemplateTypeLabel } from './DocumentsHelpers';
 
 export function DocumentsManagement() {
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
@@ -21,17 +22,6 @@ export function DocumentsManagement() {
   const { data: students, loading: studentsLoading } = useStudents();
   const { toast } = useToast();
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return 'default';
-      case 'approved': return 'default';
-      case 'generated': return 'default';
-      case 'delivered': return 'default';
-      case 'rejected': return 'destructive';
-      default: return 'secondary';
-    }
-  };
-
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pending': return <Clock className="h-3 w-3" />;
@@ -40,26 +30,6 @@ export function DocumentsManagement() {
       case 'delivered': return <Download className="h-3 w-3" />;
       case 'rejected': return <XCircle className="h-3 w-3" />;
       default: return <AlertCircle className="h-3 w-3" />;
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'pending': return 'En attente';
-      case 'approved': return 'Approuvé';
-      case 'generated': return 'Généré';
-      case 'delivered': return 'Livré';
-      case 'rejected': return 'Rejeté';
-      default: return status;
-    }
-  };
-
-  const getTemplateTypeLabel = (type: string) => {
-    switch (type) {
-      case 'certificate': return 'Certificat';
-      case 'transcript': return 'Relevé';
-      case 'attestation': return 'Attestation';
-      default: return type;
     }
   };
 

@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, Eye, Clock } from "lucide-react";
 import { useAcademicAlerts } from "@/hooks/useAcademicAlerts";
+import { getSeverityColor, getAlertTypeLabel } from "@/components/alerts/AlertsHelpers";
 
 export function AcademicAlerts() {
   const { alerts, loading, markAsRead } = useAcademicAlerts({ 
@@ -12,27 +13,6 @@ export function AcademicAlerts() {
   });
 
   const recentAlerts = alerts.slice(0, 5);
-
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'critical': return 'destructive';
-      case 'high': return 'destructive';
-      case 'medium': return 'default';
-      case 'low': return 'secondary';
-      default: return 'default';
-    }
-  };
-
-  const getAlertTypeLabel = (type: string) => {
-    switch (type) {
-      case 'low_grade': return 'Note faible';
-      case 'excessive_absences': return 'Absences excessives';
-      case 'failing_subject': return 'Échec matière';
-      case 'attendance_drop': return 'Chute assiduité';
-      case 'at_risk': return 'Risque d\'échec';
-      default: return type;
-    }
-  };
 
   if (loading) {
     return (
@@ -104,7 +84,7 @@ export function AcademicAlerts() {
                     {alert.message}
                   </p>
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span>Étudiant: {alert.students?.profiles?.full_name}</span>
+                    <span>Étudiant: {alert.students?.profiles?.full_name || 'N/A'}</span>
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
                       {new Date(alert.created_at).toLocaleDateString()}
