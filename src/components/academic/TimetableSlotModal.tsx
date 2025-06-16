@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,23 +20,44 @@ const DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
 export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot }: TimetableSlotModalProps) {
   const [formData, setFormData] = useState({
-    subject_id: slot?.subject_id || '',
-    room_id: slot?.room_id || '',
-    teacher_id: slot?.teacher_id || '',
-    group_id: slot?.group_id || '',
-    day_of_week: timeSlot?.day || slot?.day_of_week || 1,
-    start_time: timeSlot?.start || slot?.start_time || '08:00',
-    end_time: timeSlot?.end || slot?.end_time || '10:00',
-    slot_type: slot?.slot_type || 'course',
-    status: slot?.status || 'scheduled'
+    subject_id: '',
+    room_id: '',
+    teacher_id: '',
+    group_id: '',
+    day_of_week: 1,
+    start_time: '08:00',
+    end_time: '10:00',
+    slot_type: 'course',
+    status: 'scheduled'
   });
 
+  // Réinitialiser le formulaire quand le modal s'ouvre
+  useEffect(() => {
+    if (isOpen) {
+      console.log('Modal opened with slot:', slot);
+      console.log('Modal opened with timeSlot:', timeSlot);
+      
+      setFormData({
+        subject_id: slot?.subject_id || '',
+        room_id: slot?.room_id || '',
+        teacher_id: slot?.teacher_id || '',
+        group_id: slot?.group_id || '',
+        day_of_week: timeSlot?.day || slot?.day_of_week || 1,
+        start_time: timeSlot?.start || slot?.start_time || '08:00',
+        end_time: timeSlot?.end || slot?.end_time || '10:00',
+        slot_type: slot?.slot_type || 'course',
+        status: slot?.status || 'scheduled'
+      });
+    }
+  }, [isOpen, slot, timeSlot]);
+
   const handleSave = () => {
+    console.log('Saving timetable slot with data:', formData);
     onSave(formData);
-    onClose();
   };
 
   const handleChange = (field: string, value: any) => {
+    console.log(`Changing ${field} to:`, value);
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 

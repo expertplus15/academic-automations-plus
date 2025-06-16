@@ -56,6 +56,8 @@ export function useTimetables(programId?: string, academicYearId?: string) {
   const fetchTimetables = async () => {
     try {
       setLoading(true);
+      console.log('Fetching timetables with filters:', { programId, academicYearId });
+      
       let query = supabase
         .from('timetables')
         .select(`
@@ -78,11 +80,14 @@ export function useTimetables(programId?: string, academicYearId?: string) {
       const { data, error } = await query;
 
       if (error) {
+        console.error('Error fetching timetables:', error);
         setError(error.message);
       } else {
+        console.log('Fetched timetables:', data);
         setTimetables(data as Timetable[] || []);
       }
     } catch (err) {
+      console.error('Unexpected error:', err);
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
     } finally {
       setLoading(false);
@@ -90,42 +95,96 @@ export function useTimetables(programId?: string, academicYearId?: string) {
   };
 
   const createTimetable = async (timetableData: TimetableInsert) => {
-    const { data, error } = await supabase
-      .from('timetables')
-      .insert(timetableData)
-      .select()
-      .single();
+    try {
+      console.log('Creating timetable with data:', timetableData);
+      
+      const { data, error } = await supabase
+        .from('timetables')
+        .insert(timetableData)
+        .select(`
+          *,
+          subject:subjects(name, code),
+          room:rooms(name, code),
+          teacher:profiles!timetables_teacher_id_fkey(full_name),
+          program:programs(name, code)
+        `)
+        .single();
 
-    if (!error) {
-      fetchTimetables();
+      if (error) {
+        console.error('Error creating timetable:', error);
+        throw error;
+      }
+
+      console.log('Successfully created timetable:', data);
+      
+      // Rafraîchir la liste après création
+      await fetchTimetables();
+      
+      return { data, error };
+    } catch (err) {
+      console.error('Error in createTimetable:', err);
+      throw err;
     }
-    return { data, error };
   };
 
   const updateTimetable = async (id: string, updates: TimetableUpdate) => {
-    const { data, error } = await supabase
-      .from('timetables')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
+    try {
+      console.log('Updating timetable:', id, 'with updates:', updates);
+      
+      const { data, error } = await supabase
+        .from('timetables')
+        .update(updates)
+        .eq('id', id)
+        .select(`
+          *,
+          subject:subjects(name, code),
+          room:rooms(name, code),
+          teacher:profiles!timetables_teacher_id_fkey(full_name),
+          program:programs(name, code)
+        `)
+        .single();
 
-    if (!error) {
-      fetchTimetables();
+      if (error) {
+        console.error('Error updating timetable:', error);
+        throw error;
+      }
+
+      console.log('Successfully updated timetable:', data);
+      
+      // Rafraîchir la liste après mise à jour
+      await fetchTimetables();
+      
+      return { data, error };
+    } catch (err) {
+      console.error('Error in updateTimetable:', err);
+      throw err;
     }
-    return { data, error };
   };
 
   const deleteTimetable = async (id: string) => {
-    const { error } = await supabase
-      .from('timetables')
-      .delete()
-      .eq('id', id);
+    try {
+      console.log('Deleting timetable:', id);
+      
+      const { error } = await supabase
+        .from('timetables')
+        .delete()
+        .eq('id', id);
 
-    if (!error) {
-      fetchTimetables();
+      if (error) {
+        console.error('Error deleting timetable:', error);
+        throw error;
+      }
+
+      console.log('Successfully deleted timetable:', id);
+      
+      // Rafraîchir la liste après suppression
+      await fetchTimetables();
+      
+      return { error };
+    } catch (err) {
+      console.error('Error in deleteTimetable:', err);
+      throw err;
     }
-    return { error };
   };
 
   useEffect(() => {

@@ -64,7 +64,7 @@ export function TimetableGrid({
 
             {/* Créneaux horaires */}
             {TIME_SLOTS.map((timeSlot) => (
-              <React.Fragment key={timeSlot.start}>
+              <div key={timeSlot.start} className="contents">
                 {/* Colonne horaire */}
                 <div className="p-4 border-r border-b bg-muted/50 text-sm font-medium flex items-center justify-center">
                   <div className="text-center">
@@ -107,7 +107,7 @@ export function TimetableGrid({
                     </div>
                   );
                 })}
-              </React.Fragment>
+              </div>
             ))}
           </div>
         </div>
