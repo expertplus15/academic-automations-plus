@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { autoEnrollStudent, type EnrollmentResult } from '@/hooks/useSupabase';
+import { autoEnrollStudent, type EnrollmentResult } from '@/services/studentEnrollmentService';
 import { useToast } from '@/hooks/use-toast';
 
 const personalInfoSchema = z.object({
@@ -75,9 +75,17 @@ export function useRegistrationForm() {
   const submitRegistration = async (data: RegistrationFormData) => {
     if (!startTime) return;
 
+    console.log('Starting registration submission:', data);
     setIsSubmitting(true);
+    
     try {
       const fullName = `${data.firstName} ${data.lastName}`;
+      
+      toast({
+        title: "Inscription en cours...",
+        description: "Création de votre compte étudiant",
+      });
+
       const result = await autoEnrollStudent({
         email: data.email,
         fullName,
@@ -85,7 +93,7 @@ export function useRegistrationForm() {
         yearLevel: data.yearLevel,
       });
 
-      if (result.success) {
+      if (result.success && result.studentNumber) {
         setEnrollmentResult(result);
         const elapsedTime = getElapsedTime();
         toast({
@@ -94,12 +102,18 @@ export function useRegistrationForm() {
         });
         setCurrentStep(4); // Success step
       } else {
-        throw new Error('Erreur lors de l\'inscription');
+        console.error('Registration failed:', result.error);
+        toast({
+          title: "Erreur d'inscription",
+          description: result.error || "Une erreur est survenue lors de l'inscription",
+          variant: "destructive",
+        });
       }
     } catch (error) {
+      console.error('Registration submission error:', error);
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors de l'inscription",
+        description: "Une erreur inattendue est survenue lors de l'inscription",
         variant: "destructive",
       });
     } finally {

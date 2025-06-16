@@ -1,5 +1,5 @@
 
-import { Upload, FileText, CheckCircle } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useState } from 'react';
@@ -75,10 +75,17 @@ export function DocumentsStep() {
       </div>
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <p className="text-sm text-blue-800">
-          <strong>Note:</strong> Vous pouvez compléter votre inscription même sans tous les documents. 
-          Ceux-ci pourront être téléchargés ultérieurement depuis votre espace étudiant.
-        </p>
+        <div className="flex items-start gap-2">
+          <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div className="text-sm text-blue-800">
+            <p className="font-medium mb-1">Information importante</p>
+            <p>
+              Vous pouvez compléter votre inscription même sans tous les documents. 
+              Ceux-ci pourront être téléchargés ultérieurement depuis votre espace étudiant.
+              L'inscription sera finalisée automatiquement une fois que vous cliquerez sur "Finaliser l'inscription".
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -64,7 +64,7 @@ async function createUserAccount(email: string, fullName: string) {
 async function ensureProfileExists(userId: string, email: string, fullName: string) {
   let profileExists = false;
   let attempts = 0;
-  const maxAttempts = 15;
+  const maxAttempts = 10;
 
   while (!profileExists && attempts < maxAttempts) {
     console.log(`Checking for profile, attempt ${attempts + 1}`);
@@ -77,6 +77,7 @@ async function ensureProfileExists(userId: string, email: string, fullName: stri
 
     if (profileCheckError) {
       console.error('Error checking profile:', profileCheckError);
+      // Continue trying even if there's an error checking
     }
 
     if (profile) {
@@ -84,21 +85,15 @@ async function ensureProfileExists(userId: string, email: string, fullName: stri
       console.log('Profile found');
       break;
     } else {
-      console.log(`Profile not found yet, attempt ${attempts + 1}`);
+      console.log(`Profile not found yet, attempt ${attempts + 1}. Waiting...`);
       await new Promise(resolve => setTimeout(resolve, 1000));
       attempts++;
     }
   }
 
   if (!profileExists) {
-    console.log('Creating profile manually');
+    console.log('Profile not found after maximum attempts, creating manually');
     
-    const { data: userData } = await supabase.auth.admin.getUserById(userId);
-    
-    if (!userData.user) {
-      throw new Error('Utilisateur non trouvé dans la base de données d\'authentification');
-    }
-
     const { error: profileError } = await supabase
       .from('profiles')
       .insert({
@@ -144,16 +139,20 @@ async function createStudentRecord(userId: string, studentNumber: string, progra
 
 export async function autoEnrollStudent(studentData: StudentEnrollmentData): Promise<EnrollmentResult> {
   try {
+    console.log('Starting auto enrollment for:', studentData.email);
+
     // 1. Récupérer le code du programme
-    const { data: program } = await supabase
+    const { data: program, error: programError } = await supabase
       .from('programs')
       .select('code')
       .eq('id', studentData.programId)
       .single();
 
-    if (!program) {
+    if (programError || !program) {
       throw new Error('Programme non trouvé');
     }
+
+    console.log('Program found:', program.code);
 
     // 2. Générer le numéro étudiant
     const studentNumber = await generateStudentNumber(
@@ -172,12 +171,13 @@ export async function autoEnrollStudent(studentData: StudentEnrollmentData): Pro
     // 5. Créer l'enregistrement étudiant
     const student = await createStudentRecord(user.id, studentNumber, studentData.programId, studentData.yearLevel);
 
+    console.log('Auto enrollment completed successfully');
     return { success: true, student, studentNumber };
   } catch (error) {
     console.error('Auto enrollment error:', error);
     return { 
       success: false, 
-      error: error instanceof Error ? error.message : 'Une erreur inconnue est survenue'
+      error: error instanceof Error ? error.message : 'Une erreur inconnue est survenue lors de l\'inscription'
     };
   }
 }
