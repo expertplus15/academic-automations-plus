@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { autoEnrollStudent } from '@/hooks/useSupabase';
+import { autoEnrollStudent, type EnrollmentResult } from '@/hooks/useSupabase';
 import { useToast } from '@/hooks/use-toast';
 
 const personalInfoSchema = z.object({
@@ -30,6 +30,7 @@ export function useRegistrationForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [enrollmentResult, setEnrollmentResult] = useState<EnrollmentResult | null>(null);
   const { toast } = useToast();
 
   const form = useForm<RegistrationFormData>({
@@ -63,6 +64,7 @@ export function useRegistrationForm() {
   const startRegistration = () => {
     setStartTime(new Date());
     setCurrentStep(1);
+    setEnrollmentResult(null);
   };
 
   const getElapsedTime = () => {
@@ -84,6 +86,7 @@ export function useRegistrationForm() {
       });
 
       if (result.success) {
+        setEnrollmentResult(result);
         const elapsedTime = getElapsedTime();
         toast({
           title: "Inscription réussie!",
@@ -114,5 +117,6 @@ export function useRegistrationForm() {
     submitRegistration,
     isSubmitting,
     startTime,
+    enrollmentResult,
   };
 }
