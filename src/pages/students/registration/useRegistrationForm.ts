@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { autoEnrollStudent, type EnrollmentResult } from '@/services/studentEnrollmentService';
+import { checkEmailExists } from '@/services/emailVerificationService';
 import { useToast } from '@/hooks/use-toast';
 
 const personalInfoSchema = z.object({
@@ -32,6 +33,8 @@ export function useRegistrationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [enrollmentResult, setEnrollmentResult] = useState<EnrollmentResult | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [emailCheckResult, setEmailCheckResult] = useState<any>(null);
+  const [isExistingUser, setIsExistingUser] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<RegistrationFormData>({
@@ -67,11 +70,39 @@ export function useRegistrationForm() {
     setCurrentStep(1);
     setEnrollmentResult(null);
     setRetryCount(0);
+    setEmailCheckResult(null);
+    setIsExistingUser(false);
   };
 
   const getElapsedTime = () => {
     if (!startTime) return 0;
     return Math.floor((new Date().getTime() - startTime.getTime()) / 1000);
+  };
+
+  const checkEmail = async (email: string) => {
+    try {
+      const result = await checkEmailExists(email);
+      setEmailCheckResult(result);
+      setIsExistingUser(result.exists);
+      
+      if (result.isStudent) {
+        toast({
+          title: "Compte existant détecté",
+          description: "Ce compte étudiant existe déjà. Vous pouvez vous connecter.",
+          variant: "destructive",
+        });
+      } else if (result.hasProfile) {
+        toast({
+          title: "Compte existant détecté",
+          description: "Un compte existe avec cet email. Il sera converti en compte étudiant.",
+        });
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('Error checking email:', error);
+      return null;
+    }
   };
 
   const submitRegistration = async (data: RegistrationFormData, isRetry = false) => {
@@ -84,10 +115,17 @@ export function useRegistrationForm() {
       const fullName = `${data.firstName} ${data.lastName}`;
       
       if (!isRetry) {
-        toast({
-          title: "Inscription en cours...",
-          description: "Création de votre compte étudiant",
-        });
+        if (isExistingUser) {
+          toast({
+            title: "Conversion en cours...",
+            description: "Conversion du compte existant en compte étudiant",
+          });
+        } else {
+          toast({
+            title: "Inscription en cours...",
+            description: "Création de votre compte étudiant",
+          });
+        }
       } else {
         toast({
           title: "Nouvelle tentative...",
@@ -105,14 +143,33 @@ export function useRegistrationForm() {
       if (result.success && result.studentNumber) {
         setEnrollmentResult(result);
         const elapsedTime = getElapsedTime();
-        toast({
-          title: "Inscription réussie!",
-          description: `Numéro étudiant: ${result.studentNumber} (${elapsedTime}s)`,
-        });
+        
+        if (result.isExistingUser) {
+          toast({
+            title: "Conversion réussie!",
+            description: `Compte converti - Numéro étudiant: ${result.studentNumber} (${elapsedTime}s)`,
+          });
+        } else {
+          toast({
+            title: "Inscription réussie!",
+            description: `Numéro étudiant: ${result.studentNumber} (${elapsedTime}s)`,
+          });
+        }
+        
         setCurrentStep(4); // Success step
         setRetryCount(0);
       } else {
         console.error('Registration failed:', result.error);
+        
+        // Gérer les cas d'utilisateur existant
+        if (result.isExistingUser && result.emailCheckResult?.isStudent) {
+          toast({
+            title: "Compte étudiant existant",
+            description: "Ce compte étudiant existe déjà. Veuillez vous connecter.",
+            variant: "destructive",
+          });
+          return;
+        }
         
         // Si c'est un problème de synchronisation et qu'on n'a pas encore essayé de retry
         if (result.error?.includes('synchronisation') && retryCount < 2) {
@@ -122,7 +179,6 @@ export function useRegistrationForm() {
             description: "Nouvelle tentative dans 3 secondes",
           });
           
-          // Attendre 3 secondes puis réessayer
           setTimeout(() => {
             submitRegistration(data, true);
           }, 3000);
@@ -155,9 +211,12 @@ export function useRegistrationForm() {
     startRegistration,
     getElapsedTime,
     submitRegistration,
+    checkEmail,
     isSubmitting,
     startTime,
     enrollmentResult,
     retryCount,
+    emailCheckResult,
+    isExistingUser,
   };
 }

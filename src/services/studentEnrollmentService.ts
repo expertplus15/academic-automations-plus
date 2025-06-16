@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { checkEmailExists, type EmailCheckResult } from './emailVerificationService';
 
 export interface StudentEnrollmentData {
   email: string;
@@ -13,6 +14,8 @@ export interface EnrollmentResult {
   student?: any;
   studentNumber?: string;
   error?: string;
+  isExistingUser?: boolean;
+  emailCheckResult?: EmailCheckResult;
 }
 
 export async function generateStudentNumber(programCode: string, year: number): Promise<string> {
@@ -50,6 +53,12 @@ async function createUserAccount(email: string, fullName: string) {
 
   if (authError) {
     console.error('Auth signup error:', authError);
+    
+    // Gérer spécifiquement l'erreur d'utilisateur déjà existant
+    if (authError.message.includes('already registered') || authError.message.includes('already been registered')) {
+      throw new Error('EXISTING_USER');
+    }
+    
     throw authError;
   }
 
@@ -66,8 +75,8 @@ async function waitForProfileCreation(userId: string, email: string, fullName: s
   
   let profileExists = false;
   let attempts = 0;
-  const maxAttempts = 15; // Augmenter le nombre de tentatives
-  const delayMs = 2000; // Augmenter le délai à 2 secondes
+  const maxAttempts = 10; // Réduire les tentatives
+  const delayMs = 1500; // Réduire le délai
 
   while (!profileExists && attempts < maxAttempts) {
     console.log(`Checking for profile, attempt ${attempts + 1}/${maxAttempts}`);
@@ -90,22 +99,14 @@ async function waitForProfileCreation(userId: string, email: string, fullName: s
       console.error('Exception while checking profile:', error);
     }
 
-    // Attendre avant la prochaine tentative
     await new Promise(resolve => setTimeout(resolve, delayMs));
     attempts++;
   }
 
-  // Si le profil n'existe toujours pas après les tentatives, essayer de le créer manuellement
   if (!profileExists) {
     console.log('Profile not found after maximum attempts, attempting manual creation');
     
     try {
-      // Vérifier d'abord que l'utilisateur existe dans auth.users
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user || user.id !== userId) {
-        throw new Error('User not found in auth system');
-      }
-
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
@@ -116,7 +117,6 @@ async function waitForProfileCreation(userId: string, email: string, fullName: s
         });
 
       if (profileError) {
-        // Si c'est une erreur de contrainte de clé étrangère, l'utilisateur n'existe pas encore
         if (profileError.message.includes('foreign key constraint')) {
           throw new Error('L\'utilisateur n\'est pas encore complètement créé. Veuillez réessayer dans quelques instants.');
         }
@@ -160,6 +160,59 @@ export async function autoEnrollStudent(studentData: StudentEnrollmentData): Pro
   try {
     console.log('Starting auto enrollment for:', studentData.email);
 
+    // Phase 1: Vérifier si l'email existe déjà
+    const emailCheckResult = await checkEmailExists(studentData.email);
+    console.log('Email check result:', emailCheckResult);
+
+    // Si l'utilisateur existe déjà comme étudiant, retourner une erreur spécifique
+    if (emailCheckResult.isStudent) {
+      return {
+        success: false,
+        error: 'Ce compte étudiant existe déjà. Veuillez vous connecter avec vos identifiants.',
+        isExistingUser: true,
+        emailCheckResult
+      };
+    }
+
+    // Si l'utilisateur existe mais n'est pas étudiant, on peut le convertir
+    if (emailCheckResult.hasProfile && emailCheckResult.profileData) {
+      console.log('Converting existing user to student');
+      
+      // Récupérer le code du programme
+      const { data: program, error: programError } = await supabase
+        .from('programs')
+        .select('code')
+        .eq('id', studentData.programId)
+        .single();
+
+      if (programError || !program) {
+        throw new Error('Programme non trouvé');
+      }
+
+      // Générer le numéro étudiant
+      const studentNumber = await generateStudentNumber(
+        program.code,
+        new Date().getFullYear()
+      );
+
+      // Créer l'enregistrement étudiant
+      const student = await createStudentRecord(
+        emailCheckResult.profileData.id,
+        studentNumber,
+        studentData.programId,
+        studentData.yearLevel
+      );
+
+      return { 
+        success: true, 
+        student, 
+        studentNumber,
+        isExistingUser: true,
+        emailCheckResult
+      };
+    }
+
+    // Nouvel utilisateur - processus complet
     // 1. Récupérer le code du programme
     const { data: program, error: programError } = await supabase
       .from('programs')
@@ -184,24 +237,32 @@ export async function autoEnrollStudent(studentData: StudentEnrollmentData): Pro
     // 3. Créer le compte utilisateur
     const user = await createUserAccount(studentData.email, studentData.fullName);
 
-    // 4. Attendre que le profil soit créé (par trigger ou manuellement)
+    // 4. Attendre que le profil soit créé
     await waitForProfileCreation(user.id, studentData.email, studentData.fullName);
 
     // 5. Créer l'enregistrement étudiant
     const student = await createStudentRecord(user.id, studentNumber, studentData.programId, studentData.yearLevel);
 
     console.log('Auto enrollment completed successfully');
-    return { success: true, student, studentNumber };
+    return { 
+      success: true, 
+      student, 
+      studentNumber,
+      isExistingUser: false,
+      emailCheckResult
+    };
   } catch (error) {
     console.error('Auto enrollment error:', error);
     
     let errorMessage = 'Une erreur inconnue est survenue lors de l\'inscription';
+    let isExistingUser = false;
     
     if (error instanceof Error) {
-      if (error.message.includes('foreign key constraint')) {
+      if (error.message === 'EXISTING_USER') {
+        errorMessage = 'Un compte avec cette adresse email existe déjà. Veuillez vous connecter ou utiliser une autre adresse.';
+        isExistingUser = true;
+      } else if (error.message.includes('foreign key constraint')) {
         errorMessage = 'Problème de synchronisation lors de la création du compte. Veuillez réessayer dans quelques instants.';
-      } else if (error.message.includes('User already registered')) {
-        errorMessage = 'Un compte avec cette adresse email existe déjà.';
       } else {
         errorMessage = error.message;
       }
@@ -209,7 +270,8 @@ export async function autoEnrollStudent(studentData: StudentEnrollmentData): Pro
     
     return { 
       success: false, 
-      error: errorMessage
+      error: errorMessage,
+      isExistingUser
     };
   }
 }

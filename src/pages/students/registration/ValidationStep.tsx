@@ -1,5 +1,5 @@
 
-import { CheckCircle, Clock, User, GraduationCap } from 'lucide-react';
+import { CheckCircle, Clock, User, GraduationCap, UserCheck } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { RegistrationFormData } from './useRegistrationForm';
@@ -9,9 +9,10 @@ interface ValidationStepProps {
   elapsedTime: number;
   studentNumber?: string;
   isSuccess?: boolean;
+  isExistingUser?: boolean;
 }
 
-export function ValidationStep({ formData, elapsedTime, studentNumber, isSuccess }: ValidationStepProps) {
+export function ValidationStep({ formData, elapsedTime, studentNumber, isSuccess, isExistingUser }: ValidationStepProps) {
   const formatTime = (seconds: number) => {
     return `${seconds}s`;
   };
@@ -20,13 +21,22 @@ export function ValidationStep({ formData, elapsedTime, studentNumber, isSuccess
     return (
       <div className="text-center space-y-6">
         <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-          <CheckCircle className="w-10 h-10 text-green-600" />
+          {isExistingUser ? (
+            <UserCheck className="w-10 h-10 text-green-600" />
+          ) : (
+            <CheckCircle className="w-10 h-10 text-green-600" />
+          )}
         </div>
         
         <div>
-          <h3 className="text-2xl font-bold text-green-600 mb-2">Inscription réussie!</h3>
+          <h3 className="text-2xl font-bold text-green-600 mb-2">
+            {isExistingUser ? 'Conversion réussie!' : 'Inscription réussie!'}
+          </h3>
           <p className="text-muted-foreground">
-            Votre inscription a été validée en {formatTime(elapsedTime)}
+            {isExistingUser 
+              ? `Votre compte a été converti en compte étudiant en ${formatTime(elapsedTime)}`
+              : `Votre inscription a été validée en ${formatTime(elapsedTime)}`
+            }
           </p>
         </div>
 
@@ -46,8 +56,17 @@ export function ValidationStep({ formData, elapsedTime, studentNumber, isSuccess
 
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <p className="text-sm text-green-800">
-            Un email de confirmation a été envoyé à <strong>{formData.email}</strong> avec 
-            vos identifiants de connexion et les prochaines étapes.
+            {isExistingUser ? (
+              <>
+                Votre compte existant a été converti avec succès. Un email de confirmation a été envoyé à <strong>{formData.email}</strong> avec 
+                vos nouvelles informations d'étudiant et les prochaines étapes.
+              </>
+            ) : (
+              <>
+                Un email de confirmation a été envoyé à <strong>{formData.email}</strong> avec 
+                vos identifiants de connexion et les prochaines étapes.
+              </>
+            )}
           </p>
         </div>
       </div>
@@ -57,9 +76,14 @@ export function ValidationStep({ formData, elapsedTime, studentNumber, isSuccess
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold mb-2">Validation de l'inscription</h3>
+        <h3 className="text-lg font-semibold mb-2">
+          {isExistingUser ? 'Validation de la conversion' : 'Validation de l\'inscription'}
+        </h3>
         <p className="text-muted-foreground">
-          Vérifiez vos informations avant la finalisation de votre inscription.
+          {isExistingUser 
+            ? 'Vérifiez vos informations avant la finalisation de la conversion de votre compte.'
+            : 'Vérifiez vos informations avant la finalisation de votre inscription.'
+          }
         </p>
       </div>
 

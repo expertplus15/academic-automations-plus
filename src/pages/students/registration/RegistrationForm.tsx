@@ -2,13 +2,14 @@
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, AlertCircle } from 'lucide-react';
 import { useRegistrationForm } from './useRegistrationForm';
 import { RegistrationProgress } from './RegistrationProgress';
 import { PersonalInfoStep } from './PersonalInfoStep';
 import { ProgramSelectionStep } from './ProgramSelectionStep';
 import { DocumentsStep } from './DocumentsStep';
 import { ValidationStep } from './ValidationStep';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useEffect, useState } from 'react';
 
 export function RegistrationForm() {
@@ -24,6 +25,8 @@ export function RegistrationForm() {
     startTime,
     enrollmentResult,
     retryCount,
+    emailCheckResult,
+    isExistingUser,
   } = useRegistrationForm();
 
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -58,6 +61,11 @@ export function RegistrationForm() {
   const handleNext = async () => {
     const isValid = await validateCurrentStep();
     if (isValid) {
+      // Vérifier si l'email indique un compte étudiant existant
+      if (currentStep === 1 && emailCheckResult?.isStudent) {
+        return; // Bloquer la progression si c'est déjà un étudiant
+      }
+      
       if (currentStep === 3) {
         // Submit the form on step 3 (documents step)
         const formData = form.getValues();
@@ -88,6 +96,7 @@ export function RegistrationForm() {
             elapsedTime={elapsedTime}
             studentNumber={enrollmentResult?.studentNumber}
             isSuccess={enrollmentResult?.success}
+            isExistingUser={isExistingUser}
           />
         );
       default:
@@ -100,7 +109,7 @@ export function RegistrationForm() {
       case 1: return 'Informations personnelles';
       case 2: return 'Choix du programme';
       case 3: return 'Documents';
-      case 4: return 'Inscription validée';
+      case 4: return isExistingUser ? 'Conversion validée' : 'Inscription validée';
       default: return '';
     }
   };
@@ -129,6 +138,14 @@ export function RegistrationForm() {
         <CardContent className="p-8">
           <div className="mb-6">
             <h2 className="text-xl font-semibold">{getStepTitle()}</h2>
+            {isExistingUser && currentStep < 4 && (
+              <Alert className="mt-4 border-blue-200 bg-blue-50">
+                <AlertCircle className="w-4 h-4 text-blue-600" />
+                <AlertDescription className="text-blue-800">
+                  Compte existant détecté. Nous allons convertir votre compte en compte étudiant.
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
 
           <Form {...form}>
@@ -150,13 +167,13 @@ export function RegistrationForm() {
                   <Button
                     type="button"
                     onClick={handleNext}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || (emailCheckResult?.isStudent && currentStep === 1)}
                     className="bg-students hover:bg-students/90"
                   >
                     {currentStep === 3 ? (
                       isSubmitting ? (
-                        retryCount > 0 ? `Tentative ${retryCount}...` : 'Finalisation...'
-                      ) : 'Finaliser l\'inscription'
+                        retryCount > 0 ? `Tentative ${retryCount}...` : (isExistingUser ? 'Conversion...' : 'Finalisation...')
+                      ) : (isExistingUser ? 'Finaliser la conversion' : 'Finaliser l\'inscription')
                     ) : (
                       <>
                         Suivant
