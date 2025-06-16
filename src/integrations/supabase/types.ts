@@ -210,6 +210,70 @@ export type Database = {
         }
         Relationships: []
       }
+      alert_configurations: {
+        Row: {
+          alert_type: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          level_id: string | null
+          message_template: string | null
+          program_id: string | null
+          severity: string
+          threshold_value: number
+          updated_at: string | null
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          level_id?: string | null
+          message_template?: string | null
+          program_id?: string | null
+          severity?: string
+          threshold_value: number
+          updated_at?: string | null
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          level_id?: string | null
+          message_template?: string | null
+          program_id?: string | null
+          severity?: string
+          threshold_value?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alert_configurations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alert_configurations_level_id_fkey"
+            columns: ["level_id"]
+            isOneToOne: false
+            referencedRelation: "academic_levels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alert_configurations_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attendance_records: {
         Row: {
           academic_year_id: string | null
@@ -416,6 +480,116 @@ export type Database = {
           },
         ]
       }
+      document_requests: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string | null
+          id: string
+          rejection_reason: string | null
+          request_data: Json | null
+          requested_by: string | null
+          status: string
+          student_id: string
+          template_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          id?: string
+          rejection_reason?: string | null
+          request_data?: Json | null
+          requested_by?: string | null
+          status?: string
+          student_id: string
+          template_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          id?: string
+          rejection_reason?: string | null
+          request_data?: Json | null
+          requested_by?: string | null
+          status?: string
+          student_id?: string
+          template_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_requests_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_requests_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_requests_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "document_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_templates: {
+        Row: {
+          code: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          requires_approval: boolean | null
+          template_content: Json
+          template_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          requires_approval?: boolean | null
+          template_content: Json
+          template_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          requires_approval?: boolean | null
+          template_content?: Json
+          template_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       evaluation_types: {
         Row: {
           code: string
@@ -448,6 +622,63 @@ export type Database = {
           weight_percentage?: number | null
         }
         Relationships: []
+      }
+      generated_documents: {
+        Row: {
+          document_number: string
+          download_count: number | null
+          expires_at: string | null
+          file_path: string | null
+          file_size: number | null
+          generated_at: string | null
+          generated_by: string | null
+          id: string
+          is_valid: boolean | null
+          last_downloaded_at: string | null
+          request_id: string
+        }
+        Insert: {
+          document_number: string
+          download_count?: number | null
+          expires_at?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          generated_at?: string | null
+          generated_by?: string | null
+          id?: string
+          is_valid?: boolean | null
+          last_downloaded_at?: string | null
+          request_id: string
+        }
+        Update: {
+          document_number?: string
+          download_count?: number | null
+          expires_at?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          generated_at?: string | null
+          generated_by?: string | null
+          id?: string
+          is_valid?: boolean | null
+          last_downloaded_at?: string | null
+          request_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generated_documents_generated_by_fkey"
+            columns: ["generated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_documents_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "document_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -1131,6 +1362,10 @@ export type Database = {
           p_semester: number
         }
         Returns: undefined
+      }
+      generate_document_number: {
+        Args: { doc_type: string }
+        Returns: string
       }
       generate_student_number: {
         Args: { program_code: string; enrollment_year: number }

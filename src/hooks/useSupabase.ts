@@ -14,6 +14,11 @@ type Tables = {
   rooms: any;
   campuses: any;
   sites: any;
+  academic_alerts: any;
+  document_templates: any;
+  document_requests: any;
+  generated_documents: any;
+  alert_configurations: any;
 };
 
 export function useTable<T extends keyof Tables>(
