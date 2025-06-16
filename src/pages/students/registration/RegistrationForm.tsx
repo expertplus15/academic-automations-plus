@@ -68,6 +68,11 @@ export function RegistrationForm() {
     }
   };
 
+  // Create a proper wrapper function for form submission
+  const handleFormSubmit = async (data: any) => {
+    await submitRegistration(data, false);
+  };
+
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
@@ -127,7 +132,7 @@ export function RegistrationForm() {
           </div>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(submitRegistration)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
               {renderStepContent()}
 
               {currentStep < 4 && (
