@@ -1,6 +1,10 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { Database } from '@/integrations/supabase/types';
+
+type TimetableInsert = Database['public']['Tables']['timetables']['Insert'];
+type TimetableUpdate = Database['public']['Tables']['timetables']['Update'];
 
 export interface Timetable {
   id: string;
@@ -85,7 +89,7 @@ export function useTimetables(programId?: string, academicYearId?: string) {
     }
   };
 
-  const createTimetable = async (timetableData: Partial<Timetable>) => {
+  const createTimetable = async (timetableData: TimetableInsert) => {
     const { data, error } = await supabase
       .from('timetables')
       .insert(timetableData)
@@ -98,7 +102,7 @@ export function useTimetables(programId?: string, academicYearId?: string) {
     return { data, error };
   };
 
-  const updateTimetable = async (id: string, updates: Partial<Timetable>) => {
+  const updateTimetable = async (id: string, updates: TimetableUpdate) => {
     const { data, error } = await supabase
       .from('timetables')
       .update(updates)

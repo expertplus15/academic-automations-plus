@@ -34,6 +34,7 @@ export interface GenerationParameters {
   preferred_end_time?: string;
   respect_teacher_preferences?: boolean;
   optimize_room_usage?: boolean;
+  [key: string]: any; // Index signature pour compatibilité Json
 }
 
 export function useScheduleGeneration() {
@@ -88,10 +89,13 @@ export function useScheduleGeneration() {
   ) => {
     try {
       setLoading(true);
+      // Convertir les paramètres en objet JSON compatible
+      const jsonParameters = JSON.parse(JSON.stringify(parameters));
+      
       const { data, error } = await supabase.rpc('generate_smart_schedule', {
         p_program_id: programId,
         p_academic_year_id: academicYearId,
-        p_parameters: parameters
+        p_parameters: jsonParameters
       });
 
       if (error) {
