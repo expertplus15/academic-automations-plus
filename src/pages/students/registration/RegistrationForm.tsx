@@ -22,6 +22,7 @@ export function RegistrationForm() {
     submitRegistration,
     isSubmitting,
     startTime,
+    enrollmentResult,
   } = useRegistrationForm();
 
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -79,8 +80,8 @@ export function RegistrationForm() {
           <ValidationStep
             formData={form.getValues()}
             elapsedTime={elapsedTime}
-            studentNumber="STD25001"
-            isSuccess={true}
+            studentNumber={enrollmentResult?.studentNumber}
+            isSuccess={enrollmentResult?.success}
           />
         );
       default:
