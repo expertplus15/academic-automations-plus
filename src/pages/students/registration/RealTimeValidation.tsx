@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { CheckCircle, XCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { checkEmailExists } from '@/services/emailVerificationService';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -14,39 +14,53 @@ export function RealTimeValidation({ email, onValidationResult }: RealTimeValida
   const [message, setMessage] = useState('');
   const debouncedEmail = useDebounce(email, 800);
 
+  const handleValidationResult = useCallback((result: { isValid: boolean; canProceed: boolean; message: string }) => {
+    onValidationResult(result);
+  }, [onValidationResult]);
+
   useEffect(() => {
     if (!debouncedEmail || !debouncedEmail.includes('@')) {
       setValidationState('idle');
       setMessage('');
-      onValidationResult({ isValid: false, canProceed: false, message: '' });
+      handleValidationResult({ isValid: false, canProceed: false, message: '' });
       return;
     }
+
+    let isCancelled = false;
 
     setValidationState('checking');
     setMessage('Vérification en cours...');
 
     checkEmailExists(debouncedEmail)
       .then(result => {
+        if (isCancelled) return;
+        
         if (result.isStudent) {
           setValidationState('blocked');
           setMessage('Compte étudiant existant - Connexion requise');
-          onValidationResult({ isValid: false, canProceed: false, message: 'Compte étudiant existant' });
+          handleValidationResult({ isValid: false, canProceed: false, message: 'Compte étudiant existant' });
         } else if (result.hasProfile) {
           setValidationState('valid');
           setMessage('Compte existant - Sera converti en compte étudiant');
-          onValidationResult({ isValid: true, canProceed: true, message: 'Conversion possible' });
+          handleValidationResult({ isValid: true, canProceed: true, message: 'Conversion possible' });
         } else {
           setValidationState('valid');
           setMessage('Email disponible pour inscription');
-          onValidationResult({ isValid: true, canProceed: true, message: 'Nouveau compte' });
+          handleValidationResult({ isValid: true, canProceed: true, message: 'Nouveau compte' });
         }
       })
       .catch(() => {
+        if (isCancelled) return;
+        
         setValidationState('invalid');
         setMessage('Erreur lors de la vérification');
-        onValidationResult({ isValid: false, canProceed: false, message: 'Erreur de vérification' });
+        handleValidationResult({ isValid: false, canProceed: false, message: 'Erreur de vérification' });
       });
-  }, [debouncedEmail, onValidationResult]);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [debouncedEmail, handleValidationResult]);
 
   const getIcon = () => {
     switch (validationState) {

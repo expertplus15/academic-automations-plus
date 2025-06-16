@@ -1,8 +1,10 @@
 
-import { CheckCircle, Clock, User, GraduationCap, UserCheck } from 'lucide-react';
+import { CheckCircle, Clock, User, GraduationCap, UserCheck, Home, Users, UserPlus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { RegistrationFormData } from './useRegistrationForm';
+import { Button } from '@/components/ui/button';
+import { RegistrationFormData } from './types';
+import { useNavigate } from 'react-router-dom';
 
 interface ValidationStepProps {
   formData: RegistrationFormData;
@@ -13,8 +15,22 @@ interface ValidationStepProps {
 }
 
 export function ValidationStep({ formData, elapsedTime, studentNumber, isSuccess, isExistingUser }: ValidationStepProps) {
+  const navigate = useNavigate();
+
   const formatTime = (seconds: number) => {
     return `${seconds}s`;
+  };
+
+  const handleNavigateToProfiles = () => {
+    navigate('/students/profiles');
+  };
+
+  const handleNavigateToDashboard = () => {
+    navigate('/students');
+  };
+
+  const handleNewRegistration = () => {
+    window.location.reload();
   };
 
   if (isSuccess && studentNumber) {
@@ -68,6 +84,33 @@ export function ValidationStep({ formData, elapsedTime, studentNumber, isSuccess
               </>
             )}
           </p>
+        </div>
+
+        {/* Boutons de navigation */}
+        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-6">
+          <Button
+            onClick={handleNavigateToProfiles}
+            className="bg-students hover:bg-students/90"
+          >
+            <Users className="w-4 h-4 mr-2" />
+            Voir les profils étudiants
+          </Button>
+          
+          <Button
+            onClick={handleNavigateToDashboard}
+            variant="outline"
+          >
+            <Home className="w-4 h-4 mr-2" />
+            Tableau de bord étudiants
+          </Button>
+          
+          <Button
+            onClick={handleNewRegistration}
+            variant="outline"
+          >
+            <UserPlus className="w-4 h-4 mr-2" />
+            Nouvelle inscription
+          </Button>
         </div>
       </div>
     );
