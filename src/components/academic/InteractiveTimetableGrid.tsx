@@ -3,12 +3,9 @@ import React, { useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Clock, MapPin, User, BookOpen, Edit3, Trash2, Plus, AlertTriangle } from 'lucide-react';
 import { useTimetables, Timetable } from '@/hooks/useTimetables';
+import { TimetableSlotModal } from './TimetableSlotModal';
 import { cn } from '@/lib/utils';
 
 interface InteractiveTimetableGridProps {
@@ -22,11 +19,6 @@ interface TimeSlot {
   day: number;
 }
 
-interface DraggedSlot {
-  timetable: Timetable;
-  newSlot: TimeSlot;
-}
-
 const TIME_SLOTS = [
   { start: '08:00', end: '10:00' },
   { start: '10:30', end: '12:30' },
@@ -37,11 +29,13 @@ const TIME_SLOTS = [
 const DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
 export function InteractiveTimetableGrid({ programId, academicYearId }: InteractiveTimetableGridProps) {
-  const { timetables, loading, updateTimetable, deleteTimetable } = useTimetables(programId, academicYearId);
+  const { timetables, loading, updateTimetable, deleteTimetable, createTimetable } = useTimetables(programId, academicYearId);
   const [draggedItem, setDraggedItem] = useState<Timetable | null>(null);
   const [dropTarget, setDropTarget] = useState<TimeSlot | null>(null);
   const [conflicts, setConflicts] = useState<string[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
   const [editingSlot, setEditingSlot] = useState<Timetable | null>(null);
+  const [newSlotPosition, setNewSlotPosition] = useState<{ day: number; start: string; end: string } | null>(null);
 
   // Organiser les créneaux par jour et heure
   const organizeSlots = useCallback(() => {
@@ -110,11 +104,39 @@ export function InteractiveTimetableGrid({ programId, academicYearId }: Interact
 
   const handleEditSlot = (timetable: Timetable) => {
     setEditingSlot(timetable);
+    setModalOpen(true);
   };
 
   const handleDeleteSlot = async (id: string) => {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce créneau ?')) {
       await deleteTimetable(id);
+    }
+  };
+
+  const handleNewSlot = (day: number, timeSlot: typeof TIME_SLOTS[0]) => {
+    setNewSlotPosition({ day, start: timeSlot.start, end: timeSlot.end });
+    setEditingSlot(null);
+    setModalOpen(true);
+  };
+
+  const handleSaveSlot = async (data: any) => {
+    try {
+      if (editingSlot) {
+        // Modification d'un créneau existant
+        await updateTimetable(editingSlot.id, data);
+      } else {
+        // Création d'un nouveau créneau
+        await createTimetable({
+          ...data,
+          program_id: programId,
+          academic_year_id: academicYearId
+        });
+      }
+      setModalOpen(false);
+      setEditingSlot(null);
+      setNewSlotPosition(null);
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
     }
   };
 
@@ -135,11 +157,15 @@ export function InteractiveTimetableGrid({ programId, academicYearId }: Interact
         <div>
           <h3 className="text-lg font-semibold">Emploi du Temps Interactif</h3>
           <p className="text-sm text-muted-foreground">
-            Glissez-déposez les créneaux pour les réorganiser
+            Glissez-déposez les créneaux pour les réorganiser ou cliquez sur + pour ajouter
           </p>
         </div>
         <div className="flex gap-2">
-          <Button size="sm" variant="outline">
+          <Button size="sm" variant="outline" onClick={() => {
+            setNewSlotPosition({ day: 1, start: '08:00', end: '10:00' });
+            setEditingSlot(null);
+            setModalOpen(true);
+          }}>
             <Plus className="h-4 w-4 mr-2" />
             Nouveau créneau
           </Button>
@@ -205,6 +231,7 @@ export function InteractiveTimetableGrid({ programId, academicYearId }: Interact
                         onDragOver={(e) => handleDragOver(e, day, timeSlot)}
                         onDragLeave={handleDragLeave}
                         onDrop={(e) => handleDrop(e, day, timeSlot)}
+                        onClick={() => !timetable && handleNewSlot(day, timeSlot)}
                       >
                         {timetable ? (
                           <div
@@ -231,7 +258,10 @@ export function InteractiveTimetableGrid({ programId, academicYearId }: Interact
                                     size="sm"
                                     variant="ghost"
                                     className="h-6 w-6 p-0"
-                                    onClick={() => handleEditSlot(timetable)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEditSlot(timetable);
+                                    }}
                                   >
                                     <Edit3 className="h-3 w-3" />
                                   </Button>
@@ -239,7 +269,10 @@ export function InteractiveTimetableGrid({ programId, academicYearId }: Interact
                                     size="sm"
                                     variant="ghost"
                                     className="h-6 w-6 p-0 text-destructive"
-                                    onClick={() => handleDeleteSlot(timetable.id)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteSlot(timetable.id);
+                                    }}
                                   >
                                     <Trash2 className="h-3 w-3" />
                                   </Button>
@@ -271,7 +304,7 @@ export function InteractiveTimetableGrid({ programId, academicYearId }: Interact
                             </div>
                           </div>
                         ) : (
-                          <div className="absolute inset-2 flex items-center justify-center border-2 border-dashed border-muted-foreground/20 rounded-lg">
+                          <div className="absolute inset-2 flex items-center justify-center border-2 border-dashed border-muted-foreground/20 rounded-lg hover:border-blue-300 hover:bg-blue-50/50 transition-colors">
                             <Plus className="h-8 w-8 text-muted-foreground/40" />
                           </div>
                         )}
@@ -285,57 +318,18 @@ export function InteractiveTimetableGrid({ programId, academicYearId }: Interact
         </CardContent>
       </Card>
 
-      {/* Modal d'édition */}
-      {editingSlot && (
-        <Dialog open={!!editingSlot} onOpenChange={() => setEditingSlot(null)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Modifier le créneau</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Heure de début</Label>
-                  <Input 
-                    type="time" 
-                    defaultValue={editingSlot.start_time}
-                  />
-                </div>
-                <div>
-                  <Label>Heure de fin</Label>
-                  <Input 
-                    type="time" 
-                    defaultValue={editingSlot.end_time}
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <Label>Type de créneau</Label>
-                <Select defaultValue={editingSlot.slot_type}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="course">Cours</SelectItem>
-                    <SelectItem value="practical">TP</SelectItem>
-                    <SelectItem value="exam">Examen</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setEditingSlot(null)}>
-                  Annuler
-                </Button>
-                <Button>
-                  Enregistrer
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
+      {/* Modal d'édition/création */}
+      <TimetableSlotModal
+        isOpen={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setEditingSlot(null);
+          setNewSlotPosition(null);
+        }}
+        onSave={handleSaveSlot}
+        slot={editingSlot}
+        timeSlot={newSlotPosition}
+      />
     </div>
   );
 }

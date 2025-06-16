@@ -1,0 +1,148 @@
+
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Timetable } from '@/hooks/useTimetables';
+
+interface TimetableSlotModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (data: any) => void;
+  slot?: Timetable | null;
+  timeSlot?: { day: number; start: string; end: string } | null;
+}
+
+const DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+
+export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot }: TimetableSlotModalProps) {
+  const [formData, setFormData] = useState({
+    subject_id: slot?.subject_id || '',
+    room_id: slot?.room_id || '',
+    teacher_id: slot?.teacher_id || '',
+    group_id: slot?.group_id || '',
+    day_of_week: timeSlot?.day || slot?.day_of_week || 1,
+    start_time: timeSlot?.start || slot?.start_time || '08:00',
+    end_time: timeSlot?.end || slot?.end_time || '10:00',
+    slot_type: slot?.slot_type || 'course',
+    status: slot?.status || 'scheduled'
+  });
+
+  const handleSave = () => {
+    onSave(formData);
+    onClose();
+  };
+
+  const handleChange = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>
+            {slot ? 'Modifier le créneau' : 'Nouveau créneau'}
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4">
+          <div>
+            <Label>Jour de la semaine</Label>
+            <Select 
+              value={formData.day_of_week.toString()} 
+              onValueChange={(value) => handleChange('day_of_week', parseInt(value))}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {DAYS.map((day, index) => (
+                  <SelectItem key={index + 1} value={(index + 1).toString()}>
+                    {day}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Heure de début</Label>
+              <Input 
+                type="time" 
+                value={formData.start_time}
+                onChange={(e) => handleChange('start_time', e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Heure de fin</Label>
+              <Input 
+                type="time" 
+                value={formData.end_time}
+                onChange={(e) => handleChange('end_time', e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div>
+            <Label>Type de créneau</Label>
+            <Select 
+              value={formData.slot_type} 
+              onValueChange={(value) => handleChange('slot_type', value)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="course">Cours</SelectItem>
+                <SelectItem value="practical">TP</SelectItem>
+                <SelectItem value="exam">Examen</SelectItem>
+                <SelectItem value="conference">Conférence</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label>Matière (ID temporaire)</Label>
+            <Input 
+              placeholder="ID de la matière"
+              value={formData.subject_id}
+              onChange={(e) => handleChange('subject_id', e.target.value)}
+            />
+          </div>
+
+          <div>
+            <Label>Salle (ID temporaire)</Label>
+            <Input 
+              placeholder="ID de la salle"
+              value={formData.room_id}
+              onChange={(e) => handleChange('room_id', e.target.value)}
+            />
+          </div>
+
+          <div>
+            <Label>Enseignant (ID temporaire)</Label>
+            <Input 
+              placeholder="ID de l'enseignant"
+              value={formData.teacher_id}
+              onChange={(e) => handleChange('teacher_id', e.target.value)}
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="outline" onClick={onClose}>
+              Annuler
+            </Button>
+            <Button onClick={handleSave}>
+              {slot ? 'Modifier' : 'Créer'}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
