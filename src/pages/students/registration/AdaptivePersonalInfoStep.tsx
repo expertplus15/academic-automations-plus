@@ -2,7 +2,7 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { UseFormReturn } from 'react-hook-form';
-import { RegistrationFormData } from './useRegistrationForm';
+import { RegistrationFormData } from './types';
 import { useState } from 'react';
 import { UserFlowContext } from '@/services/userFlowService';
 import { RealTimeValidation } from './RealTimeValidation';

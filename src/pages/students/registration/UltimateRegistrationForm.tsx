@@ -3,7 +3,7 @@ import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft, ArrowRight, AlertCircle } from 'lucide-react';
-import { useEnhancedRegistrationForm } from './useEnhancedRegistrationForm';
+import { useEnhancedRegistrationForm } from './hooks/useEnhancedRegistrationForm';
 import { ProgressIndicator } from './ProgressIndicator';
 import { AdaptivePersonalInfoStep } from './AdaptivePersonalInfoStep';
 import { ProgramSelectionStep } from './ProgramSelectionStep';
@@ -30,6 +30,7 @@ export function UltimateRegistrationForm() {
     handleFlowContextChange,
     canProceedToNextStep,
     getProcessingMessage,
+    getStepFields,
   } = useEnhancedRegistrationForm();
 
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -50,22 +51,11 @@ export function UltimateRegistrationForm() {
     return isValid;
   };
 
-  const getStepFields = (step: number) => {
-    switch (step) {
-      case 1:
-        return ['firstName', 'lastName', 'email', 'phone', 'birthDate', 'address'] as const;
-      case 2:
-        return ['departmentId', 'programId', 'yearLevel'] as const;
-      default:
-        return [];
-    }
-  };
-
   const handleNext = async () => {
     const isValid = await validateCurrentStep();
     if (!isValid) return;
 
-    if (!canProceedToNextStep()) {
+    if (!canProceedToNextStep(currentStep)) {
       return;
     }
     
@@ -200,7 +190,7 @@ export function UltimateRegistrationForm() {
                   <Button
                     type="button"
                     onClick={handleNext}
-                    disabled={isSubmitting || !canProceedToNextStep()}
+                    disabled={isSubmitting || !canProceedToNextStep(currentStep)}
                     className="bg-students hover:bg-students/90"
                   >
                     {currentStep === 3 ? (

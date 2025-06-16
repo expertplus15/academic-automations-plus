@@ -96,7 +96,7 @@ export function EnhancedStatusCard({
                 <Mail className="w-3 h-3 text-muted-foreground" />
                 <span className="text-muted-foreground">Email:</span>
               </div>
-              <span className="font-mono">{emailCheckResult.profileData.email || flowContext.formData.email}</span>
+              <span className="font-mono">{flowContext.formData.email}</span>
               
               <div className="flex items-center gap-1">
                 <School className="w-3 h-3 text-muted-foreground" />
