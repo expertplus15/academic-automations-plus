@@ -1,4 +1,3 @@
-
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -65,7 +64,7 @@ export function EnhancedRegistrationForm() {
     const isValid = await validateCurrentStep();
     if (!isValid) return;
 
-    if (!canProceedToNextStep()) {
+    if (!canProceedToNextStep(currentStep)) {
       return;
     }
     
@@ -188,7 +187,7 @@ export function EnhancedRegistrationForm() {
                   <Button
                     type="button"
                     onClick={handleNext}
-                    disabled={isSubmitting || !canProceedToNextStep()}
+                    disabled={isSubmitting || !canProceedToNextStep(currentStep)}
                     className="bg-students hover:bg-students/90"
                   >
                     {currentStep === 3 ? (
