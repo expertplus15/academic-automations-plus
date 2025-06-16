@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Timetable } from '@/hooks/useTimetables';
+import { useToast } from '@/hooks/use-toast';
 
 interface TimetableSlotModalProps {
   isOpen: boolean;
@@ -19,6 +20,8 @@ interface TimetableSlotModalProps {
 const DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
 export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot }: TimetableSlotModalProps) {
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     subject_id: '',
     room_id: '',
@@ -51,9 +54,72 @@ export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot }: 
     }
   }, [isOpen, slot, timeSlot]);
 
-  const handleSave = () => {
-    console.log('Saving timetable slot with data:', formData);
-    onSave(formData);
+  const validateForm = () => {
+    if (!formData.subject_id.trim()) {
+      toast({
+        title: "Erreur de validation",
+        description: "Veuillez saisir un ID de matière",
+        variant: "destructive"
+      });
+      return false;
+    }
+    
+    if (!formData.room_id.trim()) {
+      toast({
+        title: "Erreur de validation",
+        description: "Veuillez saisir un ID de salle",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    if (!formData.teacher_id.trim()) {
+      toast({
+        title: "Erreur de validation",
+        description: "Veuillez saisir un ID d'enseignant",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    if (formData.start_time >= formData.end_time) {
+      toast({
+        title: "Erreur de validation",
+        description: "L'heure de fin doit être postérieure à l'heure de début",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSave = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      console.log('Saving timetable slot with data:', formData);
+      await onSave(formData);
+      
+      toast({
+        title: "Succès",
+        description: slot ? "Créneau modifié avec succès" : "Créneau créé avec succès"
+      });
+      
+      onClose();
+    } catch (error) {
+      console.error('Error saving timetable slot:', error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la sauvegarde",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleChange = (field: string, value: any) => {
@@ -128,38 +194,50 @@ export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot }: 
           </div>
 
           <div>
-            <Label>Matière (ID temporaire)</Label>
+            <Label>Matière (ID) *</Label>
             <Input 
-              placeholder="ID de la matière"
+              placeholder="ID de la matière (obligatoire)"
               value={formData.subject_id}
               onChange={(e) => handleChange('subject_id', e.target.value)}
+              required
             />
           </div>
 
           <div>
-            <Label>Salle (ID temporaire)</Label>
+            <Label>Salle (ID) *</Label>
             <Input 
-              placeholder="ID de la salle"
+              placeholder="ID de la salle (obligatoire)"
               value={formData.room_id}
               onChange={(e) => handleChange('room_id', e.target.value)}
+              required
             />
           </div>
 
           <div>
-            <Label>Enseignant (ID temporaire)</Label>
+            <Label>Enseignant (ID) *</Label>
             <Input 
-              placeholder="ID de l'enseignant"
+              placeholder="ID de l'enseignant (obligatoire)"
               value={formData.teacher_id}
               onChange={(e) => handleChange('teacher_id', e.target.value)}
+              required
+            />
+          </div>
+
+          <div>
+            <Label>Groupe (ID)</Label>
+            <Input 
+              placeholder="ID du groupe (optionnel)"
+              value={formData.group_id}
+              onChange={(e) => handleChange('group_id', e.target.value)}
             />
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={onClose}>
+            <Button variant="outline" onClick={onClose} disabled={isLoading}>
               Annuler
             </Button>
-            <Button onClick={handleSave}>
-              {slot ? 'Modifier' : 'Créer'}
+            <Button onClick={handleSave} disabled={isLoading}>
+              {isLoading ? 'Sauvegarde...' : (slot ? 'Modifier' : 'Créer')}
             </Button>
           </div>
         </div>
