@@ -1,11 +1,12 @@
-
 import { AcademicPageHeader } from "@/components/AcademicPageHeader";
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, Users, MapPin, Plus, Brain, Zap } from 'lucide-react';
+import { Calendar, Clock, Users, MapPin, Plus, Brain, Zap, Grid3X3, CalendarDays } from 'lucide-react';
 import { SmartScheduleGenerator } from '@/components/academic/SmartScheduleGenerator';
+import { InteractiveTimetableGrid } from '@/components/academic/InteractiveTimetableGrid';
+import { TimetableCalendarView } from '@/components/academic/TimetableCalendarView';
 import { TimetableView } from '@/components/academic/TimetableView';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -30,43 +31,57 @@ export default function Timetables() {
                     <Brain className="h-8 w-8 text-blue-600" />
                     <div>
                       <h3 className="font-semibold text-blue-900">
-                        Nouveau : Générateur d'Emploi du Temps IA
+                        Interface Interactive Avancée
                       </h3>
                       <p className="text-sm text-blue-700">
-                        Génération automatique avec algorithme anti-conflits et optimisation intelligente
+                        Glisser-déposer, détection de conflits en temps réel et vue calendrier
                       </p>
                     </div>
                   </div>
                   <Button className="bg-blue-600 hover:bg-blue-700">
                     <Zap className="h-4 w-4 mr-2" />
-                    Essayer maintenant
+                    Nouvelle interface
                   </Button>
                 </div>
               </CardContent>
             </Card>
 
-            <Tabs defaultValue="intelligent" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-3">
+            <Tabs defaultValue="interactive" className="space-y-6">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="interactive" className="flex items-center gap-2">
+                  <Grid3X3 className="h-4 w-4" />
+                  Interface Interactive
+                </TabsTrigger>
+                <TabsTrigger value="calendar" className="flex items-center gap-2">
+                  <CalendarDays className="h-4 w-4" />
+                  Vue Calendrier
+                </TabsTrigger>
                 <TabsTrigger value="intelligent" className="flex items-center gap-2">
                   <Brain className="h-4 w-4" />
                   Générateur IA
                 </TabsTrigger>
                 <TabsTrigger value="schedule" className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
-                  Emploi du Temps
-                </TabsTrigger>
-                <TabsTrigger value="manual" className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  Gestion Manuelle
+                  Vue Liste
                 </TabsTrigger>
               </TabsList>
+
+              {/* Onglet Interface Interactive */}
+              <TabsContent value="interactive">
+                <InteractiveTimetableGrid />
+              </TabsContent>
+
+              {/* Onglet Vue Calendrier */}
+              <TabsContent value="calendar">
+                <TimetableCalendarView />
+              </TabsContent>
 
               {/* Onglet Générateur IA */}
               <TabsContent value="intelligent">
                 <SmartScheduleGenerator />
               </TabsContent>
 
-              {/* Onglet Emploi du Temps */}
+              {/* Onglet Vue Liste */}
               <TabsContent value="schedule">
                 <div className="space-y-6">
                   {/* En-tête avec informations de la semaine */}
@@ -89,62 +104,9 @@ export default function Timetables() {
                   <TimetableView />
                 </div>
               </TabsContent>
-
-              {/* Onglet Gestion Manuelle */}
-              <TabsContent value="manual">
-                {/* Conserver l'ancienne grille pour la gestion manuelle */}
-                <Card>
-                  <CardContent className="p-0">
-                    <div className="overflow-x-auto">
-                      <div className="grid grid-cols-8 min-w-[1000px]">
-                        {/* En-tête des jours */}
-                        <div className="p-4 border-r border-b bg-muted font-semibold">Horaires</div>
-                        {['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'].map((day) => (
-                          <div key={day} className="p-4 border-r border-b bg-muted text-center font-semibold">
-                            {day}
-                          </div>
-                        ))}
-                        
-                        {/* Créneaux horaires */}
-                        {generateTimeSlots().map((time) => (
-                          <>
-                            <div key={time} className="p-4 border-r border-b bg-muted/50 text-sm font-medium">
-                              {time}
-                            </div>
-                            {[0, 1, 2, 3, 4, 5, 6].map((dayIndex) => (
-                              <div 
-                                key={`${time}-${dayIndex}`} 
-                                className="p-2 border-r border-b min-h-[80px] hover:bg-accent/50 cursor-pointer relative"
-                              >
-                                {/* Exemple de cours */}
-                                {shouldShowCourse(time, dayIndex) && (
-                                  <div className="bg-primary/10 border-l-4 border-primary p-2 rounded text-xs h-full">
-                                    <div className="font-semibold">Bases de Données</div>
-                                    <div className="text-muted-foreground flex items-center gap-1 mt-1">
-                                      <Users className="h-3 w-3" />
-                                      <span>INFO-1A</span>
-                                    </div>
-                                    <div className="text-muted-foreground flex items-center gap-1">
-                                      <MapPin className="h-3 w-3" />
-                                      <span>Salle 101</span>
-                                    </div>
-                                    <Badge variant="secondary" className="mt-1 text-xs">
-                                      Dr. Martin
-                                    </Badge>
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </>
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
             </Tabs>
 
-            {/* Statistiques */}
+            {/* Statistiques améliorées */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Card>
                 <CardHeader className="pb-3">
