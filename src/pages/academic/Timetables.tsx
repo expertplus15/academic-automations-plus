@@ -1,7 +1,7 @@
 
 import { AcademicPageHeader } from "@/components/AcademicPageHeader";
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { Brain, Zap, Grid3X3, CalendarDays, Calendar } from 'lucide-react';
+import { Brain, Zap, Grid3X3, CalendarDays, Calendar, BarChart3, BookOpen } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TimetablesBanner } from '@/components/academic/timetables/TimetablesBanner';
 import { TimetablesStats } from '@/components/academic/timetables/TimetablesStats';
@@ -22,7 +22,7 @@ export default function Timetables() {
             <TimetablesBanner />
 
             <Tabs defaultValue="interactive" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="interactive" className="flex items-center gap-2">
                   <Grid3X3 className="h-4 w-4" />
                   Interface Interactive
@@ -38,6 +38,14 @@ export default function Timetables() {
                 <TabsTrigger value="schedule" className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   Vue Liste
+                </TabsTrigger>
+                <TabsTrigger value="academic-calendar" className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4" />
+                  Calendrier Académique
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  Analytics
                 </TabsTrigger>
               </TabsList>
 

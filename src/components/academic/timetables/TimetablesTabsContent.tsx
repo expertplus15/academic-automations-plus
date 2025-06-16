@@ -8,6 +8,8 @@ import { InteractiveTimetableGrid } from '@/components/academic/InteractiveTimet
 import { TimetableCalendarView } from '@/components/academic/TimetableCalendarView';
 import { SmartScheduleGenerator } from '@/components/academic/SmartScheduleGenerator';
 import { TimetableView } from '@/components/academic/TimetableView';
+import { AcademicCalendar } from '@/components/academic/AcademicCalendar';
+import { TimetableAnalytics } from '@/components/academic/TimetableAnalytics';
 import { getCurrentWeekDates } from '@/utils/dateUtils';
 
 export function TimetablesTabsContent() {
@@ -52,6 +54,16 @@ export function TimetablesTabsContent() {
           {/* Vue de l'emploi du temps */}
           <TimetableView />
         </div>
+      </TabsContent>
+
+      {/* Nouvel onglet Calendrier Académique */}
+      <TabsContent value="academic-calendar">
+        <AcademicCalendar />
+      </TabsContent>
+
+      {/* Nouvel onglet Analytics */}
+      <TabsContent value="analytics">
+        <TimetableAnalytics />
       </TabsContent>
     </>
   );
