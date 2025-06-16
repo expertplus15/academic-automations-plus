@@ -61,54 +61,73 @@ async function createUserAccount(email: string, fullName: string) {
   return authData.user;
 }
 
-async function ensureProfileExists(userId: string, email: string, fullName: string) {
+async function waitForProfileCreation(userId: string, email: string, fullName: string) {
+  console.log('Waiting for profile creation via trigger...');
+  
   let profileExists = false;
   let attempts = 0;
-  const maxAttempts = 10;
+  const maxAttempts = 15; // Augmenter le nombre de tentatives
+  const delayMs = 2000; // Augmenter le délai à 2 secondes
 
   while (!profileExists && attempts < maxAttempts) {
-    console.log(`Checking for profile, attempt ${attempts + 1}`);
+    console.log(`Checking for profile, attempt ${attempts + 1}/${maxAttempts}`);
     
-    const { data: profile, error: profileCheckError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('id', userId)
-      .maybeSingle();
+    try {
+      const { data: profile, error: profileCheckError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', userId)
+        .maybeSingle();
 
-    if (profileCheckError) {
-      console.error('Error checking profile:', profileCheckError);
-      // Continue trying even if there's an error checking
+      if (profileCheckError) {
+        console.error('Error checking profile:', profileCheckError);
+      } else if (profile) {
+        profileExists = true;
+        console.log('Profile found via trigger');
+        break;
+      }
+    } catch (error) {
+      console.error('Exception while checking profile:', error);
     }
 
-    if (profile) {
-      profileExists = true;
-      console.log('Profile found');
-      break;
-    } else {
-      console.log(`Profile not found yet, attempt ${attempts + 1}. Waiting...`);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      attempts++;
-    }
+    // Attendre avant la prochaine tentative
+    await new Promise(resolve => setTimeout(resolve, delayMs));
+    attempts++;
   }
 
+  // Si le profil n'existe toujours pas après les tentatives, essayer de le créer manuellement
   if (!profileExists) {
-    console.log('Profile not found after maximum attempts, creating manually');
+    console.log('Profile not found after maximum attempts, attempting manual creation');
     
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert({
-        id: userId,
-        email,
-        full_name: fullName,
-        role: 'student'
-      });
+    try {
+      // Vérifier d'abord que l'utilisateur existe dans auth.users
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || user.id !== userId) {
+        throw new Error('User not found in auth system');
+      }
 
-    if (profileError) {
-      console.error('Profile creation error:', profileError);
-      throw new Error(`Erreur lors de la création du profil: ${profileError.message}`);
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: userId,
+          email,
+          full_name: fullName,
+          role: 'student'
+        });
+
+      if (profileError) {
+        // Si c'est une erreur de contrainte de clé étrangère, l'utilisateur n'existe pas encore
+        if (profileError.message.includes('foreign key constraint')) {
+          throw new Error('L\'utilisateur n\'est pas encore complètement créé. Veuillez réessayer dans quelques instants.');
+        }
+        throw new Error(`Erreur lors de la création du profil: ${profileError.message}`);
+      }
+
+      console.log('Profile created manually');
+    } catch (error) {
+      console.error('Failed to create profile manually:', error);
+      throw error;
     }
-
-    console.log('Profile created manually');
   }
 }
 
@@ -165,8 +184,8 @@ export async function autoEnrollStudent(studentData: StudentEnrollmentData): Pro
     // 3. Créer le compte utilisateur
     const user = await createUserAccount(studentData.email, studentData.fullName);
 
-    // 4. S'assurer que le profil existe
-    await ensureProfileExists(user.id, studentData.email, studentData.fullName);
+    // 4. Attendre que le profil soit créé (par trigger ou manuellement)
+    await waitForProfileCreation(user.id, studentData.email, studentData.fullName);
 
     // 5. Créer l'enregistrement étudiant
     const student = await createStudentRecord(user.id, studentNumber, studentData.programId, studentData.yearLevel);
@@ -175,9 +194,22 @@ export async function autoEnrollStudent(studentData: StudentEnrollmentData): Pro
     return { success: true, student, studentNumber };
   } catch (error) {
     console.error('Auto enrollment error:', error);
+    
+    let errorMessage = 'Une erreur inconnue est survenue lors de l\'inscription';
+    
+    if (error instanceof Error) {
+      if (error.message.includes('foreign key constraint')) {
+        errorMessage = 'Problème de synchronisation lors de la création du compte. Veuillez réessayer dans quelques instants.';
+      } else if (error.message.includes('User already registered')) {
+        errorMessage = 'Un compte avec cette adresse email existe déjà.';
+      } else {
+        errorMessage = error.message;
+      }
+    }
+    
     return { 
       success: false, 
-      error: error instanceof Error ? error.message : 'Une erreur inconnue est survenue lors de l\'inscription'
+      error: errorMessage
     };
   }
 }

@@ -23,6 +23,7 @@ export function RegistrationForm() {
     isSubmitting,
     startTime,
     enrollmentResult,
+    retryCount,
   } = useRegistrationForm();
 
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -74,7 +75,7 @@ export function RegistrationForm() {
       case 2:
         return <ProgramSelectionStep form={form} />;
       case 3:
-        return <DocumentsStep />;
+        return <DocumentsStep isSubmitting={isSubmitting} retryCount={retryCount} />;
       case 4:
         return (
           <ValidationStep
@@ -148,7 +149,9 @@ export function RegistrationForm() {
                     className="bg-students hover:bg-students/90"
                   >
                     {currentStep === 3 ? (
-                      isSubmitting ? 'Finalisation...' : 'Finaliser l\'inscription'
+                      isSubmitting ? (
+                        retryCount > 0 ? `Tentative ${retryCount}...` : 'Finalisation...'
+                      ) : 'Finaliser l\'inscription'
                     ) : (
                       <>
                         Suivant

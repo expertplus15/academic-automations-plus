@@ -1,10 +1,15 @@
 
-import { Upload, FileText, CheckCircle, AlertCircle } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useState } from 'react';
 
-export function DocumentsStep() {
+interface DocumentsStepProps {
+  isSubmitting?: boolean;
+  retryCount?: number;
+}
+
+export function DocumentsStep({ isSubmitting = false, retryCount = 0 }: DocumentsStepProps) {
   const [uploadedDocs, setUploadedDocs] = useState<string[]>([]);
 
   const requiredDocuments = [
@@ -57,7 +62,7 @@ export function DocumentsStep() {
                     </div>
                   </div>
                   
-                  {!isUploaded && (
+                  {!isUploaded && !isSubmitting && (
                     <Button
                       variant="outline"
                       size="sm"
@@ -73,6 +78,21 @@ export function DocumentsStep() {
           );
         })}
       </div>
+
+      {isSubmitting && retryCount > 0 && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="flex items-start gap-2">
+            <Clock className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+            <div className="text-sm text-yellow-800">
+              <p className="font-medium mb-1">Synchronisation en cours</p>
+              <p>
+                Tentative {retryCount} de création du compte. Ceci peut prendre quelques instants 
+                le temps que tous les systèmes se synchronisent.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <div className="flex items-start gap-2">

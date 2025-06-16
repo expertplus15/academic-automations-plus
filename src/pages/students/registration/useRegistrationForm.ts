@@ -31,6 +31,7 @@ export function useRegistrationForm() {
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [enrollmentResult, setEnrollmentResult] = useState<EnrollmentResult | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const { toast } = useToast();
 
   const form = useForm<RegistrationFormData>({
@@ -65,6 +66,7 @@ export function useRegistrationForm() {
     setStartTime(new Date());
     setCurrentStep(1);
     setEnrollmentResult(null);
+    setRetryCount(0);
   };
 
   const getElapsedTime = () => {
@@ -72,7 +74,7 @@ export function useRegistrationForm() {
     return Math.floor((new Date().getTime() - startTime.getTime()) / 1000);
   };
 
-  const submitRegistration = async (data: RegistrationFormData) => {
+  const submitRegistration = async (data: RegistrationFormData, isRetry = false) => {
     if (!startTime) return;
 
     console.log('Starting registration submission:', data);
@@ -81,10 +83,17 @@ export function useRegistrationForm() {
     try {
       const fullName = `${data.firstName} ${data.lastName}`;
       
-      toast({
-        title: "Inscription en cours...",
-        description: "Création de votre compte étudiant",
-      });
+      if (!isRetry) {
+        toast({
+          title: "Inscription en cours...",
+          description: "Création de votre compte étudiant",
+        });
+      } else {
+        toast({
+          title: "Nouvelle tentative...",
+          description: `Tentative ${retryCount + 1} de création du compte`,
+        });
+      }
 
       const result = await autoEnrollStudent({
         email: data.email,
@@ -101,8 +110,25 @@ export function useRegistrationForm() {
           description: `Numéro étudiant: ${result.studentNumber} (${elapsedTime}s)`,
         });
         setCurrentStep(4); // Success step
+        setRetryCount(0);
       } else {
         console.error('Registration failed:', result.error);
+        
+        // Si c'est un problème de synchronisation et qu'on n'a pas encore essayé de retry
+        if (result.error?.includes('synchronisation') && retryCount < 2) {
+          setRetryCount(prev => prev + 1);
+          toast({
+            title: "Synchronisation en cours...",
+            description: "Nouvelle tentative dans 3 secondes",
+          });
+          
+          // Attendre 3 secondes puis réessayer
+          setTimeout(() => {
+            submitRegistration(data, true);
+          }, 3000);
+          return;
+        }
+        
         toast({
           title: "Erreur d'inscription",
           description: result.error || "Une erreur est survenue lors de l'inscription",
@@ -132,5 +158,6 @@ export function useRegistrationForm() {
     isSubmitting,
     startTime,
     enrollmentResult,
+    retryCount,
   };
 }
