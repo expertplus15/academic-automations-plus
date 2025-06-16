@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, TrendingDown, Users, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import { useAcademicMetrics } from "@/hooks/useAcademicMetrics";
