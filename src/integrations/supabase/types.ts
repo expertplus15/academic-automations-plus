@@ -870,6 +870,96 @@ export type Database = {
           },
         ]
       }
+      schedule_conflicts: {
+        Row: {
+          affected_timetables: Json | null
+          conflict_type: string
+          created_at: string | null
+          description: string
+          id: string
+          resolution_status: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          updated_at: string | null
+        }
+        Insert: {
+          affected_timetables?: Json | null
+          conflict_type: string
+          created_at?: string | null
+          description: string
+          id?: string
+          resolution_status?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          updated_at?: string | null
+        }
+        Update: {
+          affected_timetables?: Json | null
+          conflict_type?: string
+          created_at?: string | null
+          description?: string
+          id?: string
+          resolution_status?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      schedule_generations: {
+        Row: {
+          academic_year_id: string | null
+          completed_at: string | null
+          conflicts_count: number | null
+          created_at: string | null
+          error_message: string | null
+          generated_by: string | null
+          generation_type: string
+          id: string
+          parameters: Json | null
+          program_id: string | null
+          progress_percentage: number | null
+          started_at: string | null
+          status: string
+          success_rate: number | null
+        }
+        Insert: {
+          academic_year_id?: string | null
+          completed_at?: string | null
+          conflicts_count?: number | null
+          created_at?: string | null
+          error_message?: string | null
+          generated_by?: string | null
+          generation_type?: string
+          id?: string
+          parameters?: Json | null
+          program_id?: string | null
+          progress_percentage?: number | null
+          started_at?: string | null
+          status?: string
+          success_rate?: number | null
+        }
+        Update: {
+          academic_year_id?: string | null
+          completed_at?: string | null
+          conflicts_count?: number | null
+          created_at?: string | null
+          error_message?: string | null
+          generated_by?: string | null
+          generation_type?: string
+          id?: string
+          parameters?: Json | null
+          program_id?: string | null
+          progress_percentage?: number | null
+          started_at?: string | null
+          status?: string
+          success_rate?: number | null
+        }
+        Relationships: []
+      }
       sites: {
         Row: {
           address: string | null
@@ -1250,6 +1340,42 @@ export type Database = {
         }
         Relationships: []
       }
+      teacher_availability: {
+        Row: {
+          academic_year_id: string | null
+          created_at: string | null
+          day_of_week: number
+          end_time: string
+          id: string
+          is_preferred: boolean | null
+          start_time: string
+          teacher_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          academic_year_id?: string | null
+          created_at?: string | null
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_preferred?: boolean | null
+          start_time: string
+          teacher_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          academic_year_id?: string | null
+          created_at?: string | null
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_preferred?: boolean | null
+          start_time?: string
+          teacher_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       timetables: {
         Row: {
           academic_year_id: string | null
@@ -1259,6 +1385,12 @@ export type Database = {
           exceptions: Json | null
           group_id: string | null
           id: string
+          is_flexible: boolean | null
+          max_daily_hours: number | null
+          min_break_minutes: number | null
+          preferred_end_time: string | null
+          preferred_start_time: string | null
+          priority: number | null
           program_id: string | null
           recurrence_pattern: Json | null
           room_id: string | null
@@ -1268,6 +1400,7 @@ export type Database = {
           subject_id: string | null
           teacher_id: string | null
           updated_at: string | null
+          weight: number | null
         }
         Insert: {
           academic_year_id?: string | null
@@ -1277,6 +1410,12 @@ export type Database = {
           exceptions?: Json | null
           group_id?: string | null
           id?: string
+          is_flexible?: boolean | null
+          max_daily_hours?: number | null
+          min_break_minutes?: number | null
+          preferred_end_time?: string | null
+          preferred_start_time?: string | null
+          priority?: number | null
           program_id?: string | null
           recurrence_pattern?: Json | null
           room_id?: string | null
@@ -1286,6 +1425,7 @@ export type Database = {
           subject_id?: string | null
           teacher_id?: string | null
           updated_at?: string | null
+          weight?: number | null
         }
         Update: {
           academic_year_id?: string | null
@@ -1295,6 +1435,12 @@ export type Database = {
           exceptions?: Json | null
           group_id?: string | null
           id?: string
+          is_flexible?: boolean | null
+          max_daily_hours?: number | null
+          min_break_minutes?: number | null
+          preferred_end_time?: string | null
+          preferred_start_time?: string | null
+          priority?: number | null
           program_id?: string | null
           recurrence_pattern?: Json | null
           room_id?: string | null
@@ -1304,6 +1450,7 @@ export type Database = {
           subject_id?: string | null
           teacher_id?: string | null
           updated_at?: string | null
+          weight?: number | null
         }
         Relationships: [
           {
@@ -1363,8 +1510,26 @@ export type Database = {
         }
         Returns: undefined
       }
+      detect_schedule_conflicts: {
+        Args: { p_academic_year_id?: string }
+        Returns: {
+          conflict_id: string
+          conflict_type: string
+          severity: string
+          description: string
+          affected_slots: Json
+        }[]
+      }
       generate_document_number: {
         Args: { doc_type: string }
+        Returns: string
+      }
+      generate_smart_schedule: {
+        Args: {
+          p_program_id: string
+          p_academic_year_id: string
+          p_parameters?: Json
+        }
         Returns: string
       }
       generate_student_number: {
