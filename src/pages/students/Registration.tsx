@@ -1,16 +1,16 @@
 
 import { StudentsPageHeader } from "@/components/StudentsPageHeader";
-import { EnhancedRegistrationForm } from "./registration/EnhancedRegistrationForm";
+import { UltimateRegistrationForm } from "./registration/UltimateRegistrationForm";
 
 export default function Registration() {
   return (
     <div className="min-h-screen bg-background">
       <StudentsPageHeader 
-        title="Inscription automatisée" 
-        subtitle="Processus d'inscription intelligent avec détection automatique des comptes existants" 
+        title="Inscription Intelligente" 
+        subtitle="Système d'inscription automatisé avec validation temps réel et gestion avancée des comptes existants" 
       />
       <div className="p-6">
-        <EnhancedRegistrationForm />
+        <UltimateRegistrationForm />
       </div>
     </div>
   );
