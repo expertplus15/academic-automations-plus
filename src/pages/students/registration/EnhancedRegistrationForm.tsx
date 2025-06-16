@@ -1,16 +1,13 @@
+
 import { Form } from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, ArrowRight, AlertCircle } from 'lucide-react';
 import { useEnhancedRegistrationForm } from './hooks/useEnhancedRegistrationForm';
 import { RegistrationProgress } from './RegistrationProgress';
-import { EnhancedPersonalInfoStep } from './EnhancedPersonalInfoStep';
-import { ProgramSelectionStep } from './ProgramSelectionStep';
-import { DocumentsStep } from './DocumentsStep';
-import { ValidationStep } from './ValidationStep';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { RegistrationStartScreen } from './components/RegistrationStartScreen';
+import { FormHeader } from './components/FormHeader';
+import { FormContent } from './components/FormContent';
+import { FormNavigation } from './components/FormNavigation';
 import { useEffect, useState } from 'react';
-import { getFlowTitle, getFlowDescription } from '@/services/userFlowService';
 
 export function EnhancedRegistrationForm() {
   const {
@@ -80,70 +77,8 @@ export function EnhancedRegistrationForm() {
     await submitRegistration(data, false);
   };
 
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <EnhancedPersonalInfoStep 
-            form={form} 
-            onFlowContextChange={handleFlowContextChange}
-          />
-        );
-      case 2:
-        return <ProgramSelectionStep form={form} />;
-      case 3:
-        return <DocumentsStep isSubmitting={isSubmitting} retryCount={retryCount} />;
-      case 4:
-        return (
-          <ValidationStep
-            formData={form.getValues()}
-            elapsedTime={elapsedTime}
-            studentNumber={enrollmentResult?.studentNumber}
-            isSuccess={enrollmentResult?.success}
-            isExistingUser={flowContext?.flowType === 'existing_user_conversion'}
-          />
-        );
-      default:
-        return null;
-    }
-  };
-
-  const getStepTitle = () => {
-    switch (currentStep) {
-      case 1: 
-        return flowContext ? getFlowTitle(flowContext.flowType) : 'Informations personnelles';
-      case 2: 
-        return 'Choix du programme';
-      case 3: 
-        return 'Documents';
-      case 4: 
-        return flowContext?.flowType === 'existing_user_conversion' ? 'Conversion validée' : 'Inscription validée';
-      default: 
-        return '';
-    }
-  };
-
-  const getStepDescription = () => {
-    if (currentStep === 1 && flowContext) {
-      return getFlowDescription(flowContext.flowType);
-    }
-    return null;
-  };
-
   if (!startTime) {
-    return (
-      <Card className="max-w-2xl mx-auto">
-        <CardContent className="p-8 text-center">
-          <h2 className="text-2xl font-bold mb-4">Inscription Automatisée</h2>
-          <p className="text-muted-foreground mb-6">
-            Complétez votre inscription en moins de 30 secondes grâce à notre processus automatisé.
-          </p>
-          <Button onClick={startRegistration} size="lg" className="bg-students hover:bg-students/90">
-            Commencer l'inscription
-          </Button>
-        </CardContent>
-      </Card>
-    );
+    return <RegistrationStartScreen onStart={startRegistration} />;
   }
 
   return (
@@ -152,59 +87,31 @@ export function EnhancedRegistrationForm() {
       
       <Card>
         <CardContent className="p-8">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold">{getStepTitle()}</h2>
-            {getStepDescription() && (
-              <p className="text-sm text-muted-foreground mt-1">{getStepDescription()}</p>
-            )}
-            
-            {flowContext && flowContext.flowType === 'existing_user_conversion' && currentStep < 4 && (
-              <Alert className="mt-4 border-blue-200 bg-blue-50">
-                <AlertCircle className="w-4 h-4 text-blue-600" />
-                <AlertDescription className="text-blue-800">
-                  Compte existant détecté. Nous allons convertir votre compte en compte étudiant.
-                </AlertDescription>
-              </Alert>
-            )}
-          </div>
+          <FormHeader currentStep={currentStep} flowContext={flowContext} />
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
-              {renderStepContent()}
+              <FormContent
+                currentStep={currentStep}
+                form={form}
+                isSubmitting={isSubmitting}
+                retryCount={retryCount}
+                elapsedTime={elapsedTime}
+                enrollmentResult={enrollmentResult}
+                flowContext={flowContext}
+                onFlowContextChange={handleFlowContextChange}
+              />
 
-              {currentStep < 4 && (
-                <div className="flex justify-between pt-6">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={prevStep}
-                    disabled={currentStep === 1}
-                  >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Précédent
-                  </Button>
-
-                  <Button
-                    type="button"
-                    onClick={handleNext}
-                    disabled={isSubmitting || !canProceedToNextStep(currentStep)}
-                    className="bg-students hover:bg-students/90"
-                  >
-                    {currentStep === 3 ? (
-                      isSubmitting ? (
-                        retryCount > 0 ? `Tentative ${retryCount}...` : getProcessingMessage()
-                      ) : (
-                        flowContext?.flowType === 'existing_user_conversion' ? 'Finaliser la conversion' : 'Finaliser l\'inscription'
-                      )
-                    ) : (
-                      <>
-                        Suivant
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </>
-                    )}
-                  </Button>
-                </div>
-              )}
+              <FormNavigation
+                currentStep={currentStep}
+                onPrevious={prevStep}
+                onNext={handleNext}
+                isSubmitting={isSubmitting}
+                retryCount={retryCount}
+                flowContext={flowContext}
+                canProceedToNextStep={canProceedToNextStep}
+                getProcessingMessage={getProcessingMessage}
+              />
             </form>
           </Form>
         </CardContent>
