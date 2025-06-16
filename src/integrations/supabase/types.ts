@@ -9,6 +9,85 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      academic_alerts: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          alert_type: string
+          created_at: string | null
+          current_value: number | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          is_read: boolean | null
+          message: string
+          related_subject_id: string | null
+          severity: string
+          student_id: string
+          threshold_value: number | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          alert_type: string
+          created_at?: string | null
+          current_value?: number | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_read?: boolean | null
+          message: string
+          related_subject_id?: string | null
+          severity?: string
+          student_id: string
+          threshold_value?: number | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          alert_type?: string
+          created_at?: string | null
+          current_value?: number | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_read?: boolean | null
+          message?: string
+          related_subject_id?: string | null
+          severity?: string
+          student_id?: string
+          threshold_value?: number | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academic_alerts_acknowledged_by_fkey"
+            columns: ["acknowledged_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academic_alerts_related_subject_id_fkey"
+            columns: ["related_subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academic_alerts_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       academic_calendar: {
         Row: {
           academic_year_id: string | null
@@ -130,6 +209,80 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      attendance_records: {
+        Row: {
+          academic_year_id: string | null
+          created_at: string | null
+          id: string
+          is_justified: boolean | null
+          justification: string | null
+          recorded_by: string | null
+          session_date: string
+          session_time: string
+          status: string
+          student_id: string
+          subject_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          academic_year_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_justified?: boolean | null
+          justification?: string | null
+          recorded_by?: string | null
+          session_date: string
+          session_time: string
+          status?: string
+          student_id: string
+          subject_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          academic_year_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_justified?: boolean | null
+          justification?: string | null
+          recorded_by?: string | null
+          session_date?: string
+          session_time?: string
+          status?: string
+          student_id?: string
+          subject_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_records_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_records_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_records_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_records_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       campuses: {
         Row: {
@@ -262,6 +415,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      evaluation_types: {
+        Row: {
+          code: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+          weight_percentage: number | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+          weight_percentage?: number | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+          weight_percentage?: number | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -544,6 +730,181 @@ export type Database = {
           },
         ]
       }
+      student_grades: {
+        Row: {
+          academic_year_id: string | null
+          comments: string | null
+          created_at: string | null
+          evaluation_date: string
+          evaluation_type_id: string
+          grade: number
+          id: string
+          is_published: boolean | null
+          max_grade: number | null
+          semester: number
+          student_id: string
+          subject_id: string
+          teacher_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          academic_year_id?: string | null
+          comments?: string | null
+          created_at?: string | null
+          evaluation_date: string
+          evaluation_type_id: string
+          grade: number
+          id?: string
+          is_published?: boolean | null
+          max_grade?: number | null
+          semester: number
+          student_id: string
+          subject_id: string
+          teacher_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          academic_year_id?: string | null
+          comments?: string | null
+          created_at?: string | null
+          evaluation_date?: string
+          evaluation_type_id?: string
+          grade?: number
+          id?: string
+          is_published?: boolean | null
+          max_grade?: number | null
+          semester?: number
+          student_id?: string
+          subject_id?: string
+          teacher_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_grades_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_grades_evaluation_type_id_fkey"
+            columns: ["evaluation_type_id"]
+            isOneToOne: false
+            referencedRelation: "evaluation_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_grades_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_grades_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_grades_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_progress: {
+        Row: {
+          academic_year_id: string
+          attendance_rate: number | null
+          created_at: string | null
+          credits_attempted: number | null
+          credits_earned: number | null
+          evaluations_count: number | null
+          gpa: number | null
+          id: string
+          justified_absences: number | null
+          last_calculated_at: string | null
+          overall_average: number | null
+          rank_in_class: number | null
+          semester: number
+          student_id: string
+          subject_average: number | null
+          subject_id: string | null
+          total_absences: number | null
+          total_students_in_class: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          academic_year_id: string
+          attendance_rate?: number | null
+          created_at?: string | null
+          credits_attempted?: number | null
+          credits_earned?: number | null
+          evaluations_count?: number | null
+          gpa?: number | null
+          id?: string
+          justified_absences?: number | null
+          last_calculated_at?: string | null
+          overall_average?: number | null
+          rank_in_class?: number | null
+          semester: number
+          student_id: string
+          subject_average?: number | null
+          subject_id?: string | null
+          total_absences?: number | null
+          total_students_in_class?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          academic_year_id?: string
+          attendance_rate?: number | null
+          created_at?: string | null
+          credits_attempted?: number | null
+          credits_earned?: number | null
+          evaluations_count?: number | null
+          gpa?: number | null
+          id?: string
+          justified_absences?: number | null
+          last_calculated_at?: string | null
+          overall_average?: number | null
+          rank_in_class?: number | null
+          semester?: number
+          student_id?: string
+          subject_average?: number | null
+          subject_id?: string | null
+          total_absences?: number | null
+          total_students_in_class?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_progress_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_progress_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_progress_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       students: {
         Row: {
           created_at: string
@@ -763,6 +1124,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_student_progress: {
+        Args: {
+          p_student_id: string
+          p_academic_year_id: string
+          p_semester: number
+        }
+        Returns: undefined
+      }
       generate_student_number: {
         Args: { program_code: string; enrollment_year: number }
         Returns: string
