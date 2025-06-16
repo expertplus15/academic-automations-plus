@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { format, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { DayProps } from 'react-day-picker';
 
 interface AcademicEvent {
   id: string;
@@ -104,6 +105,39 @@ export function AcademicCalendar() {
     return event.date >= monthStart && event.date <= monthEnd;
   });
 
+  const CustomDay = (props: DayProps) => {
+    const { date, ...dayProps } = props;
+    const dayEvents = getEventsForDate(date);
+    
+    return (
+      <div className="relative">
+        <button {...dayProps}>
+          {date.getDate()}
+        </button>
+        {dayEvents.length > 0 && (
+          <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
+            <div className="flex gap-1">
+              {dayEvents.slice(0, 3).map((event, index) => (
+                <div
+                  key={index}
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    event.type === 'exam' ? 'bg-red-500' :
+                    event.type === 'holiday' ? 'bg-green-500' :
+                    event.type === 'deadline' ? 'bg-orange-500' :
+                    'bg-blue-500'
+                  }`}
+                />
+              ))}
+              {dayEvents.length > 3 && (
+                <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* En-tête et contrôles */}
@@ -167,36 +201,7 @@ export function AcademicCalendar() {
                   locale={fr}
                   className="w-full"
                   components={{
-                    Day: ({ date, ...props }) => {
-                      const dayEvents = getEventsForDate(date);
-                      return (
-                        <div className="relative">
-                          <button {...props} className={props.className}>
-                            {date.getDate()}
-                          </button>
-                          {dayEvents.length > 0 && (
-                            <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2">
-                              <div className="flex gap-1">
-                                {dayEvents.slice(0, 3).map((event, index) => (
-                                  <div
-                                    key={index}
-                                    className={`w-1.5 h-1.5 rounded-full ${
-                                      event.type === 'exam' ? 'bg-red-500' :
-                                      event.type === 'holiday' ? 'bg-green-500' :
-                                      event.type === 'deadline' ? 'bg-orange-500' :
-                                      'bg-blue-500'
-                                    }`}
-                                  />
-                                ))}
-                                {dayEvents.length > 3 && (
-                                  <div className="w-1.5 h-1.5 rounded-full bg-gray-400" />
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    }
+                    Day: CustomDay
                   }}
                 />
               ) : (
