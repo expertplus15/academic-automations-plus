@@ -15,6 +15,19 @@ export const getSeverityBadge = (severity: string) => {
   }
 };
 
+export const getSeverityColor = (severity: string) => {
+  switch (severity) {
+    case 'high':
+      return 'destructive';
+    case 'medium':
+      return 'secondary';
+    case 'low':
+      return 'outline';
+    default:
+      return 'outline';
+  }
+};
+
 export const getStatusBadge = (status: string) => {
   switch (status) {
     case 'active':
@@ -38,5 +51,22 @@ export const getAlertIcon = (type: string) => {
       return <Clock className="w-4 h-4 text-blue-500" />;
     default:
       return <Bell className="w-4 h-4 text-gray-500" />;
+  }
+};
+
+export const getAlertTypeLabel = (type: string) => {
+  switch (type) {
+    case 'absence':
+      return 'Absence';
+    case 'grade':
+      return 'Note';
+    case 'attendance':
+      return 'Assiduité';
+    case 'performance':
+      return 'Performance';
+    case 'behavior':
+      return 'Comportement';
+    default:
+      return type;
   }
 };
