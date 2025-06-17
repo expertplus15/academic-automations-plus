@@ -87,13 +87,16 @@ export function useExamRooms() {
           variant: 'destructive'
         });
       } else {
-        let filteredRooms = data || [];
+        let filteredRooms = (data || []).map((room: any) => ({
+          ...room,
+          equipment: Array.isArray(room.equipment) ? room.equipment : []
+        }));
         
         // Filtrage par équipement si spécifié
         if (filters?.hasEquipment && filters.hasEquipment.length > 0) {
           filteredRooms = filteredRooms.filter(room => 
             filters.hasEquipment!.every(equipment => 
-              room.equipment && room.equipment.includes(equipment)
+              room.equipment && Array.isArray(room.equipment) && room.equipment.includes(equipment)
             )
           );
         }
