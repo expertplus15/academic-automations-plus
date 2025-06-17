@@ -7,15 +7,15 @@ export interface Exam {
   subject_id?: string;
   academic_year_id?: string;
   program_id?: string;
-  exam_type: string; // Changé de union vers string
+  exam_type: string;
   title: string;
   description?: string;
   duration_minutes: number;
   max_students?: number;
   min_supervisors: number;
   instructions: any;
-  materials_required: any[];
-  status: string; // Changé de union vers string
+  materials_required: any;
+  status: string;
   created_by?: string;
   created_at: string;
   updated_at: string;
@@ -28,7 +28,7 @@ export interface ExamSession {
   start_time: string;
   end_time: string;
   actual_students_count: number;
-  status: string; // Changé de union vers string
+  status: string;
   notes?: string;
   created_at: string;
   updated_at: string;
@@ -36,8 +36,8 @@ export interface ExamSession {
 
 export interface ExamConflict {
   conflict_id: string;
-  conflict_type: string; // Changé de union vers string
-  severity: string; // Changé de union vers string
+  conflict_type: string;
+  severity: string;
   title: string;
   description: string;
   affected_data: any;
@@ -63,7 +63,26 @@ export function useExams() {
       if (error) {
         setError(error.message);
       } else {
-        setExams(data || []);
+        // Mapping des données pour assurer la compatibilité des types
+        const mappedExams = (data || []).map((exam: any) => ({
+          id: exam.id,
+          subject_id: exam.subject_id,
+          academic_year_id: exam.academic_year_id,
+          program_id: exam.program_id,
+          exam_type: exam.exam_type,
+          title: exam.title,
+          description: exam.description,
+          duration_minutes: exam.duration_minutes,
+          max_students: exam.max_students,
+          min_supervisors: exam.min_supervisors,
+          instructions: exam.instructions,
+          materials_required: exam.materials_required,
+          status: exam.status,
+          created_by: exam.created_by,
+          created_at: exam.created_at,
+          updated_at: exam.updated_at
+        }));
+        setExams(mappedExams);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
@@ -95,12 +114,25 @@ export function useExams() {
     }
   };
 
-  const createExam = async (examData: Partial<Exam>) => {
+  const createExam = async (examData: {
+    subject_id?: string;
+    academic_year_id?: string;
+    program_id?: string;
+    exam_type?: string;
+    title: string;
+    description?: string;
+    duration_minutes?: number;
+    max_students?: number;
+    min_supervisors?: number;
+    instructions?: any;
+    materials_required?: any;
+    status?: string;
+  }) => {
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from('exams')
-        .insert(examData) // Correction : utiliser examData au lieu de [examData]
+        .insert(examData)
         .select()
         .single();
 
@@ -119,7 +151,20 @@ export function useExams() {
     }
   };
 
-  const updateExam = async (examId: string, examData: Partial<Exam>) => {
+  const updateExam = async (examId: string, examData: {
+    subject_id?: string;
+    academic_year_id?: string;
+    program_id?: string;
+    exam_type?: string;
+    title?: string;
+    description?: string;
+    duration_minutes?: number;
+    max_students?: number;
+    min_supervisors?: number;
+    instructions?: any;
+    materials_required?: any;
+    status?: string;
+  }) => {
     try {
       setLoading(true);
       const { data, error } = await supabase
