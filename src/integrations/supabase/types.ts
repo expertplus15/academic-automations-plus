@@ -623,6 +623,290 @@ export type Database = {
         }
         Relationships: []
       }
+      exam_conflicts: {
+        Row: {
+          affected_exams: Json | null
+          affected_sessions: Json | null
+          auto_resolvable: boolean | null
+          conflict_type: string
+          created_at: string | null
+          description: string
+          id: string
+          resolution_notes: string | null
+          resolution_status: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          affected_exams?: Json | null
+          affected_sessions?: Json | null
+          auto_resolvable?: boolean | null
+          conflict_type: string
+          created_at?: string | null
+          description: string
+          id?: string
+          resolution_notes?: string | null
+          resolution_status?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          affected_exams?: Json | null
+          affected_sessions?: Json | null
+          auto_resolvable?: boolean | null
+          conflict_type?: string
+          created_at?: string | null
+          description?: string
+          id?: string
+          resolution_notes?: string | null
+          resolution_status?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      exam_registrations: {
+        Row: {
+          exam_id: string
+          id: string
+          registration_date: string | null
+          seat_number: string | null
+          session_id: string | null
+          special_accommodations: Json | null
+          status: string
+          student_id: string
+        }
+        Insert: {
+          exam_id: string
+          id?: string
+          registration_date?: string | null
+          seat_number?: string | null
+          session_id?: string | null
+          special_accommodations?: Json | null
+          status?: string
+          student_id: string
+        }
+        Update: {
+          exam_id?: string
+          id?: string
+          registration_date?: string | null
+          seat_number?: string | null
+          session_id?: string | null
+          special_accommodations?: Json | null
+          status?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_registrations_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_registrations_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "exam_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_registrations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exam_sessions: {
+        Row: {
+          actual_students_count: number | null
+          created_at: string | null
+          end_time: string
+          exam_id: string
+          id: string
+          notes: string | null
+          room_id: string | null
+          start_time: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          actual_students_count?: number | null
+          created_at?: string | null
+          end_time: string
+          exam_id: string
+          id?: string
+          notes?: string | null
+          room_id?: string | null
+          start_time: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          actual_students_count?: number | null
+          created_at?: string | null
+          end_time?: string
+          exam_id?: string
+          id?: string
+          notes?: string | null
+          room_id?: string | null
+          start_time?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_sessions_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_sessions_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exam_supervisors: {
+        Row: {
+          assigned_at: string | null
+          confirmed_at: string | null
+          id: string
+          session_id: string
+          status: string
+          supervisor_role: string
+          teacher_id: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          confirmed_at?: string | null
+          id?: string
+          session_id: string
+          status?: string
+          supervisor_role?: string
+          teacher_id: string
+        }
+        Update: {
+          assigned_at?: string | null
+          confirmed_at?: string | null
+          id?: string
+          session_id?: string
+          status?: string
+          supervisor_role?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_supervisors_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "exam_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_supervisors_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exams: {
+        Row: {
+          academic_year_id: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          duration_minutes: number
+          exam_type: string
+          id: string
+          instructions: Json | null
+          materials_required: Json | null
+          max_students: number | null
+          min_supervisors: number | null
+          program_id: string | null
+          status: string
+          subject_id: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          academic_year_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          duration_minutes?: number
+          exam_type?: string
+          id?: string
+          instructions?: Json | null
+          materials_required?: Json | null
+          max_students?: number | null
+          min_supervisors?: number | null
+          program_id?: string | null
+          status?: string
+          subject_id?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          academic_year_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          duration_minutes?: number
+          exam_type?: string
+          id?: string
+          instructions?: Json | null
+          materials_required?: Json | null
+          max_students?: number | null
+          min_supervisors?: number | null
+          program_id?: string | null
+          status?: string
+          subject_id?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exams_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exams_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exams_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       generated_documents: {
         Row: {
           document_number: string
@@ -1510,6 +1794,17 @@ export type Database = {
         }
         Returns: undefined
       }
+      detect_exam_conflicts: {
+        Args: { p_academic_year_id?: string }
+        Returns: {
+          conflict_id: string
+          conflict_type: string
+          severity: string
+          title: string
+          description: string
+          affected_data: Json
+        }[]
+      }
       detect_schedule_conflicts: {
         Args: { p_academic_year_id?: string }
         Returns: {
@@ -1522,6 +1817,14 @@ export type Database = {
       }
       generate_document_number: {
         Args: { doc_type: string }
+        Returns: string
+      }
+      generate_exam_schedule: {
+        Args: {
+          p_academic_year_id: string
+          p_program_id?: string
+          p_parameters?: Json
+        }
         Returns: string
       }
       generate_smart_schedule: {
