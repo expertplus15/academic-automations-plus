@@ -56,6 +56,7 @@ export function useTimetables(programId?: string, academicYearId?: string) {
   const fetchTimetables = async () => {
     try {
       setLoading(true);
+      setError(null);
       console.log('Fetching timetables with filters:', { programId, academicYearId });
       
       let query = supabase
@@ -81,14 +82,17 @@ export function useTimetables(programId?: string, academicYearId?: string) {
 
       if (error) {
         console.error('Error fetching timetables:', error);
-        setError(error.message);
+        setError(`Erreur lors du chargement des créneaux: ${error.message}`);
+        setTimetables([]);
       } else {
         console.log('Fetched timetables:', data);
         setTimetables(data as Timetable[] || []);
       }
     } catch (err) {
       console.error('Unexpected error:', err);
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+      const errorMessage = err instanceof Error ? err.message : 'Une erreur inattendue est survenue';
+      setError(errorMessage);
+      setTimetables([]);
     } finally {
       setLoading(false);
     }
@@ -98,6 +102,11 @@ export function useTimetables(programId?: string, academicYearId?: string) {
     try {
       console.log('Creating timetable with data:', timetableData);
       
+      // Validation des données avant insertion
+      if (!timetableData.subject_id || !timetableData.room_id || !timetableData.teacher_id) {
+        throw new Error('Les champs matière, salle et enseignant sont obligatoires');
+      }
+
       const { data, error } = await supabase
         .from('timetables')
         .insert(timetableData)
@@ -112,7 +121,26 @@ export function useTimetables(programId?: string, academicYearId?: string) {
 
       if (error) {
         console.error('Error creating timetable:', error);
-        throw error;
+        // Messages d'erreur plus explicites
+        let errorMessage = 'Erreur lors de la création du créneau';
+        
+        if (error.code === '23503') {
+          if (error.message.includes('subject_id')) {
+            errorMessage = 'La matière spécifiée n\'existe pas';
+          } else if (error.message.includes('room_id')) {
+            errorMessage = 'La salle spécifiée n\'existe pas';
+          } else if (error.message.includes('teacher_id')) {
+            errorMessage = 'L\'enseignant spécifié n\'existe pas';
+          } else if (error.message.includes('group_id')) {
+            errorMessage = 'Le groupe spécifié n\'existe pas';
+          } else {
+            errorMessage = 'Une ou plusieurs références sont invalides';
+          }
+        } else if (error.code === '23505') {
+          errorMessage = 'Un conflit de contrainte unique a été détecté';
+        }
+        
+        throw new Error(errorMessage);
       }
 
       console.log('Successfully created timetable:', data);
@@ -120,7 +148,7 @@ export function useTimetables(programId?: string, academicYearId?: string) {
       // Rafraîchir la liste après création
       await fetchTimetables();
       
-      return { data, error };
+      return { data, error: null };
     } catch (err) {
       console.error('Error in createTimetable:', err);
       throw err;
@@ -146,7 +174,22 @@ export function useTimetables(programId?: string, academicYearId?: string) {
 
       if (error) {
         console.error('Error updating timetable:', error);
-        throw error;
+        
+        let errorMessage = 'Erreur lors de la modification du créneau';
+        
+        if (error.code === '23503') {
+          if (error.message.includes('subject_id')) {
+            errorMessage = 'La matière spécifiée n\'existe pas';
+          } else if (error.message.includes('room_id')) {
+            errorMessage = 'La salle spécifiée n\'existe pas';
+          } else if (error.message.includes('teacher_id')) {
+            errorMessage = 'L\'enseignant spécifié n\'existe pas';
+          } else if (error.message.includes('group_id')) {
+            errorMessage = 'Le groupe spécifié n\'existe pas';
+          }
+        }
+        
+        throw new Error(errorMessage);
       }
 
       console.log('Successfully updated timetable:', data);
@@ -154,7 +197,7 @@ export function useTimetables(programId?: string, academicYearId?: string) {
       // Rafraîchir la liste après mise à jour
       await fetchTimetables();
       
-      return { data, error };
+      return { data, error: null };
     } catch (err) {
       console.error('Error in updateTimetable:', err);
       throw err;
@@ -172,7 +215,7 @@ export function useTimetables(programId?: string, academicYearId?: string) {
 
       if (error) {
         console.error('Error deleting timetable:', error);
-        throw error;
+        throw new Error('Erreur lors de la suppression du créneau');
       }
 
       console.log('Successfully deleted timetable:', id);
@@ -180,7 +223,7 @@ export function useTimetables(programId?: string, academicYearId?: string) {
       // Rafraîchir la liste après suppression
       await fetchTimetables();
       
-      return { error };
+      return { error: null };
     } catch (err) {
       console.error('Error in deleteTimetable:', err);
       throw err;

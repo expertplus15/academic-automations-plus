@@ -7,6 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Timetable } from '@/hooks/useTimetables';
 import { useToast } from '@/hooks/use-toast';
+import { useEntityValidation } from '@/hooks/useEntityValidation';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertTriangle, Loader2 } from 'lucide-react';
 
 interface TimetableSlotModalProps {
   isOpen: boolean;
@@ -21,7 +24,10 @@ const DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
 export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot, programId }: TimetableSlotModalProps) {
   const { toast } = useToast();
+  const { validateTimetableData, checkTimeConflicts, isValidating } = useEntityValidation();
   const [isLoading, setIsLoading] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [conflictWarnings, setConflictWarnings] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     subject_id: '',
     room_id: '',
@@ -51,51 +57,68 @@ export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot, pr
         slot_type: slot?.slot_type || 'course',
         status: slot?.status || 'scheduled'
       });
+      
+      setValidationErrors([]);
+      setConflictWarnings([]);
     }
   }, [isOpen, slot, timeSlot]);
 
-  const validateForm = () => {
-    if (!formData.subject_id) {
-      toast({
-        title: "Erreur de validation",
-        description: "Veuillez saisir un ID de matière",
-        variant: "destructive"
-      });
-      return false;
-    }
-    
-    if (!formData.room_id) {
-      toast({
-        title: "Erreur de validation",
-        description: "Veuillez saisir un ID de salle",
-        variant: "destructive"
-      });
-      return false;
-    }
+  const validateForm = async () => {
+    setValidationErrors([]);
+    setConflictWarnings([]);
 
-    if (!formData.teacher_id) {
-      toast({
-        title: "Erreur de validation",
-        description: "Veuillez saisir un ID d'enseignant",
-        variant: "destructive"
-      });
+    // Validation de base
+    if (!formData.subject_id || !formData.room_id || !formData.teacher_id) {
+      const errors = [];
+      if (!formData.subject_id) errors.push('L\'ID de la matière est requis');
+      if (!formData.room_id) errors.push('L\'ID de la salle est requis');
+      if (!formData.teacher_id) errors.push('L\'ID de l\'enseignant est requis');
+      setValidationErrors(errors);
       return false;
     }
 
     if (formData.start_time >= formData.end_time) {
-      toast({
-        title: "Erreur de validation",
-        description: "L'heure de fin doit être postérieure à l'heure de début",
-        variant: "destructive"
-      });
+      setValidationErrors(['L\'heure de fin doit être postérieure à l\'heure de début']);
       return false;
+    }
+
+    // Validation des entités
+    console.log('Validation des entités...', formData);
+    const validation = await validateTimetableData({
+      subject_id: formData.subject_id,
+      room_id: formData.room_id,
+      teacher_id: formData.teacher_id,
+      group_id: formData.group_id || undefined
+    });
+
+    if (!validation.isValid) {
+      setValidationErrors(validation.errors);
+      return false;
+    }
+
+    // Vérification des conflits
+    console.log('Vérification des conflits...');
+    const conflictCheck = await checkTimeConflicts(
+      formData.day_of_week,
+      formData.start_time,
+      formData.end_time,
+      formData.room_id,
+      formData.teacher_id,
+      undefined, // academic_year_id
+      slot?.id // exclure le créneau actuel en cas de modification
+    );
+
+    if (conflictCheck.hasConflicts) {
+      setConflictWarnings(conflictCheck.conflicts);
+      // Les conflits sont des avertissements, pas des erreurs bloquantes
     }
 
     return true;
   };
 
   const handleSave = async () => {
-    if (!validateForm()) {
+    const isValid = await validateForm();
+    if (!isValid) {
       return;
     }
 
@@ -133,11 +156,19 @@ export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot, pr
   const handleChange = (field: string, value: any) => {
     console.log(`Changing ${field} to:`, value);
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Réinitialiser les erreurs lors des changements
+    if (validationErrors.length > 0) {
+      setValidationErrors([]);
+    }
+    if (conflictWarnings.length > 0) {
+      setConflictWarnings([]);
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {slot ? 'Modifier le créneau' : 'Nouveau créneau'}
@@ -145,6 +176,35 @@ export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot, pr
         </DialogHeader>
         
         <div className="space-y-4">
+          {/* Affichage des erreurs de validation */}
+          {validationErrors.length > 0 && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                <ul className="list-disc list-inside space-y-1">
+                  {validationErrors.map((error, index) => (
+                    <li key={index}>{error}</li>
+                  ))}
+                </ul>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Affichage des avertissements de conflit */}
+          {conflictWarnings.length > 0 && (
+            <Alert>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                <div className="font-medium mb-1">Conflits détectés :</div>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  {conflictWarnings.map((warning, index) => (
+                    <li key={index}>{warning}</li>
+                  ))}
+                </ul>
+              </AlertDescription>
+            </Alert>
+          )}
+
           <div>
             <Label>Jour de la semaine</Label>
             <Select 
@@ -206,7 +266,7 @@ export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot, pr
             <Input
               value={formData.subject_id}
               onChange={(e) => handleChange('subject_id', e.target.value)}
-              placeholder="Saisir l'ID de la matière"
+              placeholder="ex: 123e4567-e89b-12d3-a456-426614174000"
             />
           </div>
 
@@ -215,7 +275,7 @@ export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot, pr
             <Input
               value={formData.room_id}
               onChange={(e) => handleChange('room_id', e.target.value)}
-              placeholder="Saisir l'ID de la salle"
+              placeholder="ex: 123e4567-e89b-12d3-a456-426614174000"
             />
           </div>
 
@@ -224,7 +284,7 @@ export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot, pr
             <Input
               value={formData.teacher_id}
               onChange={(e) => handleChange('teacher_id', e.target.value)}
-              placeholder="Saisir l'ID de l'enseignant"
+              placeholder="ex: 123e4567-e89b-12d3-a456-426614174000"
             />
           </div>
 
@@ -233,16 +293,27 @@ export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot, pr
             <Input
               value={formData.group_id}
               onChange={(e) => handleChange('group_id', e.target.value)}
-              placeholder="Saisir l'ID du groupe (optionnel)"
+              placeholder="ex: 123e4567-e89b-12d3-a456-426614174000 (optionnel)"
             />
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={onClose} disabled={isLoading}>
+            <Button variant="outline" onClick={onClose} disabled={isLoading || isValidating}>
               Annuler
             </Button>
-            <Button onClick={handleSave} disabled={isLoading}>
-              {isLoading ? 'Sauvegarde...' : (slot ? 'Modifier' : 'Créer')}
+            <Button 
+              onClick={handleSave} 
+              disabled={isLoading || isValidating}
+              className="min-w-[100px]"
+            >
+              {isLoading || isValidating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {isValidating ? 'Validation...' : 'Sauvegarde...'}
+                </>
+              ) : (
+                slot ? 'Modifier' : 'Créer'
+              )}
             </Button>
           </div>
         </div>
