@@ -39,7 +39,14 @@ export function useAcademicEvents(academicYearId?: string) {
         setError(error.message);
         setEvents([]);
       } else {
-        setEvents(data || []);
+        // Transform the data to match our interface
+        const transformedEvents = (data || []).map(event => ({
+          ...event,
+          affects_programs: Array.isArray(event.affects_programs) 
+            ? event.affects_programs 
+            : []
+        }));
+        setEvents(transformedEvents);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
@@ -59,8 +66,16 @@ export function useAcademicEvents(academicYearId?: string) {
 
       if (error) throw error;
 
-      setEvents(prev => [...prev, data]);
-      return { success: true, data };
+      // Transform the response data
+      const transformedEvent = {
+        ...data,
+        affects_programs: Array.isArray(data.affects_programs) 
+          ? data.affects_programs 
+          : []
+      };
+
+      setEvents(prev => [...prev, transformedEvent]);
+      return { success: true, data: transformedEvent };
     } catch (err) {
       return { 
         success: false, 
@@ -80,8 +95,16 @@ export function useAcademicEvents(academicYearId?: string) {
 
       if (error) throw error;
 
-      setEvents(prev => prev.map(event => event.id === id ? data : event));
-      return { success: true, data };
+      // Transform the response data
+      const transformedEvent = {
+        ...data,
+        affects_programs: Array.isArray(data.affects_programs) 
+          ? data.affects_programs 
+          : []
+      };
+
+      setEvents(prev => prev.map(event => event.id === id ? transformedEvent : event));
+      return { success: true, data: transformedEvent };
     } catch (err) {
       return { 
         success: false, 
