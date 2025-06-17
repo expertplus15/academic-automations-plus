@@ -10,7 +10,7 @@ export interface Room {
   room_type: string;
   building?: string;
   status: string;
-  equipment: any[];
+  equipment: any;
 }
 
 export function useRooms() {

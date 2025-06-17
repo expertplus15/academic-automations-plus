@@ -18,38 +18,44 @@ export function useClassGroups(programId?: string, academicYearId?: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        setLoading(true);
-        let query = supabase
-          .from('class_groups')
-          .select('id, name, code, max_students, current_students, group_type, program_id, academic_year_id')
-          .order('name');
+  const refetch = async () => {
+    try {
+      setLoading(true);
+      let query = supabase
+        .from('class_groups')
+        .select('id, name, code, max_students, current_students, group_type, program_id, academic_year_id')
+        .order('name');
 
-        if (programId) {
-          query = query.eq('program_id', programId);
-        }
-        if (academicYearId) {
-          query = query.eq('academic_year_id', academicYearId);
-        }
-
-        const { data, error } = await query;
-
-        if (error) {
-          setError(error.message);
-        } else {
-          setGroups(data || []);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Une erreur est survenue');
-      } finally {
-        setLoading(false);
+      if (programId) {
+        query = query.eq('program_id', programId);
       }
-    };
+      if (academicYearId) {
+        query = query.eq('academic_year_id', academicYearId);
+      }
 
-    fetchGroups();
+      const { data, error } = await query;
+
+      if (error) {
+        setError(error.message);
+      } else {
+        setGroups(data || []);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refetch();
   }, [programId, academicYearId]);
 
-  return { groups, loading, error };
+  return { 
+    groups, 
+    loading, 
+    error,
+    data: groups,
+    refetch
+  };
 }
