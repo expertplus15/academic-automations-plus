@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
+type ValidTableName = 'subjects' | 'rooms' | 'profiles' | 'class_groups';
+
 export function useEntityValidation() {
   const [isValidating, setIsValidating] = useState(false);
 
@@ -10,7 +12,7 @@ export function useEntityValidation() {
     return uuidRegex.test(id);
   };
 
-  const validateEntityExists = async (table: string, id: string): Promise<boolean> => {
+  const validateEntityExists = async (table: ValidTableName, id: string): Promise<boolean> => {
     if (!validateUUID(id)) {
       return false;
     }
