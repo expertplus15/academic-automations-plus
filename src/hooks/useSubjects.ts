@@ -34,11 +34,13 @@ export function useSubjects(programId?: string) {
 
         if (error) {
           setError(error.message);
+          setSubjects([]);
         } else {
           setSubjects(data || []);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+        setSubjects([]);
       } finally {
         setLoading(false);
       }

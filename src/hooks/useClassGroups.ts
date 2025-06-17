@@ -37,11 +37,13 @@ export function useClassGroups(programId?: string, academicYearId?: string) {
 
       if (error) {
         setError(error.message);
+        setGroups([]);
       } else {
         setGroups(data || []);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+      setGroups([]);
     } finally {
       setLoading(false);
     }

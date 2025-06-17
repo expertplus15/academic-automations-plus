@@ -27,11 +27,13 @@ export function useTeachers() {
 
         if (error) {
           setError(error.message);
+          setTeachers([]);
         } else {
           setTeachers(data || []);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+        setTeachers([]);
       } finally {
         setLoading(false);
       }

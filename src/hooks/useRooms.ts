@@ -30,11 +30,13 @@ export function useRooms() {
 
         if (error) {
           setError(error.message);
+          setRooms([]);
         } else {
           setRooms(data || []);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+        setRooms([]);
       } finally {
         setLoading(false);
       }

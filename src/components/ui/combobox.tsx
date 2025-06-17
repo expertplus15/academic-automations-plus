@@ -34,7 +34,7 @@ interface ComboboxProps {
 }
 
 export function Combobox({
-  options,
+  options = [],
   value,
   onValueChange,
   placeholder = "Sélectionner une option...",
