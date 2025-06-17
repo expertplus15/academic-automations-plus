@@ -5,9 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { Timetable } from '@/hooks/useTimetables';
 import { useToast } from '@/hooks/use-toast';
+import { SubjectSelector } from './timetable/SubjectSelector';
+import { RoomSelector } from './timetable/RoomSelector';
+import { TeacherSelector } from './timetable/TeacherSelector';
+import { GroupSelector } from './timetable/GroupSelector';
 
 interface TimetableSlotModalProps {
   isOpen: boolean;
@@ -15,11 +18,12 @@ interface TimetableSlotModalProps {
   onSave: (data: any) => void;
   slot?: Timetable | null;
   timeSlot?: { day: number; start: string; end: string } | null;
+  programId?: string;
 }
 
 const DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
-export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot }: TimetableSlotModalProps) {
+export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot, programId }: TimetableSlotModalProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -55,28 +59,28 @@ export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot }: 
   }, [isOpen, slot, timeSlot]);
 
   const validateForm = () => {
-    if (!formData.subject_id.trim()) {
+    if (!formData.subject_id) {
       toast({
         title: "Erreur de validation",
-        description: "Veuillez saisir un ID de matière",
+        description: "Veuillez sélectionner une matière",
         variant: "destructive"
       });
       return false;
     }
     
-    if (!formData.room_id.trim()) {
+    if (!formData.room_id) {
       toast({
         title: "Erreur de validation",
-        description: "Veuillez saisir un ID de salle",
+        description: "Veuillez sélectionner une salle",
         variant: "destructive"
       });
       return false;
     }
 
-    if (!formData.teacher_id.trim()) {
+    if (!formData.teacher_id) {
       toast({
         title: "Erreur de validation",
-        description: "Veuillez saisir un ID d'enseignant",
+        description: "Veuillez sélectionner un enseignant",
         variant: "destructive"
       });
       return false;
@@ -102,7 +106,15 @@ export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot }: 
     setIsLoading(true);
     try {
       console.log('Saving timetable slot with data:', formData);
-      await onSave(formData);
+      
+      // Préparer les données avec program_id si disponible
+      const dataToSave = {
+        ...formData,
+        group_id: formData.group_id || null,
+        program_id: programId || null
+      };
+      
+      await onSave(dataToSave);
       
       toast({
         title: "Succès",
@@ -193,44 +205,27 @@ export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot }: 
             </Select>
           </div>
 
-          <div>
-            <Label>Matière (ID) *</Label>
-            <Input 
-              placeholder="ID de la matière (obligatoire)"
-              value={formData.subject_id}
-              onChange={(e) => handleChange('subject_id', e.target.value)}
-              required
-            />
-          </div>
+          <SubjectSelector
+            value={formData.subject_id}
+            onValueChange={(value) => handleChange('subject_id', value)}
+            programId={programId}
+          />
 
-          <div>
-            <Label>Salle (ID) *</Label>
-            <Input 
-              placeholder="ID de la salle (obligatoire)"
-              value={formData.room_id}
-              onChange={(e) => handleChange('room_id', e.target.value)}
-              required
-            />
-          </div>
+          <RoomSelector
+            value={formData.room_id}
+            onValueChange={(value) => handleChange('room_id', value)}
+          />
 
-          <div>
-            <Label>Enseignant (ID) *</Label>
-            <Input 
-              placeholder="ID de l'enseignant (obligatoire)"
-              value={formData.teacher_id}
-              onChange={(e) => handleChange('teacher_id', e.target.value)}
-              required
-            />
-          </div>
+          <TeacherSelector
+            value={formData.teacher_id}
+            onValueChange={(value) => handleChange('teacher_id', value)}
+          />
 
-          <div>
-            <Label>Groupe (ID)</Label>
-            <Input 
-              placeholder="ID du groupe (optionnel)"
-              value={formData.group_id}
-              onChange={(e) => handleChange('group_id', e.target.value)}
-            />
-          </div>
+          <GroupSelector
+            value={formData.group_id}
+            onValueChange={(value) => handleChange('group_id', value)}
+            programId={programId}
+          />
 
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={onClose} disabled={isLoading}>
