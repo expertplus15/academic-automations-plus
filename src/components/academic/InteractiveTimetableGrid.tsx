@@ -5,9 +5,7 @@ import { TimetableSlotModal } from './TimetableSlotModal';
 import { TimetableHeader } from './timetable/TimetableHeader';
 import { ConflictAlert } from './timetable/ConflictAlert';
 import { TimetableGrid } from './timetable/TimetableGrid';
-import { TestDataCreator } from './timetable/TestDataCreator';
 import { useTimetableDragDrop } from './timetable/useTimetableDragDrop';
-import { useTable } from '@/hooks/useSupabase';
 
 interface InteractiveTimetableGridProps {
   programId?: string;
@@ -26,13 +24,6 @@ export function InteractiveTimetableGrid({ programId, academicYearId }: Interact
   const [modalOpen, setModalOpen] = useState(false);
   const [editingSlot, setEditingSlot] = useState<Timetable | null>(null);
   const [newSlotPosition, setNewSlotPosition] = useState<{ day: number; start: string; end: string } | null>(null);
-
-  // Vérifier s'il y a des données de base
-  const { data: subjects } = useTable('subjects');
-  const { data: rooms } = useTable('rooms');
-  const { data: teachers } = useTable('profiles', '*', { role: 'teacher' });
-
-  const hasBaseData = subjects?.length > 0 && rooms?.length > 0 && teachers?.length > 0;
 
   const {
     dropTarget,
@@ -107,11 +98,6 @@ export function InteractiveTimetableGrid({ programId, academicYearId }: Interact
         <div className="text-muted-foreground">Chargement de l'emploi du temps...</div>
       </div>
     );
-  }
-
-  // Afficher le créateur de données de test si pas de données de base
-  if (!hasBaseData) {
-    return <TestDataCreator />;
   }
 
   return (

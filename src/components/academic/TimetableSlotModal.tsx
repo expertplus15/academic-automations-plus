@@ -7,10 +7,6 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Timetable } from '@/hooks/useTimetables';
 import { useToast } from '@/hooks/use-toast';
-import { SubjectSelector } from './timetable/SubjectSelector';
-import { RoomSelector } from './timetable/RoomSelector';
-import { TeacherSelector } from './timetable/TeacherSelector';
-import { GroupSelector } from './timetable/GroupSelector';
 
 interface TimetableSlotModalProps {
   isOpen: boolean;
@@ -62,7 +58,7 @@ export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot, pr
     if (!formData.subject_id) {
       toast({
         title: "Erreur de validation",
-        description: "Veuillez sélectionner une matière",
+        description: "Veuillez saisir un ID de matière",
         variant: "destructive"
       });
       return false;
@@ -71,7 +67,7 @@ export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot, pr
     if (!formData.room_id) {
       toast({
         title: "Erreur de validation",
-        description: "Veuillez sélectionner une salle",
+        description: "Veuillez saisir un ID de salle",
         variant: "destructive"
       });
       return false;
@@ -80,7 +76,7 @@ export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot, pr
     if (!formData.teacher_id) {
       toast({
         title: "Erreur de validation",
-        description: "Veuillez sélectionner un enseignant",
+        description: "Veuillez saisir un ID d'enseignant",
         variant: "destructive"
       });
       return false;
@@ -205,27 +201,41 @@ export function TimetableSlotModal({ isOpen, onClose, onSave, slot, timeSlot, pr
             </Select>
           </div>
 
-          <SubjectSelector
-            value={formData.subject_id}
-            onValueChange={(value) => handleChange('subject_id', value)}
-            programId={programId}
-          />
+          <div>
+            <Label>ID Matière *</Label>
+            <Input
+              value={formData.subject_id}
+              onChange={(e) => handleChange('subject_id', e.target.value)}
+              placeholder="Saisir l'ID de la matière"
+            />
+          </div>
 
-          <RoomSelector
-            value={formData.room_id}
-            onValueChange={(value) => handleChange('room_id', value)}
-          />
+          <div>
+            <Label>ID Salle *</Label>
+            <Input
+              value={formData.room_id}
+              onChange={(e) => handleChange('room_id', e.target.value)}
+              placeholder="Saisir l'ID de la salle"
+            />
+          </div>
 
-          <TeacherSelector
-            value={formData.teacher_id}
-            onValueChange={(value) => handleChange('teacher_id', value)}
-          />
+          <div>
+            <Label>ID Enseignant *</Label>
+            <Input
+              value={formData.teacher_id}
+              onChange={(e) => handleChange('teacher_id', e.target.value)}
+              placeholder="Saisir l'ID de l'enseignant"
+            />
+          </div>
 
-          <GroupSelector
-            value={formData.group_id}
-            onValueChange={(value) => handleChange('group_id', value)}
-            programId={programId}
-          />
+          <div>
+            <Label>ID Groupe</Label>
+            <Input
+              value={formData.group_id}
+              onChange={(e) => handleChange('group_id', e.target.value)}
+              placeholder="Saisir l'ID du groupe (optionnel)"
+            />
+          </div>
 
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={onClose} disabled={isLoading}>
