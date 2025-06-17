@@ -18,7 +18,16 @@ export function useExamConflictDetection() {
       if (error) {
         setError(error.message);
       } else {
-        setConflicts(data || []);
+        // Mapping des données pour s'assurer de la compatibilité des types
+        const mappedConflicts = (data || []).map((conflict: any) => ({
+          conflict_id: conflict.conflict_id,
+          conflict_type: conflict.conflict_type,
+          severity: conflict.severity,
+          title: conflict.title,
+          description: conflict.description,
+          affected_data: conflict.affected_data
+        }));
+        setConflicts(mappedConflicts);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors de la détection des conflits');

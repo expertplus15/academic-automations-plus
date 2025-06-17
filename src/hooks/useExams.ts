@@ -7,7 +7,7 @@ export interface Exam {
   subject_id?: string;
   academic_year_id?: string;
   program_id?: string;
-  exam_type: 'written' | 'oral' | 'practical' | 'mixed';
+  exam_type: string; // Changé de union vers string
   title: string;
   description?: string;
   duration_minutes: number;
@@ -15,7 +15,7 @@ export interface Exam {
   min_supervisors: number;
   instructions: any;
   materials_required: any[];
-  status: 'draft' | 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+  status: string; // Changé de union vers string
   created_by?: string;
   created_at: string;
   updated_at: string;
@@ -28,7 +28,7 @@ export interface ExamSession {
   start_time: string;
   end_time: string;
   actual_students_count: number;
-  status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+  status: string; // Changé de union vers string
   notes?: string;
   created_at: string;
   updated_at: string;
@@ -36,8 +36,8 @@ export interface ExamSession {
 
 export interface ExamConflict {
   conflict_id: string;
-  conflict_type: 'room_overlap' | 'supervisor_overlap' | 'capacity_exceeded';
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  conflict_type: string; // Changé de union vers string
+  severity: string; // Changé de union vers string
   title: string;
   description: string;
   affected_data: any;
@@ -100,7 +100,7 @@ export function useExams() {
       setLoading(true);
       const { data, error } = await supabase
         .from('exams')
-        .insert([examData])
+        .insert(examData) // Correction : utiliser examData au lieu de [examData]
         .select()
         .single();
 
