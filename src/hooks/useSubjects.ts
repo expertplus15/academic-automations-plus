@@ -2,36 +2,32 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-export interface ClassGroup {
+export interface Subject {
   id: string;
   name: string;
   code: string;
-  max_students: number;
-  current_students: number;
-  group_type: string;
+  credits_ects: number;
+  level_id?: string;
   program_id?: string;
-  academic_year_id?: string;
 }
 
-export function useClassGroups(programId?: string, academicYearId?: string) {
-  const [groups, setGroups] = useState<ClassGroup[]>([]);
+export function useSubjects(programId?: string) {
+  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchGroups = async () => {
+    const fetchSubjects = async () => {
       try {
         setLoading(true);
         let query = supabase
-          .from('class_groups')
-          .select('id, name, code, max_students, current_students, group_type, program_id, academic_year_id')
+          .from('subjects')
+          .select('id, name, code, credits_ects, level_id, program_id')
+          .eq('status', 'active')
           .order('name');
 
         if (programId) {
           query = query.eq('program_id', programId);
-        }
-        if (academicYearId) {
-          query = query.eq('academic_year_id', academicYearId);
         }
 
         const { data, error } = await query;
@@ -39,7 +35,7 @@ export function useClassGroups(programId?: string, academicYearId?: string) {
         if (error) {
           setError(error.message);
         } else {
-          setGroups(data || []);
+          setSubjects(data || []);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Une erreur est survenue');
@@ -48,8 +44,8 @@ export function useClassGroups(programId?: string, academicYearId?: string) {
       }
     };
 
-    fetchGroups();
-  }, [programId, academicYearId]);
+    fetchSubjects();
+  }, [programId]);
 
-  return { groups, loading, error };
+  return { subjects, loading, error };
 }

@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { useTimetables, Timetable } from '@/hooks/useTimetables';
 import { TimetableSlotModal } from './TimetableSlotModal';
@@ -130,6 +129,7 @@ export function InteractiveTimetableGrid({ programId, academicYearId }: Interact
         slot={editingSlot}
         timeSlot={newSlotPosition}
         programId={programId}
+        academicYearId={academicYearId}
       />
     </div>
   );

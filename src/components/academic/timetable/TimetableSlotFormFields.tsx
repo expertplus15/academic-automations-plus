@@ -3,6 +3,10 @@ import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SubjectSelector } from './SubjectSelector';
+import { RoomSelector } from './RoomSelector';
+import { TeacherSelector } from './TeacherSelector';
+import { GroupSelector } from './GroupSelector';
 
 const DAYS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
@@ -18,9 +22,16 @@ interface TimetableSlotFormFieldsProps {
     slot_type: string;
   };
   onChange: (field: string, value: any) => void;
+  programId?: string;
+  academicYearId?: string;
 }
 
-export function TimetableSlotFormFields({ formData, onChange }: TimetableSlotFormFieldsProps) {
+export function TimetableSlotFormFields({ 
+  formData, 
+  onChange, 
+  programId, 
+  academicYearId 
+}: TimetableSlotFormFieldsProps) {
   return (
     <div className="space-y-4">
       <div>
@@ -79,41 +90,31 @@ export function TimetableSlotFormFields({ formData, onChange }: TimetableSlotFor
         </Select>
       </div>
 
-      <div>
-        <Label>ID Matière *</Label>
-        <Input
-          value={formData.subject_id}
-          onChange={(e) => onChange('subject_id', e.target.value)}
-          placeholder="ex: 123e4567-e89b-12d3-a456-426614174000"
-        />
-      </div>
+      <SubjectSelector
+        value={formData.subject_id}
+        onChange={(value) => onChange('subject_id', value)}
+        programId={programId}
+        required
+      />
 
-      <div>
-        <Label>ID Salle *</Label>
-        <Input
-          value={formData.room_id}
-          onChange={(e) => onChange('room_id', e.target.value)}
-          placeholder="ex: 123e4567-e89b-12d3-a456-426614174000"
-        />
-      </div>
+      <RoomSelector
+        value={formData.room_id}
+        onChange={(value) => onChange('room_id', value)}
+        required
+      />
 
-      <div>
-        <Label>ID Enseignant *</Label>
-        <Input
-          value={formData.teacher_id}
-          onChange={(e) => onChange('teacher_id', e.target.value)}
-          placeholder="ex: 123e4567-e89b-12d3-a456-426614174000"
-        />
-      </div>
+      <TeacherSelector
+        value={formData.teacher_id}
+        onChange={(value) => onChange('teacher_id', value)}
+        required
+      />
 
-      <div>
-        <Label>ID Groupe</Label>
-        <Input
-          value={formData.group_id}
-          onChange={(e) => onChange('group_id', e.target.value)}
-          placeholder="ex: 123e4567-e89b-12d3-a456-426614174000 (optionnel)"
-        />
-      </div>
+      <GroupSelector
+        value={formData.group_id}
+        onChange={(value) => onChange('group_id', value)}
+        programId={programId}
+        academicYearId={academicYearId}
+      />
     </div>
   );
 }

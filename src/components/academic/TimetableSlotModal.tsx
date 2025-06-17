@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Timetable } from '@/hooks/useTimetables';
@@ -16,6 +15,7 @@ interface TimetableSlotModalProps {
   slot?: Timetable | null;
   timeSlot?: { day: number; start: string; end: string } | null;
   programId?: string;
+  academicYearId?: string;
 }
 
 export function TimetableSlotModal({ 
@@ -24,7 +24,8 @@ export function TimetableSlotModal({
   onSave, 
   slot, 
   timeSlot, 
-  programId 
+  programId,
+  academicYearId
 }: TimetableSlotModalProps) {
   const { toast } = useToast();
   const { validateTimetableData, checkTimeConflicts, isValidating } = useEntityValidation();
@@ -75,7 +76,7 @@ export function TimetableSlotModal({
       formData.end_time,
       formData.room_id,
       formData.teacher_id,
-      undefined,
+      academicYearId,
       slot?.id
     );
 
@@ -99,7 +100,8 @@ export function TimetableSlotModal({
       const dataToSave = {
         ...formData,
         group_id: formData.group_id || null,
-        program_id: programId || null
+        program_id: programId || null,
+        academic_year_id: academicYearId || null
       };
       
       await onSave(dataToSave);
@@ -152,6 +154,8 @@ export function TimetableSlotModal({
           <TimetableSlotFormFields
             formData={formData}
             onChange={handleFieldChange}
+            programId={programId}
+            academicYearId={academicYearId}
           />
 
           <TimetableSlotModalActions
