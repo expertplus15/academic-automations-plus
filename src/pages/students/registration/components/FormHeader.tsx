@@ -1,8 +1,8 @@
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
-import { getFlowTitle, getFlowDescription } from '@/services/userFlowService';
 import { UserFlowContext } from '@/services/userFlowService';
+import { getFlowTitle, getFlowDescription } from '@/services/userFlowService';
 
 interface FormHeaderProps {
   currentStep: number;
@@ -17,7 +17,7 @@ export function FormHeader({ currentStep, flowContext }: FormHeaderProps) {
       case 2: 
         return 'Choix du programme';
       case 3: 
-        return 'Documents';
+        return 'Finalisation';
       case 4: 
         return flowContext?.flowType === 'existing_user_conversion' ? 'Conversion validée' : 'Inscription validée';
       default: 
@@ -43,7 +43,7 @@ export function FormHeader({ currentStep, flowContext }: FormHeaderProps) {
         <Alert className="mt-4 border-blue-200 bg-blue-50">
           <AlertCircle className="w-4 h-4 text-blue-600" />
           <AlertDescription className="text-blue-800">
-            Compte existant détecté. Nous allons convertir votre compte en compte étudiant.
+            🔄 Processus de conversion accéléré - Certains champs sont pré-remplis automatiquement.
           </AlertDescription>
         </Alert>
       )}

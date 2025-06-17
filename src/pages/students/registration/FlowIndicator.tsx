@@ -1,8 +1,6 @@
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, ArrowRight, AlertTriangle, User, UserPlus, UserCheck } from 'lucide-react';
+import { CheckCircle, ArrowRight, AlertTriangle } from 'lucide-react';
 import { UserFlowContext } from '@/services/userFlowService';
 
 interface FlowIndicatorProps {
@@ -10,76 +8,50 @@ interface FlowIndicatorProps {
 }
 
 export function FlowIndicator({ flowContext }: FlowIndicatorProps) {
-  const { flowType, isBlocked, nextAction, recommendations } = flowContext;
-
   const getFlowIcon = () => {
-    switch (flowType) {
+    switch (flowContext.flowType) {
       case 'new_user':
-        return <UserPlus className="w-5 h-5 text-green-600" />;
+        return <CheckCircle className="w-4 h-4 text-green-600" />;
       case 'existing_user_conversion':
-        return <UserCheck className="w-5 h-5 text-blue-600" />;
+        return <ArrowRight className="w-4 h-4 text-blue-600" />;
       case 'existing_student':
-        return <AlertTriangle className="w-5 h-5 text-red-600" />;
+        return <AlertTriangle className="w-4 h-4 text-red-600" />;
+      default:
+        return null;
     }
   };
 
-  const getFlowColor = () => {
-    switch (flowType) {
+  const getFlowClass = () => {
+    switch (flowContext.flowType) {
       case 'new_user':
         return 'border-green-200 bg-green-50';
       case 'existing_user_conversion':
         return 'border-blue-200 bg-blue-50';
       case 'existing_student':
         return 'border-red-200 bg-red-50';
-    }
-  };
-
-  const getFlowBadgeVariant = () => {
-    switch (flowType) {
-      case 'new_user':
-        return 'default';
-      case 'existing_user_conversion':
-        return 'secondary';
-      case 'existing_student':
-        return 'destructive';
+      default:
+        return 'border-gray-200 bg-gray-50';
     }
   };
 
   return (
-    <Card className={`${getFlowColor()} border-2`}>
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-base">
-          {getFlowIcon()}
-          Type d'inscription détecté
-          <Badge variant={getFlowBadgeVariant()}>
-            {flowType === 'new_user' && 'Nouveau'}
-            {flowType === 'existing_user_conversion' && 'Conversion'}
-            {flowType === 'existing_student' && 'Existant'}
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <Alert className={getFlowColor()}>
+    <Alert className={getFlowClass()}>
+      <div className="flex items-start gap-3">
+        {getFlowIcon()}
+        <div className="flex-1">
           <AlertDescription>
-            <div className="flex items-center gap-2 font-medium mb-2">
-              <ArrowRight className="w-4 h-4" />
-              {nextAction}
-            </div>
+            <p className="font-medium mb-2">{flowContext.nextAction}</p>
+            <ul className="text-sm space-y-1">
+              {flowContext.recommendations.map((rec, index) => (
+                <li key={index} className="flex items-center gap-2">
+                  <span className="w-1 h-1 bg-current rounded-full" />
+                  {rec}
+                </li>
+              ))}
+            </ul>
           </AlertDescription>
-        </Alert>
-
-        <div>
-          <h4 className="font-medium mb-2 text-sm">Ce qui va se passer :</h4>
-          <ul className="space-y-1">
-            {recommendations.map((recommendation, index) => (
-              <li key={index} className="flex items-start gap-2 text-sm">
-                <CheckCircle className="w-3 h-3 text-green-600 mt-0.5 flex-shrink-0" />
-                <span>{recommendation}</span>
-              </li>
-            ))}
-          </ul>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </Alert>
   );
 }

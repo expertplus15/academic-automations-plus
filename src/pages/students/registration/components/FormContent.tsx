@@ -1,11 +1,12 @@
 
-import { EnhancedPersonalInfoStep } from '../EnhancedPersonalInfoStep';
+import { UseFormReturn } from 'react-hook-form';
+import { AdaptivePersonalInfoStep } from '../AdaptivePersonalInfoStep';
 import { ProgramSelectionStep } from '../ProgramSelectionStep';
 import { DocumentsStep } from '../DocumentsStep';
 import { ValidationStep } from '../ValidationStep';
-import { UseFormReturn } from 'react-hook-form';
-import { RegistrationFormData } from '../types';
 import { UserFlowContext } from '@/services/userFlowService';
+import { RegistrationFormData } from '../types';
+import { EnrollmentResult } from '@/services/studentEnrollmentService';
 
 interface FormContentProps {
   currentStep: number;
@@ -13,7 +14,7 @@ interface FormContentProps {
   isSubmitting: boolean;
   retryCount: number;
   elapsedTime: number;
-  enrollmentResult?: { success?: boolean; studentNumber?: string } | null;
+  enrollmentResult: EnrollmentResult | null;
   flowContext: UserFlowContext | null;
   onFlowContextChange: (context: UserFlowContext | null) => void;
 }
@@ -26,13 +27,14 @@ export function FormContent({
   elapsedTime,
   enrollmentResult,
   flowContext,
-  onFlowContextChange,
+  onFlowContextChange
 }: FormContentProps) {
   switch (currentStep) {
     case 1:
       return (
-        <EnhancedPersonalInfoStep 
+        <AdaptivePersonalInfoStep 
           form={form} 
+          flowContext={flowContext}
           onFlowContextChange={onFlowContextChange}
         />
       );

@@ -22,12 +22,12 @@ export function FormNavigation({
   retryCount,
   flowContext,
   canProceedToNextStep,
-  getProcessingMessage,
+  getProcessingMessage
 }: FormNavigationProps) {
   if (currentStep >= 4) return null;
 
   return (
-    <div className="flex justify-between pt-6">
+    <div className="flex justify-between pt-6 border-t">
       <Button
         type="button"
         variant="outline"

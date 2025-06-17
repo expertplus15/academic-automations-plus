@@ -1,84 +1,84 @@
 
-import { CheckCircle, Circle, Clock } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Clock, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface RegistrationProgressProps {
   currentStep: number;
   elapsedTime: number;
 }
 
-const steps = [
-  { number: 1, title: 'Informations personnelles', description: 'Identité et contact' },
-  { number: 2, title: 'Choix du programme', description: 'Formation et niveau' },
-  { number: 3, title: 'Documents', description: 'Pièces justificatives' },
-  { number: 4, title: 'Validation', description: 'Finalisation' },
-];
-
 export function RegistrationProgress({ currentStep, elapsedTime }: RegistrationProgressProps) {
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
+  const progress = ((currentStep - 1) / 3) * 100;
+  const isCompleted = currentStep === 4;
+  const isOnTime = elapsedTime < 30;
 
   return (
-    <div className="bg-card rounded-lg border p-6 mb-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold">Progression de l'inscription</h2>
-        <div className="flex items-center gap-2 text-sm">
-          <Clock className="w-4 h-4 text-students" />
-          <span className={cn(
-            "font-mono font-medium",
-            elapsedTime > 30 ? "text-destructive" : elapsedTime > 20 ? "text-yellow-600" : "text-students"
-          )}>
-            {formatTime(elapsedTime)}
-          </span>
-          <span className="text-muted-foreground">/ 00:30</span>
+    <Card>
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">Progression de l'inscription</h3>
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4" />
+            <span className={`text-sm font-medium ${isOnTime ? 'text-green-600' : 'text-orange-600'}`}>
+              {elapsedTime}s
+            </span>
+          </div>
         </div>
-      </div>
-
-      <div className="grid grid-cols-4 gap-4">
-        {steps.map((step, index) => {
-          const isCompleted = currentStep > step.number;
-          const isCurrent = currentStep === step.number;
-          
-          return (
-            <div key={step.number} className="flex flex-col items-center">
-              <div className={cn(
-                "w-10 h-10 rounded-full flex items-center justify-center mb-2 transition-colors",
-                isCompleted ? "bg-students text-white" :
-                isCurrent ? "bg-students/20 text-students border-2 border-students" :
-                "bg-muted text-muted-foreground"
-              )}>
-                {isCompleted ? (
-                  <CheckCircle className="w-5 h-5" />
-                ) : (
-                  <span className="text-sm font-medium">{step.number}</span>
-                )}
-              </div>
-              
-              <div className="text-center">
-                <p className={cn(
-                  "text-sm font-medium",
-                  (isCompleted || isCurrent) ? "text-foreground" : "text-muted-foreground"
-                )}>
-                  {step.title}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {step.description}
-                </p>
-              </div>
-              
-              {index < steps.length - 1 && (
-                <div className={cn(
-                  "absolute h-0.5 w-16 mt-5 ml-16 transition-colors",
-                  isCompleted ? "bg-students" : "bg-muted"
-                )} />
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
+        
+        <Progress value={progress} className="mb-4" />
+        
+        <div className="flex justify-between text-sm">
+          <div className="flex items-center gap-2">
+            {currentStep >= 1 ? (
+              <CheckCircle className="w-4 h-4 text-green-500" />
+            ) : (
+              <div className="w-4 h-4 border-2 border-gray-300 rounded-full" />
+            )}
+            <span>Informations</span>
+          </div>
+          <div className="flex items-center gap-2">
+            {currentStep >= 2 ? (
+              <CheckCircle className="w-4 h-4 text-green-500" />
+            ) : (
+              <div className="w-4 h-4 border-2 border-gray-300 rounded-full" />
+            )}
+            <span>Programme</span>
+          </div>
+          <div className="flex items-center gap-2">
+            {currentStep >= 3 ? (
+              <CheckCircle className="w-4 h-4 text-green-500" />
+            ) : (
+              <div className="w-4 h-4 border-2 border-gray-300 rounded-full" />
+            )}
+            <span>Finalisation</span>
+          </div>
+          <div className="flex items-center gap-2">
+            {isCompleted ? (
+              <CheckCircle className="w-4 h-4 text-green-500" />
+            ) : (
+              <div className="w-4 h-4 border-2 border-gray-300 rounded-full" />
+            )}
+            <span>Validation</span>
+          </div>
+        </div>
+        
+        <div className="mt-4 text-center">
+          <div className="flex items-center justify-center gap-2">
+            {isOnTime ? (
+              <>
+                <CheckCircle className="w-4 h-4 text-green-500" />
+                <span className="text-sm text-green-600">Objectif < 30s respecté</span>
+              </>
+            ) : (
+              <>
+                <AlertCircle className="w-4 h-4 text-orange-500" />
+                <span className="text-sm text-orange-600">Dépassement de l'objectif</span>
+              </>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

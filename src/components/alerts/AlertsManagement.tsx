@@ -2,306 +2,236 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { AlertTriangle, CheckCircle, Eye, EyeOff, Filter, Search } from 'lucide-react';
-import { useAcademicAlerts, type AlertsFilters } from '@/hooks/useAcademicAlerts';
-import { useToast } from '@/hooks/use-toast';
-import { getSeverityColor, getAlertTypeLabel } from './AlertsHelpers';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Bell, AlertTriangle, CheckCircle, Clock, Search, Filter, Plus } from 'lucide-react';
+
+const mockAlerts = [
+  {
+    id: '1',
+    type: 'absence',
+    severity: 'high',
+    title: 'Absence répétée',
+    message: 'Jean Dupont a été absent 5 fois ce mois',
+    student: 'Jean Dupont',
+    studentNumber: 'INF24001',
+    date: '2024-01-15',
+    status: 'active'
+  },
+  {
+    id: '2',
+    type: 'grade',
+    severity: 'medium',
+    title: 'Notes en baisse',
+    message: 'Marie Martin a une moyenne de 8/20 en mathématiques',
+    student: 'Marie Martin',
+    studentNumber: 'MAT24002',
+    date: '2024-01-14',
+    status: 'resolved'
+  },
+  {
+    id: '3',
+    type: 'attendance',
+    severity: 'low',
+    title: 'Retard fréquent',
+    message: 'Pierre Moreau arrive souvent en retard',
+    student: 'Pierre Moreau',
+    studentNumber: 'GC24003',
+    date: '2024-01-13',
+    status: 'pending'
+  }
+];
 
 export function AlertsManagement() {
-  const [filters, setFilters] = useState<AlertsFilters>({});
   const [searchTerm, setSearchTerm] = useState('');
-  const { alerts, loading, markAsRead, acknowledgeAlert, deactivateAlert } = useAcademicAlerts(filters);
-  const { toast } = useToast();
+  const [selectedTab, setSelectedTab] = useState('all');
 
-  const handleMarkAsRead = async (alertId: string) => {
-    const { error } = await markAsRead(alertId);
-    if (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de marquer l'alerte comme lue",
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Succès",
-        description: "Alerte marquée comme lue"
-      });
+  const getSeverityBadge = (severity: string) => {
+    switch (severity) {
+      case 'high':
+        return <Badge variant="destructive">Élevée</Badge>;
+      case 'medium':
+        return <Badge className="bg-orange-100 text-orange-800 border-orange-200">Moyenne</Badge>;
+      case 'low':
+        return <Badge variant="secondary">Faible</Badge>;
+      default:
+        return <Badge variant="outline">{severity}</Badge>;
     }
   };
 
-  const handleAcknowledge = async (alertId: string) => {
-    const { error } = await acknowledgeAlert(alertId);
-    if (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible d'acquitter l'alerte",
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Succès",
-        description: "Alerte acquittée"
-      });
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'active':
+        return <Badge className="bg-red-100 text-red-800 border-red-200">Active</Badge>;
+      case 'resolved':
+        return <Badge className="bg-green-100 text-green-800 border-green-200">Résolue</Badge>;
+      case 'pending':
+        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">En attente</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
     }
   };
 
-  const handleDeactivate = async (alertId: string) => {
-    const { error } = await deactivateAlert(alertId);
-    if (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de désactiver l'alerte",
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Succès",
-        description: "Alerte désactivée"
-      });
+  const getAlertIcon = (type: string) => {
+    switch (type) {
+      case 'absence':
+        return <AlertTriangle className="w-4 h-4 text-red-500" />;
+      case 'grade':
+        return <CheckCircle className="w-4 h-4 text-orange-500" />;
+      case 'attendance':
+        return <Clock className="w-4 h-4 text-blue-500" />;
+      default:
+        return <Bell className="w-4 h-4 text-gray-500" />;
     }
   };
 
-  const filteredAlerts = alerts.filter(alert =>
-    alert.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    alert.message.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Statistics
-  const stats = {
-    total: alerts.length,
-    critical: alerts.filter(a => a.severity === 'critical').length,
-    unread: alerts.filter(a => !a.is_read).length,
-    active: alerts.filter(a => a.is_active).length
-  };
-
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-muted rounded w-1/4 mb-4"></div>
-          <div className="h-64 bg-muted rounded"></div>
-        </div>
-      </div>
-    );
-  }
+  const filteredAlerts = mockAlerts.filter(alert => {
+    const matchesSearch = alert.student.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         alert.studentNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         alert.title.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesTab = selectedTab === 'all' || alert.status === selectedTab;
+    
+    return matchesSearch && matchesTab;
+  });
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Gestion des Alertes</h1>
-          <p className="text-muted-foreground">
-            Surveillance et gestion des alertes académiques
-          </p>
-        </div>
-      </div>
-
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <AlertTriangle className="h-4 w-4 text-blue-600" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+              </div>
               <div>
-                <p className="text-sm font-medium">Total</p>
-                <p className="text-2xl font-bold">{stats.total}</p>
+                <p className="text-2xl font-bold">3</p>
+                <p className="text-sm text-muted-foreground">Alertes actives</p>
               </div>
             </div>
           </CardContent>
         </Card>
+
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <AlertTriangle className="h-4 w-4 text-red-600" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                <Bell className="w-5 h-5 text-orange-600" />
+              </div>
               <div>
-                <p className="text-sm font-medium">Critiques</p>
-                <p className="text-2xl font-bold">{stats.critical}</p>
+                <p className="text-2xl font-bold">7</p>
+                <p className="text-sm text-muted-foreground">Cette semaine</p>
               </div>
             </div>
           </CardContent>
         </Card>
+
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <EyeOff className="h-4 w-4 text-orange-600" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+              </div>
               <div>
-                <p className="text-sm font-medium">Non lues</p>
-                <p className="text-2xl font-bold">{stats.unread}</p>
+                <p className="text-2xl font-bold">12</p>
+                <p className="text-sm text-muted-foreground">Résolues</p>
               </div>
             </div>
           </CardContent>
         </Card>
+
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="h-4 w-4 text-green-600" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <Clock className="w-5 h-5 text-blue-600" />
+              </div>
               <div>
-                <p className="text-sm font-medium">Actives</p>
-                <p className="text-2xl font-bold">{stats.active}</p>
+                <p className="text-2xl font-bold">85%</p>
+                <p className="text-sm text-muted-foreground">Taux de résolution</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Filters */}
+      {/* Main Content */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-4 w-4" />
-            Filtres et Recherche
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Bell className="w-5 h-5 text-students" />
+                Alertes Automatiques
+              </CardTitle>
+              <CardDescription>
+                Surveillance en temps réel des performances et de l'assiduité
+              </CardDescription>
+            </div>
+            <Button className="bg-students hover:bg-students/90">
+              <Plus className="w-4 h-4 mr-2" />
+              Nouvelle règle
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <div className="flex gap-4 mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Rechercher..."
+                placeholder="Rechercher par étudiant, numéro ou titre..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
-            <Select value={filters.severity || ''} onValueChange={(value) => 
-              setFilters(prev => ({ ...prev, severity: value || undefined }))
-            }>
-              <SelectTrigger>
-                <SelectValue placeholder="Sévérité" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Toutes</SelectItem>
-                <SelectItem value="critical">Critique</SelectItem>
-                <SelectItem value="high">Élevée</SelectItem>
-                <SelectItem value="medium">Moyenne</SelectItem>
-                <SelectItem value="low">Faible</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={filters.alert_type || ''} onValueChange={(value) => 
-              setFilters(prev => ({ ...prev, alert_type: value || undefined }))
-            }>
-              <SelectTrigger>
-                <SelectValue placeholder="Type d'alerte" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Tous</SelectItem>
-                <SelectItem value="low_grade">Note faible</SelectItem>
-                <SelectItem value="excessive_absences">Absences excessives</SelectItem>
-                <SelectItem value="failing_subject">Échec matière</SelectItem>
-                <SelectItem value="at_risk">Risque d'échec</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={filters.is_read?.toString() || ''} onValueChange={(value) => 
-              setFilters(prev => ({ ...prev, is_read: value ? value === 'true' : undefined }))
-            }>
-              <SelectTrigger>
-                <SelectValue placeholder="Statut lecture" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Toutes</SelectItem>
-                <SelectItem value="false">Non lues</SelectItem>
-                <SelectItem value="true">Lues</SelectItem>
-              </SelectContent>
-            </Select>
+            <Button variant="outline">
+              <Filter className="w-4 h-4 mr-2" />
+              Filtres
+            </Button>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Alerts Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Liste des Alertes</CardTitle>
-          <CardDescription>
-            {filteredAlerts.length} alerte(s) trouvée(s)
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Étudiant</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Sévérité</TableHead>
-                <TableHead>Message</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <Tabs value={selectedTab} onValueChange={setSelectedTab}>
+            <TabsList className="grid w-full grid-cols-4 mb-6">
+              <TabsTrigger value="all">Toutes</TabsTrigger>
+              <TabsTrigger value="active">Actives</TabsTrigger>
+              <TabsTrigger value="pending">En attente</TabsTrigger>
+              <TabsTrigger value="resolved">Résolues</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value={selectedTab} className="space-y-4">
               {filteredAlerts.map((alert) => (
-                <TableRow key={alert.id} className={!alert.is_read ? 'bg-muted/50' : ''}>
-                  <TableCell>
+                <div key={alert.id} className="flex items-center gap-4 p-4 border border-border/50 rounded-lg hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    {getAlertIcon(alert.type)}
                     <div>
-                      <p className="font-medium">{alert.students?.profiles?.full_name || 'N/A'}</p>
-                      <p className="text-sm text-muted-foreground">{alert.students?.student_number || 'N/A'}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
-                      {getAlertTypeLabel(alert.alert_type)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getSeverityColor(alert.severity)}>
-                      {alert.severity}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{alert.title}</p>
+                      <p className="font-medium text-foreground">{alert.title}</p>
                       <p className="text-sm text-muted-foreground">{alert.message}</p>
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(alert.created_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col gap-1">
-                      {!alert.is_read && <Badge variant="secondary">Non lue</Badge>}
-                      {!alert.is_active && <Badge variant="outline">Inactive</Badge>}
-                      {alert.acknowledged_at && <Badge variant="default">Acquittée</Badge>}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      {!alert.is_read && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleMarkAsRead(alert.id)}
-                        >
-                          <Eye className="h-3 w-3" />
-                        </Button>
-                      )}
-                      {!alert.acknowledged_at && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleAcknowledge(alert.id)}
-                        >
-                          <CheckCircle className="h-3 w-3" />
-                        </Button>
-                      )}
-                      {alert.is_active && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDeactivate(alert.id)}
-                        >
-                          <EyeOff className="h-3 w-3" />
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
+                  </div>
+                  
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{alert.student}</p>
+                    <p className="text-xs text-muted-foreground">{alert.studentNumber}</p>
+                  </div>
+                  
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground">{alert.date}</p>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    {getSeverityBadge(alert.severity)}
+                    {getStatusBadge(alert.status)}
+                    <Button variant="ghost" size="sm">
+                      Traiter
+                    </Button>
+                  </div>
+                </div>
               ))}
-            </TableBody>
-          </Table>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>

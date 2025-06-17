@@ -2,341 +2,262 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { FileText, Download, Plus, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
-import { useDocumentTemplates, useDocumentRequests } from '@/hooks/useDocumentTemplates';
-import { useStudents } from '@/hooks/useSupabase';
-import { useToast } from '@/hooks/use-toast';
-import { getStatusColor, getStatusLabel, getTemplateTypeLabel } from './DocumentsHelpers';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FileText, Download, Search, Filter, Plus, Eye, Clock, CheckCircle } from 'lucide-react';
+
+const mockDocuments = [
+  {
+    id: '1',
+    type: 'certificate_enrollment',
+    title: 'Certificat de scolarité',
+    student: 'Jean Dupont',
+    studentNumber: 'INF24001',
+    requestDate: '2024-01-15',
+    status: 'approved',
+    documentNumber: 'CS24001'
+  },
+  {
+    id: '2',
+    type: 'transcript',
+    title: 'Relevé de notes',
+    student: 'Marie Martin',
+    studentNumber: 'MAT24002',
+    requestDate: '2024-01-14',
+    status: 'pending',
+    documentNumber: null
+  },
+  {
+    id: '3',
+    type: 'internship_agreement',
+    title: 'Convention de stage',
+    student: 'Pierre Moreau',
+    studentNumber: 'GC24003',
+    requestDate: '2024-01-13',
+    status: 'generated',
+    documentNumber: 'ST24001'
+  }
+];
+
+const documentTypes = [
+  { code: 'certificate_enrollment', name: 'Certificat de scolarité', description: 'Attestation d\'inscription' },
+  { code: 'transcript', name: 'Relevé de notes', description: 'Bulletin officiel des notes' },
+  { code: 'internship_agreement', name: 'Convention de stage', description: 'Document pour les stages' },
+  { code: 'diploma', name: 'Diplôme', description: 'Certificat de fin d\'études' },
+  { code: 'attendance_certificate', name: 'Certificat d\'assiduité', description: 'Attestation de présence' }
+];
 
 export function DocumentsManagement() {
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('');
-  const [selectedStudent, setSelectedStudent] = useState<string>('');
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedTab, setSelectedTab] = useState('requests');
 
-  const { templates, loading: templatesLoading } = useDocumentTemplates();
-  const { requests, loading: requestsLoading, createRequest, updateRequestStatus } = useDocumentRequests();
-  const { data: students, loading: studentsLoading } = useStudents();
-  const { toast } = useToast();
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'approved':
+        return <Badge className="bg-green-100 text-green-800 border-green-200">Approuvé</Badge>;
+      case 'pending':
+        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">En attente</Badge>;
+      case 'generated':
+        return <Badge className="bg-blue-100 text-blue-800 border-blue-200">Généré</Badge>;
+      case 'rejected':
+        return <Badge variant="destructive">Rejeté</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending': return <Clock className="h-3 w-3" />;
-      case 'approved': return <CheckCircle className="h-3 w-3" />;
-      case 'generated': return <FileText className="h-3 w-3" />;
-      case 'delivered': return <Download className="h-3 w-3" />;
-      case 'rejected': return <XCircle className="h-3 w-3" />;
-      default: return <AlertCircle className="h-3 w-3" />;
+      case 'approved':
+        return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'pending':
+        return <Clock className="w-4 h-4 text-yellow-500" />;
+      case 'generated':
+        return <Download className="w-4 h-4 text-blue-500" />;
+      default:
+        return <FileText className="w-4 h-4 text-gray-500" />;
     }
   };
 
-  const handleCreateRequest = async () => {
-    if (!selectedTemplate || !selectedStudent) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez sélectionner un template et un étudiant",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const { error } = await createRequest(selectedTemplate, selectedStudent);
-    if (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de créer la demande",
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Succès",
-        description: "Demande créée avec succès"
-      });
-      setIsCreateDialogOpen(false);
-      setSelectedTemplate('');
-      setSelectedStudent('');
-    }
-  };
-
-  const handleApprove = async (requestId: string) => {
-    const { error } = await updateRequestStatus(requestId, 'approved');
-    if (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible d'approuver la demande",
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Succès",
-        description: "Demande approuvée"
-      });
-    }
-  };
-
-  const handleReject = async (requestId: string) => {
-    const { error } = await updateRequestStatus(requestId, 'rejected', 'Demande rejetée par l\'administrateur');
-    if (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de rejeter la demande",
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Succès",
-        description: "Demande rejetée"
-      });
-    }
-  };
-
-  // Statistics
-  const stats = {
-    total: requests.length,
-    pending: requests.filter(r => r.status === 'pending').length,
-    approved: requests.filter(r => r.status === 'approved').length,
-    generated: requests.filter(r => r.status === 'generated').length
-  };
-
-  if (templatesLoading || requestsLoading || studentsLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-muted rounded w-1/4 mb-4"></div>
-          <div className="h-64 bg-muted rounded"></div>
-        </div>
-      </div>
-    );
-  }
+  const filteredRequests = mockDocuments.filter(doc =>
+    doc.student.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    doc.studentNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    doc.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Gestion des Documents</h1>
-          <p className="text-muted-foreground">
-            Demandes et génération de documents administratifs
-          </p>
-        </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Nouvelle Demande
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Créer une Demande de Document</DialogTitle>
-              <DialogDescription>
-                Sélectionnez le type de document et l'étudiant concerné
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">Type de Document</label>
-                <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner un template" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {templates.map((template) => (
-                      <SelectItem key={template.id} value={template.id}>
-                        {template.name} ({getTemplateTypeLabel(template.template_type)})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">Étudiant</label>
-                <Select value={selectedStudent} onValueChange={setSelectedStudent}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner un étudiant" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {students.map((student) => (
-                      <SelectItem key={student.id} value={student.id}>
-                        {student.profiles?.full_name} ({student.student_number})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                  Annuler
-                </Button>
-                <Button onClick={handleCreateRequest}>
-                  Créer la Demande
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-
       {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <FileText className="h-4 w-4 text-blue-600" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <FileText className="w-5 h-5 text-blue-600" />
+              </div>
               <div>
-                <p className="text-sm font-medium">Total</p>
-                <p className="text-2xl font-bold">{stats.total}</p>
+                <p className="text-2xl font-bold">23</p>
+                <p className="text-sm text-muted-foreground">Demandes actives</p>
               </div>
             </div>
           </CardContent>
         </Card>
+
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Clock className="h-4 w-4 text-orange-600" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+              </div>
               <div>
-                <p className="text-sm font-medium">En attente</p>
-                <p className="text-2xl font-bold">{stats.pending}</p>
+                <p className="text-2xl font-bold">156</p>
+                <p className="text-sm text-muted-foreground">Documents générés</p>
               </div>
             </div>
           </CardContent>
         </Card>
+
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="h-4 w-4 text-green-600" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                <Clock className="w-5 h-5 text-orange-600" />
+              </div>
               <div>
-                <p className="text-sm font-medium">Approuvés</p>
-                <p className="text-2xl font-bold">{stats.approved}</p>
+                <p className="text-2xl font-bold">2.3h</p>
+                <p className="text-sm text-muted-foreground">Délai moyen</p>
               </div>
             </div>
           </CardContent>
         </Card>
+
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Download className="h-4 w-4 text-purple-600" />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                <Download className="w-5 h-5 text-purple-600" />
+              </div>
               <div>
-                <p className="text-sm font-medium">Générés</p>
-                <p className="text-2xl font-bold">{stats.generated}</p>
+                <p className="text-2xl font-bold">94%</p>
+                <p className="text-sm text-muted-foreground">Taux de satisfaction</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Templates disponibles */}
+      {/* Main Content */}
       <Card>
         <CardHeader>
-          <CardTitle>Documents Disponibles</CardTitle>
-          <CardDescription>
-            Templates de documents configurés dans le système
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {templates.map((template) => (
-              <Card key={template.id} className="cursor-pointer hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-medium">{template.name}</h3>
-                      <p className="text-sm text-muted-foreground">{template.description}</p>
-                      <Badge variant="outline" className="mt-2">
-                        {getTemplateTypeLabel(template.template_type)}
-                      </Badge>
-                    </div>
-                    <FileText className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-students" />
+                Documents Administratifs
+              </CardTitle>
+              <CardDescription>
+                Génération automatique de certificats et attestations
+              </CardDescription>
+            </div>
+            <Button className="bg-students hover:bg-students/90">
+              <Plus className="w-4 h-4 mr-2" />
+              Nouvelle demande
+            </Button>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Requests Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Demandes de Documents</CardTitle>
-          <CardDescription>
-            {requests.length} demande(s) enregistrée(s)
-          </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Étudiant</TableHead>
-                <TableHead>Document</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead>Date de demande</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {requests.map((request) => (
-                <TableRow key={request.id}>
-                  <TableCell>
+          <div className="flex gap-4 mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher par étudiant, numéro ou type de document..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button variant="outline">
+              <Filter className="w-4 h-4 mr-2" />
+              Filtres
+            </Button>
+          </div>
+
+          <Tabs value={selectedTab} onValueChange={setSelectedTab}>
+            <TabsList className="grid w-full grid-cols-3 mb-6">
+              <TabsTrigger value="requests">Demandes</TabsTrigger>
+              <TabsTrigger value="templates">Modèles</TabsTrigger>
+              <TabsTrigger value="generated">Générés</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="requests" className="space-y-4">
+              {filteredRequests.map((request) => (
+                <div key={request.id} className="flex items-center gap-4 p-4 border border-border/50 rounded-lg hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    {getStatusIcon(request.status)}
                     <div>
-                      <p className="font-medium">{request.student?.profiles?.full_name}</p>
-                      <p className="text-sm text-muted-foreground">{request.student?.student_number}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{request.template?.name}</p>
-                      <p className="text-sm text-muted-foreground">{request.template?.description}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">
-                      {getTemplateTypeLabel(request.template?.template_type || '')}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusColor(request.status)} className="flex items-center gap-1 w-fit">
-                      {getStatusIcon(request.status)}
-                      {getStatusLabel(request.status)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(request.created_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      {request.status === 'pending' && (
-                        <>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleApprove(request.id)}
-                          >
-                            <CheckCircle className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleReject(request.id)}
-                          >
-                            <XCircle className="h-3 w-3" />
-                          </Button>
-                        </>
-                      )}
-                      {request.status === 'generated' && (
-                        <Button size="sm" variant="outline">
-                          <Download className="h-3 w-3" />
-                        </Button>
+                      <p className="font-medium text-foreground">{request.title}</p>
+                      {request.documentNumber && (
+                        <p className="text-sm text-muted-foreground">N° {request.documentNumber}</p>
                       )}
                     </div>
-                  </TableCell>
-                </TableRow>
+                  </div>
+                  
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{request.student}</p>
+                    <p className="text-xs text-muted-foreground">{request.studentNumber}</p>
+                  </div>
+                  
+                  <div className="text-center">
+                    <p className="text-sm text-muted-foreground">{request.requestDate}</p>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    {getStatusBadge(request.status)}
+                    <Button variant="ghost" size="sm">
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                    {request.status === 'generated' && (
+                      <Button variant="ghost" size="sm">
+                        <Download className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
               ))}
-            </TableBody>
-          </Table>
+            </TabsContent>
+
+            <TabsContent value="templates" className="space-y-4">
+              {documentTypes.map((template) => (
+                <div key={template.code} className="flex items-center gap-4 p-4 border border-border/50 rounded-lg hover:bg-muted/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <FileText className="w-5 h-5 text-blue-500" />
+                    <div>
+                      <p className="font-medium text-foreground">{template.name}</p>
+                      <p className="text-sm text-muted-foreground">{template.description}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1" />
+                  
+                  <div className="flex items-center gap-3">
+                    <Badge variant="outline">Actif</Badge>
+                    <Button variant="ghost" size="sm">
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </TabsContent>
+
+            <TabsContent value="generated" className="space-y-4">
+              <div className="text-center py-8">
+                <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Documents générés</h3>
+                <p className="text-muted-foreground">Les documents générés apparaîtront ici</p>
+              </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>
