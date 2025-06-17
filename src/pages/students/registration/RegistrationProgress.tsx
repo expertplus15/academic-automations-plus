@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Clock, CheckCircle, AlertCircle } from 'lucide-react';
@@ -68,7 +69,7 @@ export function RegistrationProgress({ currentStep, elapsedTime }: RegistrationP
             {isOnTime ? (
               <>
                 <CheckCircle className="w-4 h-4 text-green-500" />
-                <span className="text-sm text-green-600">Objectif < 30s respecté</span>
+                <span className="text-sm text-green-600">Objectif &lt; 30s respecté</span>
               </>
             ) : (
               <>
