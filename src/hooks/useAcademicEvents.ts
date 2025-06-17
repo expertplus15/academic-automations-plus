@@ -16,6 +16,25 @@ export interface AcademicEvent {
   updated_at: string;
 }
 
+// Helper function to transform database row to AcademicEvent
+const transformDatabaseEvent = (dbEvent: any): AcademicEvent => {
+  return {
+    id: dbEvent.id,
+    name: dbEvent.name,
+    description: dbEvent.description || '',
+    event_type: dbEvent.event_type,
+    start_date: dbEvent.start_date,
+    end_date: dbEvent.end_date,
+    is_holiday: dbEvent.is_holiday || false,
+    affects_programs: Array.isArray(dbEvent.affects_programs) 
+      ? dbEvent.affects_programs.map((item: any) => String(item)) 
+      : [],
+    academic_year_id: dbEvent.academic_year_id || '',
+    created_at: dbEvent.created_at || '',
+    updated_at: dbEvent.updated_at || ''
+  };
+};
+
 export function useAcademicEvents(academicYearId?: string) {
   const [events, setEvents] = useState<AcademicEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,12 +59,7 @@ export function useAcademicEvents(academicYearId?: string) {
         setEvents([]);
       } else {
         // Transform the data to match our interface
-        const transformedEvents = (data || []).map(event => ({
-          ...event,
-          affects_programs: Array.isArray(event.affects_programs) 
-            ? event.affects_programs 
-            : []
-        }));
+        const transformedEvents = (data || []).map(transformDatabaseEvent);
         setEvents(transformedEvents);
       }
     } catch (err) {
@@ -67,12 +81,7 @@ export function useAcademicEvents(academicYearId?: string) {
       if (error) throw error;
 
       // Transform the response data
-      const transformedEvent = {
-        ...data,
-        affects_programs: Array.isArray(data.affects_programs) 
-          ? data.affects_programs 
-          : []
-      };
+      const transformedEvent = transformDatabaseEvent(data);
 
       setEvents(prev => [...prev, transformedEvent]);
       return { success: true, data: transformedEvent };
@@ -96,12 +105,7 @@ export function useAcademicEvents(academicYearId?: string) {
       if (error) throw error;
 
       // Transform the response data
-      const transformedEvent = {
-        ...data,
-        affects_programs: Array.isArray(data.affects_programs) 
-          ? data.affects_programs 
-          : []
-      };
+      const transformedEvent = transformDatabaseEvent(data);
 
       setEvents(prev => prev.map(event => event.id === id ? transformedEvent : event));
       return { success: true, data: transformedEvent };
