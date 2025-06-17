@@ -82,18 +82,20 @@ export function TestDataCreator() {
 
       await supabase.from('subjects').insert(subjects);
 
-      // Créer quelques enseignants de test
+      // Créer quelques enseignants de test avec des IDs générés
       const teachers = [
         { 
+          id: crypto.randomUUID(),
           email: 'prof.martin@test.fr', 
           full_name: 'Dr. Martin Dupont', 
-          role: 'teacher',
+          role: 'teacher' as const,
           department_id: department.id
         },
         { 
+          id: crypto.randomUUID(),
           email: 'prof.durand@test.fr', 
           full_name: 'Dr. Claire Durand', 
-          role: 'teacher',
+          role: 'teacher' as const,
           department_id: department.id
         }
       ];
