@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -126,7 +125,18 @@ export function useSupervisors() {
       if (error) {
         setError(error.message);
       } else {
-        setAssignments(data || []);
+        // Type the assignments properly with explicit casting
+        const typedAssignments: SupervisorAssignment[] = (data || []).map((assignment: any) => ({
+          id: assignment.id,
+          session_id: assignment.session_id,
+          teacher_id: assignment.teacher_id,
+          supervisor_role: assignment.supervisor_role as 'primary' | 'secondary' | 'assistant',
+          status: assignment.status as 'assigned' | 'confirmed' | 'declined' | 'replaced',
+          assigned_at: assignment.assigned_at,
+          confirmed_at: assignment.confirmed_at,
+          notes: assignment.notes
+        }));
+        setAssignments(typedAssignments);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
