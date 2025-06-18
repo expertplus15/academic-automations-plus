@@ -20,6 +20,9 @@ export function RoomTypeSelect({ value, onChange, error }: RoomTypeSelectProps) 
     { value: 'cafeteria', label: 'Cafétéria' },
   ];
 
+  // Filter out any room types with empty values
+  const validRoomTypes = roomTypes.filter(type => type.value && type.value.trim() !== '');
+
   return (
     <div className="space-y-2">
       <Label>Type de salle</Label>
@@ -28,7 +31,7 @@ export function RoomTypeSelect({ value, onChange, error }: RoomTypeSelectProps) 
           <SelectValue placeholder="Sélectionner un type" />
         </SelectTrigger>
         <SelectContent>
-          {roomTypes.map((type) => (
+          {validRoomTypes.map((type) => (
             <SelectItem key={type.value} value={type.value}>
               {type.label}
             </SelectItem>

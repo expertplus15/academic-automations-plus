@@ -32,6 +32,16 @@ export function TimetableSlotFormFields({
   programId, 
   academicYearId 
 }: TimetableSlotFormFieldsProps) {
+  const slotTypes = [
+    { value: 'course', label: 'Cours' },
+    { value: 'practical', label: 'TP' },
+    { value: 'exam', label: 'Examen' },
+    { value: 'conference', label: 'Conférence' },
+  ];
+
+  // Filter out any slot types with empty values
+  const validSlotTypes = slotTypes.filter(type => type.value && type.value.trim() !== '');
+
   return (
     <div className="space-y-4">
       <div>
@@ -82,10 +92,11 @@ export function TimetableSlotFormFields({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="course">Cours</SelectItem>
-            <SelectItem value="practical">TP</SelectItem>
-            <SelectItem value="exam">Examen</SelectItem>
-            <SelectItem value="conference">Conférence</SelectItem>
+            {validSlotTypes.map((type) => (
+              <SelectItem key={type.value} value={type.value}>
+                {type.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
