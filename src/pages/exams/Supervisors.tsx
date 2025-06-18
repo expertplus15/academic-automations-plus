@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ExamsPageHeader } from "@/components/ExamsPageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,15 +28,15 @@ export default function Supervisors() {
   const { sessions } = useExams();
   
   const [searchTerm, setSearchTerm] = useState('');
-  const [departmentFilter, setDepartmentFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [departmentFilter, setDepartmentFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [selectedSession, setSelectedSession] = useState('');
 
   const filteredSupervisors = supervisors.filter(supervisor => {
     const matchesSearch = supervisor.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          supervisor.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDepartment = !departmentFilter || supervisor.department_id === departmentFilter;
-    const matchesStatus = !statusFilter || supervisor.status === statusFilter;
+    const matchesDepartment = departmentFilter === 'all' || supervisor.department_id === departmentFilter;
+    const matchesStatus = statusFilter === 'all' || supervisor.status === statusFilter;
     
     return matchesSearch && matchesDepartment && matchesStatus;
   });
@@ -217,7 +218,7 @@ export default function Supervisors() {
                         <SelectValue placeholder="Statut" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Tous statuts</SelectItem>
+                        <SelectItem value="all">Tous statuts</SelectItem>
                         <SelectItem value="available">Disponible</SelectItem>
                         <SelectItem value="busy">Occupé</SelectItem>
                         <SelectItem value="unavailable">Indisponible</SelectItem>
