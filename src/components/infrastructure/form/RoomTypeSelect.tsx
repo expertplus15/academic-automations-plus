@@ -20,8 +20,15 @@ export function RoomTypeSelect({ value, onChange, error }: RoomTypeSelectProps) 
     { value: 'cafeteria', label: 'Cafétéria' },
   ];
 
-  // Filter out any room types with empty values
-  const validRoomTypes = roomTypes.filter(type => type.value && type.value.trim() !== '');
+  // Ensure all room types have valid, non-empty values
+  const validRoomTypes = roomTypes.filter(type => 
+    type.value && 
+    typeof type.value === 'string' && 
+    type.value.trim().length > 0 &&
+    type.label &&
+    typeof type.label === 'string' &&
+    type.label.trim().length > 0
+  );
 
   return (
     <div className="space-y-2">
