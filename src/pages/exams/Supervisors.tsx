@@ -1,9 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { ExamsPageHeader } from "@/components/ExamsPageHeader";
-import { Card, CardContent, Car
-
-dHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
