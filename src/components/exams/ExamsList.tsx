@@ -26,8 +26,8 @@ import { toast } from 'sonner';
 export function ExamsList() {
   const { exams, loading, deleteExam, fetchExams } = useExams();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [typeFilter, setTypeFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -64,8 +64,8 @@ export function ExamsList() {
   const filteredExams = exams.filter(exam => {
     const matchesSearch = exam.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          exam.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = !statusFilter || exam.status === statusFilter;
-    const matchesType = !typeFilter || exam.exam_type === typeFilter;
+    const matchesStatus = statusFilter === 'all' || exam.status === statusFilter;
+    const matchesType = typeFilter === 'all' || exam.exam_type === typeFilter;
     
     return matchesSearch && matchesStatus && matchesType;
   });
@@ -124,7 +124,7 @@ export function ExamsList() {
                 <SelectValue placeholder="Statut" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tous statuts</SelectItem>
+                <SelectItem value="all">Tous statuts</SelectItem>
                 <SelectItem value="draft">Brouillon</SelectItem>
                 <SelectItem value="scheduled">Planifié</SelectItem>
                 <SelectItem value="in_progress">En cours</SelectItem>
@@ -138,7 +138,7 @@ export function ExamsList() {
                 <SelectValue placeholder="Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tous types</SelectItem>
+                <SelectItem value="all">Tous types</SelectItem>
                 <SelectItem value="written">Écrit</SelectItem>
                 <SelectItem value="oral">Oral</SelectItem>
                 <SelectItem value="practical">Pratique</SelectItem>
@@ -160,10 +160,10 @@ export function ExamsList() {
             <CardContent className="p-8 text-center">
               <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-600 mb-2">
-                {searchTerm || statusFilter || typeFilter ? 'Aucun examen trouvé' : 'Aucun examen créé'}
+                {searchTerm || statusFilter !== 'all' || typeFilter !== 'all' ? 'Aucun examen trouvé' : 'Aucun examen créé'}
               </h3>
               <p className="text-gray-500">
-                {searchTerm || statusFilter || typeFilter 
+                {searchTerm || statusFilter !== 'all' || typeFilter !== 'all'
                   ? 'Essayez de modifier vos filtres de recherche'
                   : 'Commencez par créer votre premier examen'
                 }
