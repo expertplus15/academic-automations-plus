@@ -64,6 +64,20 @@ export default function Dashboard() {
       route: "/students"
     },
     {
+      title: "Examens",
+      icon: FileText,
+      color: "exams",
+      notifications: 2,
+      route: "/exams"
+    },
+    {
+      title: "Évaluations et Résultats",
+      icon: BarChart3,
+      color: "results",
+      notifications: 3,
+      route: "/results"
+    },
+    {
       title: "Finance",
       icon: CreditCard,
       color: "finance",
@@ -83,13 +97,6 @@ export default function Dashboard() {
       color: "partnerships",
       notifications: 8,
       route: "/communication"
-    },
-    {
-      title: "Examens",
-      icon: FileText,
-      color: "exams",
-      notifications: 2,
-      route: "/exams"
     },
     {
       title: "E-Learning",
