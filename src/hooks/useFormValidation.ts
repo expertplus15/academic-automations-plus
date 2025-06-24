@@ -124,7 +124,7 @@ export function useFormValidation<T extends Record<string, any>>(
     }
   }, [touched, validateField]);
 
-  const setTouched = useCallback((name: string) => {
+  const markFieldAsTouched = useCallback((name: string) => {
     setTouched(prev => ({ ...prev, [name]: true }));
     
     // Validate on blur
@@ -151,7 +151,7 @@ export function useFormValidation<T extends Record<string, any>>(
     touched,
     isValidating,
     setValue,
-    setTouched: setTouched,
+    setTouched: markFieldAsTouched,
     validateForm,
     reset,
     setMultipleValues,
