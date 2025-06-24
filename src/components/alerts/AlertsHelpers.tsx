@@ -58,17 +58,40 @@ export function getSeverityIcon(severity: string) {
   }
 }
 
-export function getSeverityColor(severity: string): string {
+export function getSeverityColor(severity: string): "default" | "destructive" | "secondary" | "outline" {
   switch (severity.toLowerCase()) {
     case 'critical':
-      return 'border-red-500 bg-red-50';
+      return 'destructive';
     case 'high':
-      return 'border-orange-500 bg-orange-50';
+      return 'destructive';
     case 'medium':
-      return 'border-yellow-500 bg-yellow-50';
+      return 'secondary';
     case 'low':
-      return 'border-blue-500 bg-blue-50';
+      return 'outline';
     default:
-      return 'border-gray-300 bg-gray-50';
+      return 'default';
+  }
+}
+
+export function getAlertTypeLabel(alertType: string): string {
+  switch (alertType.toLowerCase()) {
+    case 'attendance':
+      return 'Assiduité';
+    case 'performance':
+      return 'Performance';
+    case 'behavior':
+      return 'Comportement';
+    case 'academic':
+      return 'Académique';
+    case 'administrative':
+      return 'Administratif';
+    case 'financial':
+      return 'Financier';
+    case 'health':
+      return 'Santé';
+    case 'disciplinary':
+      return 'Disciplinaire';
+    default:
+      return alertType;
   }
 }
