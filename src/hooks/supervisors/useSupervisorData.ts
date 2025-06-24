@@ -13,6 +13,8 @@ export function useSupervisorData() {
   const fetchSupervisors = async (filters?: SupervisorFilters) => {
     try {
       setLoading(true);
+      setError(null);
+
       let query = supabase
         .from('profiles')
         .select(`
@@ -21,7 +23,7 @@ export function useSupervisorData() {
           email,
           phone,
           department_id,
-          teacher_availability!teacher_availability_teacher_id_fkey(
+          teacher_availability(
             day_of_week,
             start_time,
             end_time,
@@ -45,22 +47,56 @@ export function useSupervisorData() {
           variant: 'destructive'
         });
       } else {
-        const mappedSupervisors = (data || []).map((supervisor: any) => ({
-          id: supervisor.id,
-          teacher_id: supervisor.id,
-          full_name: supervisor.full_name,
-          email: supervisor.email,
-          phone: supervisor.phone,
-          department_id: supervisor.department_id,
-          status: 'available',
-          availability: supervisor.teacher_availability || [],
-          current_load: 0,
+        const mappedSupervisors: Supervisor[] = (data || []).map(profile => ({
+          id: profile.id,
+          teacher_id: profile.id,
+          full_name: profile.full_name || '',
+          email: profile.email,
+          phone: profile.phone,
+          department_id: profile.department_id,
+          status: 'available', // Par défaut
+          availability: profile.teacher_availability?.map(av => ({
+            day_of_week: av.day_of_week,
+            start_time: av.start_time,
+            end_time: av.end_time,
+            is_preferred: av.is_preferred
+          })) || [],
+          current_load: 0, // À calculer
           max_load: 20
         }));
+
         setSupervisors(mappedSupervisors);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+      const errorMessage = err instanceof Error ? err.message : 'Une erreur est survenue';
+      setError(errorMessage);
+      toast({
+        title: 'Erreur',
+        description: errorMessage,
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateSupervisorStatus = async (supervisorId: string, status: string) => {
+    try {
+      setLoading(true);
+      
+      // Mettre à jour localement d'abord
+      setSupervisors(prev => 
+        prev.map(sup => 
+          sup.id === supervisorId ? { ...sup, status } : sup
+        )
+      );
+
+      toast({
+        title: 'Statut mis à jour',
+        description: 'Le statut du surveillant a été modifié'
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur lors de la mise à jour');
     } finally {
       setLoading(false);
     }
@@ -70,6 +106,7 @@ export function useSupervisorData() {
     supervisors,
     loading,
     error,
-    fetchSupervisors
+    fetchSupervisors,
+    updateSupervisorStatus
   };
 }

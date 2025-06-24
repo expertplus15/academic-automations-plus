@@ -1,37 +1,33 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { User, Mail, Phone, Clock, CheckCircle, AlertCircle } from 'lucide-react';
-import { Supervisor } from '@/hooks/useSupervisors';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { 
+  User, 
+  Mail, 
+  Phone, 
+  Calendar, 
+  Clock,
+  UserCheck,
+  Eye
+} from 'lucide-react';
+import { Supervisor } from '@/hooks/supervisors/types';
 
 interface SupervisorCardProps {
   supervisor: Supervisor;
   onAssign: (supervisorId: string) => void;
   onViewDetails: (supervisor: Supervisor) => void;
   isAssignable?: boolean;
-  currentAssignments?: number;
 }
 
 export function SupervisorCard({ 
   supervisor, 
   onAssign, 
-  onViewDetails,
-  isAssignable = true,
-  currentAssignments = 0
+  onViewDetails, 
+  isAssignable = true 
 }: SupervisorCardProps) {
-  const workload = supervisor.max_load ? 
-    ((supervisor.current_load || 0) / supervisor.max_load) * 100 : 0;
-
-  const getWorkloadColor = (percentage: number) => {
-    if (percentage >= 90) return 'text-red-600';
-    if (percentage >= 70) return 'text-orange-600';
-    if (percentage >= 50) return 'text-yellow-600';
-    return 'text-green-600';
-  };
-
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'available':
@@ -39,26 +35,37 @@ export function SupervisorCard({
       case 'busy':
         return <Badge className="bg-orange-100 text-orange-800">Occupé</Badge>;
       case 'unavailable':
-        return <Badge className="bg-red-100 text-red-800">Indisponible</Badge>;
+        return <Badge variant="destructive">Indisponible</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
   };
 
+  const getLoadColor = (load: number, maxLoad: number) => {
+    const percentage = (load / maxLoad) * 100;
+    if (percentage < 25) return 'text-green-600';
+    if (percentage < 75) return 'text-orange-600';
+    return 'text-red-600';
+  };
+
+  const initials = supervisor.full_name
+    .split(' ')
+    .map(name => name.charAt(0))
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+
   return (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
-        <div className="flex justify-between items-start">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-              <User className="w-5 h-5 text-blue-600" />
-            </div>
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <Avatar>
+              <AvatarFallback>{initials}</AvatarFallback>
+            </Avatar>
             <div>
-              <CardTitle className="text-lg">{supervisor.full_name}</CardTitle>
-              <p className="text-sm text-muted-foreground flex items-center gap-1">
-                <Mail className="w-3 h-3" />
-                {supervisor.email}
-              </p>
+              <h3 className="font-semibold">{supervisor.full_name}</h3>
+              <p className="text-sm text-muted-foreground">{supervisor.email}</p>
             </div>
           </div>
           {getStatusBadge(supervisor.status)}
@@ -67,98 +74,91 @@ export function SupervisorCard({
       
       <CardContent className="space-y-4">
         {/* Informations de contact */}
-        {supervisor.phone && (
+        <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm">
-            <Phone className="w-4 h-4 text-muted-foreground" />
-            <span>{supervisor.phone}</span>
+            <Mail className="w-4 h-4 text-gray-500" />
+            <span className="truncate">{supervisor.email}</span>
           </div>
-        )}
+          {supervisor.phone && (
+            <div className="flex items-center gap-2 text-sm">
+              <Phone className="w-4 h-4 text-gray-500" />
+              <span>{supervisor.phone}</span>
+            </div>
+          )}
+        </div>
 
         {/* Charge de travail */}
         <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Charge de travail:</span>
-            <span className={`font-medium ${getWorkloadColor(workload)}`}>
-              {supervisor.current_load || 0}/{supervisor.max_load || 20} ({Math.round(workload)}%)
+          <div className="flex justify-between items-center">
+            <span className="text-sm font-medium">Charge de travail</span>
+            <span className={`text-sm font-semibold ${getLoadColor(supervisor.current_load || 0, supervisor.max_load || 20)}`}>
+              {supervisor.current_load || 0}/{supervisor.max_load || 20}
             </span>
           </div>
-          <Progress value={workload} className="h-2" />
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              className={`h-2 rounded-full transition-all ${
+                ((supervisor.current_load || 0) / (supervisor.max_load || 20)) * 100 < 25 
+                  ? 'bg-green-500' 
+                  : ((supervisor.current_load || 0) / (supervisor.max_load || 20)) * 100 < 75 
+                    ? 'bg-orange-500' 
+                    : 'bg-red-500'
+              }`}
+              style={{ 
+                width: `${Math.min(((supervisor.current_load || 0) / (supervisor.max_load || 20)) * 100, 100)}%` 
+              }}
+            />
+          </div>
         </div>
 
         {/* Disponibilités */}
         {supervisor.availability && supervisor.availability.length > 0 && (
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm">
-              <Clock className="w-4 h-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Disponibilités:</span>
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-gray-500" />
+              <span className="text-sm font-medium">Disponibilités</span>
             </div>
-            <div className="flex flex-wrap gap-1">
-              {supervisor.availability.slice(0, 3).map((avail, index) => (
-                <Badge key={index} variant="outline" className="text-xs">
-                  {['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'][avail.day_of_week]} 
-                  {' '}{avail.start_time}-{avail.end_time}
-                  {avail.is_preferred && <span className="text-green-600">★</span>}
-                </Badge>
+            <div className="text-sm text-muted-foreground">
+              {supervisor.availability.slice(0, 2).map((av, index) => (
+                <div key={index} className="flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  <span>
+                    Jour {av.day_of_week}: {av.start_time} - {av.end_time}
+                    {av.is_preferred && ' (préféré)'}
+                  </span>
+                </div>
               ))}
-              {supervisor.availability.length > 3 && (
-                <Badge variant="outline" className="text-xs">
-                  +{supervisor.availability.length - 3}
-                </Badge>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Assignations actuelles */}
-        {currentAssignments > 0 && (
-          <div className="flex items-center gap-2 text-sm">
-            <AlertCircle className="w-4 h-4 text-orange-500" />
-            <span className="text-muted-foreground">
-              {currentAssignments} examen(s) assigné(s) ce mois
-            </span>
-          </div>
-        )}
-
-        {/* Spécialisations */}
-        {supervisor.specializations && supervisor.specializations.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Spécialisations:</p>
-            <div className="flex flex-wrap gap-1">
-              {supervisor.specializations.slice(0, 3).map((spec, index) => (
-                <Badge key={index} variant="secondary" className="text-xs">
-                  {spec}
-                </Badge>
-              ))}
-              {supervisor.specializations.length > 3 && (
-                <Badge variant="secondary" className="text-xs">
-                  +{supervisor.specializations.length - 3}
-                </Badge>
+              {supervisor.availability.length > 2 && (
+                <span className="text-xs text-muted-foreground">
+                  +{supervisor.availability.length - 2} autres créneaux
+                </span>
               )}
             </div>
           </div>
         )}
 
         {/* Actions */}
-        <div className="flex justify-between pt-3 border-t">
-          <Button 
-            variant="outline" 
+        <div className="flex gap-2 pt-2">
+          <Button
+            variant="outline"
             size="sm"
             onClick={() => onViewDetails(supervisor)}
             className="flex items-center gap-1"
           >
-            <User className="w-3 h-3" />
+            <Eye className="w-3 h-3" />
             Détails
           </Button>
           
-          <Button 
-            size="sm"
-            onClick={() => onAssign(supervisor.teacher_id)}
-            disabled={!isAssignable || workload >= 90}
-            className="flex items-center gap-1"
-          >
-            <CheckCircle className="w-3 h-3" />
-            {workload >= 90 ? 'Surchargé' : 'Assigner'}
-          </Button>
+          {isAssignable && supervisor.status === 'available' && (
+            <Button
+              size="sm"
+              onClick={() => onAssign(supervisor.teacher_id)}
+              className="flex items-center gap-1"
+            >
+              <UserCheck className="w-3 h-3" />
+              Assigner
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
