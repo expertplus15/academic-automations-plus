@@ -22,13 +22,7 @@ export function useSupervisorData() {
           full_name,
           email,
           phone,
-          department_id,
-          teacher_availability(
-            day_of_week,
-            start_time,
-            end_time,
-            is_preferred
-          )
+          department_id
         `)
         .eq('role', 'teacher')
         .order('full_name');
@@ -37,36 +31,52 @@ export function useSupervisorData() {
         query = query.eq('department_id', filters.department);
       }
 
-      const { data, error } = await query;
+      const { data: profilesData, error: profilesError } = await query;
 
-      if (error) {
-        setError(error.message);
+      if (profilesError) {
+        setError(profilesError.message);
         toast({
           title: 'Erreur',
           description: 'Impossible de charger les surveillants',
           variant: 'destructive'
         });
-      } else {
-        const mappedSupervisors: Supervisor[] = (data || []).map(profile => ({
-          id: profile.id,
-          teacher_id: profile.id,
-          full_name: profile.full_name || '',
-          email: profile.email,
-          phone: profile.phone,
-          department_id: profile.department_id,
-          status: 'available', // Par défaut
-          availability: profile.teacher_availability?.map(av => ({
+        return;
+      }
+
+      // Récupérer les disponibilités séparément
+      const profileIds = profilesData?.map(p => p.id) || [];
+      let availabilityData: any[] = [];
+      
+      if (profileIds.length > 0) {
+        const { data: availability } = await supabase
+          .from('teacher_availability')
+          .select('*')
+          .in('teacher_id', profileIds);
+        
+        availabilityData = availability || [];
+      }
+
+      const mappedSupervisors: Supervisor[] = (profilesData || []).map(profile => ({
+        id: profile.id,
+        teacher_id: profile.id,
+        full_name: profile.full_name || '',
+        email: profile.email,
+        phone: profile.phone,
+        department_id: profile.department_id,
+        status: 'available',
+        availability: availabilityData
+          .filter(av => av.teacher_id === profile.id)
+          .map(av => ({
             day_of_week: av.day_of_week,
             start_time: av.start_time,
             end_time: av.end_time,
             is_preferred: av.is_preferred
-          })) || [],
-          current_load: 0, // À calculer
-          max_load: 20
-        }));
+          })),
+        current_load: 0,
+        max_load: 20
+      }));
 
-        setSupervisors(mappedSupervisors);
-      }
+      setSupervisors(mappedSupervisors);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Une erreur est survenue';
       setError(errorMessage);
@@ -84,7 +94,6 @@ export function useSupervisorData() {
     try {
       setLoading(true);
       
-      // Mettre à jour localement d'abord
       setSupervisors(prev => 
         prev.map(sup => 
           sup.id === supervisorId ? { ...sup, status } : sup

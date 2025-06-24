@@ -1,72 +1,74 @@
 
+import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Bell, CheckCircle, Clock } from 'lucide-react';
+import { AlertTriangle, Info, AlertCircle } from 'lucide-react';
 
-export const getSeverityBadge = (severity: string) => {
-  switch (severity) {
+export function getSeverityBadge(severity: string) {
+  switch (severity.toLowerCase()) {
+    case 'critical':
+      return (
+        <Badge variant="destructive" className="flex items-center gap-1">
+          <AlertTriangle className="w-3 h-3" />
+          Critique
+        </Badge>
+      );
     case 'high':
-      return <Badge variant="destructive">Élevée</Badge>;
+      return (
+        <Badge className="bg-orange-500 text-white flex items-center gap-1">
+          <AlertCircle className="w-3 h-3" />
+          Élevé
+        </Badge>
+      );
     case 'medium':
-      return <Badge className="bg-orange-100 text-orange-800 border-orange-200">Moyenne</Badge>;
+      return (
+        <Badge className="bg-yellow-500 text-white flex items-center gap-1">
+          <Info className="w-3 h-3" />
+          Moyen
+        </Badge>
+      );
     case 'low':
-      return <Badge variant="secondary">Faible</Badge>;
+      return (
+        <Badge variant="outline" className="flex items-center gap-1">
+          <Info className="w-3 h-3" />
+          Faible
+        </Badge>
+      );
     default:
-      return <Badge variant="outline">{severity}</Badge>;
+      return (
+        <Badge variant="outline" className="flex items-center gap-1">
+          <Info className="w-3 h-3" />
+          {severity}
+        </Badge>
+      );
   }
-};
+}
 
-export const getSeverityColor = (severity: string) => {
-  switch (severity) {
+export function getSeverityIcon(severity: string) {
+  switch (severity.toLowerCase()) {
+    case 'critical':
+      return <AlertTriangle className="w-4 h-4 text-red-600" />;
     case 'high':
-      return 'destructive';
+      return <AlertCircle className="w-4 h-4 text-orange-500" />;
     case 'medium':
-      return 'secondary';
+      return <Info className="w-4 h-4 text-yellow-500" />;
     case 'low':
-      return 'outline';
+      return <Info className="w-4 h-4 text-blue-500" />;
     default:
-      return 'outline';
+      return <Info className="w-4 h-4 text-gray-500" />;
   }
-};
+}
 
-export const getStatusBadge = (status: string) => {
-  switch (status) {
-    case 'active':
-      return <Badge className="bg-red-100 text-red-800 border-red-200">Active</Badge>;
-    case 'resolved':
-      return <Badge className="bg-green-100 text-green-800 border-green-200">Résolue</Badge>;
-    case 'pending':
-      return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">En attente</Badge>;
+export function getSeverityColor(severity: string): string {
+  switch (severity.toLowerCase()) {
+    case 'critical':
+      return 'border-red-500 bg-red-50';
+    case 'high':
+      return 'border-orange-500 bg-orange-50';
+    case 'medium':
+      return 'border-yellow-500 bg-yellow-50';
+    case 'low':
+      return 'border-blue-500 bg-blue-50';
     default:
-      return <Badge variant="outline">{status}</Badge>;
+      return 'border-gray-300 bg-gray-50';
   }
-};
-
-export const getAlertIcon = (type: string) => {
-  switch (type) {
-    case 'absence':
-      return <AlertTriangle className="w-4 h-4 text-red-500" />;
-    case 'grade':
-      return <CheckCircle className="w-4 h-4 text-orange-500" />;
-    case 'attendance':
-      return <Clock className="w-4 h-4 text-blue-500" />;
-    default:
-      return <Bell className="w-4 h-4 text-gray-500" />;
-  }
-};
-
-export const getAlertTypeLabel = (type: string) => {
-  switch (type) {
-    case 'absence':
-      return 'Absence';
-    case 'grade':
-      return 'Note';
-    case 'attendance':
-      return 'Assiduité';
-    case 'performance':
-      return 'Performance';
-    case 'behavior':
-      return 'Comportement';
-    default:
-      return type;
-  }
-};
+}
