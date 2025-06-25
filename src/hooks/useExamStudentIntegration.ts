@@ -1,7 +1,6 @@
-
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useModuleSync } from './useModuleSync';
+import { useModuleSync } from './module-sync';
 import { useErrorHandler } from './useErrorHandler';
 
 export interface StudentEnrollmentRule {
