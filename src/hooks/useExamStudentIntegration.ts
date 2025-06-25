@@ -12,9 +12,12 @@ export interface StudentEnrollmentRule {
     semester?: number;
     minGrade?: number;
     prerequisites?: string[];
+    yearLevel?: number;
+    maxYearLevel?: number;
   };
   autoEnroll: boolean;
   requiresApproval: boolean;
+  priority: number;
 }
 
 export interface ExamStudentSync {
@@ -22,7 +25,15 @@ export interface ExamStudentSync {
   enrolledStudents: string[];
   eligibleStudents: string[];
   pendingApprovals: string[];
+  ineligibleStudents: { studentId: string; reason: string }[];
   accommodations: Record<string, any>;
+  enrollmentStats: {
+    total: number;
+    eligible: number;
+    enrolled: number;
+    pending: number;
+    ineligible: number;
+  };
   syncStatus: 'pending' | 'synced' | 'partial' | 'error';
   lastSyncAt?: Date;
 }
@@ -51,8 +62,8 @@ export function useExamStudentIntegration() {
 
       if (examError) throw examError;
 
-      // Trouver les étudiants éligibles
-      const eligibleStudents = await findEligibleStudents(examData);
+      // Trouver les étudiants éligibles et inéligibles
+      const { eligibleStudents, ineligibleStudents } = await findEligibleStudents(examData);
       
       // Récupérer les inscriptions existantes
       const { data: existingEnrollments } = await supabase
@@ -69,23 +80,33 @@ export function useExamStudentIntegration() {
         ?.map(e => e.student_id) || [];
 
       // Inscription automatique selon les règles
-      await autoEnrollStudents(examId, examData, eligibleStudents, enrolledStudents);
+      const newEnrollments = await autoEnrollStudents(examId, examData, eligibleStudents, enrolledStudents);
+
+      // Calculer les statistiques
+      const enrollmentStats = {
+        total: eligibleStudents.length + ineligibleStudents.length,
+        eligible: eligibleStudents.length,
+        enrolled: enrolledStudents.length + newEnrollments.length,
+        pending: pendingApprovals.length,
+        ineligible: ineligibleStudents.length
+      };
 
       // Publier l'événement de synchronisation
       await publishEvent('exams', 'student_sync_completed', {
         examId,
-        eligibleCount: eligibleStudents.length,
-        enrolledCount: enrolledStudents.length,
+        stats: enrollmentStats,
         timestamp: new Date()
       });
 
       // Mettre à jour l'état local
       const syncData: ExamStudentSync = {
         examId,
-        enrolledStudents,
+        enrolledStudents: [...enrolledStudents, ...newEnrollments],
         eligibleStudents: eligibleStudents.map(s => s.id),
         pendingApprovals,
+        ineligibleStudents,
         accommodations: extractAccommodations(existingEnrollments),
+        enrollmentStats,
         syncStatus: 'synced',
         lastSyncAt: new Date()
       };
@@ -109,124 +130,286 @@ export function useExamStudentIntegration() {
   }, [publishEvent, handleError]);
 
   const findEligibleStudents = async (examData: any) => {
-    // Récupérer tous les étudiants du programme
-    const { data: students } = await supabase
-      .from('students')
-      .select(`
-        *,
-        profiles(*),
-        student_progress(*)
-      `)
-      .eq('program_id', examData.program_id)
-      .eq('status', 'active');
+    try {
+      // Récupérer tous les étudiants du programme
+      const { data: students, error } = await supabase
+        .from('students')
+        .select(`
+          *,
+          profiles!students_profile_id_fkey(*),
+          student_progress(*)
+        `)
+        .eq('program_id', examData.program_id)
+        .eq('status', 'active');
 
-    if (!students) return [];
+      if (error) throw error;
+      if (!students) return { eligibleStudents: [], ineligibleStudents: [] };
 
-    // Appliquer les règles d'éligibilité
-    const eligibleStudents = [];
-    
-    for (const student of students) {
-      const isEligible = await checkStudentEligibility(student, examData);
-      if (isEligible) {
-        eligibleStudents.push(student);
+      const eligibleStudents = [];
+      const ineligibleStudents = [];
+      
+      for (const student of students) {
+        const eligibilityResult = await checkStudentEligibility(student, examData);
+        
+        if (eligibilityResult.eligible) {
+          eligibleStudents.push(student);
+        } else {
+          ineligibleStudents.push({
+            studentId: student.id,
+            reason: eligibilityResult.reason || 'Critères d\'éligibilité non remplis'
+          });
+        }
       }
-    }
 
-    return eligibleStudents;
+      return { eligibleStudents, ineligibleStudents };
+    } catch (error) {
+      console.error('Erreur recherche étudiants éligibles:', error);
+      return { eligibleStudents: [], ineligibleStudents: [] };
+    }
   };
 
-  const checkStudentEligibility = async (student: any, examData: any): Promise<boolean> => {
-    // Vérifier le niveau d'études
-    if (examData.level_requirement && student.year_level < examData.level_requirement) {
-      return false;
-    }
-
-    // Vérifier les prérequis de la matière
-    const { data: subject } = await supabase
-      .from('subjects')
-      .select('prerequisites')
-      .eq('id', examData.subject_id)
-      .single();
-
-    // Vérifier si prerequisites existe et est un tableau
-    const prerequisites = subject?.prerequisites;
-    if (prerequisites && Array.isArray(prerequisites) && prerequisites.length > 0) {
-      const hasPrerequisites = await checkStudentPrerequisites(student.id, prerequisites as string[]);
-      if (!hasPrerequisites) return false;
-    }
-
-    // Vérifier les notes minimales si requises
-    const { data: grades } = await supabase
-      .from('student_grades')
-      .select('grade, max_grade')
-      .eq('student_id', student.id)
-      .eq('subject_id', examData.subject_id)
-      .eq('academic_year_id', examData.academic_year_id);
-
-    if (grades?.length) {
-      const averageGrade = grades.reduce((sum, g) => sum + (g.grade / g.max_grade * 20), 0) / grades.length;
-      if (averageGrade < (examData.min_grade_required || 0)) {
-        return false;
+  const checkStudentEligibility = async (student: any, examData: any): Promise<{ eligible: boolean; reason?: string }> => {
+    try {
+      // Vérifier le niveau d'études
+      if (examData.level_requirement && student.year_level < examData.level_requirement) {
+        return { 
+          eligible: false, 
+          reason: `Niveau d'études insuffisant: ${student.year_level} < ${examData.level_requirement}` 
+        };
       }
-    }
 
-    return true;
+      // Vérifier les prérequis de la matière
+      const { data: subject } = await supabase
+        .from('subjects')
+        .select('prerequisites')
+        .eq('id', examData.subject_id)
+        .single();
+
+      const prerequisites = subject?.prerequisites;
+      if (prerequisites && Array.isArray(prerequisites) && prerequisites.length > 0) {
+        const prerequisiteResult = await checkStudentPrerequisites(student.id, prerequisites as string[]);
+        if (!prerequisiteResult.success) {
+          return { 
+            eligible: false, 
+            reason: `Prérequis non validés: ${prerequisiteResult.missingPrerequisites?.join(', ')}` 
+          };
+        }
+      }
+
+      // Vérifier les notes minimales si requises
+      if (examData.min_grade_required && examData.min_grade_required > 0) {
+        const gradeResult = await checkStudentMinimumGrades(student.id, examData);
+        if (!gradeResult.success) {
+          return { 
+            eligible: false, 
+            reason: `Moyenne insuffisante: ${gradeResult.average?.toFixed(2) || 'N/A'} < ${examData.min_grade_required}` 
+          };
+        }
+      }
+
+      // Vérifier l'assiduité si requise
+      if (examData.min_attendance_rate && examData.min_attendance_rate > 0) {
+        const attendanceResult = await checkStudentAttendance(student.id, examData);
+        if (!attendanceResult.success) {
+          return { 
+            eligible: false, 
+            reason: `Assiduité insuffisante: ${attendanceResult.rate?.toFixed(1) || 'N/A'}% < ${examData.min_attendance_rate}%` 
+          };
+        }
+      }
+
+      // Vérifier si l'étudiant n'est pas déjà inscrit
+      const { data: existingRegistration } = await supabase
+        .from('exam_registrations')
+        .select('status')
+        .eq('exam_id', examData.id)
+        .eq('student_id', student.id)
+        .single();
+
+      if (existingRegistration) {
+        return { 
+          eligible: false, 
+          reason: `Déjà inscrit avec le statut: ${existingRegistration.status}` 
+        };
+      }
+
+      return { eligible: true };
+    } catch (error) {
+      console.error('Erreur vérification éligibilité étudiant:', error);
+      return { eligible: false, reason: 'Erreur de vérification' };
+    }
   };
 
-  const checkStudentPrerequisites = async (studentId: string, prerequisites: string[]): Promise<boolean> => {
-    for (const prereqId of prerequisites) {
-      const { data: grade } = await supabase
+  const checkStudentPrerequisites = async (studentId: string, prerequisites: string[]): Promise<{
+    success: boolean;
+    missingPrerequisites?: string[];
+  }> => {
+    try {
+      const missingPrerequisites = [];
+      
+      for (const prereqId of prerequisites) {
+        const { data: grade } = await supabase
+          .from('student_grades')
+          .select(`
+            grade, 
+            max_grade,
+            subjects!student_grades_subject_id_fkey(name)
+          `)
+          .eq('student_id', studentId)
+          .eq('subject_id', prereqId)
+          .eq('is_published', true)
+          .order('evaluation_date', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (!grade || (grade.grade / grade.max_grade * 20) < 10) {
+          missingPrerequisites.push(grade?.subjects?.name || prereqId);
+        }
+      }
+      
+      return {
+        success: missingPrerequisites.length === 0,
+        missingPrerequisites: missingPrerequisites.length > 0 ? missingPrerequisites : undefined
+      };
+    } catch (error) {
+      console.error('Erreur vérification prérequis:', error);
+      return { success: false };
+    }
+  };
+
+  const checkStudentMinimumGrades = async (studentId: string, examData: any): Promise<{
+    success: boolean;
+    average?: number;
+  }> => {
+    try {
+      const { data: grades } = await supabase
         .from('student_grades')
         .select('grade, max_grade')
         .eq('student_id', studentId)
-        .eq('subject_id', prereqId)
-        .eq('is_published', true)
-        .order('evaluation_date', { ascending: false })
-        .limit(1)
-        .single();
+        .eq('subject_id', examData.subject_id)
+        .eq('academic_year_id', examData.academic_year_id)
+        .eq('is_published', true);
 
-      if (!grade || (grade.grade / grade.max_grade * 20) < 10) {
-        return false;
+      if (!grades?.length) {
+        return { success: false, average: 0 };
       }
+
+      const average = grades.reduce((sum, g) => sum + (g.grade / g.max_grade * 20), 0) / grades.length;
+      
+      return {
+        success: average >= (examData.min_grade_required || 0),
+        average
+      };
+    } catch (error) {
+      console.error('Erreur vérification notes minimales:', error);
+      return { success: false };
     }
-    return true;
+  };
+
+  const checkStudentAttendance = async (studentId: string, examData: any): Promise<{
+    success: boolean;
+    rate?: number;
+  }> => {
+    try {
+      const { data: attendance } = await supabase
+        .from('attendance_records')
+        .select('status')
+        .eq('student_id', studentId)
+        .eq('subject_id', examData.subject_id)
+        .eq('academic_year_id', examData.academic_year_id);
+
+      if (!attendance?.length) {
+        return { success: true, rate: 100 }; // Pas d'absences enregistrées
+      }
+
+      const totalSessions = attendance.length;
+      const presentSessions = attendance.filter(a => a.status === 'present').length;
+      const attendanceRate = (presentSessions / totalSessions) * 100;
+
+      return {
+        success: attendanceRate >= (examData.min_attendance_rate || 0),
+        rate: attendanceRate
+      };
+    } catch (error) {
+      console.error('Erreur vérification assiduité:', error);
+      return { success: true }; // En cas d'erreur, ne pas bloquer
+    }
   };
 
   const autoEnrollStudents = async (examId: string, examData: any, eligibleStudents: any[], enrolledStudents: string[]) => {
-    const studentsToEnroll = eligibleStudents.filter(s => !enrolledStudents.includes(s.id));
-    
-    // Appliquer les règles d'inscription automatique
-    const autoEnrollRule = enrollmentRules.find(rule => 
-      (!rule.conditions.programId || rule.conditions.programId === examData.program_id) &&
-      rule.autoEnroll
-    );
+    try {
+      const studentsToEnroll = eligibleStudents.filter(s => !enrolledStudents.includes(s.id));
+      
+      if (studentsToEnroll.length === 0) {
+        return [];
+      }
 
-    if (autoEnrollRule && studentsToEnroll.length > 0) {
+      // Trouver la règle d'inscription automatique applicable
+      const applicableRule = enrollmentRules
+        .filter(rule => rule.autoEnroll)
+        .find(rule => 
+          (!rule.conditions.programId || rule.conditions.programId === examData.program_id) &&
+          (!rule.conditions.semester || rule.conditions.semester === examData.semester)
+        );
+
+      if (!applicableRule) {
+        console.log('Aucune règle d\'inscription automatique applicable');
+        return [];
+      }
+
       const enrollments = studentsToEnroll.map(student => ({
         exam_id: examId,
         student_id: student.id,
-        status: autoEnrollRule.requiresApproval ? 'pending_approval' : 'registered',
+        status: applicableRule.requiresApproval ? 'pending_approval' : 'registered',
         registration_date: new Date().toISOString(),
         special_accommodations: getStudentAccommodations(student)
       }));
 
-      await supabase
+      const { data: newEnrollments, error } = await supabase
         .from('exam_registrations')
-        .upsert(enrollments);
+        .insert(enrollments)
+        .select('student_id');
+
+      if (error) {
+        console.error('Erreur inscription automatique:', error);
+        return [];
+      }
 
       // Publier l'événement d'inscription
       await publishEvent('students', 'auto_enrolled_to_exam', {
         examId,
         studentIds: studentsToEnroll.map(s => s.id),
+        ruleId: applicableRule.id,
         timestamp: new Date()
       });
+
+      return newEnrollments?.map(e => e.student_id) || [];
+    } catch (error) {
+      console.error('Erreur inscription automatique:', error);
+      return [];
     }
   };
 
   const getStudentAccommodations = (student: any): any => {
     // Récupérer les accommodations spéciales pour l'étudiant
-    // À implémenter selon les besoins (handicap, besoins spéciaux, etc.)
-    return {};
+    const accommodations: any = {};
+    
+    // Vérifier les besoins spéciaux dans le profil
+    if (student.profiles?.special_needs) {
+      accommodations.special_needs = student.profiles.special_needs;
+    }
+    
+    // Ajouter du temps supplémentaire si nécessaire
+    if (student.profiles?.requires_extra_time) {
+      accommodations.extra_time_percentage = 50; // 50% de temps en plus
+    }
+    
+    // Salle spéciale si nécessaire
+    if (student.profiles?.requires_special_room) {
+      accommodations.special_room_required = true;
+    }
+
+    return Object.keys(accommodations).length > 0 ? accommodations : null;
   };
 
   const extractAccommodations = (enrollments: any[]): Record<string, any> => {
@@ -256,7 +439,12 @@ export function useExamStudentIntegration() {
             return {
               ...item,
               enrolledStudents: [...item.enrolledStudents, studentId],
-              pendingApprovals: item.pendingApprovals.filter(id => id !== studentId)
+              pendingApprovals: item.pendingApprovals.filter(id => id !== studentId),
+              enrollmentStats: {
+                ...item.enrollmentStats,
+                enrolled: item.enrollmentStats.enrolled + 1,
+                pending: item.enrollmentStats.pending - 1
+              }
             };
           }
           return item;
@@ -277,10 +465,11 @@ export function useExamStudentIntegration() {
   const addEnrollmentRule = useCallback((rule: Omit<StudentEnrollmentRule, 'id'>) => {
     const newRule: StudentEnrollmentRule = {
       ...rule,
-      id: `rule_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      id: `rule_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      priority: rule.priority || 1
     };
     
-    setEnrollmentRules(prev => [...prev, newRule]);
+    setEnrollmentRules(prev => [...prev, newRule].sort((a, b) => b.priority - a.priority));
   }, []);
 
   const getIntegrationStatus = useCallback((examId: string) => {
