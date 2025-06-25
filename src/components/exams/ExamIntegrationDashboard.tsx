@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,9 +17,9 @@ import {
   Zap
 } from 'lucide-react';
 import { useModuleSync } from '@/hooks/useModuleSync';
-import { useExamAcademicIntegration } from '@/hooks/useExamAcademicIntegration';
+import { useExamAcademicIntegration } from '@/hooks/academic-integration';
 import { useExamStudentIntegration } from '@/hooks/useExamStudentIntegration';
-import { useExamResourceIntegration } from '@/hooks/useExamResourceIntegration';
+import { useExamResourceIntegration } from '@/hooks/resource-integration';
 
 interface ExamIntegrationDashboardProps {
   examId?: string;
