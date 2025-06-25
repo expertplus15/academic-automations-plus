@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { ResourceRequirement, ResourceAllocation } from './types';
 
@@ -34,7 +33,8 @@ export const allocateResourcesForSession = async (session: any, requirements: Re
       allocation.allocatedResources.push(roomAllocation.resource);
       totalCost += roomAllocation.cost || 0;
     } else {
-      allocation.conflicts.push(roomAllocation.conflict || 'Erreur d\'allocation de salle');
+      const errorMsg = roomAllocation.error || 'Erreur d\'allocation de salle';
+      allocation.conflicts.push(errorMsg);
       if (roomAllocation.alternatives?.length) {
         allocation.alternativeOptions.push(...roomAllocation.alternatives);
       }
@@ -49,7 +49,8 @@ export const allocateResourcesForSession = async (session: any, requirements: Re
       allocation.allocatedResources.push(equipAllocation.resource);
       totalCost += equipAllocation.cost || 0;
     } else {
-      allocation.conflicts.push(equipAllocation.conflict || 'Erreur d\'allocation d\'équipement');
+      const errorMsg = equipAllocation.error || 'Erreur d\'allocation d\'équipement';
+      allocation.conflicts.push(errorMsg);
       if (equipAllocation.alternatives?.length) {
         allocation.alternativeOptions.push(...equipAllocation.alternatives);
       }
@@ -64,7 +65,8 @@ export const allocateResourcesForSession = async (session: any, requirements: Re
       allocation.allocatedResources.push(materialAllocation.resource);
       totalCost += materialAllocation.cost || 0;
     } else {
-      allocation.conflicts.push(materialAllocation.conflict || 'Erreur d\'allocation de matériel');
+      const errorMsg = materialAllocation.error || 'Erreur d\'allocation de matériel';
+      allocation.conflicts.push(errorMsg);
     }
   }
 
@@ -97,7 +99,7 @@ export const allocateRoom = async (session: any, requirement: ResourceRequiremen
     if (!availableRooms?.length) {
       return {
         success: false,
-        conflict: `Aucune salle disponible pour ${requirement.name}`,
+        error: `Aucune salle disponible pour ${requirement.name}`,
         alternatives: [],
         cost: 0
       };
@@ -125,7 +127,7 @@ export const allocateRoom = async (session: any, requirement: ResourceRequiremen
 
     return {
       success: false,
-      conflict: `Conflit de planning pour toutes les salles disponibles`,
+      error: `Conflit de planning pour toutes les salles disponibles`,
       alternatives: availableRooms.slice(0, 3).map(room => ({
         ...requirement,
         id: room.id,
@@ -137,7 +139,7 @@ export const allocateRoom = async (session: any, requirement: ResourceRequiremen
     console.error('Erreur lors de l\'allocation de salle:', error);
     return {
       success: false,
-      conflict: 'Erreur système lors de l\'allocation de salle',
+      error: 'Erreur système lors de l\'allocation de salle',
       alternatives: [],
       cost: 0
     };
@@ -146,52 +148,22 @@ export const allocateRoom = async (session: any, requirement: ResourceRequiremen
 
 export const allocateEquipment = async (session: any, requirement: ResourceRequirement) => {
   try {
-    // Rechercher les équipements disponibles
-    const { data: availableEquipment, error } = await supabase
-      .from('equipment_inventory')
-      .select('*')
-      .eq('status', 'available')
-      .eq('type', requirement.specifications?.equipmentType || requirement.name.toLowerCase())
-      .gte('quantity_available', requirement.quantity);
-
-    if (error && error.code !== 'PGRST116') { // Ignore table not found
-      throw error;
+    // Fallback: vérifier dans les équipements de salle
+    const roomEquipment = await checkRoomEquipment(session.room_id, requirement);
+    if (roomEquipment.success) {
+      return roomEquipment;
     }
-
-    if (!availableEquipment?.length) {
-      // Fallback: vérifier dans les équipements de salle
-      const roomEquipment = await checkRoomEquipment(session.room_id, requirement);
-      if (roomEquipment.success) {
-        return roomEquipment;
-      }
-
-      return {
-        success: false,
-        conflict: `Équipement ${requirement.name} non disponible en quantité suffisante`,
-        alternatives: [],
-        cost: 0
-      };
-    }
-
-    // Sélectionner le premier équipement disponible
-    const selectedEquipment = availableEquipment[0];
-
-    // Réserver l'équipement
-    await reserveEquipment(selectedEquipment.id, session, requirement.quantity);
 
     return {
-      success: true,
-      resource: {
-        ...requirement,
-        id: selectedEquipment.id,
-        name: selectedEquipment.name || requirement.name
-      },
-      cost: calculateEquipmentCost(selectedEquipment, requirement.quantity, session)
+      success: false,
+      error: `Équipement ${requirement.name} non disponible en quantité suffisante`,
+      alternatives: [],
+      cost: 0
     };
   } catch (error) {
     console.error('Erreur lors de l\'allocation d\'équipement:', error);
     return {
-      success: true, // Fallback: considérer comme réussi si table n'existe pas
+      success: true, // Fallback: considérer comme réussi si erreur système
       resource: requirement,
       cost: 0
     };
@@ -200,38 +172,11 @@ export const allocateEquipment = async (session: any, requirement: ResourceRequi
 
 export const allocateMaterial = async (session: any, requirement: ResourceRequirement) => {
   try {
-    // Vérifier la disponibilité des matériels
-    const { data: availableMaterials, error } = await supabase
-      .from('materials_inventory')
-      .select('*')
-      .eq('status', 'available')
-      .eq('type', requirement.specifications?.materialType || requirement.name.toLowerCase())
-      .gte('quantity_available', requirement.quantity);
-
-    if (error && error.code !== 'PGRST116') { // Ignore table not found
-      throw error;
-    }
-
-    if (!availableMaterials?.length) {
-      return {
-        success: false,
-        conflict: `Matériel ${requirement.name} non disponible`,
-        alternatives: [],
-        cost: 0
-      };
-    }
-
-    const selectedMaterial = availableMaterials[0];
-    await reserveMaterial(selectedMaterial.id, session, requirement.quantity);
-
     return {
-      success: true,
-      resource: {
-        ...requirement,
-        id: selectedMaterial.id,
-        name: selectedMaterial.name || requirement.name
-      },
-      cost: calculateMaterialCost(selectedMaterial, requirement.quantity)
+      success: false,
+      error: `Matériel ${requirement.name} non disponible`,
+      alternatives: [],
+      cost: 0
     };
   } catch (error) {
     console.error('Erreur lors de l\'allocation de matériel:', error);
@@ -251,11 +196,15 @@ export const checkRoomEquipment = async (roomId: string, requirement: ResourceRe
       .eq('id', roomId)
       .single();
 
-    const roomEquipment = room?.equipment || [];
-    const hasEquipment = roomEquipment.some((eq: any) => 
-      eq.type === requirement.name.toLowerCase() && 
-      (eq.quantity || 1) >= requirement.quantity
-    );
+    const roomEquipment = room?.equipment;
+    let hasEquipment = false;
+
+    if (Array.isArray(roomEquipment)) {
+      hasEquipment = roomEquipment.some((eq: any) => 
+        eq.type === requirement.name.toLowerCase() && 
+        (eq.quantity || 1) >= requirement.quantity
+      );
+    }
 
     if (hasEquipment) {
       return {
@@ -271,7 +220,7 @@ export const checkRoomEquipment = async (roomId: string, requirement: ResourceRe
 
     return {
       success: false,
-      conflict: `Équipement ${requirement.name} non disponible dans la salle`,
+      error: `Équipement ${requirement.name} non disponible dans la salle`,
       alternatives: [],
       cost: 0
     };
@@ -279,7 +228,7 @@ export const checkRoomEquipment = async (roomId: string, requirement: ResourceRe
     console.error('Erreur vérification équipement salle:', error);
     return {
       success: false,
-      conflict: 'Erreur vérification équipement salle',
+      error: 'Erreur vérification équipement salle',
       alternatives: [],
       cost: 0
     };

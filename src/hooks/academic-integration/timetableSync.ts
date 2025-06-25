@@ -165,7 +165,7 @@ export const findAvailableTeachers = async (sessionTime: Date, duration: number,
       .from('teacher_availability')
       .select(`
         teacher_id,
-        profiles!teacher_availability_teacher_id_fkey(id, full_name, role)
+        profiles(id, full_name, role)
       `)
       .eq('day_of_week', dayOfWeek)
       .eq('academic_year_id', academicYearId)
@@ -213,13 +213,14 @@ export const findAvailableTeachers = async (sessionTime: Date, duration: number,
     // Filtrer les enseignants disponibles
     const freeTeachers = availableTeachers.filter(teacher => 
       !busyTeacherIds.includes(teacher.teacher_id) &&
-      !supervisingTeacherIds.includes(teacher.teacher_id)
+      !supervisingTeacherIds.includes(teacher.teacher_id) &&
+      teacher.profiles // Ensure profile exists
     );
 
     return freeTeachers.map(teacher => ({
       id: teacher.teacher_id,
-      name: teacher.profiles?.full_name,
-      role: teacher.profiles?.role
+      name: teacher.profiles?.full_name || 'Nom inconnu',
+      role: teacher.profiles?.role || 'teacher'
     }));
   } catch (error) {
     console.error('Erreur recherche enseignants disponibles:', error);
