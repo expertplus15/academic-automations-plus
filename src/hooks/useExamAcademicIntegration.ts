@@ -174,7 +174,9 @@ export function useExamAcademicIntegration() {
       .eq('id', examData.subject_id)
       .single();
 
-    if (subject?.prerequisites?.length) {
+    // Vérifier si prerequisites existe et est un tableau
+    const prerequisites = subject?.prerequisites;
+    if (prerequisites && Array.isArray(prerequisites) && prerequisites.length > 0) {
       // Vérifier que les étudiants inscrits ont validé les prérequis
       // Cette logique peut être étendue selon les besoins
       constraints.push({

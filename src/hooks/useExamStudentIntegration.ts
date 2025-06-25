@@ -149,8 +149,10 @@ export function useExamStudentIntegration() {
       .eq('id', examData.subject_id)
       .single();
 
-    if (subject?.prerequisites?.length) {
-      const hasPrerequisites = await checkStudentPrerequisites(student.id, subject.prerequisites);
+    // Vérifier si prerequisites existe et est un tableau
+    const prerequisites = subject?.prerequisites;
+    if (prerequisites && Array.isArray(prerequisites) && prerequisites.length > 0) {
+      const hasPrerequisites = await checkStudentPrerequisites(student.id, prerequisites as string[]);
       if (!hasPrerequisites) return false;
     }
 

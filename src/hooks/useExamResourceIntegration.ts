@@ -185,8 +185,9 @@ export function useExamResourceIntegration() {
     const materials: ResourceRequirement[] = [];
 
     // Récupérer les matériels requis depuis la configuration de l'examen
-    if (examData.materials_required?.length) {
-      for (const material of examData.materials_required) {
+    const materialsRequired = examData.materials_required;
+    if (materialsRequired && Array.isArray(materialsRequired) && materialsRequired.length > 0) {
+      for (const material of materialsRequired) {
         materials.push({
           type: 'material',
           id: material.id || material.name.toLowerCase().replace(/\s+/g, '_'),
@@ -228,7 +229,7 @@ export function useExamResourceIntegration() {
       if (roomAllocation.success) {
         allocation.allocatedResources.push(roomAllocation.resource);
       } else {
-        allocation.conflicts.push(roomAllocation.conflict);
+        allocation.conflicts.push(roomAllocation.conflict || 'Erreur d\'allocation de salle');
         if (roomAllocation.alternatives?.length) {
           allocation.alternativeOptions.push(...roomAllocation.alternatives);
         }
@@ -242,7 +243,7 @@ export function useExamResourceIntegration() {
       if (equipAllocation.success) {
         allocation.allocatedResources.push(equipAllocation.resource);
       } else {
-        allocation.conflicts.push(equipAllocation.conflict);
+        allocation.conflicts.push(equipAllocation.conflict || 'Erreur d\'allocation d\'équipement');
       }
     }
 
@@ -310,7 +311,8 @@ export function useExamResourceIntegration() {
     // À implémenter selon le système de gestion d'équipements
     return {
       success: true,
-      resource: requirement
+      resource: requirement,
+      conflict: undefined
     };
   };
 
