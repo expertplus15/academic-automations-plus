@@ -3,16 +3,12 @@ import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useModuleSync } from '../module-sync';
 import { useErrorHandler } from '../useErrorHandler';
-import { 
-  StudentEnrollmentRule, 
-  ExamStudentSync 
-} from './types';
-import { findEligibleStudents } from './studentEligibility';
+import { ExamStudentSync, StudentEnrollmentRule } from './types';
+import { checkStudentEligibility, getEligibleStudents } from './studentEligibility';
 import { autoEnrollStudents, extractAccommodations } from './studentEnrollment';
 
 export function useExamStudentIntegration() {
   const [integrationData, setIntegrationData] = useState<ExamStudentSync[]>([]);
-  const [enrollmentRules, setEnrollmentRules] = useState<StudentEnrollmentRule[]>([]);
   const [loading, setLoading] = useState(false);
   const { publishEvent } = useModuleSync();
   const { handleError } = useErrorHandler();
@@ -34,57 +30,75 @@ export function useExamStudentIntegration() {
 
       if (examError) throw examError;
 
-      // Trouver les étudiants éligibles et inéligibles
-      const { eligibleStudents, ineligibleStudents } = await findEligibleStudents(examData);
-      
-      // Récupérer les inscriptions existantes
-      const { data: existingEnrollments } = await supabase
+      // Récupérer les étudiants déjà inscrits
+      const { data: enrollments, error: enrollmentError } = await supabase
         .from('exam_registrations')
-        .select('student_id, status, special_accommodations')
+        .select('student_id, special_accommodations, status')
         .eq('exam_id', examId);
 
-      const enrolledStudents = existingEnrollments
-        ?.filter(e => e.status === 'registered')
-        ?.map(e => e.student_id) || [];
+      if (enrollmentError) throw enrollmentError;
 
-      const pendingApprovals = existingEnrollments
-        ?.filter(e => e.status === 'pending_approval')
-        ?.map(e => e.student_id) || [];
+      const enrolledStudents = enrollments?.filter(e => e.status === 'registered').map(e => e.student_id) || [];
+      const pendingApprovals = enrollments?.filter(e => e.status === 'pending_approval').map(e => e.student_id) || [];
 
-      // Inscription automatique selon les règles
-      const newEnrollments = await autoEnrollStudents(
-        examId, 
-        examData, 
-        eligibleStudents, 
+      // Obtenir les étudiants éligibles
+      const { eligibleStudents, ineligibleStudents } = await getEligibleStudents(examData);
+
+      // Règles d'inscription automatique (simulées)
+      const enrollmentRules: StudentEnrollmentRule[] = [
+        {
+          id: '1',
+          name: 'Inscription automatique programme',
+          conditions: {
+            programId: examData.program_id,
+            semester: 1,
+            minGrade: 10
+          },
+          autoEnroll: true,
+          requiresApproval: false,
+          priority: 1
+        }
+      ];
+
+      // Inscription automatique
+      const autoEnrolledStudents = await autoEnrollStudents(
+        examId,
+        examData,
+        eligibleStudents,
         enrolledStudents,
         enrollmentRules,
-        publishEvent
+        async (module: string, event: string, data: any) => {
+          await publishEvent(module, event, data);
+        }
       );
+
+      // Extraire les accommodations
+      const accommodations = extractAccommodations(enrollments || []);
 
       // Calculer les statistiques
       const enrollmentStats = {
         total: eligibleStudents.length + ineligibleStudents.length,
         eligible: eligibleStudents.length,
-        enrolled: enrolledStudents.length + newEnrollments.length,
+        enrolled: enrolledStudents.length + autoEnrolledStudents.length,
         pending: pendingApprovals.length,
         ineligible: ineligibleStudents.length
       };
 
       // Publier l'événement de synchronisation
-      await publishEvent('exams', 'student_sync_completed', {
+      await publishEvent('students', 'exam_sync_completed', {
         examId,
-        stats: enrollmentStats,
+        enrollmentStats,
         timestamp: new Date()
       });
 
       // Mettre à jour l'état local
       const syncData: ExamStudentSync = {
         examId,
-        enrolledStudents: [...enrolledStudents, ...newEnrollments],
+        enrolledStudents: [...enrolledStudents, ...autoEnrolledStudents],
         eligibleStudents: eligibleStudents.map(s => s.id),
         pendingApprovals,
         ineligibleStudents,
-        accommodations: extractAccommodations(existingEnrollments),
+        accommodations,
         enrollmentStats,
         syncStatus: 'synced',
         lastSyncAt: new Date()
@@ -106,55 +120,58 @@ export function useExamStudentIntegration() {
     } finally {
       setLoading(false);
     }
-  }, [publishEvent, handleError, enrollmentRules]);
-
-  const approveStudentEnrollment = useCallback(async (examId: string, studentId: string) => {
-    try {
-      await supabase
-        .from('exam_registrations')
-        .update({ status: 'registered' })
-        .eq('exam_id', examId)
-        .eq('student_id', studentId);
-
-      // Mettre à jour l'état local
-      setIntegrationData(prev => 
-        prev.map(item => {
-          if (item.examId === examId) {
-            return {
-              ...item,
-              enrolledStudents: [...item.enrolledStudents, studentId],
-              pendingApprovals: item.pendingApprovals.filter(id => id !== studentId),
-              enrollmentStats: {
-                ...item.enrollmentStats,
-                enrolled: item.enrollmentStats.enrolled + 1,
-                pending: item.enrollmentStats.pending - 1
-              }
-            };
-          }
-          return item;
-        })
-      );
-
-      await publishEvent('exams', 'student_enrollment_approved', {
-        examId,
-        studentId,
-        timestamp: new Date()
-      });
-
-    } catch (error) {
-      handleError(error, { context: 'Student Enrollment Approval' });
-    }
   }, [publishEvent, handleError]);
 
-  const addEnrollmentRule = useCallback((rule: Omit<StudentEnrollmentRule, 'id'>) => {
-    const newRule: StudentEnrollmentRule = {
-      ...rule,
-      id: `rule_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      priority: rule.priority || 1
-    };
-    
-    setEnrollmentRules(prev => [...prev, newRule].sort((a, b) => b.priority - a.priority));
-  }, []);
+  const enrollStudent = useCallback(async (examId: string, studentId: string, accommodations?: any) => {
+    try {
+      setLoading(true);
+
+      // Vérifier l'éligibilité de l'étudiant
+      const { data: examData } = await supabase
+        .from('exams')
+        .select('*')
+        .eq('id', examId)
+        .single();
+
+      if (!examData) throw new Error('Examen non trouvé');
+
+      const { data: studentData } = await supabase
+        .from('students')
+        .select('*, profiles(*)')
+        .eq('id', studentId)
+        .single();
+
+      if (!studentData) throw new Error('Étudiant non trouvé');
+
+      const eligibilityResult = await checkStudentEligibility(studentData, examData);
+      
+      if (!eligibilityResult.eligible) {
+        throw new Error(`Étudiant non éligible: ${eligibilityResult.reason}`);
+      }
+
+      // Inscrire l'étudiant
+      const { error } = await supabase
+        .from('exam_registrations')
+        .insert({
+          exam_id: examId,
+          student_id: studentId,
+          status: 'registered',
+          special_accommodations: accommodations || null
+        });
+
+      if (error) throw error;
+
+      // Re-synchroniser après inscription
+      await syncExamWithStudents(examId);
+
+      return { success: true };
+    } catch (error) {
+      handleError(error, { context: 'Student Enrollment' });
+      return { success: false, error };
+    } finally {
+      setLoading(false);
+    }
+  }, [syncExamWithStudents, handleError]);
 
   const getIntegrationStatus = useCallback((examId: string) => {
     return integrationData.find(item => item.examId === examId);
@@ -162,11 +179,9 @@ export function useExamStudentIntegration() {
 
   return {
     integrationData,
-    enrollmentRules,
     loading,
     syncExamWithStudents,
-    approveStudentEnrollment,
-    addEnrollmentRule,
+    enrollStudent,
     getIntegrationStatus
   };
 }

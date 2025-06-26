@@ -1,297 +1,262 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
-export const syncWithTimetable = async (examData: any) => {
+export const syncTimetableWithExam = async (examData: any): Promise<any> => {
   try {
-    // Synchroniser les sessions d'examen avec l'emploi du temps
-    for (const session of examData.exam_sessions || []) {
-      // Créer ou mettre à jour les créneaux dans l'emploi du temps
-      const { error } = await supabase
-        .from('timetables')
-        .upsert({
-          subject_id: examData.subject_id,
-          program_id: examData.program_id,
-          academic_year_id: examData.academic_year_id,
-          room_id: session.room_id,
-          start_time: new Date(session.start_time).toTimeString().slice(0, 5),
-          end_time: new Date(session.end_time).toTimeString().slice(0, 5),
-          day_of_week: new Date(session.start_time).getDay(),
-          slot_type: 'exam',
-          status: 'scheduled'
-        });
+    console.log('Synchronisation des emplois du temps avec l\'examen:', examData.id);
 
-      if (error) {
-        console.error('Erreur synchronisation emploi du temps:', error);
-      }
-    }
-  } catch (error) {
-    console.error('Erreur lors de la synchronisation avec l\'emploi du temps:', error);
-  }
-};
-
-export const checkTeacherAvailability = async (examData: any) => {
-  try {
-    // Récupérer tous les superviseurs assignés
-    const { data: supervisors } = await supabase
-      .from('exam_supervisors')
+    // Récupérer les créneaux d'emploi du temps pour le programme de l'examen
+    const { data: timetableSlots, error: timetableError } = await supabase
+      .from('timetables')
       .select(`
         *,
-        profiles!exam_supervisors_teacher_id_fkey(id, full_name),
-        exam_sessions!exam_supervisors_session_id_fkey(start_time, end_time)
+        subjects(*),
+        rooms(*)
       `)
-      .in('session_id', examData.exam_sessions?.map((s: any) => s.id) || []);
+      .eq('program_id', examData.program_id)
+      .eq('academic_year_id', examData.academic_year_id);
 
-    if (!supervisors?.length) {
-      console.log('Aucun superviseur assigné pour cet examen');
-      return [];
+    if (timetableError) {
+      console.error('Erreur récupération emploi du temps:', timetableError);
+      throw timetableError;
     }
 
-    const availabilityIssues = [];
-
-    for (const supervisor of supervisors) {
-      const teacherId = supervisor.teacher_id;
-      const session = supervisor.exam_sessions;
-      
-      if (!session) continue;
-
-      const sessionStart = new Date(session.start_time);
-      const sessionEnd = new Date(session.end_time);
-      const dayOfWeek = sessionStart.getDay();
-      const startTime = sessionStart.toTimeString().slice(0, 5);
-      const endTime = sessionEnd.toTimeString().slice(0, 5);
-
-      // Vérifier la disponibilité déclarée du enseignant
-      const { data: availability } = await supabase
-        .from('teacher_availability')
-        .select('*')
-        .eq('teacher_id', teacherId)
-        .eq('day_of_week', dayOfWeek)
-        .eq('academic_year_id', examData.academic_year_id);
-
-      const isAvailable = availability?.some(slot => 
-        slot.start_time <= startTime && slot.end_time >= endTime
-      );
-
-      if (!isAvailable) {
-        availabilityIssues.push({
-          teacherId,
-          teacherName: supervisor.profiles?.full_name,
-          sessionId: supervisor.session_id,
-          issue: 'not_available',
-          message: `${supervisor.profiles?.full_name} n'est pas disponible le ${getDayName(dayOfWeek)} de ${startTime} à ${endTime}`
-        });
-      }
-
-      // Vérifier les conflits avec d'autres cours
-      const { data: teachingConflicts } = await supabase
-        .from('timetables')
-        .select(`
-          *,
-          subjects(name),
-          rooms(name)
-        `)
-        .eq('teacher_id', teacherId)
-        .eq('day_of_week', dayOfWeek)
-        .eq('academic_year_id', examData.academic_year_id)
-        .or(`and(start_time.lte.${startTime},end_time.gt.${startTime}),and(start_time.lt.${endTime},end_time.gte.${endTime})`);
-
-      if (teachingConflicts?.length) {
-        availabilityIssues.push({
-          teacherId,
-          teacherName: supervisor.profiles?.full_name,
-          sessionId: supervisor.session_id,
-          issue: 'teaching_conflict',
-          message: `${supervisor.profiles?.full_name} a cours de ${teachingConflicts[0].subjects?.name} en même temps`,
-          conflictingSlots: teachingConflicts
-        });
-      }
-
-      // Vérifier les conflits avec d'autres examens
-      const { data: examConflicts } = await supabase
-        .from('exam_supervisors')
-        .select(`
-          *,
-          exam_sessions!exam_supervisors_session_id_fkey(
-            start_time,
-            end_time,
-            exams!exam_sessions_exam_id_fkey(title)
-          )
-        `)
-        .eq('teacher_id', teacherId)
-        .eq('status', 'assigned')
-        .neq('session_id', supervisor.session_id);
-
-      const conflictingExams = examConflicts?.filter(conflict => {
-        const conflictSession = conflict.exam_sessions;
-        if (!conflictSession) return false;
-        
-        const conflictStart = new Date(conflictSession.start_time);
-        const conflictEnd = new Date(conflictSession.end_time);
-        
-        return (
-          (sessionStart <= conflictStart && sessionEnd > conflictStart) ||
-          (sessionStart < conflictEnd && sessionEnd >= conflictEnd) ||
-          (sessionStart >= conflictStart && sessionEnd <= conflictEnd)
-        );
-      });
-
-      if (conflictingExams?.length) {
-        availabilityIssues.push({
-          teacherId,
-          teacherName: supervisor.profiles?.full_name,
-          sessionId: supervisor.session_id,
-          issue: 'exam_conflict',
-          message: `${supervisor.profiles?.full_name} supervise déjà un autre examen en même temps`,
-          conflictingExams
-        });
-      }
-    }
-
-    return availabilityIssues;
-  } catch (error) {
-    console.error('Erreur lors de la vérification de disponibilité des enseignants:', error);
-    return [];
-  }
-};
-
-export const findAvailableTeachers = async (sessionTime: Date, duration: number, academicYearId: string) => {
-  try {
-    const dayOfWeek = sessionTime.getDay();
-    const startTime = sessionTime.toTimeString().slice(0, 5);
-    const endTime = new Date(sessionTime.getTime() + duration * 60000).toTimeString().slice(0, 5);
-
-    // Récupérer tous les enseignants disponibles
-    const { data: availableTeachers } = await supabase
-      .from('teacher_availability')
-      .select(`
-        teacher_id,
-        profiles(id, full_name, role)
-      `)
-      .eq('day_of_week', dayOfWeek)
-      .eq('academic_year_id', academicYearId)
-      .lte('start_time', startTime)
-      .gte('end_time', endTime);
-
-    if (!availableTeachers?.length) return [];
-
-    const teacherIds = availableTeachers.map(t => t.teacher_id);
-
-    // Exclure ceux qui ont déjà cours
-    const { data: busyTeachers } = await supabase
-      .from('timetables')
-      .select('teacher_id')
-      .in('teacher_id', teacherIds)
-      .eq('day_of_week', dayOfWeek)
-      .eq('academic_year_id', academicYearId)
-      .or(`and(start_time.lte.${startTime},end_time.gt.${startTime}),and(start_time.lt.${endTime},end_time.gte.${endTime})`);
-
-    const busyTeacherIds = busyTeachers?.map(t => t.teacher_id) || [];
-
-    // Exclure ceux qui supervisent déjà un examen
-    const { data: supervisingTeachers } = await supabase
-      .from('exam_supervisors')
-      .select(`
-        teacher_id,
-        exam_sessions!exam_supervisors_session_id_fkey(start_time, end_time)
-      `)
-      .in('teacher_id', teacherIds)
-      .eq('status', 'assigned');
-
-    const supervisingTeacherIds = supervisingTeachers?.filter(supervisor => {
-      const session = supervisor.exam_sessions;
-      if (!session) return false;
-      
-      const sessStart = new Date(session.start_time);
-      const sessEnd = new Date(session.end_time);
-      
-      return (
-        (sessionTime <= sessStart && new Date(sessionTime.getTime() + duration * 60000) > sessStart) ||
-        (sessionTime < sessEnd && new Date(sessionTime.getTime() + duration * 60000) >= sessEnd)
-      );
-    }).map(s => s.teacher_id) || [];
-
-    // Filtrer les enseignants disponibles
-    const freeTeachers = availableTeachers.filter(teacher => 
-      !busyTeacherIds.includes(teacher.teacher_id) &&
-      !supervisingTeacherIds.includes(teacher.teacher_id) &&
-      teacher.profiles // Ensure profile exists
-    );
-
-    return freeTeachers.map(teacher => ({
-      id: teacher.teacher_id,
-      name: teacher.profiles?.full_name || 'Nom inconnu',
-      role: teacher.profiles?.role || 'teacher'
-    }));
-  } catch (error) {
-    console.error('Erreur recherche enseignants disponibles:', error);
-    return [];
-  }
-};
-
-export const autoAssignSupervisors = async (examData: any) => {
-  try {
-    const assignments = [];
+    // Analyser les conflits potentiels avec l'emploi du temps
+    const conflicts = await detectTimetableConflicts(examData, timetableSlots || []);
     
-    for (const session of examData.exam_sessions || []) {
-      const sessionStart = new Date(session.start_time);
-      const duration = (new Date(session.end_time).getTime() - sessionStart.getTime()) / 60000; // en minutes
+    // Suggérer des créneaux alternatifs
+    const suggestedSlots = await suggestAlternativeSlots(examData, timetableSlots || []);
+
+    return {
+      success: true,
+      timetableSlots: timetableSlots || [],
+      conflicts,
+      suggestedSlots,
+      syncedAt: new Date()
+    };
+  } catch (error) {
+    console.error('Erreur synchronisation emploi du temps:', error);
+    return {
+      success: false,
+      error: error,
+      timetableSlots: [],
+      conflicts: [],
+      suggestedSlots: []
+    };
+  }
+};
+
+export const detectTimetableConflicts = async (examData: any, timetableSlots: any[]): Promise<any[]> => {
+  const conflicts = [];
+
+  for (const session of examData.exam_sessions || []) {
+    const sessionStart = new Date(session.start_time);
+    const sessionEnd = new Date(session.end_time);
+    const sessionDay = sessionStart.getDay();
+
+    // Convertir en format time pour comparaison
+    const sessionStartTime = sessionStart.toTimeString().slice(0, 8);
+    const sessionEndTime = sessionEnd.toTimeString().slice(0, 8);
+
+    // Chercher les conflits avec l'emploi du temps
+    const conflictingSlots = timetableSlots.filter(slot => {
+      if (slot.day_of_week !== sessionDay) return false;
       
-      // Calculer le nombre de superviseurs nécessaires
-      const { data: registrations } = await supabase
-        .from('exam_registrations')
-        .select('id')
-        .eq('session_id', session.id)
-        .eq('status', 'registered');
+      const slotStart = slot.start_time;
+      const slotEnd = slot.end_time;
       
-      const studentCount = registrations?.length || 0;
-      const requiredSupervisors = Math.max(1, Math.ceil(studentCount / 30)); // 1 superviseur pour 30 étudiants
-      
-      // Trouver les enseignants disponibles
-      const availableTeachers = await findAvailableTeachers(
-        sessionStart, 
-        duration, 
-        examData.academic_year_id
+      // Vérifier le chevauchement temporel
+      return (sessionStartTime < slotEnd && sessionEndTime > slotStart);
+    });
+
+    if (conflictingSlots.length > 0) {
+      conflicts.push({
+        sessionId: session.id,
+        conflictType: 'time_overlap',
+        severity: 'high',
+        message: `Conflit avec ${conflictingSlots.length} cours`,
+        conflictingSlots: conflictingSlots.map(slot => ({
+          subject: slot.subjects?.name,
+          time: `${slot.start_time}-${slot.end_time}`,
+          room: slot.rooms?.name || 'Non assignée'
+        }))
+      });
+    }
+
+    // Vérifier les conflits de salle
+    if (session.room_id) {
+      const roomConflicts = timetableSlots.filter(slot => 
+        slot.room_id === session.room_id && 
+        slot.day_of_week === sessionDay &&
+        sessionStartTime < slot.end_time && sessionEndTime > slot.start_time
       );
+
+      if (roomConflicts.length > 0) {
+        conflicts.push({
+          sessionId: session.id,
+          conflictType: 'room_conflict',
+          severity: 'critical',
+          message: `Salle déjà occupée`,
+          conflictingSlots: roomConflicts.map(slot => ({
+            subject: slot.subjects?.name,
+            time: `${slot.start_time}-${slot.end_time}`,
+            room: slot.rooms?.name
+          }))
+        });
+      }
+    }
+  }
+
+  return conflicts;
+};
+
+export const suggestAlternativeSlots = async (examData: any, timetableSlots: any[]): Promise<any[]> => {
+  const suggestions = [];
+  const examDuration = examData.duration_minutes || 120;
+
+  // Créneaux possibles (8h-18h, lundi-vendredi)
+  const timeSlots = [
+    '08:00:00', '10:00:00', '14:00:00', '16:00:00'
+  ];
+  const weekDays = [1, 2, 3, 4, 5]; // Lundi à Vendredi
+
+  for (const day of weekDays) {
+    for (const startTime of timeSlots) {
+      // Calculer l'heure de fin
+      const start = new Date(`2000-01-01T${startTime}`);
+      const end = new Date(start.getTime() + examDuration * 60000);
+      const endTime = end.toTimeString().slice(0, 8);
+
+      // Vérifier s'il n'y a pas de conflit
+      const hasConflict = timetableSlots.some(slot => 
+        slot.day_of_week === day &&
+        startTime < slot.end_time && 
+        endTime > slot.start_time
+      );
+
+      if (!hasConflict) {
+        suggestions.push({
+          day: day,
+          startTime,
+          endTime,
+          dayName: ['', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'][day],
+          available: true
+        });
+      }
+    }
+  }
+
+  return suggestions.slice(0, 10); // Limiter à 10 suggestions
+};
+
+export const checkTeacherAvailability = async (teacherId: string, examSession: any): Promise<any> => {
+  try {
+    const sessionStart = new Date(examSession.start_time);
+    const sessionDay = sessionStart.getDay();
+    const sessionStartTime = sessionStart.toTimeString().slice(0, 8);
+    const sessionEndTime = new Date(examSession.end_time).toTimeString().slice(0, 8);
+
+    // Récupérer la disponibilité du professeur
+    const { data: availability, error } = await supabase
+      .from('teacher_availability')
+      .select('*')
+      .eq('teacher_id', teacherId)
+      .eq('day_of_week', sessionDay);
+
+    if (error) {
+      console.error('Erreur récupération disponibilité:', error);
+      throw error;
+    }
+
+    const isAvailable = availability?.some(slot => 
+      slot.start_time <= sessionStartTime && 
+      slot.end_time >= sessionEndTime
+    ) || false;
+
+    return {
+      teacherId,
+      isAvailable,
+      availabilitySlots: availability || [],
+      sessionTime: `${sessionStartTime}-${sessionEndTime}`,
+      day: sessionDay
+    };
+  } catch (error) {
+    console.error('Erreur vérification disponibilité professeur:', error);
+    return {
+      teacherId,
+      isAvailable: false,
+      availabilitySlots: [],
+      error: error
+    };
+  }
+};
+
+export const autoAssignSupervisors = async (examData: any): Promise<any> => {
+  try {
+    const assignedSupervisors = [];
+
+    for (const session of examData.exam_sessions || []) {
+      // Récupérer les professeurs du programme
+      const { data: teachers, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('role', 'teacher');
+
+      if (error) throw error;
+
+      const availableTeachers = [];
       
-      if (availableTeachers.length >= requiredSupervisors) {
-        // Assigner les superviseurs
-        const selectedTeachers = availableTeachers.slice(0, requiredSupervisors);
-        
-        for (let i = 0; i < selectedTeachers.length; i++) {
-          const teacher = selectedTeachers[i];
-          const assignment = {
+      // Vérifier la disponibilité de chaque professeur
+      for (const teacher of teachers || []) {
+        const availability = await checkTeacherAvailability(teacher.id, session);
+        if (availability.isAvailable) {
+          availableTeachers.push({
+            ...teacher,
+            availability
+          });
+        }
+      }
+
+      // Assigner les surveillants nécessaires
+      const requiredSupervisors = examData.min_supervisors || 1;
+      const selectedTeachers = availableTeachers.slice(0, requiredSupervisors);
+
+      for (const teacher of selectedTeachers) {
+        // Créer l'assignation de surveillance
+        const { data: assignment, error: assignError } = await supabase
+          .from('exam_supervisors')
+          .insert({
             session_id: session.id,
             teacher_id: teacher.id,
-            supervisor_role: i === 0 ? 'primary' : 'secondary',
-            status: 'assigned',
-            assigned_at: new Date().toISOString()
-          };
-          
-          assignments.push(assignment);
-        }
-      } else {
-        console.warn(`Pas assez d'enseignants disponibles pour la session ${session.id}: ${availableTeachers.length}/${requiredSupervisors}`);
-      }
-    }
-    
-    if (assignments.length > 0) {
-      const { error } = await supabase
-        .from('exam_supervisors')
-        .upsert(assignments);
-      
-      if (error) {
-        console.error('Erreur assignation superviseurs:', error);
-      }
-    }
-    
-    return assignments;
-  } catch (error) {
-    console.error('Erreur assignation automatique superviseurs:', error);
-    return [];
-  }
-};
+            supervisor_role: assignedSupervisors.length === 0 ? 'primary' : 'secondary',
+            status: 'assigned'
+          })
+          .select()
+          .single();
 
-const getDayName = (dayIndex: number): string => {
-  const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-  return days[dayIndex] || 'Jour inconnu';
+        if (!assignError && assignment) {
+          assignedSupervisors.push({
+            sessionId: session.id,
+            teacherId: teacher.id,
+            teacherName: teacher.full_name,
+            role: assignment.supervisor_role,
+            assignmentId: assignment.id
+          });
+        }
+      }
+    }
+
+    return {
+      success: true,
+      assignedSupervisors,
+      assignedAt: new Date()
+    };
+  } catch (error) {
+    console.error('Erreur assignation surveillants:', error);
+    return {
+      success: false,
+      error: error,
+      assignedSupervisors: []
+    };
+  }
 };

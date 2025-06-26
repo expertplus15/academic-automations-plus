@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export interface ValidationResult {
@@ -164,6 +165,33 @@ export const validateExamTypeConstraints = async (examData: any): Promise<Valida
       isValid: false,
       violations: [],
       summary: 'Erreur lors de la validation des types d\'examen'
+    };
+  }
+};
+
+export const validateAcademicConstraints = async (examData: any): Promise<ValidationResult> => {
+  try {
+    const scheduleValidation = await validateExamSchedule(examData);
+    const capacityValidation = await validateCapacityConstraints(examData);
+    const typeValidation = await validateExamTypeConstraints(examData);
+
+    const allViolations = [
+      ...scheduleValidation.violations,
+      ...capacityValidation.violations,
+      ...typeValidation.violations
+    ];
+
+    return {
+      isValid: allViolations.length === 0,
+      violations: allViolations,
+      summary: `${allViolations.length} violation(s) académique(s) détectée(s)`
+    };
+  } catch (error) {
+    console.error('Erreur validation contraintes académiques:', error);
+    return {
+      isValid: false,
+      violations: [],
+      summary: 'Erreur lors de la validation des contraintes académiques'
     };
   }
 };

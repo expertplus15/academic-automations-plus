@@ -26,3 +26,11 @@ export interface ExamResourceSync {
   syncStatus: 'pending' | 'synced' | 'conflict' | 'error';
   lastSyncAt?: Date;
 }
+
+export interface AllocationResult {
+  success: boolean;
+  resource?: ResourceRequirement;
+  alternatives?: ResourceRequirement[];
+  error?: string;
+  cost?: number;
+}
