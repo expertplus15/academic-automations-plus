@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useModuleSync } from '../module-sync';
 import { useErrorHandler } from '../useErrorHandler';
 import { ExamStudentSync, StudentEnrollmentRule } from './types';
-import { checkStudentEligibility, getEligibleStudents } from './studentEligibility';
+import { checkStudentEligibility, findEligibleStudents } from './studentEligibility';
 import { autoEnrollStudents, extractAccommodations } from './studentEnrollment';
 
 export function useExamStudentIntegration() {
@@ -42,7 +42,7 @@ export function useExamStudentIntegration() {
       const pendingApprovals = enrollments?.filter(e => e.status === 'pending_approval').map(e => e.student_id) || [];
 
       // Obtenir les étudiants éligibles
-      const { eligibleStudents, ineligibleStudents } = await getEligibleStudents(examData);
+      const { eligibleStudents, ineligibleStudents } = await findEligibleStudents(examData);
 
       // Règles d'inscription automatique (simulées)
       const enrollmentRules: StudentEnrollmentRule[] = [

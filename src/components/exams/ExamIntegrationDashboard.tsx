@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { useModuleSync } from '@/hooks/module-sync';
 import { useExamAcademicIntegration } from '@/hooks/academic-integration';
-import { useExamStudentIntegration } from '@/hooks/useExamStudentIntegration';
+import { useExamStudentIntegration } from '@/hooks/exam-student-integration';
 import { useExamResourceIntegration } from '@/hooks/resource-integration';
 import { ExamIntegrationHeader } from './integration/ExamIntegrationHeader';
 import { ExamIntegrationOverview } from './integration/ExamIntegrationOverview';

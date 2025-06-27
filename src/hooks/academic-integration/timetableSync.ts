@@ -1,7 +1,6 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
-export const syncTimetableWithExam = async (examData: any): Promise<any> => {
+export const syncWithTimetable = async (examData: any): Promise<any> => {
   try {
     console.log('Synchronisation des emplois du temps avec l\'examen:', examData.id);
 
@@ -149,44 +148,63 @@ export const suggestAlternativeSlots = async (examData: any, timetableSlots: any
   return suggestions.slice(0, 10); // Limiter à 10 suggestions
 };
 
-export const checkTeacherAvailability = async (teacherId: string, examSession: any): Promise<any> => {
+export const checkTeacherAvailability = async (examData: any): Promise<any> => {
   try {
-    const sessionStart = new Date(examSession.start_time);
-    const sessionDay = sessionStart.getDay();
-    const sessionStartTime = sessionStart.toTimeString().slice(0, 8);
-    const sessionEndTime = new Date(examSession.end_time).toTimeString().slice(0, 8);
+    const availabilityResults = [];
 
-    // Récupérer la disponibilité du professeur
-    const { data: availability, error } = await supabase
-      .from('teacher_availability')
-      .select('*')
-      .eq('teacher_id', teacherId)
-      .eq('day_of_week', sessionDay);
+    for (const session of examData.exam_sessions || []) {
+      const sessionStart = new Date(session.start_time);
+      const sessionDay = sessionStart.getDay();
+      const sessionStartTime = sessionStart.toTimeString().slice(0, 8);
+      const sessionEndTime = new Date(session.end_time).toTimeString().slice(0, 8);
 
-    if (error) {
-      console.error('Erreur récupération disponibilité:', error);
-      throw error;
+      // Récupérer tous les professeurs disponibles
+      const { data: teachers, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('role', 'teacher');
+
+      if (error) {
+        console.error('Erreur récupération professeurs:', error);
+        throw error;
+      }
+
+      for (const teacher of teachers || []) {
+        // Récupérer la disponibilité du professeur
+        const { data: availability } = await supabase
+          .from('teacher_availability')
+          .select('*')
+          .eq('teacher_id', teacher.id)
+          .eq('day_of_week', sessionDay);
+
+        const isAvailable = availability?.some(slot => 
+          slot.start_time <= sessionStartTime && 
+          slot.end_time >= sessionEndTime
+        ) || false;
+
+        availabilityResults.push({
+          sessionId: session.id,
+          teacherId: teacher.id,
+          teacherName: teacher.full_name,
+          isAvailable,
+          availabilitySlots: availability || [],
+          sessionTime: `${sessionStartTime}-${sessionEndTime}`,
+          day: sessionDay
+        });
+      }
     }
 
-    const isAvailable = availability?.some(slot => 
-      slot.start_time <= sessionStartTime && 
-      slot.end_time >= sessionEndTime
-    ) || false;
-
     return {
-      teacherId,
-      isAvailable,
-      availabilitySlots: availability || [],
-      sessionTime: `${sessionStartTime}-${sessionEndTime}`,
-      day: sessionDay
+      success: true,
+      teacherAvailability: availabilityResults,
+      checkedAt: new Date()
     };
   } catch (error) {
-    console.error('Erreur vérification disponibilité professeur:', error);
+    console.error('Erreur vérification disponibilité professeurs:', error);
     return {
-      teacherId,
-      isAvailable: false,
-      availabilitySlots: [],
-      error: error
+      success: false,
+      error: error,
+      teacherAvailability: []
     };
   }
 };
@@ -208,8 +226,23 @@ export const autoAssignSupervisors = async (examData: any): Promise<any> => {
       
       // Vérifier la disponibilité de chaque professeur
       for (const teacher of teachers || []) {
-        const availability = await checkTeacherAvailability(teacher.id, session);
-        if (availability.isAvailable) {
+        const sessionStart = new Date(session.start_time);
+        const sessionDay = sessionStart.getDay();
+        const sessionStartTime = sessionStart.toTimeString().slice(0, 8);
+        const sessionEndTime = new Date(session.end_time).toTimeString().slice(0, 8);
+
+        const { data: availability } = await supabase
+          .from('teacher_availability')
+          .select('*')
+          .eq('teacher_id', teacher.id)
+          .eq('day_of_week', sessionDay);
+
+        const isAvailable = availability?.some(slot => 
+          slot.start_time <= sessionStartTime && 
+          slot.end_time >= sessionEndTime
+        ) || false;
+
+        if (isAvailable) {
           availableTeachers.push({
             ...teacher,
             availability

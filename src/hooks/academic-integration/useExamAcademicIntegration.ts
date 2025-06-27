@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useModuleSync } from '../module-sync';
@@ -30,7 +31,17 @@ export function useExamAcademicIntegration() {
       if (examError) throw examError;
 
       // Vérifier les contraintes académiques
-      const constraints = await validateAcademicConstraints(examData);
+      const validationResult = await validateAcademicConstraints(examData);
+      
+      // Convertir les violations en contraintes académiques
+      const constraints: AcademicConstraint[] = validationResult.violations.map((violation, index) => ({
+        id: `constraint-${index}`,
+        type: violation.type as any,
+        severity: violation.severity,
+        description: violation.message,
+        affectedEntities: violation.sessionId ? [violation.sessionId] : [],
+        suggestedResolution: `Résoudre: ${violation.message}`
+      }));
       
       // Synchroniser avec l'emploi du temps
       await syncWithTimetable(examData);
