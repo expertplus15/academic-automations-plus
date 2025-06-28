@@ -1,10 +1,18 @@
+
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Bell, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
 
-export function DashboardHeader() {
+interface DashboardHeaderProps {
+  title?: string;
+  subtitle?: string;
+}
+
+export function DashboardHeader({ title, subtitle }: DashboardHeaderProps) {
+  const { user, profile } = useAuth();
   const now = new Date();
   const timeString = now.toLocaleTimeString('fr-FR', { 
     hour: '2-digit', 
@@ -24,8 +32,17 @@ export function DashboardHeader() {
         {/* Left side - Time, Date and Search */}
         <div className="flex items-center gap-6">
           <div className="text-left">
-            <p className="text-xl font-bold text-foreground">{timeString}</p>
-            <p className="text-sm text-muted-foreground">{dateString}</p>
+            {title ? (
+              <>
+                <p className="text-xl font-bold text-foreground">{title}</p>
+                {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+              </>
+            ) : (
+              <>
+                <p className="text-xl font-bold text-foreground">{timeString}</p>
+                <p className="text-sm text-muted-foreground">{dateString}</p>
+              </>
+            )}
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -56,12 +73,18 @@ export function DashboardHeader() {
           {/* User Profile */}
           <div className="flex items-center gap-3">
             <Avatar className="w-8 h-8">
-              <AvatarImage src="/placeholder.svg" alt="John Doe" />
-              <AvatarFallback className="bg-purple-500 text-white text-sm">JD</AvatarFallback>
+              <AvatarImage src={profile?.avatar_url} alt={profile?.full_name || user?.email} />
+              <AvatarFallback className="bg-purple-500 text-white text-sm">
+                {profile?.full_name?.[0] || user?.email?.[0] || 'U'}
+              </AvatarFallback>
             </Avatar>
             <div className="text-left">
-              <p className="text-sm font-medium text-foreground">John Doe</p>
-              <p className="text-xs text-muted-foreground">Admin</p>
+              <p className="text-sm font-medium text-foreground">
+                {profile?.full_name || user?.email}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {profile?.role || 'Utilisateur'}
+              </p>
             </div>
           </div>
         </div>

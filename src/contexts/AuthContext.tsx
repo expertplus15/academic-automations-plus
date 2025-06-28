@@ -4,9 +4,22 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+interface UserProfile {
+  id: string;
+  email: string;
+  full_name?: string;
+  role: 'admin' | 'teacher' | 'student' | 'hr' | 'finance';
+  avatar_url?: string;
+  phone?: string;
+  department_id?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
+  profile: UserProfile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName: string, role?: string) => Promise<{ error: any }>;
@@ -20,8 +33,24 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  const fetchProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+      setProfile(data);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -29,6 +58,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        } else {
+          setProfile(null);
+        }
+        
         setLoading(false);
 
         // Handle auth events
@@ -55,6 +91,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      }
       setLoading(false);
     });
 
@@ -93,6 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     setLoading(true);
     await supabase.auth.signOut();
+    setProfile(null);
     setLoading(false);
   };
 
@@ -112,12 +152,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .update(updates)
       .eq('id', user.id);
     
+    if (!error) {
+      await fetchProfile(user.id);
+    }
+    
     return { error };
   };
 
   const value = {
     user,
     session,
+    profile,
     loading,
     signIn,
     signUp,

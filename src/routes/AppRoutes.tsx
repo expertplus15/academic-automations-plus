@@ -1,7 +1,7 @@
 
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 // Auth pages
 import Login from '@/pages/Login';
@@ -15,7 +15,7 @@ import NotFound from '@/pages/NotFound';
 import Unauthorized from '@/pages/Unauthorized';
 
 // Module routes
-import ModuleRoutes from './ModuleRoutes';
+import { ModuleRoutes } from '@/routes/ModuleRoutes';
 
 export default function AppRoutes() {
   const { user, loading } = useAuth();

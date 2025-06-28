@@ -34,7 +34,13 @@ export function useEnhancedExamConflicts() {
       const conflictArray = conflicts || [];
       const criticalCount = conflictArray.filter(c => c.severity === 'critical').length;
       const highCount = conflictArray.filter(c => c.severity === 'high').length;
-      const autoResolvableCount = conflictArray.filter(c => c.auto_resolvable).length;
+      
+      // Check if conflicts have auto-resolvable indication in affected_data
+      const autoResolvableCount = conflictArray.filter(c => {
+        const affectedData = c.affected_data;
+        return affectedData && typeof affectedData === 'object' && 
+               'auto_resolvable' in affectedData && affectedData.auto_resolvable;
+      }).length;
 
       // Generate AI-powered recommendations
       const recommendations = generateSmartRecommendations(conflictArray);
@@ -103,7 +109,13 @@ export function useEnhancedExamConflicts() {
           .eq('id', conflictId)
           .single();
 
-        if (!conflict || !conflict.auto_resolvable) continue;
+        if (!conflict) continue;
+
+        // Check if auto-resolvable based on affected_data
+        const affectedData = conflict.affected_sessions || conflict.affected_exams;
+        if (!affectedData || (typeof affectedData === 'object' && 'auto_resolvable' in affectedData && !affectedData.auto_resolvable)) {
+          continue;
+        }
 
         // Apply auto-resolution based on conflict type
         const resolved = await applyAutoResolution(conflict);
