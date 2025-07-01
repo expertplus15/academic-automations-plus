@@ -1,169 +1,173 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Download, Search, Filter, Plus, Eye, Clock, CheckCircle } from 'lucide-react';
-
-const mockDocuments = [
-  {
-    id: '1',
-    type: 'certificate_enrollment',
-    title: 'Certificat de scolarité',
-    student: 'Jean Dupont',
-    studentNumber: 'INF24001',
-    requestDate: '2024-01-15',
-    status: 'approved',
-    documentNumber: 'CS24001'
-  },
-  {
-    id: '2',
-    type: 'transcript',
-    title: 'Relevé de notes',
-    student: 'Marie Martin',
-    studentNumber: 'MAT24002',
-    requestDate: '2024-01-14',
-    status: 'pending',
-    documentNumber: null
-  },
-  {
-    id: '3',
-    type: 'internship_agreement',
-    title: 'Convention de stage',
-    student: 'Pierre Moreau',
-    studentNumber: 'GC24003',
-    requestDate: '2024-01-13',
-    status: 'generated',
-    documentNumber: 'ST24001'
-  }
-];
-
-const documentTypes = [
-  { code: 'certificate_enrollment', name: 'Certificat de scolarité', description: 'Attestation d\'inscription' },
-  { code: 'transcript', name: 'Relevé de notes', description: 'Bulletin officiel des notes' },
-  { code: 'internship_agreement', name: 'Convention de stage', description: 'Document pour les stages' },
-  { code: 'diploma', name: 'Diplôme', description: 'Certificat de fin d\'études' },
-  { code: 'attendance_certificate', name: 'Certificat d\'assiduité', description: 'Attestation de présence' }
-];
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { 
+  FileText, 
+  Download, 
+  Clock, 
+  CheckCircle,
+  Search,
+  Filter,
+  Plus,
+  Eye,
+  Calendar,
+  User
+} from "lucide-react";
 
 export function DocumentsManagement() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedTab, setSelectedTab] = useState('requests');
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Mock data for documents
+  const documents = [
+    {
+      id: "1",
+      type: "certificate",
+      title: "Certificat de Scolarité",
+      studentName: "Marie Dubois",
+      studentNumber: "IG25001",
+      status: "generated",
+      requestDate: "2025-01-01T10:30:00Z",
+      generatedDate: "2025-01-01T11:00:00Z",
+      documentNumber: "CERT25001",
+      downloadCount: 2
+    },
+    {
+      id: "2",
+      type: "transcript",
+      title: "Relevé de Notes",
+      studentName: "Jean Martin",
+      studentNumber: "IG25002",
+      status: "pending",
+      requestDate: "2025-01-01T09:15:00Z",
+      generatedDate: null,
+      documentNumber: null,
+      downloadCount: 0
+    },
+    {
+      id: "3",
+      type: "attestation",
+      title: "Attestation de Stage",
+      studentName: "Sophie Chen",
+      studentNumber: "IG25003",
+      status: "approved",
+      requestDate: "2024-12-30T14:20:00Z",
+      generatedDate: "2024-12-30T15:00:00Z",
+      documentNumber: "ATT24156",
+      downloadCount: 1
+    }
+  ];
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'approved':
-        return <Badge className="bg-green-100 text-green-800 border-green-200">Approuvé</Badge>;
-      case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">En attente</Badge>;
-      case 'generated':
-        return <Badge className="bg-blue-100 text-blue-800 border-blue-200">Généré</Badge>;
-      case 'rejected':
-        return <Badge variant="destructive">Rejeté</Badge>;
+    const config = {
+      pending: { label: "En attente", className: "bg-yellow-100 text-yellow-800 border-yellow-200" },
+      approved: { label: "Approuvé", className: "bg-blue-100 text-blue-800 border-blue-200" },
+      generated: { label: "Généré", className: "bg-green-100 text-green-800 border-green-200" },
+      rejected: { label: "Rejeté", className: "bg-red-100 text-red-800 border-red-200" }
+    };
+    
+    const statusConfig = config[status as keyof typeof config] || config.pending;
+    return (
+      <Badge className={statusConfig.className}>
+        {statusConfig.label}
+      </Badge>
+    );
+  };
+
+  const getDocumentIcon = (type: string) => {
+    switch (type) {
+      case "certificate":
+        return <FileText className="w-4 h-4" />;
+      case "transcript":
+        return <FileText className="w-4 h-4" />;
+      case "attestation":
+        return <FileText className="w-4 h-4" />;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <FileText className="w-4 h-4" />;
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'approved':
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
-      case 'pending':
-        return <Clock className="w-4 h-4 text-yellow-500" />;
-      case 'generated':
-        return <Download className="w-4 h-4 text-blue-500" />;
-      default:
-        return <FileText className="w-4 h-4 text-gray-500" />;
-    }
-  };
-
-  const filteredRequests = mockDocuments.filter(doc =>
-    doc.student.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doc.studentNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doc.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const pendingDocs = documents.filter(doc => doc.status === 'pending');
+  const generatedDocs = documents.filter(doc => doc.status === 'generated');
+  const totalDownloads = documents.reduce((sum, doc) => sum + doc.downloadCount, 0);
 
   return (
     <div className="space-y-6">
-      {/* Statistics */}
+      {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <FileText className="w-5 h-5 text-blue-600" />
+              <div className="p-2 bg-yellow-100 rounded-lg">
+                <Clock className="w-5 h-5 text-yellow-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">23</p>
-                <p className="text-sm text-muted-foreground">Demandes actives</p>
+                <p className="text-sm text-muted-foreground">En Attente</p>
+                <p className="text-2xl font-bold text-yellow-600">{pendingDocs.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
-
+        
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+              <div className="p-2 bg-green-100 rounded-lg">
                 <CheckCircle className="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">156</p>
-                <p className="text-sm text-muted-foreground">Documents générés</p>
+                <p className="text-sm text-muted-foreground">Générés</p>
+                <p className="text-2xl font-bold">{generatedDocs.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
-
+        
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                <Clock className="w-5 h-5 text-orange-600" />
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Download className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold">2.3h</p>
-                <p className="text-sm text-muted-foreground">Délai moyen</p>
+                <p className="text-sm text-muted-foreground">Téléchargements</p>
+                <p className="text-2xl font-bold">{totalDownloads}</p>
               </div>
             </div>
           </CardContent>
         </Card>
-
+        
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Download className="w-5 h-5 text-purple-600" />
+              <div className="p-2 bg-students/10 rounded-lg">
+                <FileText className="w-5 h-5 text-students" />
               </div>
               <div>
-                <p className="text-2xl font-bold">94%</p>
-                <p className="text-sm text-muted-foreground">Taux de satisfaction</p>
+                <p className="text-sm text-muted-foreground">Total Documents</p>
+                <p className="text-2xl font-bold">{documents.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Main Content */}
+      {/* Documents Management */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-students" />
-                Documents Administratifs
-              </CardTitle>
-              <CardDescription>
-                Génération automatique de certificats et attestations
-              </CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-students" />
+              Documents Administratifs
+            </CardTitle>
+            <div className="flex gap-2">
+              <Button className="bg-students hover:bg-students/90">
+                <Plus className="w-4 h-4 mr-2" />
+                Nouveau Document
+              </Button>
             </div>
-            <Button className="bg-students hover:bg-students/90">
-              <Plus className="w-4 h-4 mr-2" />
-              Nouvelle demande
-            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -171,95 +175,133 @@ export function DocumentsManagement() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Rechercher par étudiant, numéro ou type de document..."
+                placeholder="Rechercher par étudiant, type ou numéro de document..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
-            <Button variant="outline">
+            <Button variant="outline" size="sm">
               <Filter className="w-4 h-4 mr-2" />
               Filtres
             </Button>
           </div>
 
-          <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-            <TabsList className="grid w-full grid-cols-3 mb-6">
-              <TabsTrigger value="requests">Demandes</TabsTrigger>
-              <TabsTrigger value="templates">Modèles</TabsTrigger>
-              <TabsTrigger value="generated">Générés</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="requests" className="space-y-4">
-              {filteredRequests.map((request) => (
-                <div key={request.id} className="flex items-center gap-4 p-4 border border-border/50 rounded-lg hover:bg-muted/30 transition-colors">
-                  <div className="flex items-center gap-3">
-                    {getStatusIcon(request.status)}
-                    <div>
-                      <p className="font-medium text-foreground">{request.title}</p>
-                      {request.documentNumber && (
-                        <p className="text-sm text-muted-foreground">N° {request.documentNumber}</p>
-                      )}
-                    </div>
+          {/* Documents List */}
+          <div className="space-y-3">
+            {documents.map((document) => (
+              <div key={document.id} className="p-4 border border-border/50 rounded-lg hover:bg-muted/30 transition-colors">
+                <div className="flex items-start gap-4">
+                  <div className="p-2 bg-students/10 rounded-lg">
+                    {getDocumentIcon(document.type)}
                   </div>
                   
                   <div className="flex-1">
-                    <p className="text-sm font-medium">{request.student}</p>
-                    <p className="text-xs text-muted-foreground">{request.studentNumber}</p>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-medium text-foreground">{document.title}</h3>
+                      {getStatusBadge(document.status)}
+                      {document.documentNumber && (
+                        <Badge variant="outline" className="text-xs">
+                          #{document.documentNumber}
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <User className="w-3 h-3 text-muted-foreground" />
+                        <span>{document.studentName}</span>
+                        <span className="text-muted-foreground">({document.studentNumber})</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-3 h-3 text-muted-foreground" />
+                        <span>Demandé le {new Date(document.requestDate).toLocaleDateString('fr-FR')}</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <Download className="w-3 h-3 text-muted-foreground" />
+                        <span>{document.downloadCount} téléchargement(s)</span>
+                      </div>
+                    </div>
+                    
+                    {document.generatedDate && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Généré le {new Date(document.generatedDate).toLocaleDateString('fr-FR')} à {new Date(document.generatedDate).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    )}
                   </div>
                   
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground">{request.requestDate}</p>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    {getStatusBadge(request.status)}
+                  <div className="flex gap-2">
                     <Button variant="ghost" size="sm">
                       <Eye className="w-4 h-4" />
                     </Button>
-                    {request.status === 'generated' && (
+                    {document.status === 'generated' && (
                       <Button variant="ghost" size="sm">
                         <Download className="w-4 h-4" />
                       </Button>
                     )}
                   </div>
                 </div>
-              ))}
-            </TabsContent>
-
-            <TabsContent value="templates" className="space-y-4">
-              {documentTypes.map((template) => (
-                <div key={template.code} className="flex items-center gap-4 p-4 border border-border/50 rounded-lg hover:bg-muted/30 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-5 h-5 text-blue-500" />
-                    <div>
-                      <p className="font-medium text-foreground">{template.name}</p>
-                      <p className="text-sm text-muted-foreground">{template.description}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex-1" />
-                  
-                  <div className="flex items-center gap-3">
-                    <Badge variant="outline">Actif</Badge>
-                    <Button variant="ghost" size="sm">
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </TabsContent>
-
-            <TabsContent value="generated" className="space-y-4">
-              <div className="text-center py-8">
-                <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Documents générés</h3>
-                <p className="text-muted-foreground">Les documents générés apparaîtront ici</p>
               </div>
-            </TabsContent>
-          </Tabs>
+            ))}
+          </div>
         </CardContent>
       </Card>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <FileText className="w-5 h-5 text-blue-600" />
+              </div>
+              <h3 className="font-medium">Certificat de Scolarité</h3>
+            </div>
+            <p className="text-sm text-muted-foreground mb-3">
+              Génération automatique instantanée
+            </p>
+            <Button variant="outline" size="sm" className="w-full">
+              Générer
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <FileText className="w-5 h-5 text-green-600" />
+              </div>
+              <h3 className="font-medium">Relevé de Notes</h3>
+            </div>
+            <p className="text-sm text-muted-foreground mb-3">
+              Notes officielles par semestre
+            </p>
+            <Button variant="outline" size="sm" className="w-full">
+              Générer
+            </Button>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <FileText className="w-5 h-5 text-purple-600" />
+              </div>
+              <h3 className="font-medium">Attestation Personnalisée</h3>
+            </div>
+            <p className="text-sm text-muted-foreground mb-3">
+              Document sur mesure
+            </p>
+            <Button variant="outline" size="sm" className="w-full">
+              Créer
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
