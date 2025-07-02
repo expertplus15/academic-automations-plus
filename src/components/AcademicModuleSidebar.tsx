@@ -35,40 +35,40 @@ const academicSections = [
     icon: BookOpen,
     defaultOpen: true,
     items: [
-      { title: "Programmes", url: "/academic/programs", icon: GraduationCap, description: "Gestion des programmes" },
-      { title: "Filières", url: "/academic/pathways", icon: School, description: "Organisation des filières" },
-      { title: "Matières", url: "/academic/subjects", icon: BookOpen, description: "Gestion des matières" },
-      { title: "Niveaux d'Études", url: "/academic/levels", icon: BarChart3, description: "Structure des niveaux" }
+      { title: "Programmes", url: "/academic/programs", icon: GraduationCap },
+      { title: "Filières", url: "/academic/pathways", icon: School },
+      { title: "Matières", url: "/academic/subjects", icon: BookOpen },
+      { title: "Niveaux d'Études", url: "/academic/levels", icon: BarChart3 }
     ]
   },
   {
     title: "Organisation",
     icon: Building,
     items: [
-      { title: "Départements", url: "/academic/departments", icon: Building, description: "Structure organisationnelle" },
-      { title: "Classes", url: "/academic/groups", icon: Users, description: "Gestion des groupes" }
+      { title: "Départements", url: "/academic/departments", icon: Building },
+      { title: "Classes", url: "/academic/groups", icon: Users }
     ]
   },
   {
     title: "Planification",
     icon: Calendar,
     items: [
-      { title: "Emploi du Temps", url: "/academic/timetables", icon: Calendar, description: "Planning intelligent" },
-      { title: "Calendrier académique", url: "/academic/calendar", icon: Clock, description: "Événements importants" }
+      { title: "Emploi du Temps", url: "/academic/timetables", icon: Calendar },
+      { title: "Calendrier académique", url: "/academic/calendar", icon: Clock }
     ]
   },
   {
     title: "Infrastructure",
     icon: MapPin,
     items: [
-      { title: "Infrastructures", url: "/academic/infrastructure", icon: Building, description: "Salles et équipements" }
+      { title: "Infrastructures", url: "/academic/infrastructure", icon: Building }
     ]
   },
   {
     title: "Évaluations",
     icon: FileText,
     items: [
-      { title: "Évaluations", url: "/academic/evaluations", icon: FileText, description: "Notes et bulletins" }
+      { title: "Évaluations", url: "/academic/evaluations", icon: FileText }
     ]
   }
 ];
@@ -126,10 +126,7 @@ export function AcademicModuleSidebar() {
                                 >
                                   {isActive && <div className="absolute left-0 w-1 h-5 bg-primary rounded-r" />}
                                   <ItemIcon className="w-4 h-4 text-primary" />
-                                  <div className="flex-1 min-w-0">
-                                    <span className="text-sm block truncate">{item.title}</span>
-                                    <span className="text-xs text-muted-foreground block truncate">{item.description}</span>
-                                  </div>
+                                   <span className="text-sm truncate">{item.title}</span>
                                   {isActive && <div className="w-2 h-2 bg-primary rounded-full" />}
                                 </Link>
                               </SidebarMenuButton>
