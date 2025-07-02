@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { GraduationCap, Bell, User, ChevronDown, ArrowLeft, Eye, BarChart3, LogOut, Settings } from 'lucide-react';
+import { GraduationCap, Bell, User, ChevronDown, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -120,35 +120,6 @@ export function AcademicPageHeader() {
 
       {/* Right side - Navigation and user */}
       <div className="flex items-center gap-4">
-        {/* Navigation buttons */}
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={() => navigate('/dashboard')}
-            className="hover:bg-muted transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm"
-            className="hover:bg-muted transition-colors"
-          >
-            <Eye className="w-4 h-4 mr-2" />
-            Vue
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm"
-            className="hover:bg-muted transition-colors"
-          >
-            <BarChart3 className="w-4 h-4 mr-2" />
-            Analytics
-          </Button>
-        </div>
-
         {/* Notifications */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
