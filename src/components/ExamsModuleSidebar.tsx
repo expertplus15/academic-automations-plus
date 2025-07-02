@@ -70,11 +70,11 @@ export function ExamsModuleSidebar() {
     <Sidebar className="border-r-0">
       <SidebarHeader className="p-4 border-b border-sidebar-border/30">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-exams rounded-xl flex items-center justify-center shadow-sm">
+          <div className="w-9 h-9 bg-[#8b5cf6] rounded-xl flex items-center justify-center shadow-sm">
             <FileText className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
-            <h1 className="text-base font-semibold text-sidebar-foreground tracking-tight">Gestion Examens</h1>
+            <h1 className="text-base font-semibold text-sidebar-foreground tracking-tight">Examens IA</h1>
             <p className="text-xs text-sidebar-foreground/60 mt-0.5">Module actif</p>
           </div>
         </div>

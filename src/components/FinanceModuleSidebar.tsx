@@ -93,7 +93,7 @@ export function FinanceModuleSidebar() {
     <Sidebar className="border-r-0">
       <SidebarHeader className="p-4 border-b border-sidebar-border/30">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-finance rounded-xl flex items-center justify-center shadow-sm">
+          <div className="w-9 h-9 bg-[#10b981] rounded-xl flex items-center justify-center shadow-sm">
             <DollarSign className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">

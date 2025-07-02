@@ -3,13 +3,13 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
   SidebarFooter,
 } from "@/components/ui/sidebar";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -25,56 +25,39 @@ import {
   User,
 } from "lucide-react";
 
-const elearningSubModules = [
+const elearningSections = [
   {
-    title: "Standards SCORM/xAPI",
-    url: "/elearning/standards",
-    icon: Settings,
-    color: "#4f7cff",
-    description: "Compatibles"
-  },
-  {
-    title: "Authoring WYSIWYG",
-    url: "/elearning/authoring",
+    title: "Création de Contenu",
     icon: Edit,
-    color: "#10b981",
-    description: "Création contenu"
+    defaultOpen: true,
+    items: [
+      { title: "Standards SCORM/xAPI", url: "/elearning/standards", icon: Settings, description: "Compatibles" },
+      { title: "Authoring WYSIWYG", url: "/elearning/authoring", icon: Edit, description: "Création contenu" }
+    ]
   },
   {
-    title: "Classes virtuelles",
-    url: "/elearning/virtual-classes",
+    title: "Diffusion & Streaming",
     icon: Video,
-    color: "#06b6d4",
-    description: "Zoom, Teams"
+    items: [
+      { title: "Classes virtuelles", url: "/elearning/virtual-classes", icon: Video, description: "Zoom, Teams" },
+      { title: "Streaming vidéo", url: "/elearning/streaming", icon: Play, description: "Adaptatif" }
+    ]
   },
   {
-    title: "Streaming vidéo",
-    url: "/elearning/streaming",
-    icon: Play,
-    color: "#f59e0b",
-    description: "Adaptatif"
-  },
-  {
-    title: "Forums discussion",
-    url: "/elearning/forums",
-    icon: MessageCircle,
-    color: "#8b5cf6",
-    description: "Collaboration"
-  },
-  {
-    title: "Gamification",
-    url: "/elearning/gamification",
+    title: "Engagement",
     icon: Award,
-    color: "#ef4444",
-    description: "Badges, points"
+    items: [
+      { title: "Forums discussion", url: "/elearning/forums", icon: MessageCircle, description: "Collaboration" },
+      { title: "Gamification", url: "/elearning/gamification", icon: Award, description: "Badges, points" }
+    ]
   },
   {
-    title: "Analytics engagement",
-    url: "/elearning/analytics",
+    title: "Analytics",
     icon: BarChart,
-    color: "#84cc16",
-    description: "Insights"
-  },
+    items: [
+      { title: "Analytics engagement", url: "/elearning/analytics", icon: BarChart, description: "Insights" }
+    ]
+  }
 ];
 
 export function ElearningModuleSidebar() {
@@ -84,7 +67,7 @@ export function ElearningModuleSidebar() {
     <Sidebar className="border-r-0">
       <SidebarHeader className="p-4 border-b border-sidebar-border/30">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-elearning rounded-xl flex items-center justify-center shadow-sm">
+          <div className="w-9 h-9 bg-[#06b6d4] rounded-xl flex items-center justify-center shadow-sm">
             <Monitor className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
@@ -96,33 +79,59 @@ export function ElearningModuleSidebar() {
 
       <SidebarContent className="px-4">
         <div className="pt-4 pb-2">
-          <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors w-full">
+          <Link to="/elearning" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors w-full">
             <ArrowLeft className="w-4 h-4 text-sidebar-foreground" />
             <span className="text-sm text-sidebar-foreground">Retour</span>
           </Link>
         </div>
-        <SidebarGroup className="py-[22px] my-0">
+        <SidebarGroup className="py-4">
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
-              {elearningSubModules.map(module => {
-                const Icon = module.icon;
-                const isActive = location.pathname === module.url;
+            <Accordion type="multiple" defaultValue={["creation-de-contenu"]} className="w-full space-y-2">
+              {elearningSections.map((section, index) => {
+                const SectionIcon = section.icon;
+                const sectionId = section.title.toLowerCase().replace(/\s+/g, '-').replace(/[àâä]/g, 'a').replace(/[éèêë]/g, 'e');
                 return (
-                  <SidebarMenuItem key={module.title}>
-                    <SidebarMenuButton asChild>
-                      <Link to={module.url} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors relative", "text-sidebar-foreground hover:bg-sidebar-accent", isActive && "text-sidebar-foreground")}>
-                        {isActive && <div className="absolute left-0 w-1 h-6 bg-elearning rounded-r" />}
-                        <div className="w-5 h-5 flex items-center justify-center" style={{ color: module.color }}>
-                          <Icon className="w-5 h-5" />
-                        </div>
-                        <span className="text-sm font-medium">{module.title}</span>
-                        {isActive && <div className="ml-auto w-2 h-2 bg-elearning rounded-full" />}
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  <AccordionItem key={index} value={sectionId} className="border-0">
+                    <AccordionTrigger className="py-2 px-3 hover:bg-sidebar-accent rounded-lg text-sm font-medium text-sidebar-foreground hover:no-underline">
+                      <div className="flex items-center gap-3">
+                        <SectionIcon className="w-4 h-4 text-primary" />
+                        <span>{section.title}</span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-0 pt-1">
+                      <SidebarMenu className="space-y-1 ml-4">
+                        {section.items.map(item => {
+                          const ItemIcon = item.icon;
+                          const isActive = location.pathname === item.url;
+                          return (
+                            <SidebarMenuItem key={item.title}>
+                              <SidebarMenuButton asChild>
+                                <Link 
+                                  to={item.url} 
+                                  className={cn(
+                                    "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors relative",
+                                    "text-sidebar-foreground hover:bg-sidebar-accent",
+                                    isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                                  )}
+                                >
+                                  {isActive && <div className="absolute left-0 w-1 h-5 bg-primary rounded-r" />}
+                                  <ItemIcon className="w-4 h-4 text-primary" />
+                                  <div className="flex-1 min-w-0">
+                                    <span className="text-sm block truncate">{item.title}</span>
+                                    <span className="text-xs text-muted-foreground block truncate">{item.description}</span>
+                                  </div>
+                                  {isActive && <div className="w-2 h-2 bg-primary rounded-full" />}
+                                </Link>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          );
+                        })}
+                      </SidebarMenu>
+                    </AccordionContent>
+                  </AccordionItem>
                 );
               })}
-            </SidebarMenu>
+            </Accordion>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
@@ -130,7 +139,7 @@ export function ElearningModuleSidebar() {
       <SidebarFooter className="p-4 border-t border-sidebar-border/30">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-            <Monitor className="w-4 h-4 text-gray-600" />
+            <User className="w-4 h-4 text-gray-600" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-sidebar-foreground truncate">Administrateur Principal</p>

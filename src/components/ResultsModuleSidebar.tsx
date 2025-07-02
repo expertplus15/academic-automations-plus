@@ -67,7 +67,7 @@ export function ResultsModuleSidebar() {
     <Sidebar className="border-r-0">
       <SidebarHeader className="p-4 border-b border-sidebar-border/30">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-results rounded-xl flex items-center justify-center shadow-sm">
+          <div className="w-9 h-9 bg-[#8b5cf6] rounded-xl flex items-center justify-center shadow-sm">
             <BarChart3 className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
