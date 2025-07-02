@@ -84,18 +84,34 @@ export default function Students() {
   return (
     <ProtectedRoute allowedRoles={['admin', 'teacher']}>
       <StudentsModuleLayout>
-        <div className="p-8 space-y-8">
-          {/* Header avec statistiques */}
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Gestion des Étudiants</h1>
-              <p className="text-muted-foreground text-lg mt-1">Suivi et administration des étudiants</p>
+        {/* Hero Section avec carte de fond */}
+        <div className="relative overflow-hidden">
+          {/* Carte de fond avec gradient emerald */}
+          <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-8 py-12">
+            <div className="max-w-6xl mx-auto relative">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                  <Users className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold text-white mb-2">Gestion des Étudiants</h1>
+                  <p className="text-emerald-100 text-lg">Suivi et administration intelligente des étudiants</p>
+                </div>
+              </div>
+              
+              {/* Éléments décoratifs */}
+              <div className="absolute top-4 right-4 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 right-20 w-24 h-24 bg-white/5 rounded-full blur-2xl"></div>
             </div>
+          </div>
+        </div>
+
+        <div className="p-8 space-y-8">
             
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {stats.map((stat, index) => (
-                <Card key={index} className="bg-white rounded-2xl shadow-sm border-0">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 -mt-6 relative z-10">
+            {stats.map((stat, index) => (
+                <Card key={index} className="bg-white rounded-2xl shadow-lg border-0 hover:shadow-xl transition-all duration-300">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
@@ -112,10 +128,11 @@ export default function Students() {
                     </div>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
+            ))}
           </div>
+        </div>
 
+        <div className="p-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Colonne principale */}
             <div className="lg:col-span-2 space-y-6">

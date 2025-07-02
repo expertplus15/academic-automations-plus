@@ -5,10 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAcademicYearContext } from '@/contexts/AcademicYearContext';
 import { useNavigate } from 'react-router-dom';
 
 export function StudentsPageHeader() {
   const { user, profile, signOut } = useAuth();
+  const { selectedAcademicYear, setSelectedAcademicYear, academicYears } = useAcademicYearContext();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -57,13 +59,38 @@ export function StudentsPageHeader() {
         </div>
       </div>
 
-      {/* Center - Status indicator */}
+      {/* Center - Academic year selector */}
       <div className="flex items-center gap-2 bg-muted px-4 py-2 rounded-lg">
-        <span className="text-sm font-medium text-foreground">Statut:</span>
-        <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 border-emerald-200">
-          <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></div>
-          Système actif
-        </Badge>
+        <span className="text-sm font-medium text-foreground">Année académique:</span>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-auto p-1 text-sm font-medium">
+              {selectedAcademicYear?.name || 'Sélectionner...'} <ChevronDown className="w-4 h-4 ml-1" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-background border border-border">
+            {academicYears.length > 0 ? (
+              academicYears.map((year) => (
+                <DropdownMenuItem 
+                  key={year.id}
+                  onClick={() => setSelectedAcademicYear(year)}
+                  className="cursor-pointer hover:bg-muted"
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span>{year.name}</span>
+                    {year.is_current && (
+                      <Badge variant="secondary" className="text-xs ml-2">Actuelle</Badge>
+                    )}
+                  </div>
+                </DropdownMenuItem>
+              ))
+            ) : (
+              <DropdownMenuItem disabled>
+                Aucune année académique disponible
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Right side - Navigation and user */}
