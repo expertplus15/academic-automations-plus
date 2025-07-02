@@ -6,6 +6,8 @@ export { useFiscalYears, type FiscalYear } from './finance/useFiscalYears';
 export { useFinancialCategories, type FinancialCategory } from './finance/useFinancialCategories';
 export { useScholarships, type Scholarship } from './finance/useScholarships';
 export { useBudgetItems, type BudgetItem } from './finance/useBudgetItems';
+export { useServiceTypes, type ServiceType } from './finance/useServiceTypes';
+export { useFeeTypes, type FeeType } from './finance/useFeeTypes';
 
 import { useInvoices } from './finance/useInvoices';
 import { usePayments } from './finance/usePayments';
@@ -14,6 +16,8 @@ import { useFiscalYears } from './finance/useFiscalYears';
 import { useFinancialCategories } from './finance/useFinancialCategories';
 import { useScholarships } from './finance/useScholarships';
 import { useBudgetItems } from './finance/useBudgetItems';
+import { useServiceTypes } from './finance/useServiceTypes';
+import { useFeeTypes } from './finance/useFeeTypes';
 
 // Combined hook for all finance data
 export function useFinanceData() {
@@ -24,6 +28,8 @@ export function useFinanceData() {
   const categories = useFinancialCategories();
   const scholarships = useScholarships();
   const budgetItems = useBudgetItems();
+  const serviceTypes = useServiceTypes();
+  const feeTypes = useFeeTypes();
 
   return {
     // Invoices
@@ -60,8 +66,19 @@ export function useFinanceData() {
     fetchBudgetItems: budgetItems.fetchBudgetItems,
     createBudgetItem: budgetItems.createBudgetItem,
     
+    // Service Types
+    serviceTypes: serviceTypes.serviceTypes,
+    fetchServiceTypes: serviceTypes.fetchServiceTypes,
+    createServiceType: serviceTypes.createServiceType,
+    
+    // Fee Types
+    feeTypes: feeTypes.feeTypes,
+    fetchFeeTypes: feeTypes.fetchFeeTypes,
+    createFeeType: feeTypes.createFeeType,
+    
     // Loading state
     loading: invoices.loading || payments.loading || accounts.loading || 
-             fiscalYears.loading || categories.loading || scholarships.loading || budgetItems.loading,
+             fiscalYears.loading || categories.loading || scholarships.loading || 
+             budgetItems.loading || serviceTypes.loading || feeTypes.loading,
   };
 }

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { InvoiceForm } from '@/components/finance/InvoiceForm';
+import { EnhancedInvoiceForm } from '@/components/finance/EnhancedInvoiceForm';
 import { FreeInvoiceForm } from '@/components/finance/FreeInvoiceForm';
 import { useFinanceData } from '@/hooks/useFinanceData';
 import { 
@@ -144,7 +144,7 @@ export default function Billing() {
           onCreateClick={() => setShowInvoiceForm(true)}
         />
 
-        <InvoiceForm 
+        <EnhancedInvoiceForm 
           open={showInvoiceForm} 
           onOpenChange={setShowInvoiceForm}
           onSuccess={fetchInvoices}

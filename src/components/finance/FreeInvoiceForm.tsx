@@ -29,7 +29,7 @@ export function FreeInvoiceForm({ open, onOpenChange, onSuccess }: FreeInvoiceFo
     notes: ''
   });
   const [loading, setLoading] = useState(false);
-  const { createInvoice } = useFinanceData();
+  const { createInvoice, fiscalYears } = useFinanceData();
 
   const generateInvoiceNumber = () => {
     const year = new Date().getFullYear().toString().slice(-2);
@@ -49,8 +49,11 @@ export function FreeInvoiceForm({ open, onOpenChange, onSuccess }: FreeInvoiceFo
         subtotal: parseFloat(formData.subtotal) || 0,
         tax_amount: parseFloat(formData.tax_amount) || 0,
         total_amount: parseFloat(formData.total_amount) || 0,
-        notes: `Facture libre - ${formData.recipient_name}\nEmail: ${formData.recipient_email}\nAdresse: ${formData.recipient_address}\n\nDescription: ${formData.description}\n\nNotes: ${formData.notes}`,
-        // Pour les factures libres, on utilise null pour student_id
+        notes: `Description: ${formData.description}\n\nNotes: ${formData.notes}`,
+        invoice_type: 'free',
+        recipient_name: formData.recipient_name,
+        recipient_email: formData.recipient_email,
+        recipient_address: formData.recipient_address,
         student_id: null
       };
 
@@ -164,8 +167,11 @@ export function FreeInvoiceForm({ open, onOpenChange, onSuccess }: FreeInvoiceFo
                   <SelectValue placeholder="Sélectionner l'année fiscale" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="2024">2024</SelectItem>
-                  <SelectItem value="2025">2025</SelectItem>
+                  {fiscalYears.map((year) => (
+                    <SelectItem key={year.id} value={year.id}>
+                      {year.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

@@ -4,7 +4,8 @@ import { toast } from '@/hooks/use-toast';
 
 export interface Invoice {
   id: string;
-  student_id: string;
+  student_id: string | null;
+  fiscal_year_id: string;
   invoice_number: string;
   issue_date: string;
   due_date: string;
@@ -14,7 +15,11 @@ export interface Invoice {
   paid_amount: number;
   status: string;
   notes: string | null;
-  student: {
+  invoice_type: string;
+  recipient_name: string | null;
+  recipient_email: string | null;
+  recipient_address: string | null;
+  student?: {
     student_number: string;
     profile: {
       full_name: string;
@@ -33,9 +38,9 @@ export function useInvoices() {
         .from('invoices')
         .select(`
           *,
-          student:students!inner (
+          student:students (
             student_number,
-            profile:profiles!inner (
+            profile:profiles (
               full_name
             )
           )
@@ -56,7 +61,7 @@ export function useInvoices() {
   };
 
   const createInvoice = async (invoiceData: {
-    student_id: string;
+    student_id?: string | null;
     fiscal_year_id: string;
     due_date: string;
     invoice_number: string;
@@ -64,6 +69,10 @@ export function useInvoices() {
     tax_amount?: number;
     total_amount?: number;
     notes?: string;
+    invoice_type?: string;
+    recipient_name?: string;
+    recipient_email?: string;
+    recipient_address?: string;
   }) => {
     try {
       const { data, error } = await supabase

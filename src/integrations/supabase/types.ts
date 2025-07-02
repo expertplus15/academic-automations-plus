@@ -984,6 +984,45 @@ export type Database = {
           },
         ]
       }
+      fee_types: {
+        Row: {
+          code: string
+          created_at: string
+          default_amount: number | null
+          description: string | null
+          fee_category: string
+          id: string
+          is_active: boolean | null
+          is_percentage: boolean | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          default_amount?: number | null
+          description?: string | null
+          fee_category?: string
+          id?: string
+          is_active?: boolean | null
+          is_percentage?: boolean | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          default_amount?: number | null
+          description?: string | null
+          fee_category?: string
+          id?: string
+          is_active?: boolean | null
+          is_percentage?: boolean | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       financial_aid: {
         Row: {
           aid_type: string
@@ -1225,6 +1264,70 @@ export type Database = {
           },
         ]
       }
+      invoice_services: {
+        Row: {
+          created_at: string
+          description: string
+          fee_type_id: string | null
+          id: string
+          invoice_id: string
+          quantity: number | null
+          service_type_id: string | null
+          tax_amount: number | null
+          tax_rate: number | null
+          total_price: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          fee_type_id?: string | null
+          id?: string
+          invoice_id: string
+          quantity?: number | null
+          service_type_id?: string | null
+          tax_amount?: number | null
+          tax_rate?: number | null
+          total_price: number
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          fee_type_id?: string | null
+          id?: string
+          invoice_id?: string
+          quantity?: number | null
+          service_type_id?: string | null
+          tax_amount?: number | null
+          tax_rate?: number | null
+          total_price?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_services_fee_type_id_fkey"
+            columns: ["fee_type_id"]
+            isOneToOne: false
+            referencedRelation: "fee_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_services_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_services_service_type_id_fkey"
+            columns: ["service_type_id"]
+            isOneToOne: false
+            referencedRelation: "service_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoices: {
         Row: {
           created_at: string | null
@@ -1233,11 +1336,15 @@ export type Database = {
           fiscal_year_id: string
           id: string
           invoice_number: string
+          invoice_type: string | null
           issue_date: string
           notes: string | null
           paid_amount: number | null
+          recipient_address: string | null
+          recipient_email: string | null
+          recipient_name: string | null
           status: string
-          student_id: string
+          student_id: string | null
           subtotal: number
           tax_amount: number | null
           total_amount: number
@@ -1250,11 +1357,15 @@ export type Database = {
           fiscal_year_id: string
           id?: string
           invoice_number: string
+          invoice_type?: string | null
           issue_date?: string
           notes?: string | null
           paid_amount?: number | null
+          recipient_address?: string | null
+          recipient_email?: string | null
+          recipient_name?: string | null
           status?: string
-          student_id: string
+          student_id?: string | null
           subtotal?: number
           tax_amount?: number | null
           total_amount?: number
@@ -1267,11 +1378,15 @@ export type Database = {
           fiscal_year_id?: string
           id?: string
           invoice_number?: string
+          invoice_type?: string | null
           issue_date?: string
           notes?: string | null
           paid_amount?: number | null
+          recipient_address?: string | null
+          recipient_email?: string | null
+          recipient_name?: string | null
           status?: string
-          student_id?: string
+          student_id?: string | null
           subtotal?: number
           tax_amount?: number | null
           total_amount?: number
@@ -1762,6 +1877,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      service_types: {
+        Row: {
+          code: string
+          created_at: string
+          default_price: number | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_taxable: boolean | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          default_price?: number | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_taxable?: boolean | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          default_price?: number | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_taxable?: boolean | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       sites: {
         Row: {
