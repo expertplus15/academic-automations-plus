@@ -1,29 +1,30 @@
 
 import React from 'react';
 import { MainDashboardLayout } from '@/components/layouts/MainDashboardLayout';
+import { WelcomeHeader } from '@/components/dashboard/WelcomeHeader';
 import { ModulesGrid } from '@/components/dashboard/ModulesGrid';
-import { DashboardHeader } from '@/components/DashboardHeader';
+import { QuickActions } from '@/components/dashboard/QuickActions';
+import { RecentActivity } from '@/components/dashboard/RecentActivity';
 
 export default function Dashboard() {
   return (
     <MainDashboardLayout>
-      <DashboardHeader 
-        title="Tableau de Bord Principal" 
-        subtitle="Accès à tous les modules de gestion" 
-      />
-      
       <div className="p-6">
         <div className="max-w-7xl mx-auto space-y-8">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold text-foreground mb-2">
-              Modules de Gestion
-            </h2>
-            <p className="text-muted-foreground">
-              Sélectionnez un module pour commencer
-            </p>
+          {/* Header avec salutation et cartes de statut */}
+          <WelcomeHeader />
+          
+          {/* Modules de gestion */}
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-white">Modules de Gestion</h2>
+            <ModulesGrid />
           </div>
           
-          <ModulesGrid />
+          {/* Actions rapides */}
+          <QuickActions />
+          
+          {/* Activité récente */}
+          <RecentActivity />
         </div>
       </div>
     </MainDashboardLayout>

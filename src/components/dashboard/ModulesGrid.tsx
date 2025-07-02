@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ModuleCard } from '@/components/ModuleCard';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { 
   GraduationCap, 
   Users, 
@@ -14,7 +15,8 @@ import {
   Heart,
   Handshake,
   Car,
-  BarChart3
+  BarChart3,
+  Package
 } from 'lucide-react';
 
 export function ModulesGrid() {
@@ -22,223 +24,113 @@ export function ModulesGrid() {
 
   const modules = [
     {
-      title: "Module Académique",
-      description: "Gestion des programmes, emplois du temps et évaluations",
+      title: "Académique",
       icon: GraduationCap,
-      color: "primary",
-      stats: [
-        { label: "Programmes", value: "12" },
-        { label: "Matières", value: "45" }
-      ],
-      actions: [
-        { 
-          label: "Accéder", 
-          onClick: () => navigate('/academic'),
-          variant: "default" as const
-        }
-      ]
+      color: "bg-blue-500",
+      notifications: 12,
+      onClick: () => navigate('/academic')
     },
     {
       title: "Gestion Étudiants",
-      description: "Inscription, suivi et communication avec les étudiants",
       icon: Users,
-      color: "secondary",
-      stats: [
-        { label: "Étudiants", value: "1,247" },
-        { label: "Alertes", value: "3" }
-      ],
-      actions: [
-        { 
-          label: "Accéder", 
-          onClick: () => navigate('/students'),
-          variant: "default" as const
-        }
-      ]
+      color: "bg-green-500",
+      notifications: 3,
+      onClick: () => navigate('/students')
     },
     {
-      title: "Finances",
-      description: "Comptabilité, facturation et gestion budgétaire",
+      title: "Finance",
       icon: DollarSign,
-      color: "accent",
-      stats: [
-        { label: "Factures", value: "156" },
-        { label: "En attente", value: "23" }
-      ],
-      actions: [
-        { 
-          label: "Accéder", 
-          onClick: () => navigate('/finance'),
-          variant: "default" as const
-        }
-      ]
+      color: "bg-orange-500",
+      notifications: 7,
+      onClick: () => navigate('/finance')
     },
     {
       title: "Ressources Humaines",
-      description: "Gestion du personnel et des enseignants",
       icon: UserCheck,
-      color: "muted",
-      stats: [
-        { label: "Enseignants", value: "89" },
-        { label: "Personnel", value: "34" }
-      ],
-      actions: [
-        { 
-          label: "Accéder", 
-          onClick: () => navigate('/hr'),
-          variant: "default" as const
-        }
-      ]
+      color: "bg-purple-500",
+      notifications: 2,
+      onClick: () => navigate('/hr')
     },
     {
-      title: "E-Learning",
-      description: "Plateforme d'apprentissage en ligne",
+      title: "Communication",
+      icon: MessageSquare,
+      color: "bg-cyan-500",
+      notifications: 15,
+      onClick: () => navigate('/communication')
+    },
+    {
+      title: "Documents",
+      icon: FileText,
+      color: "bg-indigo-500",
+      notifications: 4,
+      onClick: () => navigate('/documents')
+    },
+    {
+      title: "eLearning",
       icon: BookOpen,
-      color: "primary",
-      stats: [
-        { label: "Cours", value: "67" },
-        { label: "Actifs", value: "892" }
-      ],
-      actions: [
-        { 
-          label: "Accéder", 
-          onClick: () => navigate('/elearning'),
-          variant: "default" as const
-        }
-      ]
+      color: "bg-teal-500",
+      notifications: 8,
+      onClick: () => navigate('/elearning')
     },
     {
       title: "Examens",
-      description: "Planification et gestion des examens",
       icon: Calendar,
-      color: "destructive",
-      stats: [
-        { label: "Programmés", value: "24" },
-        { label: "Cette semaine", value: "5" }
-      ],
-      actions: [
-        { 
-          label: "Accéder", 
-          onClick: () => navigate('/exams'),
-          variant: "default" as const
-        }
-      ]
+      color: "bg-red-500",
+      notifications: 6,
+      onClick: () => navigate('/exams')
     },
     {
-      title: "Résultats",
-      description: "Notes, bulletins et transcriptions",
-      icon: BarChart3,
-      color: "secondary",
-      stats: [
-        { label: "Notes saisies", value: "234" },
-        { label: "À publier", value: "12" }
-      ],
-      actions: [
-        { 
-          label: "Accéder", 
-          onClick: () => navigate('/results'),
-          variant: "default" as const
-        }
-      ]
-    },
-    {
-      title: "Services",
-      description: "Transport, restauration et hébergement",
-      icon: Car,
-      color: "accent",
-      stats: [
-        { label: "Demandes", value: "45" },
-        { label: "En cours", value: "12" }
-      ],
-      actions: [
-        { 
-          label: "Accéder", 
-          onClick: () => navigate('/services'),
-          variant: "default" as const
-        }
-      ]
-    },
-    {
-      title: "Santé",
-      description: "Suivi médical et bien-être étudiant",
-      icon: Heart,
-      color: "destructive",
-      stats: [
-        { label: "Consultations", value: "78" },
-        { label: "Urgences", value: "2" }
-      ],
-      actions: [
-        { 
-          label: "Accéder", 
-          onClick: () => navigate('/health'),
-          variant: "default" as const
-        }
-      ]
+      title: "Inventaire",
+      icon: Package,
+      color: "bg-yellow-500",
+      notifications: 1,
+      onClick: () => navigate('/inventory')
     },
     {
       title: "Partenariats",
-      description: "Relations entreprises et stages",
       icon: Handshake,
-      color: "muted",
-      stats: [
-        { label: "Partenaires", value: "156" },
-        { label: "Stages", value: "89" }
-      ],
-      actions: [
-        { 
-          label: "Accéder", 
-          onClick: () => navigate('/partnerships'),
-          variant: "default" as const
-        }
-      ]
-    },
-    {
-      title: "Ressources",
-      description: "Matériel, équipements et infrastructures",
-      icon: FileText,
-      color: "primary",
-      stats: [
-        { label: "Équipements", value: "1,245" },
-        { label: "Réservations", value: "34" }
-      ],
-      actions: [
-        { 
-          label: "Accéder", 
-          onClick: () => navigate('/resources'),
-          variant: "default" as const
-        }
-      ]
+      color: "bg-pink-500",
+      notifications: 5,
+      onClick: () => navigate('/partnerships')
     },
     {
       title: "Paramètres",
-      description: "Configuration système et utilisateurs",
       icon: Settings,
-      color: "secondary",
-      stats: [
-        { label: "Utilisateurs", value: "234" },
-        { label: "Intégrations", value: "8" }
-      ],
-      actions: [
-        { 
-          label: "Accéder", 
-          onClick: () => navigate('/settings'),
-          variant: "default" as const
-        }
-      ]
+      color: "bg-gray-500",
+      notifications: 0,
+      onClick: () => navigate('/settings')
     }
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
       {modules.map((module, index) => (
-        <ModuleCard
+        <Card 
           key={index}
-          title={module.title}
-          description={module.description}
-          icon={module.icon}
-          color={module.color}
-          stats={module.stats}
-          actions={module.actions}
-        />
+          className="bg-white/10 border-white/20 backdrop-blur-sm hover:bg-white/15 transition-all duration-200 cursor-pointer group relative"
+          onClick={module.onClick}
+        >
+          <CardContent className="p-6 text-center">
+            {/* Badge de notification */}
+            {module.notifications > 0 && (
+              <Badge 
+                className="absolute -top-2 -right-2 bg-red-500 text-white border-red-600 text-xs min-w-[20px] h-5 flex items-center justify-center rounded-full"
+              >
+                {module.notifications}
+              </Badge>
+            )}
+            
+            {/* Icône */}
+            <div className={`w-12 h-12 mx-auto mb-3 rounded-lg ${module.color} flex items-center justify-center`}>
+              <module.icon className="w-6 h-6 text-white" />
+            </div>
+            
+            {/* Titre */}
+            <h3 className="text-white font-medium text-sm group-hover:text-blue-100 transition-colors">
+              {module.title}
+            </h3>
+          </CardContent>
+        </Card>
       ))}
     </div>
   );
