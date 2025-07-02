@@ -5,16 +5,17 @@ import { StudentsModuleSidebar } from "@/components/StudentsModuleSidebar";
 
 interface ModuleLayoutProps {
   children: React.ReactNode;
+  sidebar?: React.ReactNode;
   title?: string;
   subtitle?: string;
   showHeader?: boolean;
 }
 
-export function ModuleLayout({ children, title, subtitle, showHeader = false }: ModuleLayoutProps) {
+export function ModuleLayout({ children, sidebar, title, subtitle, showHeader = false }: ModuleLayoutProps) {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
-        <StudentsModuleSidebar />
+        {sidebar || <StudentsModuleSidebar />}
         <div className="flex-1 flex flex-col">
           <header className="h-12 flex items-center border-b bg-card px-4">
             <SidebarTrigger />
