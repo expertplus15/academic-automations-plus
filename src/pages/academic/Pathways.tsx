@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { AcademicPageHeader } from "@/components/AcademicPageHeader";
+import { AcademicModuleLayout } from '@/components/layouts/AcademicModuleLayout';
 import { PathwaysList } from '@/components/academic/PathwaysList';
 import { PathwayForm } from '@/components/academic/PathwayForm';
 import { useSpecializations } from '@/hooks/useSupabase';
@@ -29,11 +29,11 @@ export default function Pathways() {
 
   return (
     <ProtectedRoute allowedRoles={['admin', 'teacher']}>
-      <div className="min-h-screen bg-background">
-        <AcademicPageHeader 
-          title="Filières" 
-          subtitle="Gestion des filières et spécialisations" 
-        />
+      <AcademicModuleLayout 
+        title="Filières" 
+        subtitle="Gestion des filières et spécialisations"
+        showHeader={true}
+      >
         <div className="p-6">
           <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
@@ -79,7 +79,7 @@ export default function Pathways() {
             </Dialog>
           </div>
         </div>
-      </div>
+      </AcademicModuleLayout>
     </ProtectedRoute>
   );
 }

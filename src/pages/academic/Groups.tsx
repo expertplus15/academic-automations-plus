@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { AcademicPageHeader } from "@/components/AcademicPageHeader";
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { AcademicModuleLayout } from '@/components/layouts/AcademicModuleLayout';
 import { GroupsList } from '@/components/academic/GroupsList';
 import { GroupForm } from '@/components/academic/GroupForm';
 import { Button } from '@/components/ui/button';
@@ -33,44 +34,46 @@ export default function Groups() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <AcademicPageHeader 
+    <ProtectedRoute allowedRoles={['admin', 'teacher']}>
+      <AcademicModuleLayout 
         title="Classes et Groupes" 
-        subtitle="Gestion des groupes d'étudiants" 
-      />
-      <div className="p-6">
-        <div className="max-w-6xl mx-auto space-y-6">
-          {!showForm ? (
-            <>
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-2xl font-semibold">Gestion des Groupes</h2>
-                  <p className="text-muted-foreground">
-                    Organisez vos étudiants en classes, groupes de TD, TP et projets.
-                  </p>
+        subtitle="Gestion des groupes d'étudiants"
+        showHeader={true}
+      >
+        <div className="p-6">
+          <div className="max-w-6xl mx-auto space-y-6">
+            {!showForm ? (
+              <>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-2xl font-semibold">Gestion des Groupes</h2>
+                    <p className="text-muted-foreground">
+                      Organisez vos étudiants en classes, groupes de TD, TP et projets.
+                    </p>
+                  </div>
+                  <Button onClick={handleCreate}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Nouveau Groupe
+                  </Button>
                 </div>
-                <Button onClick={handleCreate}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Nouveau Groupe
-                </Button>
-              </div>
 
-              <GroupsList
-                groups={groups || []}
-                loading={loading}
-                onEdit={handleEdit}
-                onRefresh={refetch}
+                <GroupsList
+                  groups={groups || []}
+                  loading={loading}
+                  onEdit={handleEdit}
+                  onRefresh={refetch}
+                />
+              </>
+            ) : (
+              <GroupForm
+                group={editingGroup}
+                onSuccess={handleSuccess}
+                onCancel={handleCancel}
               />
-            </>
-          ) : (
-            <GroupForm
-              group={editingGroup}
-              onSuccess={handleSuccess}
-              onCancel={handleCancel}
-            />
-          )}
+            )}
+          </div>
         </div>
-      </div>
-    </div>
+      </AcademicModuleLayout>
+    </ProtectedRoute>
   );
 }

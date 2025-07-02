@@ -10,6 +10,18 @@ import StudentsAlerts from '@/pages/students/Alerts';
 import StudentsDocuments from '@/pages/students/Documents';
 import StudentsCommunication from '@/pages/students/Communication';
 
+// Academic module pages
+import Academic from '@/pages/Academic';
+import AcademicPrograms from '@/pages/academic/Programs';
+import AcademicSubjects from '@/pages/academic/Subjects';
+import AcademicDepartments from '@/pages/academic/Departments';
+import AcademicLevels from '@/pages/academic/Levels';
+import AcademicGroups from '@/pages/academic/Groups';
+import AcademicPathways from '@/pages/academic/Pathways';
+import AcademicTimetables from '@/pages/academic/Timetables';
+import AcademicInfrastructure from '@/pages/academic/Infrastructure';
+import AcademicEvaluations from '@/pages/academic/Evaluations';
+
 export function ModuleRoutes() {
   return (
     <Routes>
@@ -21,6 +33,18 @@ export function ModuleRoutes() {
       <Route path="/students/alerts" element={<StudentsAlerts />} />
       <Route path="/students/documents" element={<StudentsDocuments />} />
       <Route path="/students/communication" element={<StudentsCommunication />} />
+
+      {/* Academic Module Routes - All using AcademicModuleLayout */}
+      <Route path="/academic" element={<Academic />} />
+      <Route path="/academic/programs" element={<AcademicPrograms />} />
+      <Route path="/academic/subjects" element={<AcademicSubjects />} />
+      <Route path="/academic/departments" element={<AcademicDepartments />} />
+      <Route path="/academic/levels" element={<AcademicLevels />} />
+      <Route path="/academic/groups" element={<AcademicGroups />} />
+      <Route path="/academic/pathways" element={<AcademicPathways />} />
+      <Route path="/academic/timetables" element={<AcademicTimetables />} />
+      <Route path="/academic/infrastructure" element={<AcademicInfrastructure />} />
+      <Route path="/academic/evaluations" element={<AcademicEvaluations />} />
     </Routes>
   );
 }

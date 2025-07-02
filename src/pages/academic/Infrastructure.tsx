@@ -1,19 +1,22 @@
 
-import { AcademicPageHeader } from "@/components/AcademicPageHeader";
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { AcademicModuleLayout } from '@/components/layouts/AcademicModuleLayout';
 import { InfrastructuresList } from "@/components/infrastructure/InfrastructuresList";
 
 export default function Infrastructure() {
   return (
-    <div className="min-h-screen bg-background">
-      <AcademicPageHeader 
+    <ProtectedRoute allowedRoles={['admin', 'teacher']}>
+      <AcademicModuleLayout 
         title="Infrastructures" 
-        subtitle="Gestion des salles et équipements" 
-      />
-      <div className="p-6">
-        <div className="max-w-7xl mx-auto">
-          <InfrastructuresList />
+        subtitle="Gestion des salles et équipements"
+        showHeader={true}
+      >
+        <div className="p-6">
+          <div className="max-w-7xl mx-auto">
+            <InfrastructuresList />
+          </div>
         </div>
-      </div>
-    </div>
+      </AcademicModuleLayout>
+    </ProtectedRoute>
   );
 }

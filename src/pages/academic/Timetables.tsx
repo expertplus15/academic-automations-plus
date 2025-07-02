@@ -1,6 +1,6 @@
 
-import { AcademicPageHeader } from "@/components/AcademicPageHeader";
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { AcademicModuleLayout } from '@/components/layouts/AcademicModuleLayout';
 import { Brain, Zap, Grid3X3, CalendarDays, Calendar, BarChart3, BookOpen } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TimetablesBanner } from '@/components/academic/timetables/TimetablesBanner';
@@ -10,11 +10,11 @@ import { TimetablesTabsContent } from '@/components/academic/timetables/Timetabl
 export default function Timetables() {
   return (
     <ProtectedRoute allowedRoles={['admin', 'teacher']}>
-      <div className="min-h-screen bg-background">
-        <AcademicPageHeader 
-          title="Emploi du Temps" 
-          subtitle="Planning intelligent et gestion des créneaux avec IA" 
-        />
+      <AcademicModuleLayout 
+        title="Emploi du Temps" 
+        subtitle="Planning intelligent et gestion des créneaux avec IA"
+        showHeader={true}
+      >
         <div className="p-6">
           <div className="max-w-7xl mx-auto space-y-6">
             
@@ -57,7 +57,7 @@ export default function Timetables() {
             <TimetablesStats />
           </div>
         </div>
-      </div>
+      </AcademicModuleLayout>
     </ProtectedRoute>
   );
 }

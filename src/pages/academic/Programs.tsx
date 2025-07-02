@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { AcademicPageHeader } from "@/components/AcademicPageHeader";
+import { AcademicModuleLayout } from '@/components/layouts/AcademicModuleLayout';
 import { ProgramsList } from '@/components/academic/ProgramsList';
 import { ProgramForm } from '@/components/academic/ProgramForm';
 import { usePrograms } from '@/hooks/useSupabase';
@@ -29,11 +29,11 @@ export default function Programs() {
 
   return (
     <ProtectedRoute allowedRoles={['admin', 'teacher']}>
-      <div className="min-h-screen bg-background">
-        <AcademicPageHeader 
-          title="Programmes" 
-          subtitle="Gestion des programmes d'études" 
-        />
+      <AcademicModuleLayout 
+        title="Programmes" 
+        subtitle="Gestion des programmes d'études"
+        showHeader={true}
+      >
         <div className="p-6">
           <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
@@ -79,7 +79,7 @@ export default function Programs() {
             </Dialog>
           </div>
         </div>
-      </div>
+      </AcademicModuleLayout>
     </ProtectedRoute>
   );
 }

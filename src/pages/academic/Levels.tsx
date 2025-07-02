@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { AcademicPageHeader } from "@/components/AcademicPageHeader";
+import { AcademicModuleLayout } from '@/components/layouts/AcademicModuleLayout';
 import { LevelsList } from '@/components/academic/LevelsList';
 import { LevelForm } from '@/components/academic/LevelForm';
 import { useAcademicLevels } from '@/hooks/useSupabase';
@@ -29,11 +29,11 @@ export default function Levels() {
 
   return (
     <ProtectedRoute allowedRoles={['admin', 'teacher']}>
-      <div className="min-h-screen bg-background">
-        <AcademicPageHeader 
-          title="Niveaux d'Études" 
-          subtitle="Gestion des niveaux et cycles d'études" 
-        />
+      <AcademicModuleLayout 
+        title="Niveaux d'Études" 
+        subtitle="Gestion des niveaux et cycles d'études"
+        showHeader={true}
+      >
         <div className="p-6">
           <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
@@ -79,7 +79,7 @@ export default function Levels() {
             </Dialog>
           </div>
         </div>
-      </div>
+      </AcademicModuleLayout>
     </ProtectedRoute>
   );
 }

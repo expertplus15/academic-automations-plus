@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { AcademicPageHeader } from "@/components/AcademicPageHeader";
+import { AcademicModuleLayout } from '@/components/layouts/AcademicModuleLayout';
 import { DepartmentsList } from '@/components/academic/DepartmentsList';
 import { DepartmentForm } from '@/components/academic/DepartmentForm';
 import { useDepartments } from '@/hooks/useSupabase';
@@ -29,11 +29,11 @@ export default function Departments() {
 
   return (
     <ProtectedRoute allowedRoles={['admin', 'teacher']}>
-      <div className="min-h-screen bg-background">
-        <AcademicPageHeader 
-          title="Départements" 
-          subtitle="Gestion des départements et structures organisationnelles" 
-        />
+      <AcademicModuleLayout 
+        title="Départements" 
+        subtitle="Gestion des départements et structures organisationnelles"
+        showHeader={true}
+      >
         <div className="p-6">
           <div className="max-w-6xl mx-auto">
             <div className="flex justify-between items-center mb-6">
@@ -79,7 +79,7 @@ export default function Departments() {
             </Dialog>
           </div>
         </div>
-      </div>
+      </AcademicModuleLayout>
     </ProtectedRoute>
   );
 }

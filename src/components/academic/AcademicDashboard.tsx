@@ -57,52 +57,9 @@ export function AcademicDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/dashboard">
-                  <Users className="h-4 w-4 mr-2" />
-                  Retour
-                </Link>
-              </Button>
-              <div className="flex items-center">
-                <GraduationCap className="h-8 w-8 text-primary mr-3" />
-                <div>
-                  <h1 className="text-xl font-semibold text-foreground">
-                    Module Académique
-                  </h1>
-                  <p className="text-sm text-muted-foreground">
-                    Gestion des programmes et cursus
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/academic/settings">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Paramètres
-                </Link>
-              </Button>
-              <Button size="sm" asChild>
-                <Link to="/academic/programs">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Gérer les Programmes
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Statistiques */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div className="p-6 space-y-6">
+      {/* Statistiques */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {stats.map((stat, index) => (
             <Card key={index}>
               <CardContent className="p-6">
@@ -125,10 +82,10 @@ export function AcademicDashboard() {
               </CardContent>
             </Card>
           ))}
-        </div>
+      </div>
 
-        {/* Contenu principal avec onglets */}
-        <Tabs defaultValue="overview" className="space-y-6">
+      {/* Contenu principal avec onglets */}
+      <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
             <TabsTrigger value="programs">Programmes</TabsTrigger>
@@ -260,8 +217,7 @@ export function AcademicDashboard() {
           <TabsContent value="departments">
             <DepartmentsList departments={departments} />
           </TabsContent>
-        </Tabs>
-      </div>
+      </Tabs>
     </div>
   );
 }
