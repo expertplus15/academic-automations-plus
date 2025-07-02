@@ -1,4 +1,5 @@
-import { DashboardHeader } from "@/components/DashboardHeader";
+
+import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { ModuleCard } from "@/components/ModuleCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -89,10 +90,12 @@ export default function Students() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader />
-      
-      <main className="p-6 space-y-6">
+    <ModuleLayout 
+      title="Gestion des Étudiants" 
+      subtitle="Tableau de bord principal du module étudiants"
+      showHeader={true}
+    >
+      <div className="p-6 space-y-6">
         {/* Feature Highlight */}
         <div className="bg-gradient-to-r from-students/10 to-students/5 rounded-lg p-6 border border-students/20">
           <div className="flex items-center gap-3 mb-3">
@@ -299,7 +302,7 @@ export default function Students() {
             </CardContent>
           </Card>
         </div>
-      </main>
-    </div>
+      </div>
+    </ModuleLayout>
   );
 }

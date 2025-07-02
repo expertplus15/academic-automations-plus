@@ -89,7 +89,7 @@ export function StudentsModuleSidebar() {
           <div className="w-9 h-9 bg-students rounded-xl flex items-center justify-center shadow-sm">
             <Users className="w-5 h-5 text-white" />
           </div>
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <h1 className="text-base font-semibold text-sidebar-foreground tracking-tight">Gestion Étudiants</h1>
             <p className="text-xs text-sidebar-foreground/60 mt-0.5">Module actif</p>
           </div>
@@ -103,6 +103,7 @@ export function StudentsModuleSidebar() {
             <span className="text-sm text-sidebar-foreground">Retour</span>
           </Link>
         </div>
+        
         <SidebarGroup className="py-[22px] my-0">
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
@@ -112,13 +113,23 @@ export function StudentsModuleSidebar() {
                 return (
                   <SidebarMenuItem key={module.title}>
                     <SidebarMenuButton asChild>
-                      <Link to={module.url} className={cn("flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors relative", "text-sidebar-foreground hover:bg-sidebar-accent", isActive && "text-sidebar-foreground")}>
+                      <Link 
+                        to={module.url} 
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors relative",
+                          "text-sidebar-foreground hover:bg-sidebar-accent",
+                          isActive && "bg-sidebar-accent text-sidebar-foreground font-medium"
+                        )}
+                      >
                         {isActive && <div className="absolute left-0 w-1 h-6 bg-students rounded-r" />}
-                        <div className="w-5 h-5 flex items-center justify-center" style={{ color: module.color }}>
+                        <div className="w-5 h-5 flex items-center justify-center flex-shrink-0" style={{ color: module.color }}>
                           <Icon className="w-5 h-5" />
                         </div>
-                        <span className="text-sm font-medium">{module.title}</span>
-                        {isActive && <div className="ml-auto w-2 h-2 bg-students rounded-full" />}
+                        <div className="flex-1 min-w-0">
+                          <span className="text-sm font-medium block truncate">{module.title}</span>
+                          <span className="text-xs text-sidebar-foreground/70 block truncate">{module.description}</span>
+                        </div>
+                        {isActive && <div className="w-2 h-2 bg-students rounded-full flex-shrink-0" />}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -131,7 +142,7 @@ export function StudentsModuleSidebar() {
 
       <SidebarFooter className="p-4 border-t border-sidebar-border/30">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center flex-shrink-0">
             <User className="w-4 h-4 text-gray-600" />
           </div>
           <div className="flex-1 min-w-0">

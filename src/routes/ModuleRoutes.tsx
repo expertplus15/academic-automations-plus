@@ -1,6 +1,5 @@
 
 import { Routes, Route } from 'react-router-dom';
-import { ModuleLayout } from '@/components/layouts/ModuleLayout';
 
 // Students module pages
 import Students from '@/pages/Students';
@@ -14,7 +13,7 @@ import StudentsCommunication from '@/pages/students/Communication';
 export function ModuleRoutes() {
   return (
     <Routes>
-      {/* Students Module Routes */}
+      {/* Students Module Routes - All using ModuleLayout */}
       <Route path="/students" element={<Students />} />
       <Route path="/students/registration" element={<StudentsRegistration />} />
       <Route path="/students/profiles" element={<StudentsProfiles />} />

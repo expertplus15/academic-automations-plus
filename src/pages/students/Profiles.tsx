@@ -1,18 +1,17 @@
 
-import React from 'react';
-import { StudentsPageHeader } from "@/components/StudentsPageHeader";
+import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { StudentsProfilesManagement } from "@/components/students/StudentsProfilesManagement";
 
 export default function Profiles() {
   return (
-    <div className="min-h-screen bg-background">
-      <StudentsPageHeader 
-        title="Profils Étudiants" 
-        subtitle="Gestion complète des profils et informations des étudiants" 
-      />
+    <ModuleLayout 
+      title="Profils Étudiants" 
+      subtitle="Gestion complète des profils et informations des étudiants"
+      showHeader={true}
+    >
       <div className="p-6">
         <StudentsProfilesManagement />
       </div>
-    </div>
+    </ModuleLayout>
   );
 }
