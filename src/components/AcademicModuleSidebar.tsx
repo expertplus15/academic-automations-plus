@@ -101,10 +101,10 @@ export function AcademicModuleSidebar() {
               location.pathname === "/academic" && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
             )}
           >
-            {location.pathname === "/academic" && <div className="absolute left-0 w-1 h-6 bg-primary rounded-r" />}
-            <LayoutDashboard className="w-4 h-4 text-primary" />
+            {location.pathname === "/academic" && <div className="absolute left-0 w-1 h-6 bg-blue-500 rounded-r" />}
+            <LayoutDashboard className="w-4 h-4 text-blue-500" />
             <span className="text-base text-sidebar-foreground">Tableau de Bord</span>
-            {location.pathname === "/academic" && <div className="w-2 h-2 bg-primary rounded-full" />}
+            {location.pathname === "/academic" && <div className="w-2 h-2 bg-blue-500 rounded-full" />}
           </Link>
         </div>
         <SidebarGroup className="py-4">
@@ -113,11 +113,32 @@ export function AcademicModuleSidebar() {
               {academicSections.map((section, index) => {
                 const SectionIcon = section.icon;
                 const sectionId = section.title.toLowerCase().replace(/\s+/g, '-').replace(/[àâä]/g, 'a').replace(/[éèêë]/g, 'e');
+                
+                // Définir les couleurs thématiques par section
+                const getSectionColor = (title: string) => {
+                  switch (title) {
+                    case 'Pédagogie': return 'text-blue-500'; // Academic blue
+                    case 'Organisation': return 'text-emerald-500'; // Students green
+                    case 'Planification': return 'text-violet-500'; // Exams violet
+                    case 'Infrastructure': return 'text-orange-500'; // Resources orange
+                    case 'Évaluations': return 'text-violet-500'; // Results violet
+                    default: return 'text-blue-500';
+                  }
+                };
+
+                const getItemColor = (sectionTitle: string, itemTitle: string) => {
+                  const baseColor = getSectionColor(sectionTitle);
+                  // Utiliser la même couleur pour les sous-éléments
+                  return baseColor;
+                };
+
+                const sectionColor = getSectionColor(section.title);
+
                 return (
                   <AccordionItem key={index} value={sectionId} className="border-0">
                     <AccordionTrigger className="py-3 px-3 hover:bg-sidebar-accent rounded-lg text-base font-medium text-sidebar-foreground hover:no-underline">
                       <div className="flex items-center gap-3">
-                        <SectionIcon className="w-5 h-5 text-primary" />
+                        <SectionIcon className={`w-5 h-5 ${sectionColor}`} />
                         <span>{section.title}</span>
                       </div>
                     </AccordionTrigger>
@@ -126,6 +147,8 @@ export function AcademicModuleSidebar() {
                         {section.items.map(item => {
                           const ItemIcon = item.icon;
                           const isActive = location.pathname === item.url;
+                          const itemColor = getItemColor(section.title, item.title);
+                          
                           return (
                             <SidebarMenuItem key={item.title}>
                               <SidebarMenuButton asChild>
@@ -137,10 +160,10 @@ export function AcademicModuleSidebar() {
                                     isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                                   )}
                                 >
-                                  {isActive && <div className="absolute left-0 w-1 h-6 bg-primary rounded-r" />}
-                                  <ItemIcon className="w-3.5 h-3.5 text-primary" />
+                                  {isActive && <div className={`absolute left-0 w-1 h-6 ${itemColor.replace('text-', 'bg-')} rounded-r`} />}
+                                  <ItemIcon className={`w-3.5 h-3.5 ${itemColor}`} />
                                    <span className="text-base truncate">{item.title}</span>
-                                  {isActive && <div className="w-2 h-2 bg-primary rounded-full" />}
+                                  {isActive && <div className={`w-2 h-2 ${itemColor.replace('text-', 'bg-')} rounded-full`} />}
                                 </Link>
                               </SidebarMenuButton>
                             </SidebarMenuItem>
