@@ -154,7 +154,7 @@ export default function BudgetTracking() {
                 <AlertTriangle className="w-5 h-5 text-yellow-600" />
                 <div>
                   <p className="font-semibold text-yellow-900">Surveillance requise</p>
-                  <p className="text-sm text-yellow-700">2 catégories > 90%</p>
+                  <p className="text-sm text-yellow-700">2 catégories &gt; 90%</p>
                 </div>
               </div>
             </CardContent>
