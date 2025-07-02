@@ -348,6 +348,83 @@ export type Database = {
           },
         ]
       }
+      budget_items: {
+        Row: {
+          actual_amount: number | null
+          budgeted_amount: number
+          code: string
+          created_at: string | null
+          created_by: string | null
+          department_id: string | null
+          financial_category_id: string
+          fiscal_year_id: string
+          id: string
+          name: string
+          notes: string | null
+          updated_at: string | null
+          variance: number | null
+        }
+        Insert: {
+          actual_amount?: number | null
+          budgeted_amount?: number
+          code: string
+          created_at?: string | null
+          created_by?: string | null
+          department_id?: string | null
+          financial_category_id: string
+          fiscal_year_id: string
+          id?: string
+          name: string
+          notes?: string | null
+          updated_at?: string | null
+          variance?: number | null
+        }
+        Update: {
+          actual_amount?: number | null
+          budgeted_amount?: number
+          code?: string
+          created_at?: string | null
+          created_by?: string | null
+          department_id?: string | null
+          financial_category_id?: string
+          fiscal_year_id?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          updated_at?: string | null
+          variance?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_items_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_items_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_items_financial_category_id_fkey"
+            columns: ["financial_category_id"]
+            isOneToOne: false
+            referencedRelation: "financial_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_items_fiscal_year_id_fkey"
+            columns: ["fiscal_year_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_years"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campuses: {
         Row: {
           address: string | null
@@ -907,6 +984,142 @@ export type Database = {
           },
         ]
       }
+      financial_aid: {
+        Row: {
+          aid_type: string
+          amount: number
+          application_date: string | null
+          approval_date: string | null
+          approved_by: string | null
+          created_at: string | null
+          disbursement_date: string | null
+          id: string
+          notes: string | null
+          scholarship_id: string | null
+          status: string
+          student_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          aid_type: string
+          amount: number
+          application_date?: string | null
+          approval_date?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          disbursement_date?: string | null
+          id?: string
+          notes?: string | null
+          scholarship_id?: string | null
+          status?: string
+          student_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          aid_type?: string
+          amount?: number
+          application_date?: string | null
+          approval_date?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          disbursement_date?: string | null
+          id?: string
+          notes?: string | null
+          scholarship_id?: string | null
+          status?: string
+          student_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_aid_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_aid_scholarship_id_fkey"
+            columns: ["scholarship_id"]
+            isOneToOne: false
+            referencedRelation: "scholarships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_aid_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_categories: {
+        Row: {
+          category_type: string
+          code: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          category_type?: string
+          code: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          category_type?: string
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      fiscal_years: {
+        Row: {
+          created_at: string | null
+          end_date: string
+          id: string
+          is_current: boolean | null
+          name: string
+          start_date: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_date: string
+          id?: string
+          is_current?: boolean | null
+          name: string
+          start_date: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          is_current?: boolean | null
+          name?: string
+          start_date?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       generated_documents: {
         Row: {
           document_number: string
@@ -960,6 +1173,243 @@ export type Database = {
             columns: ["request_id"]
             isOneToOne: false
             referencedRelation: "document_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoice_lines: {
+        Row: {
+          created_at: string | null
+          description: string
+          financial_category_id: string
+          id: string
+          invoice_id: string
+          quantity: number | null
+          total_price: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          financial_category_id: string
+          id?: string
+          invoice_id: string
+          quantity?: number | null
+          total_price: number
+          unit_price: number
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          financial_category_id?: string
+          id?: string
+          invoice_id?: string
+          quantity?: number | null
+          total_price?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_lines_financial_category_id_fkey"
+            columns: ["financial_category_id"]
+            isOneToOne: false
+            referencedRelation: "financial_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_lines_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          due_date: string
+          fiscal_year_id: string
+          id: string
+          invoice_number: string
+          issue_date: string
+          notes: string | null
+          paid_amount: number | null
+          status: string
+          student_id: string
+          subtotal: number
+          tax_amount: number | null
+          total_amount: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          due_date: string
+          fiscal_year_id: string
+          id?: string
+          invoice_number: string
+          issue_date?: string
+          notes?: string | null
+          paid_amount?: number | null
+          status?: string
+          student_id: string
+          subtotal?: number
+          tax_amount?: number | null
+          total_amount?: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          due_date?: string
+          fiscal_year_id?: string
+          id?: string
+          invoice_number?: string
+          issue_date?: string
+          notes?: string | null
+          paid_amount?: number | null
+          status?: string
+          student_id?: string
+          subtotal?: number
+          tax_amount?: number | null
+          total_amount?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_fiscal_year_id_fkey"
+            columns: ["fiscal_year_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_methods: {
+        Row: {
+          code: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_online: boolean | null
+          name: string
+          processing_fee_percentage: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_online?: boolean | null
+          name: string
+          processing_fee_percentage?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_online?: boolean | null
+          name?: string
+          processing_fee_percentage?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          invoice_id: string | null
+          notes: string | null
+          payment_date: string
+          payment_method_id: string
+          payment_number: string
+          processed_by: string | null
+          status: string
+          student_id: string
+          transaction_reference: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          invoice_id?: string | null
+          notes?: string | null
+          payment_date?: string
+          payment_method_id: string
+          payment_number: string
+          processed_by?: string | null
+          status?: string
+          student_id: string
+          transaction_reference?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          invoice_id?: string | null
+          notes?: string | null
+          payment_date?: string
+          payment_method_id?: string
+          payment_number?: string
+          processed_by?: string | null
+          status?: string
+          student_id?: string
+          transaction_reference?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_payment_method_id_fkey"
+            columns: ["payment_method_id"]
+            isOneToOne: false
+            referencedRelation: "payment_methods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_processed_by_fkey"
+            columns: ["processed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
@@ -1243,6 +1693,75 @@ export type Database = {
           success_rate?: number | null
         }
         Relationships: []
+      }
+      scholarships: {
+        Row: {
+          academic_year_id: string | null
+          amount: number
+          application_deadline: string | null
+          code: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          eligibility_criteria: Json | null
+          id: string
+          is_active: boolean | null
+          max_recipients: number | null
+          name: string
+          percentage: number | null
+          scholarship_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          academic_year_id?: string | null
+          amount: number
+          application_deadline?: string | null
+          code: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          eligibility_criteria?: Json | null
+          id?: string
+          is_active?: boolean | null
+          max_recipients?: number | null
+          name: string
+          percentage?: number | null
+          scholarship_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          academic_year_id?: string | null
+          amount?: number
+          application_deadline?: string | null
+          code?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          eligibility_criteria?: Json | null
+          id?: string
+          is_active?: boolean | null
+          max_recipients?: number | null
+          name?: string
+          percentage?: number | null
+          scholarship_type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scholarships_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scholarships_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sites: {
         Row: {
@@ -1561,6 +2080,60 @@ export type Database = {
           },
         ]
       }
+      students_accounts: {
+        Row: {
+          created_at: string | null
+          current_balance: number | null
+          fiscal_year_id: string
+          id: string
+          last_payment_date: string | null
+          status: string
+          student_id: string
+          total_charged: number | null
+          total_paid: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_balance?: number | null
+          fiscal_year_id: string
+          id?: string
+          last_payment_date?: string | null
+          status?: string
+          student_id: string
+          total_charged?: number | null
+          total_paid?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_balance?: number | null
+          fiscal_year_id?: string
+          id?: string
+          last_payment_date?: string | null
+          status?: string
+          student_id?: string
+          total_charged?: number | null
+          total_paid?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "students_accounts_fiscal_year_id_fkey"
+            columns: ["fiscal_year_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "students_accounts_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subjects: {
         Row: {
           class_group_id: string | null
@@ -1777,6 +2350,83 @@ export type Database = {
             columns: ["teacher_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string
+          financial_category_id: string
+          fiscal_year_id: string
+          id: string
+          processed_by: string | null
+          reference_id: string | null
+          reference_type: string | null
+          student_id: string | null
+          transaction_date: string
+          transaction_number: string
+          transaction_type: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          description: string
+          financial_category_id: string
+          fiscal_year_id: string
+          id?: string
+          processed_by?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+          student_id?: string | null
+          transaction_date?: string
+          transaction_number: string
+          transaction_type: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          description?: string
+          financial_category_id?: string
+          fiscal_year_id?: string
+          id?: string
+          processed_by?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+          student_id?: string | null
+          transaction_date?: string
+          transaction_number?: string
+          transaction_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_financial_category_id_fkey"
+            columns: ["financial_category_id"]
+            isOneToOne: false
+            referencedRelation: "financial_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_fiscal_year_id_fkey"
+            columns: ["fiscal_year_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_processed_by_fkey"
+            columns: ["processed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
