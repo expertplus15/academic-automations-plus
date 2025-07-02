@@ -26,6 +26,17 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     }
   }, [user, profile, loading, navigate, allowedRoles]);
 
+  // Timeout fallback for loading state
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (loading && !user) {
+        navigate('/login');
+      }
+    }, 5000);
+
+    return () => clearTimeout(timeout);
+  }, [loading, user, navigate]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">

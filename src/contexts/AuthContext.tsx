@@ -53,19 +53,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    let isMounted = true;
+    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
+        if (!isMounted) return;
+        
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          await fetchProfile(session.user.id);
+          // Don't await here to avoid blocking
+          fetchProfile(session.user.id).finally(() => {
+            if (isMounted) setLoading(false);
+          });
         } else {
           setProfile(null);
+          setLoading(false);
         }
-        
-        setLoading(false);
 
         // Handle auth events
         if (event === 'SIGNED_IN') {
@@ -88,16 +94,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (!isMounted) return;
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          setLoading(false);
+          return;
+        }
+        
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+      } finally {
+        if (isMounted) setLoading(false);
       }
-      setLoading(false);
-    });
+    };
 
-    return () => subscription.unsubscribe();
+    initializeAuth();
+
+    // Timeout fallback to prevent infinite loading
+    const timeout = setTimeout(() => {
+      if (isMounted) setLoading(false);
+    }, 3000);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, [toast]);
 
   const signIn = async (email: string, password: string) => {
