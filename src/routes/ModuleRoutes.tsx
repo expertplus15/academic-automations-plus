@@ -51,6 +51,10 @@ import AcademicTimetables from '@/pages/academic/Timetables';
 import AcademicInfrastructure from '@/pages/academic/Infrastructure';
 import AcademicEvaluations from '@/pages/academic/Evaluations';
 
+// New ACADEMIC+ modules
+import Results from '@/pages/Results';
+import Services from '@/pages/Services';
+
 export function ModuleRoutes() {
   return (
     <Routes>
@@ -116,6 +120,10 @@ export function ModuleRoutes() {
       <Route path="/academic/timetables" element={<AcademicTimetables />} />
       <Route path="/academic/infrastructure" element={<AcademicInfrastructure />} />
       <Route path="/academic/evaluations" element={<AcademicEvaluations />} />
+
+      {/* New ACADEMIC+ Module Routes */}
+      <Route path="/results" element={<Results />} />
+      <Route path="/services" element={<Services />} />
     </Routes>
   );
 }
