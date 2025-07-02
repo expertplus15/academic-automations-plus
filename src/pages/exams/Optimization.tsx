@@ -21,78 +21,43 @@ import {
   BarChart3,
   Cpu
 } from 'lucide-react';
+import { useExamOptimization } from '@/hooks/useExamOptimization';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ExamsOptimization() {
-  const optimizationStatus = {
-    active: true,
-    lastRun: "Il y a 5 minutes",
-    nextRun: "Dans 25 minutes",
-    efficiency: 94.2,
-    conflictsResolved: 15,
-    roomOptimization: 87.5
+  const { 
+    algorithms, 
+    optimizationStatus, 
+    loading, 
+    error, 
+    runOptimization, 
+    getOptimizationMetrics, 
+    getRecentOptimizations 
+  } = useExamOptimization();
+  const { toast } = useToast();
+
+  const optimizationMetrics = getOptimizationMetrics();
+  const recentOptimizations = getRecentOptimizations();
+
+  const handleOptimization = async () => {
+    try {
+      // Pour l'exemple, on utilise un ID d'année académique fixe
+      // En production, cela viendrait du contexte/sélection utilisateur
+      const academicYearId = "current"; 
+      await runOptimization(academicYearId);
+      
+      toast({
+        title: "Optimisation lancée",
+        description: "L'algorithme IA optimise votre planning...",
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur d'optimisation",
+        description: "Une erreur est survenue lors de l'optimisation.",
+        variant: "destructive",
+      });
+    }
   };
-
-  const algorithms = [
-    {
-      name: "Algorithme génétique",
-      status: "active",
-      efficiency: 96,
-      description: "Optimisation globale des créneaux",
-      lastUpdate: "2 min"
-    },
-    {
-      name: "Contraintes dynamiques",
-      status: "active", 
-      efficiency: 89,
-      description: "Respect des préférences enseignants",
-      lastUpdate: "1 min"
-    },
-    {
-      name: "Prédiction de charge",
-      status: "learning",
-      efficiency: 78,
-      description: "Apprentissage des patterns",
-      lastUpdate: "30 sec"
-    },
-    {
-      name: "Anti-conflit temps réel",
-      status: "monitoring",
-      efficiency: 99,
-      description: "Surveillance continue",
-      lastUpdate: "temps réel"
-    }
-  ];
-
-  const optimizationMetrics = [
-    { label: "Utilisation salles", current: 87, target: 95, unit: "%" },
-    { label: "Conflits résolus", current: 15, target: 20, unit: "" },
-    { label: "Temps de calcul", current: 2.4, target: 3.0, unit: "min" },
-    { label: "Satisfaction", current: 4.8, target: 5.0, unit: "/5" }
-  ];
-
-  const recentOptimizations = [
-    {
-      time: "14:32",
-      action: "Résolution conflit salle",
-      details: "Amphi A - Maths vs Physique",
-      status: "resolved",
-      impact: "2 examens repositionnés"
-    },
-    {
-      time: "14:15",
-      action: "Optimisation créneaux",
-      details: "Bloc informatique semaine 3",
-      status: "completed",
-      impact: "5% amélioration utilisation"
-    },
-    {
-      time: "13:58",
-      action: "Attribution surveillant",
-      details: "Remplacement automatique",
-      status: "completed",
-      impact: "Continuité assurée"
-    }
-  ];
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -139,9 +104,14 @@ export default function ExamsOptimization() {
                   <Settings className="w-4 h-4 mr-2" />
                   Configurer
                 </Button>
-                <Button size="sm" className="bg-violet-600 hover:bg-violet-700">
+                <Button 
+                  size="sm" 
+                  className="bg-violet-600 hover:bg-violet-700"
+                  onClick={handleOptimization}
+                  disabled={loading}
+                >
                   <Zap className="w-4 h-4 mr-2" />
-                  Optimiser maintenant
+                  {loading ? 'Optimisation...' : 'Optimiser maintenant'}
                 </Button>
               </div>
             </div>
@@ -150,19 +120,31 @@ export default function ExamsOptimization() {
 
         {/* Actions rapides */}
         <div className="flex gap-4">
-          <Button className="bg-green-600 hover:bg-green-700">
+          <Button 
+            className="bg-green-600 hover:bg-green-700"
+            onClick={handleOptimization}
+            disabled={loading}
+          >
             <Play className="w-4 h-4 mr-2" />
-            Démarrer optimisation
+            {loading ? 'Optimisation...' : 'Démarrer optimisation'}
           </Button>
-          <Button variant="outline">
+          <Button variant="outline" disabled={loading}>
             <Pause className="w-4 h-4 mr-2" />
             Pause
           </Button>
-          <Button variant="outline">
+          <Button variant="outline" disabled={loading}>
             <RotateCcw className="w-4 h-4 mr-2" />
             Réinitialiser
           </Button>
         </div>
+
+        {/* Message d'erreur */}
+        {error && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
         {/* Métriques de performance */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

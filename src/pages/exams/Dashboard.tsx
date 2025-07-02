@@ -18,34 +18,39 @@ import {
   Target,
   Eye,
   Edit,
-  MoreHorizontal
+  MoreHorizontal,
+  RefreshCw
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useExamsData } from '@/hooks/useExamsData';
+import { ConflictsList } from '@/components/exams/ConflictsList';
 
 export default function ExamsDashboard() {
+  const { stats, loading, error, refreshStats, conflicts } = useExamsData();
+
   const examStats = [
     {
       label: "Examens planifiés",
-      value: "127",
-      change: "+15",
+      value: stats.scheduledExams.toString(),
+      change: `+${Math.round((stats.scheduledExams / Math.max(stats.totalExams, 1)) * 100)}%`,
       changeType: "positive" as const,
       icon: Calendar,
-      trend: [65, 78, 82, 94, 127],
+      trend: [65, 78, 82, 94, stats.scheduledExams],
       color: "violet"
     },
     {
       label: "Conflits détectés",
-      value: "3",
-      change: "-85%",
-      changeType: "positive" as const,
+      value: stats.conflictsCount.toString(),
+      change: stats.conflictsCount === 0 ? "Aucun" : "-85%",
+      changeType: stats.conflictsCount === 0 ? "positive" : "negative" as const,
       icon: AlertTriangle,
-      trend: [20, 15, 8, 5, 3],
+      trend: [20, 15, 8, 5, stats.conflictsCount],
       color: "orange"
     },
     {
       label: "Salles utilisées",
-      value: "45/67",
-      change: "+12%",
+      value: `${stats.roomsUsed}/${stats.totalRooms}`,
+      change: `+${Math.round((stats.roomsUsed / Math.max(stats.totalRooms, 1)) * 100)}%`,
       changeType: "positive" as const,
       icon: Building,
       trend: [35, 38, 40, 43, 45],
@@ -163,6 +168,10 @@ export default function ExamsDashboard() {
             </Button>
           </div>
           <div className="flex gap-2">
+            <Button variant="outline" onClick={refreshStats} disabled={loading}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              {loading ? 'Actualisation...' : 'Actualiser'}
+            </Button>
             <Button variant="ghost" size="sm">
               <Activity className="w-4 h-4" />
             </Button>
@@ -188,24 +197,24 @@ export default function ExamsDashboard() {
                     </div>
                   </div>
                   {getIcon(stat.icon, stat.color)}
-                </div>
-                {/* Mini graphique de tendance */}
-                <div className="mt-4 h-8 flex items-end gap-1">
-                  {stat.trend.map((value, i) => (
-                    <div 
-                      key={i}
-                      className={`flex-1 rounded-sm opacity-60 group-hover:opacity-100 transition-opacity ${
-                        stat.color === 'violet' ? 'bg-violet-500' :
-                        stat.color === 'orange' ? 'bg-orange-500' :
-                        stat.color === 'blue' ? 'bg-blue-500' :
-                        'bg-emerald-500'
-                      }`}
-                      style={{ height: `${(value / Math.max(...stat.trend)) * 100}%` }}
-                    />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                 </div>
+                 {/* Mini graphique de tendance */}
+                 <div className="mt-4 h-8 flex items-end gap-1">
+                   {stat.trend.map((value, i) => (
+                     <div 
+                       key={i}
+                       className={`flex-1 rounded-sm opacity-60 group-hover:opacity-100 transition-opacity ${
+                         stat.color === 'violet' ? 'bg-violet-500' :
+                         stat.color === 'orange' ? 'bg-orange-500' :
+                         stat.color === 'blue' ? 'bg-blue-500' :
+                         'bg-emerald-500'
+                       }`}
+                       style={{ height: `${(value / Math.max(...stat.trend)) * 100}%` }}
+                     />
+                   ))}
+                 </div>
+               </CardContent>
+             </Card>
           ))}
         </div>
 
@@ -312,6 +321,9 @@ export default function ExamsDashboard() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Conflits détectés */}
+        <ConflictsList />
       </div>
     </ExamsModuleLayout>
   );
