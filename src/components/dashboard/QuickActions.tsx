@@ -53,24 +53,24 @@ export function QuickActions() {
         {quickActions.map((action, index) => (
           <Card 
             key={index} 
-            className="bg-white/15 border-white/25 backdrop-blur-md hover:bg-white/20 hover:scale-[1.02] transition-all duration-300 cursor-pointer group shadow-lg hover:shadow-xl"
+            className="bg-white/10 border-white/20 backdrop-blur-sm hover:bg-white/15 transition-all duration-200 cursor-pointer group"
           >
-            <CardContent className="p-5">
-              <div className="flex items-start justify-between mb-3">
-                <div className={`p-2.5 rounded-lg ${action.color} shadow-md`}>
-                  <action.icon className="w-5 h-5 text-white" />
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className={`p-3 rounded-lg ${action.color}`}>
+                  <action.icon className="w-6 h-6 text-white" />
                 </div>
-                <ArrowRight className="w-4 h-4 text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all duration-200" />
+                <ArrowRight className="w-5 h-5 text-white/50 group-hover:text-white transition-colors" />
               </div>
               
-              <h3 className="text-white font-semibold text-sm mb-1.5">{action.title}</h3>
-              <p className="text-blue-100 text-xs mb-2">{action.description}</p>
-              <p className="text-blue-200 text-xs font-medium">{action.stats}</p>
+              <h3 className="text-white font-semibold mb-2">{action.title}</h3>
+              <p className="text-blue-100 text-sm mb-3">{action.description}</p>
+              <p className="text-blue-200 text-xs">{action.stats}</p>
               
               <Button 
                 variant="secondary" 
                 size="sm" 
-                className="w-full mt-3 bg-white/25 border-white/40 text-white hover:bg-white/35 text-xs font-medium"
+                className="w-full mt-4 bg-white/20 border-white/30 text-white hover:bg-white/30"
               >
                 Accéder
               </Button>

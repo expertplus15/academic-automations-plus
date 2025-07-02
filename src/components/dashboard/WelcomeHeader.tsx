@@ -39,42 +39,42 @@ export function WelcomeHeader() {
 
       {/* Cartes de statut */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-white/15 border-white/25 backdrop-blur-md shadow-lg hover:shadow-xl transition-all duration-200">
+        <Card className="bg-white/10 border-white/20 backdrop-blur-sm">
           <CardContent className="p-4">
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-blue-100 text-sm font-medium">Modules Actifs</p>
+                <p className="text-blue-100 text-sm">Modules Actifs</p>
                 <p className="text-white text-2xl font-bold">11</p>
               </div>
-              <Badge className="bg-green-500/25 text-green-100 border-green-400/40 shadow-sm">
+              <Badge className="bg-green-500/20 text-green-100 border-green-400/30">
                 Actif
               </Badge>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white/15 border-white/25 backdrop-blur-md shadow-lg hover:shadow-xl transition-all duration-200">
+        <Card className="bg-white/10 border-white/20 backdrop-blur-sm">
           <CardContent className="p-4">
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-blue-100 text-sm font-medium">Système</p>
+                <p className="text-blue-100 text-sm">Système</p>
                 <p className="text-white text-2xl font-bold">Actif</p>
               </div>
-              <Badge className="bg-green-500/25 text-green-100 border-green-400/40 shadow-sm">
+              <Badge className="bg-green-500/20 text-green-100 border-green-400/30">
                 En ligne
               </Badge>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-white/15 border-white/25 backdrop-blur-md shadow-lg hover:shadow-xl transition-all duration-200">
+        <Card className="bg-white/10 border-white/20 backdrop-blur-sm">
           <CardContent className="p-4">
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-blue-100 text-sm font-medium">Année Académique</p>
+                <p className="text-blue-100 text-sm">Année Académique</p>
                 <p className="text-white text-xl font-bold">2024-25</p>
               </div>
-              <Badge className="bg-blue-500/25 text-blue-100 border-blue-400/40 shadow-sm">
+              <Badge className="bg-blue-500/20 text-blue-100 border-blue-400/30">
                 Actuelle
               </Badge>
             </div>
