@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { InvoiceForm } from '@/components/finance/InvoiceForm';
+import { FreeInvoiceForm } from '@/components/finance/FreeInvoiceForm';
 import { useFinanceData } from '@/hooks/useFinanceData';
 import { 
   Search, 
@@ -23,6 +24,7 @@ import {
 export default function Billing() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
+  const [showFreeInvoiceForm, setShowFreeInvoiceForm] = useState(false);
   const { fetchInvoices } = useFinanceData();
 
   const invoices = [
@@ -148,6 +150,12 @@ export default function Billing() {
           onSuccess={fetchInvoices}
         />
 
+        <FreeInvoiceForm 
+          open={showFreeInvoiceForm} 
+          onOpenChange={setShowFreeInvoiceForm}
+          onSuccess={fetchInvoices}
+        />
+
         {/* Filtres et recherche */}
         <Card className="bg-white rounded-2xl shadow-sm border-0">
           <CardContent className="p-6">
@@ -253,8 +261,15 @@ export default function Billing() {
             <CardTitle>Actions en lot</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Button className="gap-2 bg-[rgb(245,158,11)] hover:bg-[rgb(245,158,11)]/90">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Button 
+                onClick={() => setShowFreeInvoiceForm(true)}
+                className="gap-2 bg-[rgb(245,158,11)] hover:bg-[rgb(245,158,11)]/90"
+              >
+                <FileText className="w-4 h-4" />
+                Facture libre
+              </Button>
+              <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
                 <Send className="w-4 h-4" />
                 Envoyer relances
               </Button>

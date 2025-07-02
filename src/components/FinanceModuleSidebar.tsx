@@ -13,7 +13,8 @@ import {
   TrendingUp,
   Calculator,
   Award,
-  Calendar
+  Calendar,
+  ArrowLeft
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -96,6 +97,15 @@ export function FinanceModuleSidebar() {
 
   return (
     <div className="w-64 bg-black text-white border-r border-gray-800 p-4 space-y-6 overflow-y-auto">
+      {/* Bouton retour */}
+      <Link
+        to="/dashboard"
+        className="flex items-center gap-2 p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors mb-4"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span className="text-sm">Retour au tableau de bord</span>
+      </Link>
+
       {/* Header du module */}
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 bg-[rgb(245,158,11)] rounded-lg">

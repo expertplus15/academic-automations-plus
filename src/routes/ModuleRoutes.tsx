@@ -19,6 +19,9 @@ import FinanceInvoices from '@/pages/finance/Invoices';
 import FinancePayments from '@/pages/finance/Payments';
 import FinancePaymentMethods from '@/pages/finance/PaymentMethods';
 import FinanceFiscalYears from '@/pages/finance/FiscalYears';
+import FinanceTemplates from '@/pages/finance/Templates';
+import FinanceSchedules from '@/pages/finance/Schedules';
+import FinanceAllPayments from '@/pages/finance/AllPayments';
 
 // Academic module pages
 import Academic from '@/pages/Academic';
@@ -44,6 +47,9 @@ export function ModuleRoutes() {
       <Route path="/finance/payments" element={<FinancePayments />} />
       <Route path="/finance/payment-methods" element={<FinancePaymentMethods />} />
       <Route path="/finance/fiscal-years" element={<FinanceFiscalYears />} />
+      <Route path="/finance/templates" element={<FinanceTemplates />} />
+      <Route path="/finance/schedules" element={<FinanceSchedules />} />
+      <Route path="/finance/all-payments" element={<FinanceAllPayments />} />
 
       {/* Students Module Routes - All using ModuleLayout */}
       <Route path="/students" element={<Students />} />
