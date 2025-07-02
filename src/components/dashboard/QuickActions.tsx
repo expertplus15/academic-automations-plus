@@ -48,10 +48,10 @@ export function QuickActions() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-semibold text-white">Actions Académiques Rapides</h2>
+        <h2 className="text-2xl font-semibold text-foreground">Actions Académiques Rapides</h2>
         <Button 
           variant="ghost" 
-          className="text-white/80 hover:text-white hover:bg-white/10 rounded-xl"
+          className="text-[#64748B] hover:text-foreground hover:bg-white/20 rounded-xl"
         >
           Module Principal →
         </Button>

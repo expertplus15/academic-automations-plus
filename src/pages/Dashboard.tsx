@@ -9,7 +9,7 @@ import { RecentActivity } from '@/components/dashboard/RecentActivity';
 export default function Dashboard() {
   return (
     <MainDashboardLayout>
-      <div className="min-h-screen bg-gradient-to-br from-[#4F78FF] to-[#8B5CF6] p-6">
+      <div className="min-h-screen bg-[#F8FAFC] p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header avec salutation et cartes de statut */}
           <WelcomeHeader />

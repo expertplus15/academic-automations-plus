@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   GraduationCap, 
@@ -103,34 +102,32 @@ export function ModulesGrid() {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
       {modules.map((module, index) => (
-        <Card 
+        <div 
           key={index}
-          className="bg-white rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border-0 hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] transition-all duration-200 cursor-pointer group relative"
+          className="flex flex-col items-center cursor-pointer group relative"
           onClick={module.onClick}
         >
-          <CardContent className="p-6 text-center">
-            {/* Badge de notification */}
-            {module.notifications > 0 && (
-              <Badge 
-                className="absolute -top-2 -right-2 bg-[#EF4444] text-white border-0 text-xs min-w-[20px] h-5 flex items-center justify-center rounded-full shadow-sm"
-              >
-                {module.notifications}
-              </Badge>
-            )}
-            
-            {/* Icône */}
-            <div className={`w-12 h-12 mx-auto mb-4 rounded-2xl ${module.color} flex items-center justify-center shadow-sm`}>
-              <module.icon className="w-6 h-6 text-white" />
-            </div>
-            
-            {/* Titre */}
-            <h3 className="text-foreground font-semibold text-sm group-hover:text-[#4F78FF] transition-colors">
-              {module.title}
-            </h3>
-          </CardContent>
-        </Card>
+          {/* Badge de notification */}
+          {module.notifications > 0 && (
+            <Badge 
+              className="absolute -top-2 -right-2 bg-[#EF4444] text-white border-0 text-xs min-w-[20px] h-5 flex items-center justify-center rounded-full shadow-sm z-10"
+            >
+              {module.notifications}
+            </Badge>
+          )}
+          
+          {/* Icône */}
+          <div className={`w-20 h-20 mb-4 rounded-3xl ${module.color} flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 group-hover:scale-105`}>
+            <module.icon className="w-10 h-10 text-white" />
+          </div>
+          
+          {/* Titre */}
+          <h3 className="text-foreground font-semibold text-sm text-center group-hover:text-[#4F78FF] transition-colors">
+            {module.title}
+          </h3>
+        </div>
       ))}
     </div>
   );

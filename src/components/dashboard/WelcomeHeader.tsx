@@ -17,13 +17,13 @@ export function WelcomeHeader() {
       {/* Header avec salutation */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-4xl font-bold text-white mb-2">
+          <h1 className="text-4xl font-bold text-foreground mb-2">
             {greeting}, Administrateur
           </h1>
-          <p className="text-blue-100 text-lg">
+          <p className="text-[#64748B] text-lg">
             Bienvenue sur votre tableau de bord de gestion académique
           </p>
-          <div className="flex items-center gap-2 mt-2 text-blue-200">
+          <div className="flex items-center gap-2 mt-2 text-[#64748B]">
             <Clock className="w-4 h-4" />
             <span className="text-sm">{currentTime}</span>
           </div>
