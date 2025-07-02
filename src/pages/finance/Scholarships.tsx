@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useScholarships } from '@/hooks/finance/useScholarships';
 import { ModuleLayout } from '@/components/layouts/ModuleLayout';
 import { FinanceModuleSidebar } from '@/components/FinanceModuleSidebar';
 import { FinancePageHeader } from '@/components/FinancePageHeader';
@@ -18,66 +19,31 @@ import {
 
 export default function Scholarships() {
   const [searchTerm, setSearchTerm] = useState('');
-
-  const scholarships = [
-    {
-      id: '1',
-      name: 'Bourse d\'excellence académique',
-      code: 'BEA2024',
-      type: 'merit',
-      amount: 5000,
-      maxRecipients: 10,
-      currentRecipients: 7,
-      applicationDeadline: '2024-03-15',
-      status: 'active'
-    },
-    {
-      id: '2',
-      name: 'Aide sociale étudiante',
-      code: 'ASE2024',
-      type: 'need-based',
-      amount: 2500,
-      maxRecipients: 25,
-      currentRecipients: 18,
-      applicationDeadline: '2024-04-01',
-      status: 'active'
-    },
-    {
-      id: '3',
-      name: 'Bourse recherche et innovation',
-      code: 'BRI2024',
-      type: 'research',
-      amount: 7500,
-      maxRecipients: 5,
-      currentRecipients: 3,
-      applicationDeadline: '2024-02-28',
-      status: 'active'
-    }
-  ];
+  const { scholarships, loading } = useScholarships();
 
   const stats = [
     {
       label: "Bourses actives",
-      value: scholarships.filter(s => s.status === 'active').length.toString(),
+      value: scholarships.filter(s => s.is_active).length.toString(),
       change: "+2",
       changeType: "positive" as const
     },
     {
       label: "Budget total alloué",
-      value: `€${scholarships.reduce((sum, s) => sum + (s.amount * s.maxRecipients), 0).toLocaleString()}`,
+      value: `€${scholarships.reduce((sum, s) => sum + (s.amount * (s.max_recipients || 0)), 0).toLocaleString()}`,
       change: "+15%",
       changeType: "positive" as const
     },
     {
-      label: "Bénéficiaires actuels",
-      value: scholarships.reduce((sum, s) => sum + s.currentRecipients, 0).toString(),
+      label: "Bénéficiaires max",
+      value: scholarships.reduce((sum, s) => sum + (s.max_recipients || 0), 0).toString(),
       change: "+12",
       changeType: "positive" as const
     },
     {
-      label: "Taux d'attribution",
-      value: "72%",
-      change: "+5%",
+      label: "Types de bourses",
+      value: new Set(scholarships.map(s => s.scholarship_type)).size.toString(),
+      change: "+1",
       changeType: "positive" as const
     }
   ];
@@ -85,7 +51,7 @@ export default function Scholarships() {
   const getTypeLabel = (type: string) => {
     const labels = {
       merit: "Mérite",
-      "need-based": "Sociale",
+      "need-based": "Sociale", 
       research: "Recherche",
       sports: "Sportive"
     };
@@ -175,8 +141,8 @@ export default function Scholarships() {
                         <Badge variant="outline" className="text-xs">
                           {scholarship.code}
                         </Badge>
-                        <Badge className={getTypeBadge(scholarship.type)}>
-                          {getTypeLabel(scholarship.type)}
+                        <Badge className={getTypeBadge(scholarship.scholarship_type)}>
+                          {getTypeLabel(scholarship.scholarship_type)}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -186,19 +152,23 @@ export default function Scholarships() {
                         </span>
                         <span className="flex items-center gap-1">
                           <Users className="w-3 h-3" />
-                          {scholarship.currentRecipients}/{scholarship.maxRecipients} bénéficiaires
+                          Max: {scholarship.max_recipients || 'Illimité'} bénéficiaires
                         </span>
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          Échéance: {new Date(scholarship.applicationDeadline).toLocaleDateString('fr-FR')}
-                        </span>
+                        {scholarship.application_deadline && (
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            Échéance: {new Date(scholarship.application_deadline).toLocaleDateString('fr-FR')}
+                          </span>
+                        )}
                       </div>
-                      <div className="w-48 bg-muted rounded-full h-2 mt-2">
-                        <div 
-                          className="bg-[rgb(245,158,11)] h-2 rounded-full" 
-                          style={{ width: `${(scholarship.currentRecipients / scholarship.maxRecipients) * 100}%` }}
-                        ></div>
-                      </div>
+                      {scholarship.max_recipients && (
+                        <div className="w-48 bg-muted rounded-full h-2 mt-2">
+                          <div 
+                            className="bg-[rgb(245,158,11)] h-2 rounded-full" 
+                            style={{ width: `50%` }}
+                          ></div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
