@@ -10,6 +10,13 @@ import StudentsAlerts from '@/pages/students/Alerts';
 import StudentsDocuments from '@/pages/students/Documents';
 import StudentsCommunication from '@/pages/students/Communication';
 
+// Students registration sub-module pages
+import StudentsRegistrationDashboard from '@/pages/students/registration/Dashboard';
+import StudentsRegistrationAnalytics from '@/pages/students/registration/Analytics';
+import StudentsRegistrationApproval from '@/pages/students/registration/Approval';
+import StudentsRegistrationInterviews from '@/pages/students/registration/Interviews';
+import StudentsRegistrationSettings from '@/pages/students/registration/Settings';
+
 // Finance module pages
 import Finance from '@/pages/Finance';
 import FinanceDashboard from '@/pages/finance/Dashboard';
@@ -100,7 +107,7 @@ export function ModuleRoutes() {
       <Route path="/finance/tax-settings" element={<FinanceTaxSettings />} />
       <Route path="/finance/reconciliation" element={<FinanceReconciliation />} />
 
-      {/* Students Module Routes - All using ModuleLayout */}
+      {/* Students Module Routes - All using StudentsModuleLayout */}
       <Route path="/students" element={<Students />} />
       <Route path="/students/registration" element={<StudentsRegistration />} />
       <Route path="/students/profiles" element={<StudentsProfiles />} />
@@ -108,6 +115,13 @@ export function ModuleRoutes() {
       <Route path="/students/alerts" element={<StudentsAlerts />} />
       <Route path="/students/documents" element={<StudentsDocuments />} />
       <Route path="/students/communication" element={<StudentsCommunication />} />
+      
+      {/* Registration sub-module routes */}
+      <Route path="/students/registration/dashboard" element={<StudentsRegistrationDashboard />} />
+      <Route path="/students/registration/analytics" element={<StudentsRegistrationAnalytics />} />
+      <Route path="/students/registration/approval" element={<StudentsRegistrationApproval />} />
+      <Route path="/students/registration/interviews" element={<StudentsRegistrationInterviews />} />
+      <Route path="/students/registration/settings" element={<StudentsRegistrationSettings />} />
 
       {/* Academic Module Routes - All using AcademicModuleLayout */}
       <Route path="/academic" element={<Academic />} />

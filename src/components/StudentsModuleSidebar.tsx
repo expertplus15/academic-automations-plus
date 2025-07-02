@@ -33,7 +33,12 @@ const studentsSections = [
     icon: Zap,
     defaultOpen: true,
     items: [
-      { title: "Inscription automatisée", url: "/students/registration", icon: UserPlus, description: "< 30 secondes" }
+      { title: "Inscription automatisée", url: "/students/registration", icon: UserPlus, description: "< 30 secondes" },
+      { title: "Tableau de bord", url: "/students/registration/dashboard", icon: BarChart3, description: "Vue d'ensemble" },
+      { title: "Analyses", url: "/students/registration/analytics", icon: BarChart3, description: "Statistiques" },
+      { title: "Approbations", url: "/students/registration/approval", icon: AlertCircle, description: "Validations" },
+      { title: "Entretiens", url: "/students/registration/interviews", icon: Mail, description: "Planification" },
+      { title: "Configuration", url: "/students/registration/settings", icon: AlertCircle, description: "Paramètres" }
     ]
   },
   {
