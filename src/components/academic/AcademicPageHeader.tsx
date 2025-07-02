@@ -1,11 +1,75 @@
-import React, { useState } from 'react';
-import { GraduationCap, Bell, User, ChevronDown, ArrowLeft, Eye, BarChart3 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { GraduationCap, Bell, User, ChevronDown, ArrowLeft, Eye, BarChart3, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/contexts/AuthContext';
+import { useAcademicYears } from '@/hooks/useAcademicYears';
+import { useNavigate } from 'react-router-dom';
 
 export function AcademicPageHeader() {
-  const [selectedYear, setSelectedYear] = useState("2024-2025");
+  const { user, profile, signOut } = useAuth();
+  const { academicYears, currentYear } = useAcademicYears();
+  const navigate = useNavigate();
+  const [selectedYear, setSelectedYear] = useState<string>("");
+
+  // Initialize with current academic year
+  useEffect(() => {
+    if (currentYear) {
+      setSelectedYear(currentYear.name);
+    } else if (academicYears.length > 0) {
+      setSelectedYear(academicYears[0].name);
+    }
+  }, [currentYear, academicYears]);
+
+  // Persist academic year selection
+  useEffect(() => {
+    if (selectedYear) {
+      localStorage.setItem('selectedAcademicYear', selectedYear);
+    }
+  }, [selectedYear]);
+
+  // Load persisted academic year
+  useEffect(() => {
+    const savedYear = localStorage.getItem('selectedAcademicYear');
+    if (savedYear && academicYears.some(year => year.name === savedYear)) {
+      setSelectedYear(savedYear);
+    }
+  }, [academicYears]);
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/login');
+    } catch (error) {
+      console.error('Erreur de déconnexion:', error);
+    }
+  };
+
+  const getRoleDisplay = (role?: string) => {
+    if (!role) return 'Utilisateur ExpertPlus';
+    
+    const roleMap: Record<string, string> = {
+      'admin': 'Administrateur Expert',
+      'teacher': 'Enseignant Expert', 
+      'student': 'Étudiant Expert',
+      'hr': 'RH Expert',
+      'finance': 'Finance Expert'
+    };
+    
+    return roleMap[role] || `${role} ExpertPlus`;
+  };
+
+  const getUserInitials = () => {
+    if (profile?.full_name) {
+      return profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.substring(0, 2).toUpperCase();
+    }
+    return 'EX';
+  };
   
   return (
     <header className="h-16 bg-card border-b border-border flex items-center justify-between px-6">
@@ -26,22 +90,30 @@ export function AcademicPageHeader() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="h-auto p-1 text-sm font-medium">
-              {selectedYear} <ChevronDown className="w-4 h-4 ml-1" />
+              {selectedYear || 'Sélectionner...'} <ChevronDown className="w-4 h-4 ml-1" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-background border border-border">
-            <DropdownMenuItem 
-              onClick={() => setSelectedYear("2024-2025")}
-              className="cursor-pointer hover:bg-muted"
-            >
-              2024-2025
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => setSelectedYear("2025-2026")}
-              className="cursor-pointer hover:bg-muted"
-            >
-              2025-2026
-            </DropdownMenuItem>
+            {academicYears.length > 0 ? (
+              academicYears.map((year) => (
+                <DropdownMenuItem 
+                  key={year.id}
+                  onClick={() => setSelectedYear(year.name)}
+                  className="cursor-pointer hover:bg-muted"
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span>{year.name}</span>
+                    {year.is_current && (
+                      <Badge variant="secondary" className="text-xs ml-2">Actuelle</Badge>
+                    )}
+                  </div>
+                </DropdownMenuItem>
+              ))
+            ) : (
+              <DropdownMenuItem disabled>
+                Aucune année académique disponible
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -50,41 +122,111 @@ export function AcademicPageHeader() {
       <div className="flex items-center gap-4">
         {/* Navigation buttons */}
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => navigate('/dashboard')}
+            className="hover:bg-muted transition-colors"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour
           </Button>
-          <Button variant="ghost" size="sm">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="hover:bg-muted transition-colors"
+          >
             <Eye className="w-4 h-4 mr-2" />
             Vue
           </Button>
-          <Button variant="ghost" size="sm">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="hover:bg-muted transition-colors"
+          >
             <BarChart3 className="w-4 h-4 mr-2" />
-            Stats
+            Analytics
           </Button>
         </div>
 
         {/* Notifications */}
-        <div className="relative">
-          <Button variant="ghost" size="sm" className="relative">
-            <Bell className="w-5 h-5" />
-            <Badge className="absolute -top-1 -right-1 h-5 w-5 text-xs bg-destructive text-destructive-foreground p-0 flex items-center justify-center">
-              3
-            </Badge>
-          </Button>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="relative hover:bg-muted transition-colors">
+              <Bell className="w-5 h-5" />
+              <Badge className="absolute -top-1 -right-1 h-5 w-5 text-xs bg-destructive text-destructive-foreground p-0 flex items-center justify-center">
+                3
+              </Badge>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-80 bg-background border border-border">
+            <DropdownMenuLabel>Notifications académiques</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="p-3 hover:bg-muted transition-colors">
+              <div className="flex flex-col gap-1">
+                <p className="text-sm font-medium">Conflit d'emploi du temps détecté</p>
+                <p className="text-xs text-muted-foreground">Salle 101 - Mathématiques et Physique</p>
+                <p className="text-xs text-muted-foreground">Il y a 5 min</p>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="p-3 hover:bg-muted transition-colors">
+              <div className="flex flex-col gap-1">
+                <p className="text-sm font-medium">Nouvelle matière ajoutée</p>
+                <p className="text-xs text-muted-foreground">Algorithmique Avancée - L3 Informatique</p>
+                <p className="text-xs text-muted-foreground">Il y a 1h</p>
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-        {/* User profile */}
-        <div className="flex items-center gap-2">
-          <div className="flex flex-col text-right mr-2">
-            <span className="text-sm font-medium text-foreground">Dr. Jean Dupont</span>
-            <span className="text-xs text-muted-foreground">Administrateur</span>
-          </div>
-          <div className="w-8 h-8 bg-academic rounded-full flex items-center justify-center">
-            <span className="text-sm font-medium text-white">JD</span>
-          </div>
-          <ChevronDown className="w-4 h-4 text-muted-foreground" />
-        </div>
+        {/* User profile menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="flex items-center gap-3 p-2 hover:bg-muted transition-colors rounded-lg">
+              <div className="flex flex-col text-right mr-1">
+                <span className="text-sm font-medium text-foreground">
+                  {profile?.full_name || user?.email || 'Utilisateur ExpertPlus'}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {getRoleDisplay(profile?.role)}
+                </span>
+              </div>
+              <Avatar className="w-8 h-8">
+                <AvatarImage src={profile?.avatar_url} alt={profile?.full_name || user?.email} />
+                <AvatarFallback className="bg-academic text-white text-sm">
+                  {getUserInitials()}
+                </AvatarFallback>
+              </Avatar>
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 bg-background border border-border">
+            <DropdownMenuLabel>Mon profil ExpertPlus</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              onClick={() => navigate('/profile')} 
+              className="hover:bg-muted transition-colors"
+            >
+              <User className="mr-2 h-4 w-4" />
+              Profil
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => navigate('/settings')} 
+              className="hover:bg-muted transition-colors"
+            >
+              <Settings className="mr-2 h-4 w-4" />
+              Paramètres
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem 
+              onClick={handleLogout} 
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Déconnexion
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );
