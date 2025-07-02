@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ExamsPageHeader } from "@/components/ExamsPageHeader";
+import { ExamsModuleLayout } from "@/components/layouts/ExamsModuleLayout";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -77,12 +77,10 @@ export default function Supervisors() {
   }).slice(0, 10);
 
   return (
-    <div className="min-h-screen bg-background">
-      <ExamsPageHeader 
-        title="Attribution surveillants" 
-        subtitle="Attribution automatique des surveillants" 
-      />
-      
+    <ExamsModuleLayout 
+      title="Attribution surveillants" 
+      subtitle="Attribution automatique des surveillants"
+    >
       <div className="p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Métriques */}
@@ -321,6 +319,6 @@ export default function Supervisors() {
           </Tabs>
         </div>
       </div>
-    </div>
+    </ExamsModuleLayout>
   );
 }

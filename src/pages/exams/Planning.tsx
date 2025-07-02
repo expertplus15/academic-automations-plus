@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ExamsPageHeader } from "@/components/ExamsPageHeader";
+import { ExamsModuleLayout } from "@/components/layouts/ExamsModuleLayout";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -86,12 +86,10 @@ export default function Planning() {
   const draftExams = exams.filter(e => e.status === 'draft').length;
 
   return (
-    <div className="min-h-screen bg-background">
-      <ExamsPageHeader 
-        title="Planification Examens IA" 
-        subtitle="Système intelligent anti-conflits pour la planification automatique" 
-      />
-      
+    <ExamsModuleLayout 
+      title="Planification Examens IA" 
+      subtitle="Système intelligent anti-conflits pour la planification automatique"
+    >
       <div className="p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Dashboard de métriques */}
@@ -285,6 +283,6 @@ export default function Planning() {
           </Tabs>
         </div>
       </div>
-    </div>
+    </ExamsModuleLayout>
   );
 }
