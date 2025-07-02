@@ -19,11 +19,14 @@ import {
   Users
 } from "lucide-react";
 import { useStudentsData } from "@/hooks/useStudentsData";
+import { StudentProfileDialog } from "./StudentProfileDialog";
 
 export function StudentsProfilesManagement() {
-  const { students, loading } = useStudentsData();
+  const { students, loading, refetch } = useStudentsData();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
+  const [selectedStudent, setSelectedStudent] = useState<any>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const filteredStudents = students.filter(student => {
     const matchesSearch = student.profiles.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -205,10 +208,24 @@ export function StudentsProfilesManagement() {
                 </div>
                 
                 <div className="flex gap-2">
-                  <Button variant="ghost" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => {
+                      setSelectedStudent(student);
+                      setDialogOpen(true);
+                    }}
+                  >
                     <Eye className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => {
+                      setSelectedStudent(student);
+                      setDialogOpen(true);
+                    }}
+                  >
                     <Edit className="w-4 h-4" />
                   </Button>
                 </div>
@@ -223,6 +240,16 @@ export function StudentsProfilesManagement() {
           )}
         </CardContent>
       </Card>
+
+      <StudentProfileDialog
+        student={selectedStudent}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onStudentUpdated={() => {
+          refetch();
+          setDialogOpen(false);
+        }}
+      />
     </div>
   );
 }
