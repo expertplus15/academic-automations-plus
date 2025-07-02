@@ -1,6 +1,6 @@
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AcademicModuleLayout } from '@/components/layouts/AcademicModuleLayout';
-import { AcademicDashboard } from '@/components/academic/AcademicDashboard';
+import { AcademicDashboardNew } from '@/components/dashboard/AcademicDashboardNew';
 
 export default function Academic() {
   return (
@@ -10,7 +10,9 @@ export default function Academic() {
         subtitle="Tableau de bord principal et gestion des programmes"
         showHeader={true}
       >
-        <AcademicDashboard />
+        <div className="p-6">
+          <AcademicDashboardNew />
+        </div>
       </AcademicModuleLayout>
     </ProtectedRoute>
   );
