@@ -5,6 +5,7 @@ import { TimetableHeader } from './timetable/TimetableHeader';
 import { ConflictAlert } from './timetable/ConflictAlert';
 import { TimetableGrid } from './timetable/TimetableGrid';
 import { useTimetableDragDrop } from './timetable/useTimetableDragDrop';
+import { useAcademicYearContext } from '@/contexts/AcademicYearContext';
 
 interface InteractiveTimetableGridProps {
   programId?: string;
@@ -19,7 +20,9 @@ const TIME_SLOTS = [
 ];
 
 export function InteractiveTimetableGrid({ programId, academicYearId }: InteractiveTimetableGridProps) {
-  const { timetables, loading, updateTimetable, deleteTimetable, createTimetable } = useTimetables(programId, academicYearId);
+  const { selectedAcademicYear } = useAcademicYearContext();
+  const currentAcademicYearId = academicYearId || selectedAcademicYear?.id;
+  const { timetables, loading, updateTimetable, deleteTimetable, createTimetable } = useTimetables(programId, currentAcademicYearId);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingSlot, setEditingSlot] = useState<Timetable | null>(null);
   const [newSlotPosition, setNewSlotPosition] = useState<{ day: number; start: string; end: string } | null>(null);
@@ -79,7 +82,7 @@ export function InteractiveTimetableGrid({ programId, academicYearId }: Interact
         await createTimetable({
           ...data,
           program_id: programId,
-          academic_year_id: academicYearId
+          academic_year_id: currentAcademicYearId
         });
       }
       setModalOpen(false);
@@ -129,7 +132,7 @@ export function InteractiveTimetableGrid({ programId, academicYearId }: Interact
         slot={editingSlot}
         timeSlot={newSlotPosition}
         programId={programId}
-        academicYearId={academicYearId}
+        academicYearId={currentAcademicYearId}
       />
     </div>
   );

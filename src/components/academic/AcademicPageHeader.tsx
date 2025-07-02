@@ -1,42 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { GraduationCap, Bell, User, ChevronDown, LogOut, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
-import { useAcademicYears } from '@/hooks/useAcademicYears';
+import { useAcademicYearContext } from '@/contexts/AcademicYearContext';
 import { useNavigate } from 'react-router-dom';
 
 export function AcademicPageHeader() {
   const { user, profile, signOut } = useAuth();
-  const { academicYears, currentYear } = useAcademicYears();
+  const { selectedAcademicYear, setSelectedAcademicYear, academicYears } = useAcademicYearContext();
   const navigate = useNavigate();
-  const [selectedYear, setSelectedYear] = useState<string>("");
-
-  // Initialize with current academic year
-  useEffect(() => {
-    if (currentYear) {
-      setSelectedYear(currentYear.name);
-    } else if (academicYears.length > 0) {
-      setSelectedYear(academicYears[0].name);
-    }
-  }, [currentYear, academicYears]);
-
-  // Persist academic year selection
-  useEffect(() => {
-    if (selectedYear) {
-      localStorage.setItem('selectedAcademicYear', selectedYear);
-    }
-  }, [selectedYear]);
-
-  // Load persisted academic year
-  useEffect(() => {
-    const savedYear = localStorage.getItem('selectedAcademicYear');
-    if (savedYear && academicYears.some(year => year.name === savedYear)) {
-      setSelectedYear(savedYear);
-    }
-  }, [academicYears]);
 
   const handleLogout = async () => {
     try {
@@ -90,7 +65,7 @@ export function AcademicPageHeader() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="h-auto p-1 text-sm font-medium">
-              {selectedYear || 'Sélectionner...'} <ChevronDown className="w-4 h-4 ml-1" />
+              {selectedAcademicYear?.name || 'Sélectionner...'} <ChevronDown className="w-4 h-4 ml-1" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-background border border-border">
@@ -98,7 +73,7 @@ export function AcademicPageHeader() {
               academicYears.map((year) => (
                 <DropdownMenuItem 
                   key={year.id}
-                  onClick={() => setSelectedYear(year.name)}
+                  onClick={() => setSelectedAcademicYear(year)}
                   className="cursor-pointer hover:bg-muted"
                 >
                   <div className="flex items-center justify-between w-full">
