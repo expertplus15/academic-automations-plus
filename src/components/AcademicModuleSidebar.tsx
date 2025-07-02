@@ -31,14 +31,22 @@ import {
 
 const academicSections = [
   {
-    title: "Gestion Pédagogique",
+    title: "Tableau de Bord",
+    icon: LayoutDashboard,
+    defaultOpen: true,
+    items: [
+      { title: "Vue d'ensemble", url: "/academic", icon: LayoutDashboard }
+    ]
+  },
+  {
+    title: "Pédagogie",
     icon: BookOpen,
     defaultOpen: true,
     items: [
       { title: "Programmes", url: "/academic/programs", icon: GraduationCap },
       { title: "Filières", url: "/academic/pathways", icon: School },
       { title: "Matières", url: "/academic/subjects", icon: BookOpen },
-      { title: "Niveaux d'Études", url: "/academic/levels", icon: BarChart3 }
+      { title: "Niveaux", url: "/academic/levels", icon: BarChart3 }
     ]
   },
   {
@@ -54,7 +62,7 @@ const academicSections = [
     icon: Calendar,
     items: [
       { title: "Emploi du Temps", url: "/academic/timetables", icon: Calendar },
-      { title: "Calendrier académique", url: "/academic/calendar", icon: Clock }
+      { title: "Calendrier", url: "/academic/calendar", icon: Clock }
     ]
   },
   {
@@ -81,7 +89,7 @@ export function AcademicModuleSidebar() {
             <GraduationCap className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
-            <h1 className="text-base font-semibold text-sidebar-foreground tracking-tight">Gestion Académique</h1>
+            <h1 className="text-lg font-semibold text-sidebar-foreground tracking-tight">Gestion Académique</h1>
             <p className="text-xs text-sidebar-foreground/60 mt-0.5">Module actif</p>
           </div>
         </div>
@@ -89,27 +97,27 @@ export function AcademicModuleSidebar() {
 
       <SidebarContent className="px-4">
         <div className="pt-4 pb-2">
-          <Link to="/academic" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors w-full">
+          <Link to="/dashboard" className="flex items-center gap-2 px-3 py-3 rounded-lg hover:bg-sidebar-accent transition-colors w-full">
             <ArrowLeft className="w-4 h-4 text-sidebar-foreground" />
-            <span className="text-sm text-sidebar-foreground">Retour</span>
+            <span className="text-base text-sidebar-foreground">Retour au Dashboard</span>
           </Link>
         </div>
         <SidebarGroup className="py-4">
           <SidebarGroupContent>
-            <Accordion type="multiple" defaultValue={["gestion-pedagogique"]} className="w-full space-y-2">
+            <Accordion type="multiple" defaultValue={["tableau-de-bord", "pedagogie"]} className="w-full space-y-3">
               {academicSections.map((section, index) => {
                 const SectionIcon = section.icon;
                 const sectionId = section.title.toLowerCase().replace(/\s+/g, '-').replace(/[àâä]/g, 'a').replace(/[éèêë]/g, 'e');
                 return (
                   <AccordionItem key={index} value={sectionId} className="border-0">
-                    <AccordionTrigger className="py-2 px-3 hover:bg-sidebar-accent rounded-lg text-sm font-medium text-sidebar-foreground hover:no-underline">
+                    <AccordionTrigger className="py-3 px-3 hover:bg-sidebar-accent rounded-lg text-base font-medium text-sidebar-foreground hover:no-underline">
                       <div className="flex items-center gap-3">
-                        <SectionIcon className="w-4 h-4 text-primary" />
+                        <SectionIcon className="w-5 h-5 text-primary" />
                         <span>{section.title}</span>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="pb-0 pt-1">
-                      <SidebarMenu className="space-y-1 ml-4">
+                    <AccordionContent className="pb-0 pt-2">
+                      <SidebarMenu className="space-y-2 ml-4">
                         {section.items.map(item => {
                           const ItemIcon = item.icon;
                           const isActive = location.pathname === item.url;
@@ -119,14 +127,14 @@ export function AcademicModuleSidebar() {
                                 <Link 
                                   to={item.url} 
                                   className={cn(
-                                    "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors relative",
+                                    "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
                                     "text-sidebar-foreground hover:bg-sidebar-accent",
                                     isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                                   )}
                                 >
-                                  {isActive && <div className="absolute left-0 w-1 h-5 bg-primary rounded-r" />}
+                                  {isActive && <div className="absolute left-0 w-1 h-6 bg-primary rounded-r" />}
                                   <ItemIcon className="w-4 h-4 text-primary" />
-                                   <span className="text-sm truncate">{item.title}</span>
+                                   <span className="text-base truncate">{item.title}</span>
                                   {isActive && <div className="w-2 h-2 bg-primary rounded-full" />}
                                 </Link>
                               </SidebarMenuButton>
@@ -149,7 +157,7 @@ export function AcademicModuleSidebar() {
             <User className="w-4 h-4 text-gray-600" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-sidebar-foreground truncate">Administrateur Principal</p>
+            <p className="text-base font-medium text-sidebar-foreground truncate">Administrateur Principal</p>
             <p className="text-xs text-sidebar-foreground/70 truncate">admin</p>
           </div>
         </div>
