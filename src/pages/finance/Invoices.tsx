@@ -6,8 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useFinanceData } from '@/hooks/useFinanceData';
-import { InvoiceForm } from '@/components/finance/InvoiceForm';
+import { EnhancedInvoiceForm } from '@/components/finance/EnhancedInvoiceForm';
+import { FreeInvoiceForm } from '@/components/finance/FreeInvoiceForm';
 import { 
   Search, 
   Filter, 
@@ -18,12 +20,16 @@ import {
   Download,
   Calendar,
   DollarSign,
-  AlertTriangle
+  AlertTriangle,
+  Users,
+  Plus
 } from 'lucide-react';
 
 export default function Invoices() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
+  const [showFreeInvoiceForm, setShowFreeInvoiceForm] = useState(false);
+  const [activeTab, setActiveTab] = useState('all');
   const { invoices, loading, fetchInvoices } = useFinanceData();
 
   const stats = [
@@ -81,10 +87,17 @@ export default function Invoices() {
     );
   };
 
-  const filteredInvoices = invoices.filter(invoice =>
-    invoice.student.profile.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredInvoices = invoices.filter(invoice => {
+    const matchesSearch = invoice.student?.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice.recipient_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    if (activeTab === 'all') return matchesSearch;
+    if (activeTab === 'students') return matchesSearch && invoice.invoice_type === 'student';
+    if (activeTab === 'free') return matchesSearch && invoice.invoice_type === 'free';
+    
+    return matchesSearch;
+  });
 
   if (loading) {
     return (
@@ -96,32 +109,135 @@ export default function Invoices() {
     );
   }
 
+  const invoiceCard = (invoice: any, index: number) => (
+    <div
+      key={index}
+      className="flex items-center justify-between p-4 rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
+    >
+      <div className="flex items-center gap-4">
+        <div className="p-3 bg-[rgb(245,158,11)]/10 rounded-xl">
+          <FileText className="w-5 h-5 text-[rgb(245,158,11)]" />
+        </div>
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <p className="font-semibold text-foreground">{invoice.invoice_number}</p>
+            {getStatusBadge(invoice.status)}
+            {invoice.invoice_type === 'free' && (
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                Libre
+              </Badge>
+            )}
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {invoice.invoice_type === 'student' ? 
+              invoice.student?.profile?.full_name : 
+              invoice.recipient_name
+            }
+          </p>
+          <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+            <span>Émise: {new Date(invoice.issue_date).toLocaleDateString('fr-FR')}</span>
+            <span>Échéance: {new Date(invoice.due_date).toLocaleDateString('fr-FR')}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="text-right space-y-1">
+        <div className="flex items-center gap-2 justify-end">
+          <span className="font-semibold text-foreground text-lg">
+            €{invoice.total_amount.toLocaleString()}
+          </span>
+        </div>
+        {invoice.paid_amount > 0 && (
+          <p className="text-xs text-muted-foreground">
+            Payé: €{invoice.paid_amount.toLocaleString()}
+          </p>
+        )}
+        {invoice.tax_amount > 0 && (
+          <p className="text-xs text-muted-foreground">
+            Dont TVA: €{invoice.tax_amount.toLocaleString()}
+          </p>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Button size="sm" variant="outline" className="gap-1">
+          <Eye className="w-3 h-3" />
+          Voir
+        </Button>
+        <Button size="sm" variant="outline" className="gap-1">
+          <Download className="w-3 h-3" />
+          PDF
+        </Button>
+        {invoice.status === 'draft' && (
+          <>
+            <Button size="sm" variant="outline" className="gap-1">
+              <Edit className="w-3 h-3" />
+              Éditer
+            </Button>
+            <Button size="sm" className="gap-1 bg-[rgb(245,158,11)] hover:bg-[rgb(245,158,11)]/90">
+              <Send className="w-3 h-3" />
+              Envoyer
+            </Button>
+          </>
+        )}
+        {invoice.status === 'overdue' && (
+          <Button size="sm" className="gap-1 bg-red-600 hover:bg-red-700">
+            <AlertTriangle className="w-3 h-3" />
+            Relancer
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <ModuleLayout sidebar={<FinanceModuleSidebar />}>
       <div className="p-8 space-y-8">
         <FinancePageHeader
-          title="Factures"
-          subtitle="Gestion des factures et émissions"
+          title="Facturation"
+          subtitle="Gestion complète des factures et émissions"
           stats={stats}
-          showCreateButton={true}
-          createButtonText="Nouvelle facture"
+          showCreateButton={false}
           showExportButton={true}
           showBackButton={true}
           backPath="/finance"
-          onCreateClick={() => setShowInvoiceForm(true)}
         />
 
-        <InvoiceForm 
+        <EnhancedInvoiceForm 
           open={showInvoiceForm} 
           onOpenChange={setShowInvoiceForm}
           onSuccess={fetchInvoices}
         />
 
-        {/* Filtres et recherche */}
+        <FreeInvoiceForm 
+          open={showFreeInvoiceForm} 
+          onOpenChange={setShowFreeInvoiceForm}
+          onSuccess={fetchInvoices}
+        />
+
+        {/* Actions rapides */}
         <Card className="bg-white rounded-2xl shadow-sm border-0">
           <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1">
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+              <div className="flex gap-3">
+                <Button 
+                  onClick={() => setShowInvoiceForm(true)}
+                  className="gap-2 bg-[rgb(245,158,11)] hover:bg-[rgb(245,158,11)]/90"
+                >
+                  <Plus className="w-4 h-4" />
+                  Facture étudiant
+                </Button>
+                <Button 
+                  onClick={() => setShowFreeInvoiceForm(true)}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <FileText className="w-4 h-4" />
+                  Facture libre
+                </Button>
+              </div>
+              
+              <div className="flex-1 max-w-md">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
@@ -132,109 +248,86 @@ export default function Invoices() {
                   />
                 </div>
               </div>
+
               <div className="flex gap-2">
                 <Button variant="outline" className="gap-2">
                   <Filter className="w-4 h-4" />
-                  Statut
+                  Filtres
                 </Button>
                 <Button variant="outline" className="gap-2">
                   <Calendar className="w-4 h-4" />
-                  Date
-                </Button>
-                <Button variant="outline" className="gap-2">
-                  <DollarSign className="w-4 h-4" />
-                  Montant
+                  Période
                 </Button>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Liste des factures */}
-        <Card className="bg-white rounded-2xl shadow-sm border-0">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-[rgb(245,158,11)]" />
-              Factures ({filteredInvoices.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {filteredInvoices.map((invoice, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-4 rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-[rgb(245,158,11)]/10 rounded-xl">
-                      <FileText className="w-5 h-5 text-[rgb(245,158,11)]" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-semibold text-foreground">{invoice.invoice_number}</p>
-                        {getStatusBadge(invoice.status)}
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {invoice.student.profile.full_name}
-                      </p>
-                      <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
-                        <span>Émise: {new Date(invoice.issue_date).toLocaleDateString('fr-FR')}</span>
-                        <span>Échéance: {new Date(invoice.due_date).toLocaleDateString('fr-FR')}</span>
-                      </div>
-                    </div>
-                  </div>
+        {/* Onglets pour organiser les factures */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="all" className="gap-2">
+              <FileText className="w-4 h-4" />
+              Toutes les factures
+            </TabsTrigger>
+            <TabsTrigger value="students" className="gap-2">
+              <Users className="w-4 h-4" />
+              Factures étudiants
+            </TabsTrigger>
+            <TabsTrigger value="free" className="gap-2">
+              <DollarSign className="w-4 h-4" />
+              Factures libres
+            </TabsTrigger>
+          </TabsList>
 
-                  <div className="text-right space-y-1">
-                    <div className="flex items-center gap-2 justify-end">
-                      <span className="font-semibold text-foreground text-lg">
-                        €{invoice.total_amount.toLocaleString()}
-                      </span>
-                    </div>
-                    {invoice.paid_amount > 0 && (
-                      <p className="text-xs text-muted-foreground">
-                        Payé: €{invoice.paid_amount.toLocaleString()}
-                      </p>
-                    )}
-                    {invoice.tax_amount > 0 && (
-                      <p className="text-xs text-muted-foreground">
-                        Dont TVA: €{invoice.tax_amount.toLocaleString()}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Button size="sm" variant="outline" className="gap-1">
-                      <Eye className="w-3 h-3" />
-                      Voir
-                    </Button>
-                    <Button size="sm" variant="outline" className="gap-1">
-                      <Download className="w-3 h-3" />
-                      PDF
-                    </Button>
-                    {invoice.status === 'draft' && (
-                      <>
-                        <Button size="sm" variant="outline" className="gap-1">
-                          <Edit className="w-3 h-3" />
-                          Éditer
-                        </Button>
-                        <Button size="sm" className="gap-1 bg-[rgb(245,158,11)] hover:bg-[rgb(245,158,11)]/90">
-                          <Send className="w-3 h-3" />
-                          Envoyer
-                        </Button>
-                      </>
-                    )}
-                    {invoice.status === 'overdue' && (
-                      <Button size="sm" className="gap-1 bg-red-600 hover:bg-red-700">
-                        <AlertTriangle className="w-3 h-3" />
-                        Relancer
-                      </Button>
-                    )}
-                  </div>
+          <TabsContent value="all" className="space-y-6">
+            <Card className="bg-white rounded-2xl shadow-sm border-0">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-[rgb(245,158,11)]" />
+                  Toutes les factures ({filteredInvoices.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {filteredInvoices.map((invoice, index) => invoiceCard(invoice, index))}
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="students" className="space-y-6">
+            <Card className="bg-white rounded-2xl shadow-sm border-0">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-[rgb(245,158,11)]" />
+                  Factures étudiants ({filteredInvoices.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {filteredInvoices.map((invoice, index) => invoiceCard(invoice, index))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="free" className="space-y-6">
+            <Card className="bg-white rounded-2xl shadow-sm border-0">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="w-5 h-5 text-[rgb(245,158,11)]" />
+                  Factures libres ({filteredInvoices.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {filteredInvoices.map((invoice, index) => invoiceCard(invoice, index))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
         {/* Actions en lot */}
         <Card className="bg-white rounded-2xl shadow-sm border-0">
@@ -253,11 +346,11 @@ export default function Invoices() {
               </Button>
               <Button variant="outline" className="gap-2">
                 <AlertTriangle className="w-4 h-4" />
-                Relances
+                Relances automatiques
               </Button>
               <Button variant="outline" className="gap-2">
                 <FileText className="w-4 h-4" />
-                Rapport
+                Rapport détaillé
               </Button>
             </div>
           </CardContent>

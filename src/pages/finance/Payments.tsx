@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { useFinanceData } from '@/hooks/useFinanceData';
 import { PaymentForm } from '@/components/finance/PaymentForm';
 import { 
   Search, 
@@ -21,8 +22,10 @@ import {
 export default function Payments() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const { payments, loading, fetchPayments } = useFinanceData();
 
-  const payments = [
+  // Mock data for now - will be replaced with real data once payments are integrated
+  const mockPayments = [
     {
       id: "PAY-2024-001",
       paymentNumber: "P240001",
@@ -146,7 +149,10 @@ export default function Payments() {
     );
   };
 
-  const filteredPayments = payments.filter(payment =>
+  // Use mock data for now, as real payments integration needs more work
+  const displayPayments = mockPayments;
+  
+  const filteredPayments = displayPayments.filter(payment =>
     payment.student.toLowerCase().includes(searchTerm.toLowerCase()) ||
     payment.studentNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
     payment.paymentNumber.toLowerCase().includes(searchTerm.toLowerCase())

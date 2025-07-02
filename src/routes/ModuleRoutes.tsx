@@ -54,10 +54,11 @@ export function ModuleRoutes() {
       <Route path="/finance" element={<Finance />} />
       <Route path="/finance/dashboard" element={<FinanceDashboard />} />
       <Route path="/finance/accounts" element={<FinanceAccounts />} />
-      <Route path="/finance/billing" element={<FinanceBilling />} />
+      <Route path="/finance/billing" element={<FinanceInvoices />} />
       <Route path="/finance/invoices" element={<FinanceInvoices />} />
       <Route path="/finance/payments" element={<FinancePayments />} />
       <Route path="/finance/payment-methods" element={<FinancePaymentMethods />} />
+      <Route path="/finance/payment-history" element={<FinanceAllPayments />} />
       <Route path="/finance/fiscal-years" element={<FinanceFiscalYears />} />
       <Route path="/finance/templates" element={<FinanceTemplates />} />
       <Route path="/finance/schedules" element={<FinanceSchedules />} />

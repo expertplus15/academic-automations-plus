@@ -31,30 +31,13 @@ export function FinanceModuleSidebar() {
       ]
     },
     {
-      title: "Comptes étudiants",
+      title: "Gestion",
       icon: Users,
       items: [
-        { name: "Liste des comptes", path: "/finance/accounts", icon: Wallet },
-        { name: "Facturation", path: "/finance/billing", icon: FileText },
-        { name: "Historique paiements", path: "/finance/payments", icon: Receipt }
-      ]
-    },
-    {
-      title: "Facturation",
-      icon: FileText,
-      items: [
-        { name: "Factures", path: "/finance/invoices", icon: FileText },
-        { name: "Modèles", path: "/finance/templates", icon: FileText },
-        { name: "Échéanciers", path: "/finance/schedules", icon: Calendar }
-      ]
-    },
-    {
-      title: "Paiements",
-      icon: CreditCard,
-      items: [
-        { name: "Tous les paiements", path: "/finance/all-payments", icon: CreditCard },
-        { name: "Méthodes de paiement", path: "/finance/payment-methods", icon: Wallet },
-        { name: "Rapprochement", path: "/finance/reconciliation", icon: Calculator }
+        { name: "Comptes étudiants", path: "/finance/accounts", icon: Wallet },
+        { name: "Facturation", path: "/finance/invoices", icon: FileText },
+        { name: "Gestion des paiements", path: "/finance/payments", icon: CreditCard },
+        { name: "Méthodes de paiement", path: "/finance/payment-methods", icon: Wallet }
       ]
     },
     {
@@ -76,9 +59,10 @@ export function FinanceModuleSidebar() {
       ]
     },
     {
-      title: "Rapports",
+      title: "Analyse & Rapports",
       icon: BarChart3,
       items: [
+        { name: "Historique des paiements", path: "/finance/payment-history", icon: Receipt },
         { name: "Rapports financiers", path: "/finance/reports", icon: BarChart3 },
         { name: "Flux de trésorerie", path: "/finance/cash-flow", icon: TrendingUp },
         { name: "Analytics", path: "/finance/analytics", icon: PieChart }
@@ -88,9 +72,12 @@ export function FinanceModuleSidebar() {
       title: "Configuration",
       icon: Settings,
       items: [
+        { name: "Modèles de factures", path: "/finance/templates", icon: FileText },
+        { name: "Échéanciers", path: "/finance/schedules", icon: Calendar },
         { name: "Catégories", path: "/finance/categories", icon: Settings },
         { name: "Paramètres fiscaux", path: "/finance/tax-settings", icon: Calculator },
-        { name: "Années fiscales", path: "/finance/fiscal-years", icon: Calendar }
+        { name: "Années fiscales", path: "/finance/fiscal-years", icon: Calendar },
+        { name: "Rapprochement", path: "/finance/reconciliation", icon: Calculator }
       ]
     }
   ];
