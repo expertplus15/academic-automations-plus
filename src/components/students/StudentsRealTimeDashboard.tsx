@@ -65,18 +65,49 @@ export function StudentsRealTimeDashboard() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-in">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <Card key={i}>
+            <Card key={i} className="hover:shadow-lg transition-all duration-300">
               <CardContent className="p-4">
-                <div className="animate-pulse">
-                  <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
-                  <div className="h-8 bg-muted rounded w-1/2"></div>
+                <div className="animate-pulse space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-muted rounded-lg"></div>
+                    <div className="space-y-2 flex-1">
+                      <div className="h-3 bg-muted rounded w-3/4"></div>
+                      <div className="h-6 bg-muted rounded w-1/2"></div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card className="hover:shadow-lg transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="animate-pulse space-y-4">
+                <div className="h-6 bg-muted rounded w-1/2"></div>
+                <div className="space-y-3">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="h-16 bg-muted rounded"></div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="hover:shadow-lg transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="animate-pulse space-y-4">
+                <div className="h-6 bg-muted rounded w-1/2"></div>
+                <div className="space-y-2">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="h-8 bg-muted rounded"></div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -97,10 +128,10 @@ export function StudentsRealTimeDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Statistics Cards - Real Data */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+        <Card className="hover:shadow-lg hover-scale transition-all duration-300 border-students/20">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-students/10 rounded-lg">
@@ -108,13 +139,13 @@ export function StudentsRealTimeDashboard() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Total Étudiants</p>
-                <p className="text-2xl font-bold">{stats.totalStudents.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-students">{stats.totalStudents.toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-lg hover-scale transition-all duration-300 border-green-200">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-100 rounded-lg">
@@ -122,13 +153,13 @@ export function StudentsRealTimeDashboard() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Nouveaux (ce mois)</p>
-                <p className="text-2xl font-bold">{stats.newThisMonth}</p>
+                <p className="text-2xl font-bold text-green-600">{stats.newThisMonth}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-lg hover-scale transition-all duration-300 border-blue-200">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg">
@@ -136,13 +167,13 @@ export function StudentsRealTimeDashboard() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Étudiants Actifs</p>
-                <p className="text-2xl font-bold">{stats.activeStudents}</p>
+                <p className="text-2xl font-bold text-blue-600">{stats.activeStudents}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-lg hover-scale transition-all duration-300 border-purple-200">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-purple-100 rounded-lg">
@@ -150,7 +181,7 @@ export function StudentsRealTimeDashboard() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Taux de rétention</p>
-                <p className="text-2xl font-bold">{stats.retentionRate}%</p>
+                <p className="text-2xl font-bold text-purple-600">{stats.retentionRate}%</p>
               </div>
             </div>
           </CardContent>
@@ -158,7 +189,7 @@ export function StudentsRealTimeDashboard() {
       </div>
 
       {/* Performance Metrics - Real Data */}
-      <Card>
+      <Card className="hover:shadow-lg transition-all duration-300">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -192,7 +223,7 @@ export function StudentsRealTimeDashboard() {
       </Card>
 
       {/* Recent Enrollments - Real Data */}
-      <Card>
+      <Card className="hover:shadow-lg transition-all duration-300">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -213,7 +244,7 @@ export function StudentsRealTimeDashboard() {
           <div className="space-y-3">
             {recentEnrollments.length > 0 ? (
               recentEnrollments.map((enrollment) => (
-                <div key={enrollment.id} className="flex items-center gap-4 p-4 border border-border/50 rounded-lg hover:bg-muted/30 transition-colors">
+                <div key={enrollment.id} className="flex items-center gap-4 p-4 border border-border/50 rounded-lg hover:bg-muted/30 hover:shadow-md transition-all duration-200 animate-fade-in">
                   <div className="flex items-center gap-3">
                     {getStatusIcon(enrollment.status)}
                     <div>
@@ -246,7 +277,7 @@ export function StudentsRealTimeDashboard() {
       </Card>
 
       {/* Program Distribution - Real Data */}
-      <Card>
+      <Card className="hover:shadow-lg transition-all duration-300">
         <CardHeader>
           <CardTitle>Répartition par Programme</CardTitle>
           <CardDescription>Distribution des {stats.activeStudents} étudiants actifs</CardDescription>

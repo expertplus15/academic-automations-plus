@@ -2,12 +2,10 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
-  Search, 
-  Filter, 
   Download, 
   Eye, 
   Edit, 
@@ -20,6 +18,8 @@ import {
 } from "lucide-react";
 import { useStudentsData } from "@/hooks/useStudentsData";
 import { StudentProfileDialog } from "./StudentProfileDialog";
+import { StudentsSearch } from "./StudentsSearch";
+import { StudentsBulkActions } from "./StudentsBulkActions";
 
 export function StudentsProfilesManagement() {
   const { students, loading, refetch } = useStudentsData();
@@ -27,6 +27,7 @@ export function StudentsProfilesManagement() {
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
 
   const filteredStudents = students.filter(student => {
     const matchesSearch = student.profiles.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -37,6 +38,22 @@ export function StudentsProfilesManagement() {
     
     return matchesSearch && matchesStatus;
   });
+
+  const handleSelectStudent = (studentId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedStudents(prev => [...prev, studentId]);
+    } else {
+      setSelectedStudents(prev => prev.filter(id => id !== studentId));
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedStudents(filteredStudents.map(student => student.id));
+    } else {
+      setSelectedStudents([]);
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -63,10 +80,10 @@ export function StudentsProfilesManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="hover:shadow-lg hover-scale transition-all duration-300">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-students/10 rounded-lg">
@@ -74,13 +91,13 @@ export function StudentsProfilesManagement() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Total Étudiants</p>
-                <p className="text-2xl font-bold">{students.length}</p>
+                <p className="text-2xl font-bold text-students">{students.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="hover:shadow-lg hover-scale transition-all duration-300">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-100 rounded-lg">
@@ -88,7 +105,7 @@ export function StudentsProfilesManagement() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Étudiants Actifs</p>
-                <p className="text-2xl font-bold">
+                <p className="text-2xl font-bold text-green-600">
                   {students.filter(s => s.status === 'active').length}
                 </p>
               </div>
@@ -96,7 +113,7 @@ export function StudentsProfilesManagement() {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="hover:shadow-lg hover-scale transition-all duration-300">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg">
@@ -104,7 +121,7 @@ export function StudentsProfilesManagement() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Nouveaux (ce mois)</p>
-                <p className="text-2xl font-bold">
+                <p className="text-2xl font-bold text-blue-600">
                   {students.filter(s => {
                     const enrollmentDate = new Date(s.enrollment_date);
                     const currentMonth = new Date().getMonth();
@@ -118,7 +135,7 @@ export function StudentsProfilesManagement() {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="hover:shadow-lg hover-scale transition-all duration-300">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-purple-100 rounded-lg">
@@ -126,7 +143,7 @@ export function StudentsProfilesManagement() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Programmes</p>
-                <p className="text-2xl font-bold">
+                <p className="text-2xl font-bold text-purple-600">
                   {new Set(students.map(s => s.programs.id)).size}
                 </p>
               </div>
@@ -136,7 +153,7 @@ export function StudentsProfilesManagement() {
       </div>
 
       {/* Search and Filters */}
-      <Card>
+      <Card className="hover:shadow-lg transition-all duration-300">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Profils Étudiants</CardTitle>
@@ -149,26 +166,49 @@ export function StudentsProfilesManagement() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Rechercher par nom, email ou numéro étudiant..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Button variant="outline" size="sm">
-              <Filter className="w-4 h-4 mr-2" />
-              Filtres
-            </Button>
+          <div className="mb-6">
+            <StudentsSearch
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              selectedStatus={selectedStatus}
+              onStatusChange={setSelectedStatus}
+              totalResults={filteredStudents.length}
+            />
           </div>
 
+          {/* Bulk Actions Header */}
+          {filteredStudents.length > 0 && (
+            <div className="flex items-center justify-between py-2 border-b">
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  checked={selectedStudents.length === filteredStudents.length}
+                  onCheckedChange={handleSelectAll}
+                  className="data-[state=checked]:bg-students data-[state=checked]:border-students"
+                />
+                <span className="text-sm text-muted-foreground">
+                  {selectedStudents.length > 0 
+                    ? `${selectedStudents.length} sélectionné(s)`
+                    : 'Sélectionner tout'
+                  }
+                </span>
+              </div>
+              {selectedStudents.length > 0 && (
+                <Badge variant="secondary" className="bg-students/10 text-students">
+                  Actions en lot disponibles
+                </Badge>
+              )}
+            </div>
+          )}
+
           {/* Students List */}
-          <div className="space-y-3">
+          <div className="space-y-3 mt-4">
             {filteredStudents.map((student) => (
-              <div key={student.id} className="flex items-center gap-4 p-4 border border-border/50 rounded-lg hover:bg-muted/30 transition-colors">
+              <div key={student.id} className="flex items-center gap-4 p-4 border border-border/50 rounded-lg hover:bg-muted/30 hover:shadow-md transition-all duration-200 animate-fade-in">
+                <Checkbox
+                  checked={selectedStudents.includes(student.id)}
+                  onCheckedChange={(checked) => handleSelectStudent(student.id, checked as boolean)}
+                  className="data-[state=checked]:bg-students data-[state=checked]:border-students"
+                />
                 <Avatar className="w-12 h-12">
                   <AvatarImage src="" alt={student.profiles.full_name} />
                   <AvatarFallback className="bg-students text-white">
@@ -249,6 +289,12 @@ export function StudentsProfilesManagement() {
           refetch();
           setDialogOpen(false);
         }}
+      />
+
+      <StudentsBulkActions
+        selectedStudents={selectedStudents}
+        onClearSelection={() => setSelectedStudents([])}
+        onRefresh={refetch}
       />
     </div>
   );
