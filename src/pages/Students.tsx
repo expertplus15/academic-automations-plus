@@ -1,7 +1,6 @@
 
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { ModuleLayout } from "@/components/layouts/ModuleLayout";
-import { StudentsModuleSidebar } from "@/components/StudentsModuleSidebar";
+import { StudentsModuleLayout } from "@/components/layouts/StudentsModuleLayout";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -84,7 +83,7 @@ export default function Students() {
 
   return (
     <ProtectedRoute allowedRoles={['admin', 'teacher']}>
-      <ModuleLayout sidebar={<StudentsModuleSidebar />}>
+      <StudentsModuleLayout>
         <div className="p-8 space-y-8">
           {/* Header avec statistiques */}
           <div className="space-y-6">
@@ -245,7 +244,7 @@ export default function Students() {
             </div>
           </div>
         </div>
-      </ModuleLayout>
+      </StudentsModuleLayout>
     </ProtectedRoute>
   );
 }
