@@ -92,12 +92,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 
     // Check for existing session
+    console.log('AuthContext: Checking for existing session');
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('AuthContext: Got session from getSession', { hasSession: !!session });
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
+        console.log('AuthContext: Fetching profile after getSession');
         fetchProfile(session.user.id);
       }
+      console.log('AuthContext: Setting loading to false after getSession');
       setLoading(false);
     });
 
