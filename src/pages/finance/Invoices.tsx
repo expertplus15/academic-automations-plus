@@ -106,6 +106,8 @@ export default function Invoices() {
           showCreateButton={true}
           createButtonText="Nouvelle facture"
           showExportButton={true}
+          showBackButton={true}
+          backPath="/finance"
           onCreateClick={() => setShowInvoiceForm(true)}
         />
 

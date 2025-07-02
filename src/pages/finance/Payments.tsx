@@ -162,6 +162,8 @@ export default function Payments() {
           showCreateButton={true}
           createButtonText="Enregistrer un paiement"
           showExportButton={true}
+          showBackButton={true}
+          backPath="/finance"
           onCreateClick={() => setShowPaymentForm(true)}
         />
 

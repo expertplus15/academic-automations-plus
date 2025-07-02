@@ -153,6 +153,8 @@ export default function FiscalYears() {
           stats={stats}
           showCreateButton={false}
           showExportButton={true}
+          showBackButton={true}
+          backPath="/finance"
         />
 
         {/* Filtres et actions */}

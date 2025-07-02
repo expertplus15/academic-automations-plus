@@ -66,6 +66,7 @@ export default function Dashboard() {
           stats={dashboardStats}
           showCreateButton={false}
           showExportButton={true}
+          showBackButton={false}
         />
 
         {/* Indicateurs clés */}

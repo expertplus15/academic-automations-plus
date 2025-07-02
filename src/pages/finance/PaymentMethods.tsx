@@ -145,6 +145,8 @@ export default function PaymentMethods() {
           stats={stats}
           showCreateButton={false}
           showExportButton={true}
+          showBackButton={true}
+          backPath="/finance"
         />
 
         {/* Filtres et actions */}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -7,7 +8,8 @@ import {
   FileText, 
   Download,
   Filter,
-  Calendar
+  Calendar,
+  ArrowLeft
 } from 'lucide-react';
 
 interface FinancePageHeaderProps {
@@ -18,6 +20,8 @@ interface FinancePageHeaderProps {
   onCreateClick?: () => void;
   showExportButton?: boolean;
   onExportClick?: () => void;
+  showBackButton?: boolean;
+  backPath?: string;
   stats?: {
     label: string;
     value: string;
@@ -34,6 +38,8 @@ export function FinancePageHeader({
   onCreateClick,
   showExportButton = false,
   onExportClick,
+  showBackButton = true,
+  backPath = "/finance",
   stats = []
 }: FinancePageHeaderProps) {
   return (
@@ -41,6 +47,15 @@ export function FinancePageHeader({
       {/* Header principal */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
+          {showBackButton && (
+            <Link to={backPath}>
+              <Button variant="outline" size="sm" className="gap-2">
+                <ArrowLeft className="w-4 h-4" />
+                Retour
+              </Button>
+            </Link>
+          )}
+          
           <div className="p-3 bg-[rgb(245,158,11)] rounded-2xl">
             <DollarSign className="w-8 h-8 text-white" />
           </div>

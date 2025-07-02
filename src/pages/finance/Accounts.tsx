@@ -106,6 +106,8 @@ export default function Accounts() {
           showCreateButton={true}
           createButtonText="Nouveau compte"
           showExportButton={true}
+          showBackButton={true}
+          backPath="/finance"
         />
 
         {/* Filtres et recherche */}
