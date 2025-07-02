@@ -10,6 +10,14 @@ import StudentsAlerts from '@/pages/students/Alerts';
 import StudentsDocuments from '@/pages/students/Documents';
 import StudentsCommunication from '@/pages/students/Communication';
 
+// Finance module pages
+import Finance from '@/pages/Finance';
+import FinanceDashboard from '@/pages/finance/Dashboard';
+import FinanceAccounts from '@/pages/finance/Accounts';
+import FinanceBilling from '@/pages/finance/Billing';
+import FinanceInvoices from '@/pages/finance/Invoices';
+import FinancePayments from '@/pages/finance/Payments';
+
 // Academic module pages
 import Academic from '@/pages/Academic';
 import AcademicPrograms from '@/pages/academic/Programs';
@@ -25,6 +33,14 @@ import AcademicEvaluations from '@/pages/academic/Evaluations';
 export function ModuleRoutes() {
   return (
     <Routes>
+      {/* Finance Module Routes */}
+      <Route path="/finance" element={<Finance />} />
+      <Route path="/finance/dashboard" element={<FinanceDashboard />} />
+      <Route path="/finance/accounts" element={<FinanceAccounts />} />
+      <Route path="/finance/billing" element={<FinanceBilling />} />
+      <Route path="/finance/invoices" element={<FinanceInvoices />} />
+      <Route path="/finance/payments" element={<FinancePayments />} />
+
       {/* Students Module Routes - All using ModuleLayout */}
       <Route path="/students" element={<Students />} />
       <Route path="/students/registration" element={<StudentsRegistration />} />
