@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { GraduationCap, Bell, User, ChevronDown, ArrowLeft, Eye, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export function AcademicPageHeader() {
+  const [selectedYear, setSelectedYear] = useState("2024-2025");
+  
   return (
     <header className="h-16 bg-card border-b border-border flex items-center justify-between px-6">
       {/* Left side - Logo and title */}
@@ -20,9 +23,27 @@ export function AcademicPageHeader() {
       {/* Center - Academic year selector */}
       <div className="flex items-center gap-2 bg-muted px-4 py-2 rounded-lg">
         <span className="text-sm font-medium text-foreground">Année académique:</span>
-        <Button variant="ghost" size="sm" className="h-auto p-1 text-sm font-medium">
-          2024-2025 <ChevronDown className="w-4 h-4 ml-1" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-auto p-1 text-sm font-medium">
+              {selectedYear} <ChevronDown className="w-4 h-4 ml-1" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-background border border-border">
+            <DropdownMenuItem 
+              onClick={() => setSelectedYear("2024-2025")}
+              className="cursor-pointer hover:bg-muted"
+            >
+              2024-2025
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => setSelectedYear("2025-2026")}
+              className="cursor-pointer hover:bg-muted"
+            >
+              2025-2026
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Right side - Navigation and user */}
@@ -55,6 +76,10 @@ export function AcademicPageHeader() {
 
         {/* User profile */}
         <div className="flex items-center gap-2">
+          <div className="flex flex-col text-right mr-2">
+            <span className="text-sm font-medium text-foreground">Dr. Jean Dupont</span>
+            <span className="text-xs text-muted-foreground">Administrateur</span>
+          </div>
           <div className="w-8 h-8 bg-academic rounded-full flex items-center justify-center">
             <span className="text-sm font-medium text-white">JD</span>
           </div>

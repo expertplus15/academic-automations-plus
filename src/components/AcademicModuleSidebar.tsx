@@ -31,14 +31,6 @@ import {
 
 const academicSections = [
   {
-    title: "Tableau de Bord",
-    icon: LayoutDashboard,
-    defaultOpen: true,
-    items: [
-      { title: "Vue d'ensemble", url: "/academic", icon: LayoutDashboard }
-    ]
-  },
-  {
     title: "Pédagogie",
     icon: BookOpen,
     defaultOpen: true,
@@ -96,15 +88,28 @@ export function AcademicModuleSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="px-4">
-        <div className="pt-4 pb-2">
+        <div className="pt-4 pb-2 space-y-2">
           <Link to="/dashboard" className="flex items-center gap-2 px-3 py-3 rounded-lg hover:bg-sidebar-accent transition-colors w-full">
             <ArrowLeft className="w-4 h-4 text-sidebar-foreground" />
             <span className="text-base text-sidebar-foreground">Retour au Dashboard</span>
           </Link>
+          <Link 
+            to="/academic" 
+            className={cn(
+              "flex items-center gap-2 px-3 py-3 rounded-lg transition-colors w-full relative",
+              "text-sidebar-foreground hover:bg-sidebar-accent",
+              location.pathname === "/academic" && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+            )}
+          >
+            {location.pathname === "/academic" && <div className="absolute left-0 w-1 h-6 bg-primary rounded-r" />}
+            <LayoutDashboard className="w-4 h-4 text-primary" />
+            <span className="text-base text-sidebar-foreground">Tableau de Bord</span>
+            {location.pathname === "/academic" && <div className="w-2 h-2 bg-primary rounded-full" />}
+          </Link>
         </div>
         <SidebarGroup className="py-4">
           <SidebarGroupContent>
-            <Accordion type="multiple" defaultValue={["tableau-de-bord", "pedagogie"]} className="w-full space-y-3">
+            <Accordion type="multiple" defaultValue={["pedagogie"]} className="w-full space-y-3">
               {academicSections.map((section, index) => {
                 const SectionIcon = section.icon;
                 const sectionId = section.title.toLowerCase().replace(/\s+/g, '-').replace(/[àâä]/g, 'a').replace(/[éèêë]/g, 'e');
@@ -133,7 +138,7 @@ export function AcademicModuleSidebar() {
                                   )}
                                 >
                                   {isActive && <div className="absolute left-0 w-1 h-6 bg-primary rounded-r" />}
-                                  <ItemIcon className="w-4 h-4 text-primary" />
+                                  <ItemIcon className="w-3.5 h-3.5 text-primary" />
                                    <span className="text-base truncate">{item.title}</span>
                                   {isActive && <div className="w-2 h-2 bg-primary rounded-full" />}
                                 </Link>
