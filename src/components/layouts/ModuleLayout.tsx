@@ -13,7 +13,7 @@ interface ModuleLayoutProps {
 
 export function ModuleLayout({ children, sidebar, title, subtitle, showHeader = false }: ModuleLayoutProps) {
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-background">
         {sidebar || <StudentsModuleSidebar />}
         <div className="flex-1 flex flex-col">
