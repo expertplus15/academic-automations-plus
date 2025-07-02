@@ -31,13 +31,13 @@ export function FinanceModuleSidebar() {
       ]
     },
     {
-      title: "Gestion",
+      title: "Gestion opérationnelle",
       icon: Users,
       items: [
         { name: "Comptes étudiants", path: "/finance/accounts", icon: Wallet },
         { name: "Facturation", path: "/finance/invoices", icon: FileText },
         { name: "Gestion des paiements", path: "/finance/payments", icon: CreditCard },
-        { name: "Méthodes de paiement", path: "/finance/payment-methods", icon: Wallet }
+        { name: "Dépenses", path: "/finance/expenses", icon: Receipt }
       ]
     },
     {
@@ -69,14 +69,25 @@ export function FinanceModuleSidebar() {
       ]
     },
     {
+      title: "États financiers",
+      icon: BarChart3,
+      items: [
+        { name: "Bilan comptable", path: "/finance/balance-sheet", icon: PieChart },
+        { name: "Compte de résultat", path: "/finance/income-statement", icon: TrendingUp },
+        { name: "Flux de trésorerie", path: "/finance/cash-flow", icon: TrendingUp },
+        { name: "Ratios financiers", path: "/finance/financial-ratios", icon: Calculator }
+      ]
+    },
+    {
       title: "Configuration",
       icon: Settings,
       items: [
+        { name: "Années fiscales", path: "/finance/fiscal-years", icon: Calendar },
+        { name: "Catégories", path: "/finance/categories", icon: Settings },
+        { name: "Méthodes de paiement", path: "/finance/payment-methods", icon: Wallet },
         { name: "Modèles de factures", path: "/finance/templates", icon: FileText },
         { name: "Échéanciers", path: "/finance/schedules", icon: Calendar },
-        { name: "Catégories", path: "/finance/categories", icon: Settings },
         { name: "Paramètres fiscaux", path: "/finance/tax-settings", icon: Calculator },
-        { name: "Années fiscales", path: "/finance/fiscal-years", icon: Calendar },
         { name: "Rapprochement", path: "/finance/reconciliation", icon: Calculator }
       ]
     }

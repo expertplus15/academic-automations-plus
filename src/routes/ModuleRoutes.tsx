@@ -34,6 +34,7 @@ import FinanceAnalytics from '@/pages/finance/Analytics';
 import FinanceCategories from '@/pages/finance/Categories';
 import FinanceTaxSettings from '@/pages/finance/TaxSettings';
 import FinanceReconciliation from '@/pages/finance/Reconciliation';
+import FinanceExpenses from '@/pages/finance/Expenses';
 
 // Academic module pages
 import Academic from '@/pages/Academic';
@@ -78,6 +79,9 @@ export function ModuleRoutes() {
       <Route path="/finance/reports" element={<FinanceReports />} />
       <Route path="/finance/cash-flow" element={<FinanceCashFlow />} />
       <Route path="/finance/analytics" element={<FinanceAnalytics />} />
+      
+      {/* Expenses */}
+      <Route path="/finance/expenses" element={<FinanceExpenses />} />
       
       {/* Configuration */}
       <Route path="/finance/categories" element={<FinanceCategories />} />
