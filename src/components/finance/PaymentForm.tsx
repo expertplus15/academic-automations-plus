@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useFinanceData } from '@/hooks/useFinanceData';
+import { useStudents } from '@/hooks/useStudents';
 import { toast } from '@/hooks/use-toast';
 import { CreditCard } from 'lucide-react';
 
@@ -26,6 +27,7 @@ export function PaymentForm({ open, onOpenChange, onSuccess }: PaymentFormProps)
   });
   const [loading, setLoading] = useState(false);
   const { createPayment } = useFinanceData();
+  const { students } = useStudents();
 
   const generatePaymentNumber = () => {
     const year = new Date().getFullYear().toString().slice(-2);
@@ -87,8 +89,11 @@ export function PaymentForm({ open, onOpenChange, onSuccess }: PaymentFormProps)
                 <SelectValue placeholder="Sélectionner un étudiant" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="student1">Étudiant 1</SelectItem>
-                <SelectItem value="student2">Étudiant 2</SelectItem>
+                {students.map((student) => (
+                  <SelectItem key={student.id} value={student.id}>
+                    {student.profile.full_name} - {student.student_number}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
