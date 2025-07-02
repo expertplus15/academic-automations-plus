@@ -22,6 +22,18 @@ import FinanceFiscalYears from '@/pages/finance/FiscalYears';
 import FinanceTemplates from '@/pages/finance/Templates';
 import FinanceSchedules from '@/pages/finance/Schedules';
 import FinanceAllPayments from '@/pages/finance/AllPayments';
+import FinanceScholarships from '@/pages/finance/Scholarships';
+import FinanceFinancialAid from '@/pages/finance/FinancialAid';
+import FinanceAwards from '@/pages/finance/Awards';
+import FinanceBudgetOverview from '@/pages/finance/BudgetOverview';
+import FinanceBudgetPlanning from '@/pages/finance/BudgetPlanning';
+import FinanceBudgetTracking from '@/pages/finance/BudgetTracking';
+import FinanceReports from '@/pages/finance/Reports';
+import FinanceCashFlow from '@/pages/finance/CashFlow';
+import FinanceAnalytics from '@/pages/finance/Analytics';
+import FinanceCategories from '@/pages/finance/Categories';
+import FinanceTaxSettings from '@/pages/finance/TaxSettings';
+import FinanceReconciliation from '@/pages/finance/Reconciliation';
 
 // Academic module pages
 import Academic from '@/pages/Academic';
@@ -50,6 +62,26 @@ export function ModuleRoutes() {
       <Route path="/finance/templates" element={<FinanceTemplates />} />
       <Route path="/finance/schedules" element={<FinanceSchedules />} />
       <Route path="/finance/all-payments" element={<FinanceAllPayments />} />
+      
+      {/* Bourses & Aides */}
+      <Route path="/finance/scholarships" element={<FinanceScholarships />} />
+      <Route path="/finance/financial-aid" element={<FinanceFinancialAid />} />
+      <Route path="/finance/awards" element={<FinanceAwards />} />
+      
+      {/* Budgets */}
+      <Route path="/finance/budget-overview" element={<FinanceBudgetOverview />} />
+      <Route path="/finance/budget-planning" element={<FinanceBudgetPlanning />} />
+      <Route path="/finance/budget-tracking" element={<FinanceBudgetTracking />} />
+      
+      {/* Rapports */}
+      <Route path="/finance/reports" element={<FinanceReports />} />
+      <Route path="/finance/cash-flow" element={<FinanceCashFlow />} />
+      <Route path="/finance/analytics" element={<FinanceAnalytics />} />
+      
+      {/* Configuration */}
+      <Route path="/finance/categories" element={<FinanceCategories />} />
+      <Route path="/finance/tax-settings" element={<FinanceTaxSettings />} />
+      <Route path="/finance/reconciliation" element={<FinanceReconciliation />} />
 
       {/* Students Module Routes - All using ModuleLayout */}
       <Route path="/students" element={<Students />} />
