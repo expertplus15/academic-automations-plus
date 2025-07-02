@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   DollarSign, 
   FileText, 
@@ -18,6 +19,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 export function FinanceModuleSidebar() {
+  const location = useLocation();
   const menuItems = [
     {
       title: "Vue d'ensemble",
@@ -115,14 +117,18 @@ export function FinanceModuleSidebar() {
             </div>
             <div className="space-y-1 ml-6">
               {section.items.map((item, itemIndex) => (
-                <a
+                <Link
                   key={itemIndex}
-                  href={item.path}
-                  className="flex items-center gap-2 p-2 text-sm text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+                  to={item.path}
+                  className={`flex items-center gap-2 p-2 text-sm rounded-lg transition-colors ${
+                    location.pathname === item.path
+                      ? 'text-white bg-[rgb(245,158,11)]'
+                      : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                  }`}
                 >
                   <item.icon className="w-4 h-4" />
                   <span>{item.name}</span>
-                </a>
+                </Link>
               ))}
             </div>
           </div>
