@@ -39,7 +39,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     try {
-      console.log('AuthContext: Starting profile fetch for user', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -47,35 +46,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single();
 
       if (error) throw error;
-      console.log('AuthContext: Profile fetched successfully', data);
       setProfile(data);
     } catch (error) {
-      console.error('AuthContext: Error fetching profile:', error);
-      // Set profile to null if fetch fails
-      setProfile(null);
-    } finally {
-      console.log('AuthContext: Setting loading to false after profile fetch');
-      setLoading(false);
+      console.error('Error fetching profile:', error);
     }
   };
 
   useEffect(() => {
-    console.log('AuthContext: Setting up auth listener');
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('AuthContext: Auth state changed', { event, hasSession: !!session });
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          console.log('AuthContext: Fetching profile for user', session.user.id);
           await fetchProfile(session.user.id);
         } else {
           setProfile(null);
-          console.log('AuthContext: No session, setting loading to false');
-          setLoading(false);
         }
+        
+        setLoading(false);
 
         // Handle auth events
         if (event === 'SIGNED_IN') {
@@ -98,18 +88,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
 
     // Check for existing session
-    console.log('AuthContext: Checking for existing session');
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('AuthContext: Got session from getSession', { hasSession: !!session });
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        console.log('AuthContext: Fetching profile after getSession');
         fetchProfile(session.user.id);
-      } else {
-        console.log('AuthContext: No session from getSession, setting loading to false');
-        setLoading(false);
       }
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
