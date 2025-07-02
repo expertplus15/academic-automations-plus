@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useFinanceData } from '@/hooks/useFinanceData';
+import { InvoiceForm } from '@/components/finance/InvoiceForm';
 import { 
   Search, 
   Filter, 
@@ -22,7 +23,8 @@ import {
 
 export default function Invoices() {
   const [searchTerm, setSearchTerm] = useState('');
-  const { invoices, loading } = useFinanceData();
+  const [showInvoiceForm, setShowInvoiceForm] = useState(false);
+  const { invoices, loading, fetchInvoices } = useFinanceData();
 
   const stats = [
     {
@@ -104,6 +106,13 @@ export default function Invoices() {
           showCreateButton={true}
           createButtonText="Nouvelle facture"
           showExportButton={true}
+          onCreateClick={() => setShowInvoiceForm(true)}
+        />
+
+        <InvoiceForm 
+          open={showInvoiceForm} 
+          onOpenChange={setShowInvoiceForm}
+          onSuccess={fetchInvoices}
         />
 
         {/* Filtres et recherche */}

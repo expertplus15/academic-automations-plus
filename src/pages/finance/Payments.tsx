@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { PaymentForm } from '@/components/finance/PaymentForm';
 import { 
   Search, 
   Filter, 
@@ -19,6 +20,7 @@ import {
 
 export default function Payments() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
 
   const payments = [
     {
@@ -160,6 +162,13 @@ export default function Payments() {
           showCreateButton={true}
           createButtonText="Enregistrer un paiement"
           showExportButton={true}
+          onCreateClick={() => setShowPaymentForm(true)}
+        />
+
+        <PaymentForm 
+          open={showPaymentForm} 
+          onOpenChange={setShowPaymentForm}
+          onSuccess={() => console.log('Payment created successfully')}
         />
 
         {/* Filtres et recherche */}
