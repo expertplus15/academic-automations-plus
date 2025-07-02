@@ -8,6 +8,9 @@ export { useScholarships, type Scholarship } from './finance/useScholarships';
 export { useBudgetItems, type BudgetItem } from './finance/useBudgetItems';
 export { useServiceTypes, type ServiceType } from './finance/useServiceTypes';
 export { useFeeTypes, type FeeType } from './finance/useFeeTypes';
+export { useExpenses, type Expense } from './finance/useExpenses';
+export { useSuppliers, type Supplier } from './finance/useSuppliers';
+export { useChartOfAccounts, type ChartOfAccount } from './finance/useChartOfAccounts';
 
 import { useInvoices } from './finance/useInvoices';
 import { usePayments } from './finance/usePayments';
@@ -18,6 +21,9 @@ import { useScholarships } from './finance/useScholarships';
 import { useBudgetItems } from './finance/useBudgetItems';
 import { useServiceTypes } from './finance/useServiceTypes';
 import { useFeeTypes } from './finance/useFeeTypes';
+import { useExpenses } from './finance/useExpenses';
+import { useSuppliers } from './finance/useSuppliers';
+import { useChartOfAccounts } from './finance/useChartOfAccounts';
 
 // Combined hook for all finance data
 export function useFinanceData() {
@@ -30,6 +36,9 @@ export function useFinanceData() {
   const budgetItems = useBudgetItems();
   const serviceTypes = useServiceTypes();
   const feeTypes = useFeeTypes();
+  const expenses = useExpenses();
+  const suppliers = useSuppliers();
+  const chartOfAccounts = useChartOfAccounts();
 
   return {
     // Invoices
@@ -76,9 +85,25 @@ export function useFinanceData() {
     fetchFeeTypes: feeTypes.fetchFeeTypes,
     createFeeType: feeTypes.createFeeType,
     
+    // Expenses
+    expenses: expenses.expenses,
+    fetchExpenses: expenses.fetchExpenses,
+    createExpense: expenses.createExpense,
+    updateExpense: expenses.updateExpense,
+    
+    // Suppliers
+    suppliers: suppliers.suppliers,
+    fetchSuppliers: suppliers.fetchSuppliers,
+    createSupplier: suppliers.createSupplier,
+    
+    // Chart of Accounts
+    chartOfAccounts: chartOfAccounts.accounts,
+    fetchChartOfAccounts: chartOfAccounts.fetchAccounts,
+    
     // Loading state
     loading: invoices.loading || payments.loading || accounts.loading || 
              fiscalYears.loading || categories.loading || scholarships.loading || 
-             budgetItems.loading || serviceTypes.loading || feeTypes.loading,
+             budgetItems.loading || serviceTypes.loading || feeTypes.loading ||
+             expenses.loading || suppliers.loading || chartOfAccounts.loading,
   };
 }

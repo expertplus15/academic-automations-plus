@@ -210,6 +210,118 @@ export type Database = {
         }
         Relationships: []
       }
+      accounting_entries: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          entry_date: string
+          fiscal_year_id: string | null
+          id: string
+          reference_number: string
+          status: string | null
+          total_amount: number
+          updated_at: string | null
+          validated_at: string | null
+          validated_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          entry_date: string
+          fiscal_year_id?: string | null
+          id?: string
+          reference_number: string
+          status?: string | null
+          total_amount: number
+          updated_at?: string | null
+          validated_at?: string | null
+          validated_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          entry_date?: string
+          fiscal_year_id?: string | null
+          id?: string
+          reference_number?: string
+          status?: string | null
+          total_amount?: number
+          updated_at?: string | null
+          validated_at?: string | null
+          validated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accounting_entries_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accounting_entries_fiscal_year_id_fkey"
+            columns: ["fiscal_year_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accounting_entries_validated_by_fkey"
+            columns: ["validated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accounting_entry_lines: {
+        Row: {
+          account_id: string | null
+          created_at: string | null
+          credit_amount: number | null
+          debit_amount: number | null
+          description: string | null
+          entry_id: string | null
+          id: string
+        }
+        Insert: {
+          account_id?: string | null
+          created_at?: string | null
+          credit_amount?: number | null
+          debit_amount?: number | null
+          description?: string | null
+          entry_id?: string | null
+          id?: string
+        }
+        Update: {
+          account_id?: string | null
+          created_at?: string | null
+          credit_amount?: number | null
+          debit_amount?: number | null
+          description?: string | null
+          entry_id?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accounting_entry_lines_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "chart_of_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accounting_entry_lines_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "accounting_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       alert_configurations: {
         Row: {
           alert_type: string
@@ -454,6 +566,47 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      chart_of_accounts: {
+        Row: {
+          account_name: string
+          account_number: string
+          account_type: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          parent_account_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          account_name: string
+          account_number: string
+          account_type: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          parent_account_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          account_type?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          parent_account_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chart_of_accounts_parent_account_id_fkey"
+            columns: ["parent_account_id"]
+            isOneToOne: false
+            referencedRelation: "chart_of_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       class_groups: {
         Row: {
@@ -984,6 +1137,99 @@ export type Database = {
           },
         ]
       }
+      expenses: {
+        Row: {
+          amount: number
+          approval_status: string | null
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string
+          due_date: string | null
+          expense_date: string
+          expense_number: string
+          financial_category_id: string | null
+          fiscal_year_id: string | null
+          id: string
+          receipt_url: string | null
+          supplier_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description: string
+          due_date?: string | null
+          expense_date: string
+          expense_number: string
+          financial_category_id?: string | null
+          fiscal_year_id?: string | null
+          id?: string
+          receipt_url?: string | null
+          supplier_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string
+          due_date?: string | null
+          expense_date?: string
+          expense_number?: string
+          financial_category_id?: string | null
+          fiscal_year_id?: string | null
+          id?: string
+          receipt_url?: string | null
+          supplier_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_financial_category_id_fkey"
+            columns: ["financial_category_id"]
+            isOneToOne: false
+            referencedRelation: "financial_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_fiscal_year_id_fkey"
+            columns: ["fiscal_year_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fee_types: {
         Row: {
           code: string
@@ -1095,6 +1341,7 @@ export type Database = {
       }
       financial_categories: {
         Row: {
+          account_id: string | null
           category_type: string
           code: string
           created_at: string | null
@@ -1105,6 +1352,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          account_id?: string | null
           category_type?: string
           code: string
           created_at?: string | null
@@ -1115,6 +1363,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          account_id?: string | null
           category_type?: string
           code?: string
           created_at?: string | null
@@ -1124,7 +1373,15 @@ export type Database = {
           name?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "financial_categories_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "chart_of_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       fiscal_years: {
         Row: {
@@ -2348,6 +2605,45 @@ export type Database = {
         }
         Relationships: []
       }
+      suppliers: {
+        Row: {
+          address: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          payment_terms: number | null
+          siret: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          payment_terms?: number | null
+          siret?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          payment_terms?: number | null
+          siret?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       teacher_availability: {
         Row: {
           academic_year_id: string | null
@@ -2626,6 +2922,10 @@ export type Database = {
           p_program_id?: string
           p_parameters?: Json
         }
+        Returns: string
+      }
+      generate_expense_number: {
+        Args: Record<PropertyKey, never>
         Returns: string
       }
       generate_smart_schedule: {
