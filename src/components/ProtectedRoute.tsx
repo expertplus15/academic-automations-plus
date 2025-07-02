@@ -1,7 +1,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -11,22 +11,39 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
+  const [timeoutReached, setTimeoutReached] = useState(false);
+
+  // Add timeout to prevent infinite loading
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (loading) {
+        console.log('ProtectedRoute: Timeout reached, forcing navigation');
+        setTimeoutReached(true);
+      }
+    }, 5000); // 5 second timeout
+
+    return () => clearTimeout(timeout);
+  }, [loading]);
 
   useEffect(() => {
-    if (!loading) {
+    console.log('ProtectedRoute: Auth state', { loading, hasUser: !!user, hasProfile: !!profile, timeoutReached });
+    
+    if (!loading || timeoutReached) {
       if (!user) {
+        console.log('ProtectedRoute: No user, redirecting to login');
         navigate('/login');
         return;
       }
 
       if (allowedRoles && profile && !allowedRoles.includes(profile.role)) {
+        console.log('ProtectedRoute: User role not allowed, redirecting to unauthorized');
         navigate('/unauthorized');
         return;
       }
     }
-  }, [user, profile, loading, navigate, allowedRoles]);
+  }, [user, profile, loading, navigate, allowedRoles, timeoutReached]);
 
-  if (loading) {
+  if (loading && !timeoutReached) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">

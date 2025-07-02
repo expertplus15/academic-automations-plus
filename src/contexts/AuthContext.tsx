@@ -39,6 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     try {
+      console.log('AuthContext: Starting profile fetch for user', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -46,9 +47,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single();
 
       if (error) throw error;
+      console.log('AuthContext: Profile fetched successfully', data);
       setProfile(data);
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('AuthContext: Error fetching profile:', error);
+      // Set profile to null if fetch fails
+      setProfile(null);
+    } finally {
+      console.log('AuthContext: Setting loading to false after profile fetch');
+      setLoading(false);
     }
   };
 
@@ -66,10 +73,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await fetchProfile(session.user.id);
         } else {
           setProfile(null);
+          console.log('AuthContext: No session, setting loading to false');
+          setLoading(false);
         }
-        
-        console.log('AuthContext: Setting loading to false');
-        setLoading(false);
 
         // Handle auth events
         if (event === 'SIGNED_IN') {
@@ -100,9 +106,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (session?.user) {
         console.log('AuthContext: Fetching profile after getSession');
         fetchProfile(session.user.id);
+      } else {
+        console.log('AuthContext: No session from getSession, setting loading to false');
+        setLoading(false);
       }
-      console.log('AuthContext: Setting loading to false after getSession');
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
