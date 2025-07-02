@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ExamsPageHeader } from "@/components/ExamsPageHeader";
+import { ExamsModuleLayout } from "@/components/layouts/ExamsModuleLayout";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -95,25 +95,22 @@ export default function Rooms() {
 
   if (loading && rooms.length === 0) {
     return (
-      <div className="min-h-screen bg-background">
-        <ExamsPageHeader 
-          title="Gestion salles" 
-          subtitle="Capacités et attribution des salles" 
-        />
+      <ExamsModuleLayout 
+        title="Gestion salles" 
+        subtitle="Capacités et attribution des salles"
+      >
         <div className="flex justify-center items-center h-64">
           <div className="text-muted-foreground">Chargement des salles...</div>
         </div>
-      </div>
+      </ExamsModuleLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <ExamsPageHeader 
-        title="Gestion salles" 
-        subtitle="Capacités et attribution des salles" 
-      />
-      
+    <ExamsModuleLayout 
+      title="Gestion salles" 
+      subtitle="Capacités et attribution des salles"
+    >
       <div className="p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Métriques globales */}
@@ -272,6 +269,6 @@ export default function Rooms() {
           </Tabs>
         </div>
       </div>
-    </div>
+    </ExamsModuleLayout>
   );
 }
