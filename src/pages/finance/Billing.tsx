@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { InvoiceForm } from '@/components/finance/InvoiceForm';
+import { useFinanceData } from '@/hooks/useFinanceData';
 import { 
   Search, 
   Filter, 
@@ -20,6 +22,8 @@ import {
 
 export default function Billing() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [showInvoiceForm, setShowInvoiceForm] = useState(false);
+  const { fetchInvoices } = useFinanceData();
 
   const invoices = [
     {
@@ -133,6 +137,15 @@ export default function Billing() {
           showCreateButton={true}
           createButtonText="Nouvelle facture"
           showExportButton={true}
+          showBackButton={true}
+          backPath="/finance"
+          onCreateClick={() => setShowInvoiceForm(true)}
+        />
+
+        <InvoiceForm 
+          open={showInvoiceForm} 
+          onOpenChange={setShowInvoiceForm}
+          onSuccess={fetchInvoices}
         />
 
         {/* Filtres et recherche */}
