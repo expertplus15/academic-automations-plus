@@ -1,9 +1,21 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { 
-  DollarSign, 
-  FileText, 
-  CreditCard, 
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarHeader,
+  SidebarFooter,
+} from "@/components/ui/sidebar";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import {
+  DollarSign,
+  FileText,
+  CreditCard,
   PieChart,
   Users,
   Settings,
@@ -14,159 +26,161 @@ import {
   Calculator,
   Award,
   Calendar,
-  ArrowLeft
-} from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+  ArrowLeft,
+  Eye,
+  RefreshCw,
+  Target,
+  User
+} from "lucide-react";
+
+const financeSections = [
+  {
+    title: "Vue d'ensemble",
+    icon: Eye,
+    defaultOpen: true,
+    items: [
+      { title: "Tableau de bord", url: "/finance", icon: PieChart, description: "KPIs financiers" },
+      { title: "Indicateurs clés", url: "/finance/dashboard", icon: TrendingUp, description: "Analytics temps réel" }
+    ]
+  },
+  {
+    title: "Gestion Courante",
+    icon: RefreshCw,
+    items: [
+      { title: "Comptes étudiants", url: "/finance/accounts", icon: Wallet, description: "Soldes & mouvements" },
+      { title: "Facturation", url: "/finance/invoices", icon: FileText, description: "Génération automatique" },
+      { title: "Paiements", url: "/finance/payments", icon: CreditCard, description: "Suivi encaissements" },
+      { title: "Dépenses", url: "/finance/expenses", icon: Receipt, description: "Gestion charges" }
+    ]
+  },
+  {
+    title: "Bourses & Aides",
+    icon: Award,
+    items: [
+      { title: "Programmes de bourses", url: "/finance/scholarships", icon: Award, description: "Gestion bourses" },
+      { title: "Demandes d'aide", url: "/finance/financial-aid", icon: Users, description: "Traitement demandes" },
+      { title: "Attributions", url: "/finance/awards", icon: Award, description: "Suivi attributions" }
+    ]
+  },
+  {
+    title: "Budget & Analyse",
+    icon: Target,
+    items: [
+      { title: "Vue d'ensemble", url: "/finance/budget-overview", icon: PieChart, description: "Dashboard budget" },
+      { title: "Planification", url: "/finance/budget-planning", icon: TrendingUp, description: "Prévisions" },
+      { title: "Suivi", url: "/finance/budget-tracking", icon: BarChart3, description: "Réalisé vs prévisionnel" },
+      { title: "Rapports", url: "/finance/reports", icon: BarChart3, description: "Reporting avancé" },
+      { title: "Analytics", url: "/finance/analytics", icon: PieChart, description: "Business Intelligence" }
+    ]
+  },
+  {
+    title: "Configuration",
+    icon: Settings,
+    items: [
+      { title: "Années fiscales", url: "/finance/fiscal-years", icon: Calendar, description: "Exercices comptables" },
+      { title: "Catégories", url: "/finance/categories", icon: Settings, description: "Classification" },
+      { title: "Méthodes de paiement", url: "/finance/payment-methods", icon: Wallet, description: "Moyens paiement" },
+      { title: "Modèles", url: "/finance/templates", icon: FileText, description: "Templates documents" },
+      { title: "Échéanciers", url: "/finance/schedules", icon: Calendar, description: "Planning paiements" }
+    ]
+  }
+];
 
 export function FinanceModuleSidebar() {
   const location = useLocation();
-  const menuItems = [
-    {
-      title: "Vue d'ensemble",
-      icon: BarChart3,
-      items: [
-        { name: "Tableau de bord", path: "/finance", icon: PieChart },
-        { name: "Indicateurs clés", path: "/finance/dashboard", icon: TrendingUp }
-      ]
-    },
-    {
-      title: "Gestion opérationnelle",
-      icon: Users,
-      items: [
-        { name: "Comptes étudiants", path: "/finance/accounts", icon: Wallet },
-        { name: "Facturation", path: "/finance/invoices", icon: FileText },
-        { name: "Gestion des paiements", path: "/finance/payments", icon: CreditCard },
-        { name: "Dépenses", path: "/finance/expenses", icon: Receipt }
-      ]
-    },
-    {
-      title: "Bourses & Aides",
-      icon: Award,
-      items: [
-        { name: "Programmes de bourses", path: "/finance/scholarships", icon: Award },
-        { name: "Demandes d'aide", path: "/finance/financial-aid", icon: Users },
-        { name: "Attributions", path: "/finance/awards", icon: Award }
-      ]
-    },
-    {
-      title: "Budgets",
-      icon: Calculator,
-      items: [
-        { name: "Vue d'ensemble", path: "/finance/budget-overview", icon: PieChart },
-        { name: "Planification", path: "/finance/budget-planning", icon: TrendingUp },
-        { name: "Suivi", path: "/finance/budget-tracking", icon: BarChart3 }
-      ]
-    },
-    {
-      title: "Analyse & Rapports",
-      icon: BarChart3,
-      items: [
-        { name: "Historique des paiements", path: "/finance/payment-history", icon: Receipt },
-        { name: "Rapports financiers", path: "/finance/reports", icon: BarChart3 },
-        { name: "Flux de trésorerie", path: "/finance/cash-flow", icon: TrendingUp },
-        { name: "Analytics", path: "/finance/analytics", icon: PieChart }
-      ]
-    },
-    {
-      title: "États financiers",
-      icon: BarChart3,
-      items: [
-        { name: "Bilan comptable", path: "/finance/balance-sheet", icon: PieChart },
-        { name: "Compte de résultat", path: "/finance/income-statement", icon: TrendingUp },
-        { name: "Flux de trésorerie", path: "/finance/cash-flow", icon: TrendingUp },
-        { name: "Ratios financiers", path: "/finance/financial-ratios", icon: Calculator }
-      ]
-    },
-    {
-      title: "Configuration",
-      icon: Settings,
-      items: [
-        { name: "Années fiscales", path: "/finance/fiscal-years", icon: Calendar },
-        { name: "Catégories", path: "/finance/categories", icon: Settings },
-        { name: "Méthodes de paiement", path: "/finance/payment-methods", icon: Wallet },
-        { name: "Modèles de factures", path: "/finance/templates", icon: FileText },
-        { name: "Échéanciers", path: "/finance/schedules", icon: Calendar },
-        { name: "Paramètres fiscaux", path: "/finance/tax-settings", icon: Calculator },
-        { name: "Rapprochement", path: "/finance/reconciliation", icon: Calculator }
-      ]
-    }
-  ];
 
   return (
-    <div className="w-64 bg-black text-white border-r border-gray-800 p-4 space-y-6 overflow-y-auto">
-      {/* Bouton retour */}
-      <Link
-        to="/dashboard"
-        className="flex items-center gap-2 p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors mb-4"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span className="text-sm">Retour au tableau de bord</span>
-      </Link>
-
-      {/* Header du module */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-[rgb(245,158,11)] rounded-lg">
-          <DollarSign className="w-6 h-6 text-white" />
-        </div>
-        <div>
-          <h2 className="text-xl font-bold text-white">Finance</h2>
-          <p className="text-xs text-gray-300">Gestion financière</p>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <nav className="space-y-4">
-        {menuItems.map((section, index) => (
-          <div key={index} className="space-y-2">
-            <div className="flex items-center gap-2 text-gray-300 text-sm font-medium">
-              <section.icon className="w-4 h-4" />
-              <span>{section.title}</span>
-            </div>
-            <div className="space-y-1 ml-6">
-              {section.items.map((item, itemIndex) => (
-                <Link
-                  key={itemIndex}
-                  to={item.path}
-                  className={`flex items-center gap-2 p-2 text-sm rounded-lg transition-colors ${
-                    location.pathname === item.path
-                      ? 'text-white bg-[rgb(245,158,11)]'
-                      : 'text-gray-400 hover:text-white hover:bg-gray-800'
-                  }`}
-                >
-                  <item.icon className="w-4 h-4" />
-                  <span>{item.name}</span>
-                </Link>
-              ))}
-            </div>
+    <Sidebar className="border-r-0">
+      <SidebarHeader className="p-4 border-b border-sidebar-border/30">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 bg-finance rounded-xl flex items-center justify-center shadow-sm">
+            <DollarSign className="w-5 h-5 text-white" />
           </div>
-        ))}
-      </nav>
-
-      {/* Statistics card */}
-      <Card className="bg-gray-900 border-gray-700">
-        <CardContent className="p-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400">Revenus du mois</span>
-              <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                +12%
-              </Badge>
-            </div>
-            <div className="text-lg font-bold text-white">€125,340</div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs">
-                <span className="text-gray-400">Factures en cours</span>
-                <span className="text-white">23</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-gray-400">Paiements en attente</span>
-                <span className="text-white">8</span>
-              </div>
-            </div>
+          <div className="flex-1">
+            <h1 className="text-base font-semibold text-sidebar-foreground tracking-tight">Finance & Comptabilité</h1>
+            <p className="text-xs text-sidebar-foreground/60 mt-0.5">Module actif</p>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </SidebarHeader>
+
+      <SidebarContent className="px-4">
+        <div className="pt-4 pb-2">
+          <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors w-full">
+            <ArrowLeft className="w-4 h-4 text-sidebar-foreground" />
+            <span className="text-sm text-sidebar-foreground">Retour</span>
+          </Link>
+        </div>
+        
+        <SidebarGroup className="py-4">
+          <SidebarGroupContent>
+            <Accordion type="multiple" defaultValue={["vue-d-ensemble"]} className="w-full space-y-2">
+              {financeSections.map((section, index) => {
+                const SectionIcon = section.icon;
+                const sectionId = section.title.toLowerCase().replace(/\s+/g, '-').replace(/[àâä]/g, 'a').replace(/[éèêë]/g, 'e');
+                return (
+                  <AccordionItem key={index} value={sectionId} className="border-0">
+                    <AccordionTrigger className="py-2 px-3 hover:bg-sidebar-accent rounded-lg text-sm font-medium text-sidebar-foreground hover:no-underline">
+                      <div className="flex items-center gap-3">
+                        <SectionIcon className="w-4 h-4 text-primary" />
+                        <span>{section.title}</span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-0 pt-1">
+                      <SidebarMenu className="space-y-1 ml-4">
+                        {section.items.map(item => {
+                          const ItemIcon = item.icon;
+                          const isActive = location.pathname === item.url;
+                          return (
+                            <SidebarMenuItem key={item.title}>
+                              <SidebarMenuButton asChild>
+                                <Link 
+                                  to={item.url} 
+                                  className={cn(
+                                    "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors relative",
+                                    "text-sidebar-foreground hover:bg-sidebar-accent",
+                                    isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                                  )}
+                                >
+                                  {isActive && <div className="absolute left-0 w-1 h-5 bg-primary rounded-r" />}
+                                  <ItemIcon className="w-4 h-4 text-primary" />
+                                  <div className="flex-1 min-w-0">
+                                    <span className="text-sm block truncate">{item.title}</span>
+                                    <span className="text-xs text-muted-foreground block truncate">{item.description}</span>
+                                  </div>
+                                  {isActive && <div className="w-2 h-2 bg-primary rounded-full" />}
+                                </Link>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          );
+                        })}
+                      </SidebarMenu>
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })}
+            </Accordion>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter className="p-4 border-t border-sidebar-border/30">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+            <User className="w-4 h-4 text-gray-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-sidebar-foreground truncate">Administrateur Principal</p>
+            <p className="text-xs text-sidebar-foreground/70 truncate">admin</p>
+          </div>
+        </div>
+        <div className="space-y-1 text-xs text-sidebar-foreground/50">
+          <p>version 2.1.4</p>
+          <div className="flex items-center gap-2">
+            <span>Système OK</span>
+            <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+          </div>
+        </div>
+      </SidebarFooter>
+    </Sidebar>
   );
 }
