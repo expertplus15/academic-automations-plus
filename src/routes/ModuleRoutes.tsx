@@ -58,6 +58,21 @@ import AcademicTimetables from '@/pages/academic/Timetables';
 import AcademicInfrastructure from '@/pages/academic/Infrastructure';
 
 
+// Exams module pages
+import Exams from '@/pages/Exams';
+import ExamsDashboard from '@/pages/exams/Dashboard';
+import ExamsAnalytics from '@/pages/exams/Analytics';
+import ExamsOptimization from '@/pages/exams/Optimization';
+import ExamsCalendar from '@/pages/exams/Calendar';
+import ExamsReports from '@/pages/exams/Reports';
+import ExamsSettings from '@/pages/exams/Settings';
+import ExamsPlanning from '@/pages/exams/Planning';
+import ExamsRooms from '@/pages/exams/Rooms';
+import ExamsSupervisors from '@/pages/exams/Supervisors';
+import ExamsIncidents from '@/pages/exams/Incidents';
+import ExamsInvitations from '@/pages/exams/Invitations';
+import ExamsMonitoring from '@/pages/exams/Monitoring';
+
 // New ACADEMIC+ modules
 import Results from '@/pages/Results';
 import Services from '@/pages/Services';
@@ -133,7 +148,21 @@ export function ModuleRoutes() {
       <Route path="/academic/pathways" element={<AcademicPathways />} />
       <Route path="/academic/timetables" element={<AcademicTimetables />} />
       <Route path="/academic/infrastructure" element={<AcademicInfrastructure />} />
-      
+
+      {/* Exams Module Routes - All using ExamsModuleLayout */}
+      <Route path="/exams" element={<Exams />} />
+      <Route path="/exams/dashboard" element={<ExamsDashboard />} />
+      <Route path="/exams/planning" element={<ExamsPlanning />} />
+      <Route path="/exams/analytics" element={<ExamsAnalytics />} />
+      <Route path="/exams/optimization" element={<ExamsOptimization />} />
+      <Route path="/exams/calendar" element={<ExamsCalendar />} />
+      <Route path="/exams/rooms" element={<ExamsRooms />} />
+      <Route path="/exams/supervisors" element={<ExamsSupervisors />} />
+      <Route path="/exams/monitoring" element={<ExamsMonitoring />} />
+      <Route path="/exams/incidents" element={<ExamsIncidents />} />
+      <Route path="/exams/invitations" element={<ExamsInvitations />} />
+      <Route path="/exams/reports" element={<ExamsReports />} />
+      <Route path="/exams/settings" element={<ExamsSettings />} />
 
       {/* New ACADEMIC+ Module Routes */}
       <Route path="/results" element={<Results />} />
