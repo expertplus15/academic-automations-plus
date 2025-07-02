@@ -6,12 +6,12 @@
 
 @layer base {
   :root {
-    /* Base colors - Exact screenshot colors */
-    --background: 210 27% 10%;     /* #1a1f2e */
-    --foreground: 210 40% 98%;
+    /* Base colors - Light theme */
+    --background: 210 40% 98%;     /* #f8fafc */
+    --foreground: 210 10% 23%;     /* #334155 */
 
-    --card: 217 20% 18%;           /* #2a3441 */
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 100%;             /* #ffffff */
+    --card-foreground: 210 10% 23%; /* #334155 */
 
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
@@ -37,19 +37,22 @@
 
     --radius: 0.5rem;
 
-    /* Academic+ Module Colors */
-    --academic: 59 130 246;       /* #3b82f6 - Bleu */
-    --students: 16 185 129;       /* #10b981 - Vert */
-    --exams: 99 102 241;          /* #6366f1 - Indigo */
-    --results: 139 92 246;        /* #8b5cf6 - Violet */
-    --finance: 245 158 11;        /* #f59e0b - Orange */
-    --elearning: 6 182 212;       /* #06b6d4 - Cyan */
-    --hr: 5 150 105;              /* #059669 - Émeraude */
-    --resources: 217 119 6;       /* #d97706 - Amber */
-    --partnerships: 236 72 153;   /* #ec4899 - Rose */
+    /* Academic+ Module Colors - Updated palette */
+    --academic: 79 127 255;       /* #4F78FF - Bleu */
+    --students: 16 185 129;       /* #10B981 - Vert */
+    --exams: 139 92 246;          /* #8B5CF6 - Violet */
+    --results: 139 92 246;        /* #8B5CF6 - Violet */
+    --finance: 245 158 11;        /* #F59E0B - Orange */
+    --elearning: 79 127 255;      /* #4F78FF - Bleu */
+    --hr: 16 185 129;             /* #10B981 - Vert */
+    --resources: 245 158 11;      /* #F59E0B - Orange */
+    --partnerships: 139 92 246;   /* #8B5CF6 - Violet */
     --settings: 100 116 139;      /* #64748b - Slate */
-    --services: 101 163 13;       /* #65a30d - Lime */
-    --health: 220 38 38;          /* #dc2626 - Rouge */
+    --services: 16 185 129;       /* #10B981 - Vert */
+    --health: 239 68 68;          /* #EF4444 - Rouge */
+
+    /* Text colors */
+    --text-secondary: 203 19% 56%; /* #64748B */
 
     /* Sidebar colors */
     --sidebar-background: 0 0% 6%;        /* #0f0f0f - Deep black */

@@ -26,107 +26,107 @@ export function ModulesGrid() {
     {
       title: "Académique",
       icon: GraduationCap,
-      color: "bg-blue-500",
+      color: "bg-[#4F78FF]",
       notifications: 12,
       onClick: () => navigate('/academic')
     },
     {
       title: "Gestion Étudiants",
       icon: Users,
-      color: "bg-green-500",
+      color: "bg-[#10B981]",
       notifications: 3,
       onClick: () => navigate('/students')
     },
     {
       title: "Finance",
       icon: DollarSign,
-      color: "bg-orange-500",
+      color: "bg-[#F59E0B]",
       notifications: 7,
       onClick: () => navigate('/finance')
     },
     {
       title: "Ressources Humaines",
       icon: UserCheck,
-      color: "bg-purple-500",
+      color: "bg-[#8B5CF6]",
       notifications: 2,
       onClick: () => navigate('/hr')
     },
     {
       title: "Communication",
       icon: MessageSquare,
-      color: "bg-cyan-500",
+      color: "bg-[#4F78FF]",
       notifications: 15,
       onClick: () => navigate('/communication')
     },
     {
       title: "Documents",
       icon: FileText,
-      color: "bg-indigo-500",
+      color: "bg-[#8B5CF6]",
       notifications: 4,
       onClick: () => navigate('/documents')
     },
     {
       title: "eLearning",
       icon: BookOpen,
-      color: "bg-teal-500",
+      color: "bg-[#4F78FF]",
       notifications: 8,
       onClick: () => navigate('/elearning')
     },
     {
       title: "Examens",
       icon: Calendar,
-      color: "bg-red-500",
+      color: "bg-[#EF4444]",
       notifications: 6,
       onClick: () => navigate('/exams')
     },
     {
       title: "Inventaire",
       icon: Package,
-      color: "bg-yellow-500",
+      color: "bg-[#F59E0B]",
       notifications: 1,
       onClick: () => navigate('/inventory')
     },
     {
       title: "Partenariats",
       icon: Handshake,
-      color: "bg-pink-500",
+      color: "bg-[#8B5CF6]",
       notifications: 5,
       onClick: () => navigate('/partnerships')
     },
     {
       title: "Paramètres",
       icon: Settings,
-      color: "bg-gray-500",
+      color: "bg-[#64748B]",
       notifications: 0,
       onClick: () => navigate('/settings')
     }
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
       {modules.map((module, index) => (
         <Card 
           key={index}
-          className="bg-white/10 border-white/20 backdrop-blur-sm hover:bg-white/15 transition-all duration-200 cursor-pointer group relative"
+          className="bg-white rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border-0 hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] transition-all duration-200 cursor-pointer group relative"
           onClick={module.onClick}
         >
           <CardContent className="p-6 text-center">
             {/* Badge de notification */}
             {module.notifications > 0 && (
               <Badge 
-                className="absolute -top-2 -right-2 bg-red-500 text-white border-red-600 text-xs min-w-[20px] h-5 flex items-center justify-center rounded-full"
+                className="absolute -top-2 -right-2 bg-[#EF4444] text-white border-0 text-xs min-w-[20px] h-5 flex items-center justify-center rounded-full shadow-sm"
               >
                 {module.notifications}
               </Badge>
             )}
             
             {/* Icône */}
-            <div className={`w-12 h-12 mx-auto mb-3 rounded-lg ${module.color} flex items-center justify-center`}>
+            <div className={`w-12 h-12 mx-auto mb-4 rounded-2xl ${module.color} flex items-center justify-center shadow-sm`}>
               <module.icon className="w-6 h-6 text-white" />
             </div>
             
             {/* Titre */}
-            <h3 className="text-white font-medium text-sm group-hover:text-blue-100 transition-colors">
+            <h3 className="text-foreground font-semibold text-sm group-hover:text-[#4F78FF] transition-colors">
               {module.title}
             </h3>
           </CardContent>

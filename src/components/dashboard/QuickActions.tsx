@@ -16,7 +16,7 @@ export function QuickActions() {
       description: "Saisir et consulter les notes",
       icon: GraduationCap,
       stats: "234 notes à saisir",
-      color: "bg-blue-500",
+      color: "bg-[#4F78FF]",
       href: "/academic/grades"
     },
     {
@@ -24,7 +24,7 @@ export function QuickActions() {
       description: "Emplois du temps et horaires",
       icon: Calendar,
       stats: "5 conflits détectés",
-      color: "bg-purple-500",
+      color: "bg-[#8B5CF6]",
       href: "/academic/timetables"
     },
     {
@@ -32,7 +32,7 @@ export function QuickActions() {
       description: "Inscriptions et profils",
       icon: Users,
       stats: "12 nouvelles demandes",
-      color: "bg-green-500",
+      color: "bg-[#10B981]",
       href: "/students"
     },
     {
@@ -40,37 +40,46 @@ export function QuickActions() {
       description: "Génération des bulletins",
       icon: FileText,
       stats: "45 bulletins prêts",
-      color: "bg-orange-500",
+      color: "bg-[#F59E0B]",
       href: "/results/transcripts"
     }
   ];
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-white">Actions Académiques Rapides</h2>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-semibold text-white">Actions Académiques Rapides</h2>
+        <Button 
+          variant="ghost" 
+          className="text-white/80 hover:text-white hover:bg-white/10 rounded-xl"
+        >
+          Module Principal →
+        </Button>
+      </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {quickActions.map((action, index) => (
           <Card 
             key={index} 
-            className="bg-white/10 border-white/20 backdrop-blur-sm hover:bg-white/15 transition-all duration-200 cursor-pointer group"
+            className="bg-white rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border-0 hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)] transition-all duration-200 cursor-pointer group"
           >
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
-                <div className={`p-3 rounded-lg ${action.color}`}>
+                <div className={`p-3 rounded-xl ${action.color} shadow-sm`}>
                   <action.icon className="w-6 h-6 text-white" />
                 </div>
-                <ArrowRight className="w-5 h-5 text-white/50 group-hover:text-white transition-colors" />
+                <ArrowRight className="w-5 h-5 text-[#64748B] group-hover:text-[#4F78FF] transition-colors" />
               </div>
               
-              <h3 className="text-white font-semibold mb-2">{action.title}</h3>
-              <p className="text-blue-100 text-sm mb-3">{action.description}</p>
-              <p className="text-blue-200 text-xs">{action.stats}</p>
+              <h3 className="text-foreground font-semibold mb-2">{action.title}</h3>
+              <p className="text-[#64748B] text-sm mb-3">{action.description}</p>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-2 h-2 rounded-full bg-[#10B981]"></div>
+                <p className="text-[#64748B] text-xs">{action.stats}</p>
+              </div>
               
               <Button 
-                variant="secondary" 
-                size="sm" 
-                className="w-full mt-4 bg-white/20 border-white/30 text-white hover:bg-white/30"
+                className="w-full bg-[#1F2937] hover:bg-[#1F2937]/90 text-white rounded-xl font-semibold py-2.5 transition-all duration-200"
               >
                 Accéder
               </Button>

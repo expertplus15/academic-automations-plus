@@ -43,41 +43,37 @@ export function RecentActivity() {
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'success': return 'bg-green-500/20 text-green-100 border-green-400/30';
-      case 'warning': return 'bg-orange-500/20 text-orange-100 border-orange-400/30';
-      case 'info': return 'bg-blue-500/20 text-blue-100 border-blue-400/30';
-      default: return 'bg-gray-500/20 text-gray-100 border-gray-400/30';
+      case 'success': return 'bg-[#10B981]';
+      case 'warning': return 'bg-[#F59E0B]';
+      case 'info': return 'bg-[#4F78FF]';
+      default: return 'bg-[#64748B]';
     }
   };
 
   return (
-    <Card className="bg-white/10 border-white/20 backdrop-blur-sm">
+    <Card className="bg-white rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border-0">
       <CardHeader className="pb-4">
-        <CardTitle className="text-white text-xl flex items-center gap-2">
-          <Clock className="w-5 h-5" />
+        <CardTitle className="text-foreground text-xl font-semibold flex items-center gap-2">
+          <Clock className="w-5 h-5 text-[#4F78FF]" />
           Activité Récente
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {activities.map((activity, index) => (
-          <div key={index} className="flex items-start gap-4 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
-            <div className={`p-2 rounded-lg ${getTypeColor(activity.type)}`}>
-              <activity.icon className="w-4 h-4" />
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {activities.map((activity, index) => (
+            <div key={index} className="flex items-center gap-3 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
+              <div className={`p-2.5 rounded-xl shadow-sm ${getTypeColor(activity.type)}`}>
+                <activity.icon className="w-4 h-4 text-white" />
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                <h4 className="text-foreground font-semibold text-sm">{activity.title}</h4>
+                <p className="text-[#64748B] text-xs truncate">{activity.description}</p>
+                <p className="text-[#64748B] text-xs mt-1">{activity.time}</p>
+              </div>
             </div>
-            
-            <div className="flex-1 min-w-0">
-              <h4 className="text-white font-medium">{activity.title}</h4>
-              <p className="text-blue-100 text-sm">{activity.description}</p>
-            </div>
-            
-            <Badge 
-              variant="outline" 
-              className="bg-white/10 border-white/20 text-blue-200 text-xs"
-            >
-              {activity.time}
-            </Badge>
-          </div>
-        ))}
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
