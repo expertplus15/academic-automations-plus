@@ -63,13 +63,6 @@ const academicSections = [
     items: [
       { title: "Infrastructures", url: "/academic/infrastructure", icon: Building }
     ]
-  },
-  {
-    title: "Évaluations",
-    icon: FileText,
-    items: [
-      { title: "Évaluations", url: "/academic/evaluations", icon: FileText }
-    ]
   }
 ];
 export function AcademicModuleSidebar() {
