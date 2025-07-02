@@ -93,15 +93,15 @@ export function FinanceModuleSidebar() {
   ];
 
   return (
-    <div className="w-64 bg-sidebar-background text-sidebar-foreground border-r border-sidebar-border p-4 space-y-6 overflow-y-auto">
+    <div className="w-64 bg-black text-white border-r border-gray-800 p-4 space-y-6 overflow-y-auto">
       {/* Header du module */}
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 bg-[rgb(245,158,11)] rounded-lg">
           <DollarSign className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-sidebar-foreground">Finance</h2>
-          <p className="text-xs text-sidebar-foreground/70">Gestion financière</p>
+          <h2 className="text-xl font-bold text-white">Finance</h2>
+          <p className="text-xs text-gray-300">Gestion financière</p>
         </div>
       </div>
 
@@ -109,7 +109,7 @@ export function FinanceModuleSidebar() {
       <nav className="space-y-4">
         {menuItems.map((section, index) => (
           <div key={index} className="space-y-2">
-            <div className="flex items-center gap-2 text-sidebar-foreground/80 text-sm font-medium">
+            <div className="flex items-center gap-2 text-gray-300 text-sm font-medium">
               <section.icon className="w-4 h-4" />
               <span>{section.title}</span>
             </div>
@@ -118,7 +118,7 @@ export function FinanceModuleSidebar() {
                 <a
                   key={itemIndex}
                   href={item.path}
-                  className="flex items-center gap-2 p-2 text-sm text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent rounded-lg transition-colors"
+                  className="flex items-center gap-2 p-2 text-sm text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
                 >
                   <item.icon className="w-4 h-4" />
                   <span>{item.name}</span>
@@ -130,24 +130,24 @@ export function FinanceModuleSidebar() {
       </nav>
 
       {/* Statistics card */}
-      <Card className="bg-sidebar-accent/20 border-sidebar-border/20">
+      <Card className="bg-gray-900 border-gray-700">
         <CardContent className="p-4">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-sidebar-foreground/70">Revenus du mois</span>
+              <span className="text-xs text-gray-400">Revenus du mois</span>
               <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
                 +12%
               </Badge>
             </div>
-            <div className="text-lg font-bold text-sidebar-foreground">€125,340</div>
+            <div className="text-lg font-bold text-white">€125,340</div>
             <div className="space-y-2">
               <div className="flex justify-between text-xs">
-                <span className="text-sidebar-foreground/60">Factures en cours</span>
-                <span className="text-sidebar-foreground">23</span>
+                <span className="text-gray-400">Factures en cours</span>
+                <span className="text-white">23</span>
               </div>
               <div className="flex justify-between text-xs">
-                <span className="text-sidebar-foreground/60">Paiements en attente</span>
-                <span className="text-sidebar-foreground">8</span>
+                <span className="text-gray-400">Paiements en attente</span>
+                <span className="text-white">8</span>
               </div>
             </div>
           </div>
