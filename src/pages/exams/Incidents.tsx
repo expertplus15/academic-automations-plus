@@ -1,12 +1,11 @@
-import { ExamsPageHeader } from "@/components/ExamsPageHeader";
+import { ExamsModuleLayout } from "@/components/layouts/ExamsModuleLayout";
 
 export default function Incidents() {
   return (
-    <div className="min-h-screen bg-background">
-      <ExamsPageHeader 
-        title="Incidents & PV" 
-        subtitle="Gestion des problèmes et procès-verbaux" 
-      />
+    <ExamsModuleLayout 
+      title="Incidents & PV" 
+      subtitle="Gestion des problèmes et procès-verbaux"
+    >
       <div className="p-6">
         <div className="max-w-6xl mx-auto">
           <div className="bg-card rounded-lg border p-6">
@@ -17,6 +16,6 @@ export default function Incidents() {
           </div>
         </div>
       </div>
-    </div>
+    </ExamsModuleLayout>
   );
 }

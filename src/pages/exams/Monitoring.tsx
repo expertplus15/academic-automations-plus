@@ -1,12 +1,11 @@
-import { ExamsPageHeader } from "@/components/ExamsPageHeader";
+import { ExamsModuleLayout } from "@/components/layouts/ExamsModuleLayout";
 
 export default function Monitoring() {
   return (
-    <div className="min-h-screen bg-background">
-      <ExamsPageHeader 
-        title="Surveillance temps réel" 
-        subtitle="Sessions en cours de surveillance" 
-      />
+    <ExamsModuleLayout 
+      title="Surveillance temps réel" 
+      subtitle="Sessions en cours de surveillance"
+    >
       <div className="p-6">
         <div className="max-w-6xl mx-auto">
           <div className="bg-card rounded-lg border p-6">
@@ -17,6 +16,6 @@ export default function Monitoring() {
           </div>
         </div>
       </div>
-    </div>
+    </ExamsModuleLayout>
   );
 }
