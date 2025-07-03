@@ -70,13 +70,23 @@ const financeSections = [
     ]
   },
   {
-    title: "Pilotage & Configuration",
+    title: "Pilotage",
     icon: Bot,
     items: [
       { title: "Intelligence Financière", url: "/finance/admin-ia", icon: Bot, description: "IA prédictive & optimisation" },
       { title: "Gestionnaire Budgétaire", url: "/finance/budget-manager", icon: Calculator, description: "Pilotage budgets unifié" },
       { title: "Contrôle de Gestion", url: "/finance/management-control", icon: Target, description: "KPIs & tableaux de bord" },
       { title: "Clôtures Rapides", url: "/finance/closing", icon: CheckCircle, description: "Automatisation J+3" }
+    ]
+  },
+  {
+    title: "Paramètres",
+    icon: Settings,
+    items: [
+      { title: "Configuration Système", url: "/finance/config", icon: Settings, description: "Plan comptable & paramètres" },
+      { title: "Paramètres Fiscaux", url: "/finance/tax-settings", icon: Calculator, description: "TVA & réglementations" },
+      { title: "Gestion des Utilisateurs", url: "/finance/users", icon: User, description: "Droits & permissions" },
+      { title: "Sauvegardes", url: "/finance/backups", icon: RefreshCw, description: "Archivage & restauration" }
     ]
   }
 ];
