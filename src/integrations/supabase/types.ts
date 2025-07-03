@@ -2956,6 +2956,16 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      validate_grade_entry: {
+        Args: {
+          p_student_id: string
+          p_subject_id: string
+          p_evaluation_type_id: string
+          p_grade: number
+          p_max_grade?: number
+        }
+        Returns: Json
+      }
     }
     Enums: {
       student_status: "active" | "suspended" | "graduated" | "dropped"
