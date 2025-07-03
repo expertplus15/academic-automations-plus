@@ -2,9 +2,7 @@ import React from 'react';
 import { ModuleLayout } from '@/components/layouts/ModuleLayout';
 import { FinanceModuleSidebar } from '@/components/FinanceModuleSidebar';
 import { FinancePageHeader } from '@/components/FinancePageHeader';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Receipt, Plus, FileText, Users } from 'lucide-react';
+import { CommercialBilling } from '@/components/finance/CommercialBilling';
 
 export default function Commercial() {
   const stats = [
@@ -48,61 +46,7 @@ export default function Commercial() {
           backPath="/finance"
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Receipt className="w-5 h-5 text-blue-500" />
-                Prestations B2B
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-4">
-                Facturation des formations, audits et conseils externes
-              </p>
-              <Button className="w-full gap-2">
-                <Plus className="w-4 h-4" />
-                Nouvelle Prestation
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-green-500" />
-                Devis & Contrats
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-4">
-                Gestion des devis commerciaux et contrats cadres
-              </p>
-              <Button variant="outline" className="w-full gap-2">
-                <Plus className="w-4 h-4" />
-                Nouveau Devis
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-purple-500" />
-                Clients Entreprises
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-4">
-                Base clients B2B et historique des relations
-              </p>
-              <Button variant="outline" className="w-full gap-2">
-                <Plus className="w-4 h-4" />
-                Nouveau Client
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+        <CommercialBilling />
       </div>
     </ModuleLayout>
   );

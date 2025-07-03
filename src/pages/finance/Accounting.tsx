@@ -1,22 +1,109 @@
-import { FinancePageHeader } from "@/components/FinancePageHeader";
+import React from 'react';
+import { ModuleLayout } from '@/components/layouts/ModuleLayout';
+import { FinanceModuleSidebar } from '@/components/FinanceModuleSidebar';
+import { FinancePageHeader } from '@/components/FinancePageHeader';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Calculator, FileText, BarChart3, Zap } from 'lucide-react';
 
 export default function Accounting() {
+  const stats = [
+    {
+      label: "Écritures Automatiques",
+      value: "2,847",
+      change: "+23%",
+      changeType: "positive" as const
+    },
+    {
+      label: "Validation IA",
+      value: "94%",
+      change: "+8%",
+      changeType: "positive" as const
+    },
+    {
+      label: "Temps de Saisie",
+      value: "75%",
+      change: "Réduction",
+      changeType: "positive" as const
+    },
+    {
+      label: "Erreurs Détectées",
+      value: "12",
+      change: "-68%",
+      changeType: "positive" as const
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-background">
-      <FinancePageHeader 
-        title="Comptabilité générale" 
-        subtitle="Comptabilité automatisée" 
-      />
-      <div className="p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-card rounded-lg border p-6">
-            <h2 className="text-xl font-semibold mb-4">Comptabilité Générale</h2>
-            <p className="text-muted-foreground">
-              Interface de comptabilité automatisée à venir.
-            </p>
-          </div>
+    <ModuleLayout sidebar={<FinanceModuleSidebar />}>
+      <div className="p-8 space-y-8">
+        <FinancePageHeader
+          title="Écritures Automatiques"
+          subtitle="Comptabilisation intelligente avec validation IA"
+          stats={stats}
+          showCreateButton={true}
+          createButtonText="Nouvelle Écriture"
+          showExportButton={true}
+          showBackButton={true}
+          backPath="/finance"
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="w-5 h-5 text-blue-500" />
+                Saisie Automatique
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                IA qui génère les écritures à partir des factures et pièces
+              </p>
+              <Button className="w-full gap-2">
+                <Zap className="w-4 h-4" />
+                Traitement Auto
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calculator className="w-5 h-5 text-green-500" />
+                Journal Intégré
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                Consultation et validation des écritures comptables
+              </p>
+              <Button variant="outline" className="w-full gap-2">
+                <Calculator className="w-4 h-4" />
+                Voir Journal
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-purple-500" />
+                Contrôles Qualité
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                Détection automatique d'anomalies et incohérences
+              </p>
+              <Button variant="outline" className="w-full gap-2">
+                <BarChart3 className="w-4 h-4" />
+                Lancer Contrôles
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
-    </div>
+    </ModuleLayout>
   );
 }
