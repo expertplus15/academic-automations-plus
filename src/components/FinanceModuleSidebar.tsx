@@ -31,58 +31,68 @@ import {
   RefreshCw,
   Target,
   User,
-  LayoutDashboard
+  LayoutDashboard,
+  Bot,
+  Zap,
+  AlertTriangle,
+  CheckCircle
 } from "lucide-react";
 
 const financeSections = [
   {
-    title: "Vue d'ensemble",
+    title: "SM1: Administration & IA",
     icon: Eye,
     defaultOpen: true,
     items: [
-      { title: "Tableau de bord", url: "/finance", icon: PieChart, description: "KPIs financiers" },
-      { title: "Indicateurs clés", url: "/finance/dashboard", icon: TrendingUp, description: "Analytics temps réel" }
+      { title: "Centre de Contrôle IA", url: "/finance/admin-ia", icon: Bot, description: "Optimisations & prédictions" },
+      { title: "Configuration Centrale", url: "/finance/config", icon: Settings, description: "Plan comptable & règles" },
+      { title: "Monitoring Système", url: "/finance/monitoring", icon: TrendingUp, description: "Performance & sécurité" }
     ]
   },
   {
-    title: "Gestion Courante",
+    title: "SM2: Facturation & Avoirs",
     icon: RefreshCw,
     items: [
-      { title: "Comptes étudiants", url: "/finance/accounts", icon: Wallet, description: "Soldes & mouvements" },
-      { title: "Facturation", url: "/finance/invoices", icon: FileText, description: "Génération automatique" },
-      { title: "Paiements", url: "/finance/payments", icon: CreditCard, description: "Suivi encaissements" },
-      { title: "Dépenses", url: "/finance/expenses", icon: Receipt, description: "Gestion charges" }
+      { title: "Facturation Étudiante", url: "/finance/invoices", icon: FileText, description: "Génération automatique" },
+      { title: "Facturation Commerciale", url: "/finance/commercial", icon: Receipt, description: "B2B & prestations" },
+      { title: "Gestion des Avoirs", url: "/finance/credits", icon: Award, description: "Régularisations" }
     ]
   },
   {
-    title: "Bourses & Aides",
-    icon: Award,
+    title: "SM3: Gestion Encaissements",
+    icon: CreditCard,
     items: [
-      { title: "Programmes de bourses", url: "/finance/scholarships", icon: Award, description: "Gestion bourses" },
-      { title: "Demandes d'aide", url: "/finance/financial-aid", icon: Users, description: "Traitement demandes" },
-      { title: "Attributions", url: "/finance/awards", icon: Award, description: "Suivi attributions" }
+      { title: "Hub Paiements", url: "/finance/payments", icon: CreditCard, description: "Tous moyens paiement" },
+      { title: "Réconciliation IA", url: "/finance/reconciliation", icon: Zap, description: "Matching automatique" },
+      { title: "Trésorerie Temps Réel", url: "/finance/treasury", icon: Wallet, description: "Position consolidée" }
     ]
   },
   {
-    title: "Budget & Analyse",
+    title: "SM4: Suivi des Créances", 
     icon: Target,
     items: [
-      { title: "Vue d'ensemble", url: "/finance/budget-overview", icon: PieChart, description: "Dashboard budget" },
-      { title: "Planification", url: "/finance/budget-planning", icon: TrendingUp, description: "Prévisions" },
-      { title: "Suivi", url: "/finance/budget-tracking", icon: BarChart3, description: "Réalisé vs prévisionnel" },
-      { title: "Rapports", url: "/finance/reports", icon: BarChart3, description: "Reporting avancé" },
-      { title: "Analytics", url: "/finance/analytics", icon: PieChart, description: "Business Intelligence" }
+      { title: "Dashboard Créances", url: "/finance/receivables", icon: PieChart, description: "Vue temps réel" },
+      { title: "Recouvrement Auto", url: "/finance/collection", icon: Bot, description: "Workflow intelligent" },
+      { title: "Scoring Risques", url: "/finance/risk-scoring", icon: AlertTriangle, description: "Prédiction IA" }
     ]
   },
   {
-    title: "Configuration",
-    icon: Settings,
+    title: "SM5: Comptabilité Générale",
+    icon: Calculator,
     items: [
-      { title: "Années fiscales", url: "/finance/fiscal-years", icon: Calendar, description: "Exercices comptables" },
-      { title: "Catégories", url: "/finance/categories", icon: Settings, description: "Classification" },
-      { title: "Méthodes de paiement", url: "/finance/payment-methods", icon: Wallet, description: "Moyens paiement" },
-      { title: "Modèles", url: "/finance/templates", icon: FileText, description: "Templates documents" },
-      { title: "Échéanciers", url: "/finance/schedules", icon: Calendar, description: "Planning paiements" }
+      { title: "Écritures Automatiques", url: "/finance/accounting", icon: Calculator, description: "Génération auto" },
+      { title: "Compta Analytique", url: "/finance/analytics-accounting", icon: BarChart3, description: "Multi-axes" },
+      { title: "États Comptables", url: "/finance/statements", icon: FileText, description: "Grand livre & balance" }
+    ]
+  },
+  {
+    title: "SM6: Pilotage & Reporting",
+    icon: Target,
+    items: [
+      { title: "Gestionnaire Budgétaire", url: "/finance/budget-manager", icon: Calculator, description: "Interface unifiée" },
+      { title: "Contrôle de Gestion", url: "/finance/management-control", icon: TrendingUp, description: "KPIs & écarts" },
+      { title: "Reporting Automatisé", url: "/finance/reporting", icon: BarChart3, description: "États financiers" },
+      { title: "Clôtures Express", url: "/finance/closing", icon: CheckCircle, description: "J+3 mensuel" }
     ]
   }
 ];
