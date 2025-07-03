@@ -63,7 +63,9 @@ export default function Matrix() {
                   </SelectTrigger>
                   <SelectContent>
                     {subjectsLoading ? (
-                      <SelectItem value="" disabled>Chargement...</SelectItem>
+                      <SelectItem value="loading" disabled>Chargement...</SelectItem>
+                    ) : subjects.length === 0 ? (
+                      <SelectItem value="empty" disabled>Aucune matière disponible</SelectItem>
                     ) : (
                       subjects.map(subject => (
                         <SelectItem key={subject.id} value={subject.id}>

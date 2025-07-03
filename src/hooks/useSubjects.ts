@@ -22,8 +22,7 @@ export function useSubjects(programId?: string) {
         setLoading(true);
         let query = supabase
           .from('subjects')
-          .select('id, name, code, credits_ects, level_id, program_id')
-          .eq('status', 'active')
+          .select('id, name, code, credits_ects, level_id')
           .order('name');
 
         if (programId) {
