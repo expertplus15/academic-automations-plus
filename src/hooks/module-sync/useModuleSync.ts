@@ -38,6 +38,13 @@ export function useModuleSync() {
   const [syncConfigurations, setSyncConfigurations] = useState<SyncConfiguration[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState(true);
+  const [syncEvents, setSyncEvents] = useState<any[]>([]);
+  const [syncConfig, setSyncConfig] = useState({
+    autoSync: true,
+    enabledModules: ['hr', 'academic', 'finance', 'students'],
+    batchSize: 10
+  });
 
   const fetchSyncData = async () => {
     try {
@@ -284,6 +291,21 @@ export function useModuleSync() {
     }
   };
 
+  const publishEvent = async (module: string, event: string, data: any) => {
+    // Simuler la publication d'événement
+    const newEvent = {
+      id: Date.now().toString(),
+      module,
+      action: event,
+      status: 'completed',
+      timestamp: new Date(),
+      data
+    };
+    
+    setSyncEvents(prev => [newEvent, ...prev].slice(0, 50)); // Garder seulement les 50 derniers
+    return { success: true };
+  };
+
   useEffect(() => {
     fetchSyncData();
   }, []);
@@ -293,9 +315,13 @@ export function useModuleSync() {
     syncConfigurations,
     loading,
     error,
+    isConnected,
+    syncEvents,
+    syncConfig,
     triggerSync,
     updateConfiguration,
     retryFailedOperation,
+    publishEvent,
     refreshSyncData: fetchSyncData
   };
 }
