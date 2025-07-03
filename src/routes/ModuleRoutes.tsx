@@ -46,6 +46,20 @@ import FinanceSuppliers from '@/pages/finance/Suppliers';
 import FinanceBalanceSheet from '@/pages/finance/BalanceSheet';
 import FinanceIncomeStatement from '@/pages/finance/IncomeStatement';
 
+// New Finance sub-modules (SM1-SM6)
+import FinanceAdminIA from '@/pages/finance/AdminIA';
+import FinanceBudgetManager from '@/pages/finance/BudgetManager';
+import FinanceCommercial from '@/pages/finance/Commercial';
+import FinanceCredits from '@/pages/finance/Credits';
+import FinanceTreasury from '@/pages/finance/Treasury';
+import FinanceReceivables from '@/pages/finance/Receivables';
+import FinanceCollection from '@/pages/finance/Collection';
+import FinanceRiskScoring from '@/pages/finance/RiskScoring';
+import FinanceAnalyticsAccounting from '@/pages/finance/AnalyticsAccounting';
+import FinanceStatements from '@/pages/finance/Statements';
+import FinanceManagementControl from '@/pages/finance/ManagementControl';
+import FinanceClosing from '@/pages/finance/Closing';
+
 // Academic module pages
 import Academic from '@/pages/Academic';
 import AcademicPrograms from '@/pages/academic/Programs';
@@ -132,6 +146,31 @@ export function ModuleRoutes() {
       <Route path="/finance/categories" element={<FinanceCategories />} />
       <Route path="/finance/tax-settings" element={<FinanceTaxSettings />} />
       <Route path="/finance/reconciliation" element={<FinanceReconciliation />} />
+      
+      {/* New Finance Sub-Modules (SM1-SM6) */}
+      {/* SM1: Administration & IA */}
+      <Route path="/finance/admin-ia" element={<FinanceAdminIA />} />
+      
+      {/* SM2: Facturation & Avoirs */}
+      <Route path="/finance/commercial" element={<FinanceCommercial />} />
+      <Route path="/finance/credits" element={<FinanceCredits />} />
+      
+      {/* SM3: Gestion Encaissements */}
+      <Route path="/finance/treasury" element={<FinanceTreasury />} />
+      
+      {/* SM4: Suivi des Créances */}
+      <Route path="/finance/receivables" element={<FinanceReceivables />} />
+      <Route path="/finance/collection" element={<FinanceCollection />} />
+      <Route path="/finance/risk-scoring" element={<FinanceRiskScoring />} />
+      
+      {/* SM5: Comptabilité Générale */}
+      <Route path="/finance/analytics-accounting" element={<FinanceAnalyticsAccounting />} />
+      <Route path="/finance/statements" element={<FinanceStatements />} />
+      
+      {/* SM6: Pilotage & Reporting */}
+      <Route path="/finance/budget-manager" element={<FinanceBudgetManager />} />
+      <Route path="/finance/management-control" element={<FinanceManagementControl />} />
+      <Route path="/finance/closing" element={<FinanceClosing />} />
 
       {/* Students Module Routes - All using StudentsModuleLayout */}
       <Route path="/students" element={<Students />} />
