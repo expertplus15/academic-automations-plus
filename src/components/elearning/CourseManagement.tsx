@@ -18,11 +18,16 @@ import {
   Pause
 } from 'lucide-react';
 import { useCourses } from '@/hooks/useCourses';
+import { CourseFormModal } from './CourseFormModal';
+import { useNavigate } from 'react-router-dom';
 
 export function CourseManagement() {
-  const { courses, loading, createCourse } = useCourses();
+  const { courses, loading, fetchCourses } = useCourses();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTab, setSelectedTab] = useState('all');
+  const [showCourseModal, setShowCourseModal] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const navigate = useNavigate();
 
   const filteredCourses = courses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -79,20 +84,38 @@ export function CourseManagement() {
     );
   }
 
+  const handleEditCourse = (course: any) => {
+    setSelectedCourse(course);
+    setShowCourseModal(true);
+  };
+
+  const handleViewCourse = (course: any) => {
+    navigate(`/elearning/authoring?courseId=${course.id}`);
+  };
+
+  const handleModalSuccess = () => {
+    fetchCourses();
+    setSelectedCourse(null);
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Header avec actions */}
-      <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">Gestion des Cours</h2>
-          <p className="text-muted-foreground">Créez et gérez vos cours en ligne</p>
+    <>
+      <div className="space-y-6">
+        {/* Header avec actions */}
+        <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">Gestion des Cours</h2>
+            <p className="text-muted-foreground">Créez et gérez vos cours en ligne</p>
+          </div>
+          
+          <Button 
+            className="bg-cyan-500 hover:bg-cyan-600 text-white"
+            onClick={() => setShowCourseModal(true)}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Nouveau Cours
+          </Button>
         </div>
-        
-        <Button className="bg-cyan-500 hover:bg-cyan-600 text-white">
-          <Plus className="w-4 h-4 mr-2" />
-          Nouveau Cours
-        </Button>
-      </div>
 
       {/* Filtres et recherche */}
       <Card>
@@ -222,10 +245,18 @@ export function CourseManagement() {
                 </div>
                 
                 <div className="flex gap-2">
-                  <Button size="sm" variant="outline">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => handleViewCourse(course)}
+                  >
                     <Eye className="w-3 h-3" />
                   </Button>
-                  <Button size="sm" variant="outline">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => handleEditCourse(course)}
+                  >
                     <Edit className="w-3 h-3" />
                   </Button>
                 </div>
@@ -243,13 +274,24 @@ export function CourseManagement() {
             <p className="text-muted-foreground mb-4">
               {searchTerm ? 'Aucun cours ne correspond à votre recherche.' : 'Commencez par créer votre premier cours.'}
             </p>
-            <Button className="bg-cyan-500 hover:bg-cyan-600 text-white">
+            <Button 
+              className="bg-cyan-500 hover:bg-cyan-600 text-white"
+              onClick={() => setShowCourseModal(true)}
+            >
               <Plus className="w-4 h-4 mr-2" />
               Créer un cours
             </Button>
           </CardContent>
         </Card>
       )}
-    </div>
+      </div>
+
+      <CourseFormModal
+        open={showCourseModal}
+        onOpenChange={setShowCourseModal}
+        course={selectedCourse}
+        onSuccess={handleModalSuccess}
+      />
+    </>
   );
 }
