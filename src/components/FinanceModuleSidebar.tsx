@@ -35,7 +35,8 @@ import {
   Bot,
   Zap,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
+  Building
 } from "lucide-react";
 
 const financeSections = [
@@ -44,20 +45,27 @@ const financeSections = [
     icon: FileText,
     defaultOpen: true,
     items: [
-      { title: "Facturation Étudiante", url: "/finance/invoices", icon: FileText, description: "Scolarité & frais" },
-      { title: "Facturation Commerciale", url: "/finance/commercial", icon: Receipt, description: "Prestations B2B" },
+      { title: "Facturation Unifiée", url: "/finance/invoices", icon: FileText, description: "Étudiants & commerciale + devis" },
       { title: "Avoirs & Corrections", url: "/finance/credits", icon: RefreshCw, description: "Régularisations automatiques" }
     ]
   },
   {
-    title: "Trésorerie",
+    title: "Trésorerie & Paiements",
     icon: Wallet,
     items: [
-      { title: "Hub Paiements", url: "/finance/payments", icon: CreditCard, description: "Tous moyens de paiement" },
-      { title: "Trésorerie Live", url: "/finance/treasury", icon: Wallet, description: "Position temps réel + prédictions" },
+      { title: "Trésorerie & Hub Paiements", url: "/finance/treasury-payments", icon: Wallet, description: "Position temps réel + tous paiements" },
       { title: "Suivi des Créances", url: "/finance/receivables", icon: PieChart, description: "Analytics & recouvrement" },
       { title: "Réconciliation Auto", url: "/finance/reconciliation", icon: Zap, description: "Matching intelligent" },
       { title: "Scoring Risques", url: "/finance/risk-scoring", icon: AlertTriangle, description: "Prédiction défaillances" }
+    ]
+  },
+  {
+    title: "Dépenses & Fournisseurs",
+    icon: Receipt,
+    items: [
+      { title: "Gestion des Dépenses", url: "/finance/expenses", icon: Receipt, description: "Saisie & validation dépenses" },
+      { title: "Postes de Dépenses", url: "/finance/expense-categories", icon: Target, description: "Catégories & budgets" },
+      { title: "Fournisseurs", url: "/finance/suppliers", icon: Building, description: "Base fournisseurs & contrats" }
     ]
   },
   {
@@ -140,7 +148,8 @@ export function FinanceModuleSidebar() {
                 const getSectionColor = (title: string) => {
                   switch (title) {
                     case 'Facturation': return 'text-blue-500';
-                    case 'Trésorerie': return 'text-green-500';
+                    case 'Trésorerie & Paiements': return 'text-green-500';
+                    case 'Dépenses & Fournisseurs': return 'text-red-500';
                     case 'Comptabilité': return 'text-purple-500';
                     case 'Pilotage': return 'text-orange-500';
                     case 'Paramètres': return 'text-gray-500';
