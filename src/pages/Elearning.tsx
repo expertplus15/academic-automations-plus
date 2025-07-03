@@ -1,6 +1,7 @@
 import React from 'react';
 import { ModuleLayout } from '@/components/layouts/ModuleLayout';
 import { ElearningModuleSidebar } from '@/components/ElearningModuleSidebar';
+import { ElearningPageHeader } from '@/components/ElearningPageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -88,36 +89,32 @@ export default function Elearning() {
 
   return (
     <ModuleLayout sidebar={<ElearningModuleSidebar />}>
+      <ElearningPageHeader 
+        title="eLearning" 
+        subtitle="Plateforme d'apprentissage numérique" 
+      />
       <div className="p-8 space-y-8">
-        {/* Header avec statistiques */}
-        <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">eLearning</h1>
-            <p className="text-muted-foreground text-lg mt-1">Plateforme d'apprentissage numérique</p>
-          </div>
-          
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
-              <Card key={index} className="bg-white rounded-2xl shadow-sm border-0">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground">{stat.label}</p>
-                      <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                    </div>
-                    <div className="p-3 bg-cyan-100 rounded-xl">
-                      <Monitor className="w-6 h-6 text-cyan-600" />
-                    </div>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {stats.map((stat, index) => (
+            <Card key={index} className="bg-white rounded-2xl shadow-sm border-0">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">{stat.label}</p>
+                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
                   </div>
-                  <div className="mt-4 flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-green-600" />
-                    <span className="text-sm text-green-600">{stat.change}</span>
+                  <div className="p-3 bg-cyan-100 rounded-xl">
+                    <Monitor className="w-6 h-6 text-cyan-600" />
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                </div>
+                <div className="mt-4 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-green-600" />
+                  <span className="text-sm text-green-600">{stat.change}</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
