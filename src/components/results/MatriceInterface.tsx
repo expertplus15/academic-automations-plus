@@ -85,7 +85,7 @@ export function MatriceInterface({ subjectId, academicYearId, semester, programI
           studentsMap.set(student.id, {
             id: student.id,
             studentNumber: student.student_number,
-            fullName: student.profiles.full_name
+            fullName: student.profiles?.full_name || 'N/A'
           });
         }
 

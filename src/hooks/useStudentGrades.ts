@@ -106,7 +106,7 @@ export function useStudentGrades() {
         .from('students')
         .select(`
           id, student_number, profile_id,
-          profiles!inner(full_name)
+          profiles(full_name)
         `)
         .eq('status', 'active');
 
