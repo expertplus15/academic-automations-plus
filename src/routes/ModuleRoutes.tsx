@@ -60,6 +60,9 @@ import FinanceStatements from '@/pages/finance/Statements';
 import FinanceAccounting from '@/pages/finance/Accounting';
 import FinanceManagementControl from '@/pages/finance/ManagementControl';
 import FinanceClosing from '@/pages/finance/Closing';
+import FinanceConfig from '@/pages/finance/Config';
+import FinanceUsers from '@/pages/finance/Users';
+import FinanceBackups from '@/pages/finance/Backups';
 
 // Academic module pages
 import Academic from '@/pages/Academic';
@@ -173,6 +176,11 @@ export function ModuleRoutes() {
       <Route path="/finance/budget-manager" element={<FinanceBudgetManager />} />
       <Route path="/finance/management-control" element={<FinanceManagementControl />} />
       <Route path="/finance/closing" element={<FinanceClosing />} />
+      
+      {/* Paramètres */}
+      <Route path="/finance/config" element={<FinanceConfig />} />
+      <Route path="/finance/users" element={<FinanceUsers />} />
+      <Route path="/finance/backups" element={<FinanceBackups />} />
 
       {/* Students Module Routes - All using StudentsModuleLayout */}
       <Route path="/students" element={<Students />} />

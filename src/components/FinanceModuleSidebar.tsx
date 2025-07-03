@@ -131,7 +131,7 @@ export function FinanceModuleSidebar() {
         
         <SidebarGroup className="py-4">
           <SidebarGroupContent>
-            <Accordion type="multiple" defaultValue={["vue-d-ensemble"]} className="w-full space-y-3">
+            <Accordion type="multiple" defaultValue={["facturation"]} className="w-full space-y-3">
               {financeSections.map((section, index) => {
                 const SectionIcon = section.icon;
                 const sectionId = section.title.toLowerCase().replace(/\s+/g, '-').replace(/[àâä]/g, 'a').replace(/[éèêë]/g, 'e');
@@ -139,11 +139,11 @@ export function FinanceModuleSidebar() {
                 // Couleurs thématiques pour Finance
                 const getSectionColor = (title: string) => {
                   switch (title) {
-                    case "Vue d'ensemble": return 'text-emerald-500';
-                    case 'Gestion Courante': return 'text-blue-500';
-                    case 'Bourses & Aides': return 'text-purple-500';
-                    case 'Budget & Analyse': return 'text-orange-500';
-                    case 'Configuration': return 'text-gray-500';
+                    case 'Facturation': return 'text-blue-500';
+                    case 'Trésorerie': return 'text-green-500';
+                    case 'Comptabilité': return 'text-purple-500';
+                    case 'Pilotage': return 'text-orange-500';
+                    case 'Paramètres': return 'text-gray-500';
                     default: return 'text-emerald-500';
                   }
                 };
