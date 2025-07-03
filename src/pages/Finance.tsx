@@ -87,8 +87,7 @@ export default function Finance() {
           title="Finance"
           subtitle="Gestion financière et comptabilité"
           stats={stats}
-          showCreateButton={true}
-          createButtonText="Nouvelle facture"
+          showCreateButton={false}
           showExportButton={true}
         />
 
