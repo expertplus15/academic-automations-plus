@@ -50,7 +50,7 @@ const financeSections = [
     ]
   },
   {
-    title: "Trésorerie Unifiée",
+    title: "Trésorerie",
     icon: Wallet,
     items: [
       { title: "Hub Paiements", url: "/finance/payments", icon: CreditCard, description: "Tous moyens de paiement" },
@@ -61,7 +61,7 @@ const financeSections = [
     ]
   },
   {
-    title: "Comptabilité & Analyse",
+    title: "Comptabilité",
     icon: Calculator,
     items: [
       { title: "Écritures Auto", url: "/finance/accounting", icon: Calculator, description: "Comptabilisation automatique" },
