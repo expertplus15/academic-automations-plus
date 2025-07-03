@@ -205,11 +205,14 @@ export function ProgramCalculationsView({ onBackToMatrix }: ProgramCalculationsV
                 ) : filteredStudents.length === 0 ? (
                   <SelectItem value="empty" disabled>Aucun étudiant dans ce programme</SelectItem>
                 ) : (
-                  filteredStudents.map(student => (
-                    <SelectItem key={student.id} value={student.id}>
-                      {student.profile?.full_name || 'Nom non renseigné'} ({student.student_number})
-                    </SelectItem>
-                  ))
+                  <>
+                    <SelectItem value="all">Tous les étudiants</SelectItem>
+                    {filteredStudents.map(student => (
+                      <SelectItem key={student.id} value={student.id}>
+                        {student.profile?.full_name || 'Nom non renseigné'} ({student.student_number})
+                      </SelectItem>
+                    ))}
+                  </>
                 )}
               </SelectContent>
             </Select>
