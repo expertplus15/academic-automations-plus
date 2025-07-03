@@ -55,7 +55,7 @@ export function MatriceInterface({ subjectId, academicYearId, semester, programI
   const [activeUsers, setActiveUsers] = useState<string[]>(['Vous']);
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
   const [showAverages, setShowAverages] = useState(true);
-  const [selectedEvaluationType, setSelectedEvaluationType] = useState<string>('');
+  const [selectedEvaluationType, setSelectedEvaluationType] = useState<string>('all');
   const autoSaveTimer = useRef<NodeJS.Timeout>();
   
   const { toast } = useToast();
@@ -289,7 +289,7 @@ export function MatriceInterface({ subjectId, academicYearId, semester, programI
                 <SelectValue placeholder="Filtrer par type d'évaluation" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tous les types</SelectItem>
+                <SelectItem value="all">Tous les types</SelectItem>
                 {evaluationTypes.map(type => (
                   <SelectItem key={type.id} value={type.id}>
                     {type.name} ({type.weight_percentage}%)
@@ -327,7 +327,7 @@ export function MatriceInterface({ subjectId, academicYearId, semester, programI
                     Étudiant
                   </th>
                   {evaluationTypes
-                    .filter(type => !selectedEvaluationType || type.id === selectedEvaluationType)
+                    .filter(type => selectedEvaluationType === 'all' || type.id === selectedEvaluationType)
                     .map(evalType => (
                     <th key={evalType.id} className="p-3 text-center font-medium min-w-[120px]">
                       <div>
@@ -359,7 +359,7 @@ export function MatriceInterface({ subjectId, academicYearId, semester, programI
                     </td>
                     
                     {evaluationTypes
-                      .filter(type => !selectedEvaluationType || type.id === selectedEvaluationType)
+                      .filter(type => selectedEvaluationType === 'all' || type.id === selectedEvaluationType)
                       .map(evalType => {
                         const cellKey = getCellKey(student.id, evalType.id);
                         const cell = matrixData.get(cellKey);
