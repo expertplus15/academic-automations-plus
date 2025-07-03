@@ -13,10 +13,11 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbP
 import { Grid, Plus, Settings, ArrowLeft, Upload, FileSpreadsheet } from 'lucide-react';
 import { useAcademicYears } from '@/hooks/useAcademicYears';
 import { useSubjects } from '@/hooks/useSubjects';
+import { usePrograms } from '@/hooks/usePrograms';
 
 export default function Matrix() {
   const [selectedSubject, setSelectedSubject] = useState<string>('');
-  const [selectedProgram, setSelectedProgram] = useState<string>('');
+  const [selectedProgram, setSelectedProgram] = useState<string>('all');
   const [selectedSemester, setSelectedSemester] = useState<string>('1');
   const [activeTab, setActiveTab] = useState<string>('matrix');
   const [showExcelImport, setShowExcelImport] = useState(false);
@@ -27,14 +28,7 @@ export default function Matrix() {
   // Real hooks
   const { currentYear } = useAcademicYears();
   const { subjects, loading: subjectsLoading } = useSubjects();
-  
-  // Mock programs data for now - could be replaced with real programs hook
-  const programs = [
-    { id: '1', name: 'Licence Informatique' },
-    { id: '2', name: 'Licence Mathématiques' },
-    { id: '3', name: 'Master Informatique' },
-    { id: '4', name: 'Master Mathématiques' }
-  ];
+  const { programs, loading: programsLoading } = usePrograms();
 
   const handleBackToResults = () => {
     navigate('/results');
@@ -100,11 +94,18 @@ export default function Matrix() {
                     <SelectValue placeholder="Sélectionner un programme" />
                   </SelectTrigger>
                   <SelectContent>
-                    {programs.map(program => (
-                      <SelectItem key={program.id} value={program.id}>
-                        {program.name}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="all">Tous les programmes</SelectItem>
+                    {programsLoading ? (
+                      <SelectItem value="loading" disabled>Chargement...</SelectItem>
+                    ) : programs.length === 0 ? (
+                      <SelectItem value="empty" disabled>Aucun programme disponible</SelectItem>
+                    ) : (
+                      programs.map(program => (
+                        <SelectItem key={program.id} value={program.id}>
+                          {program.name}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
                 
@@ -173,12 +174,12 @@ export default function Matrix() {
             </TabsList>
 
             <TabsContent value="matrix">
-              {selectedSubject && selectedProgram && currentYear ? (
+              {selectedSubject && (selectedProgram || selectedProgram === 'all') && currentYear ? (
                 <MatriceInterface
                   subjectId={selectedSubject}
                   academicYearId={currentYear.id}
                   semester={parseInt(selectedSemester)}
-                  programId={selectedProgram}
+                  programId={selectedProgram === 'all' ? undefined : selectedProgram}
                 />
               ) : (
                 <Card>

@@ -101,53 +101,74 @@ export function useStudentGrades() {
     setError(null);
 
     try {
-      // First get all students for the program
+      console.log('Loading matrix data for:', { subjectId, academicYearId, semester, programId });
+
+      // First get all students for the program with simplified query
       let studentsQuery = supabase
         .from('students')
         .select(`
-          id, student_number, profile_id,
-          profiles(full_name)
+          id, 
+          student_number, 
+          profile_id,
+          profiles!inner(full_name)
         `)
         .eq('status', 'active');
 
-      if (programId) {
+      if (programId && programId !== 'all') {
         studentsQuery = studentsQuery.eq('program_id', programId);
       }
 
       const { data: students, error: studentsError } = await studentsQuery
         .order('student_number');
 
-      if (studentsError) throw studentsError;
+      if (studentsError) {
+        console.error('Students query error:', studentsError);
+        throw studentsError;
+      }
 
-      // Then get grades for these students
-      const studentIds = students?.map(s => s.id) || [];
-      
-      if (studentIds.length === 0) {
+      console.log('Found students:', students?.length || 0);
+
+      if (!students || students.length === 0) {
+        console.log('No students found');
         return [];
       }
 
+      // Get grades for these students with simplified query
+      const studentIds = students.map(s => s.id);
+      
       const { data: grades, error: gradesError } = await supabase
         .from('student_grades')
         .select(`
           *,
-          evaluation_types!inner(name, code, weight_percentage)
+          evaluation_types(name, code, weight_percentage)
         `)
         .eq('subject_id', subjectId)
         .eq('academic_year_id', academicYearId)
         .eq('semester', semester)
         .in('student_id', studentIds);
 
-      if (gradesError) throw gradesError;
+      if (gradesError) {
+        console.error('Grades query error:', gradesError);
+        throw gradesError;
+      }
 
-      // Combine students and grades data
-      const result = students?.map(student => ({
-        student,
+      console.log('Found grades:', grades?.length || 0);
+
+      // Combine students and grades data with safer access
+      const result = students.map(student => ({
+        student: {
+          id: student.id,
+          student_number: student.student_number,
+          profiles: student.profiles // Keep as nested object for compatibility
+        },
         grades: grades?.filter(g => g.student_id === student.id) || []
-      })) || [];
+      }));
 
+      console.log('Matrix result:', result.length, 'students with grades');
       return result;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erreur lors de la récupération de la matrice';
+      console.error('Matrix loading error:', err);
       setError(message);
       toast({
         title: "Erreur",

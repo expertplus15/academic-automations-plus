@@ -80,12 +80,15 @@ export function MatriceInterface({ subjectId, academicYearId, semester, programI
         const student = studentData.student;
         const grades = studentData.grades || [];
         
-        // Add student
+        // Add student - handle both nested and direct profiles access
         if (!studentsMap.has(student.id)) {
+          const profileName = student.profiles?.full_name || 
+                             (Array.isArray(student.profiles) ? student.profiles[0]?.full_name : null) ||
+                             'N/A';
           studentsMap.set(student.id, {
             id: student.id,
             studentNumber: student.student_number,
-            fullName: student.profiles?.full_name || 'N/A'
+            fullName: profileName
           });
         }
 
@@ -319,104 +322,115 @@ export function MatriceInterface({ subjectId, academicYearId, semester, programI
       {/* Matrix Grid */}
       <Card>
         <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-muted/50">
-                <tr>
-                  <th className="p-3 text-left font-medium sticky left-0 bg-muted/50 min-w-[200px]">
-                    Étudiant
-                  </th>
-                  {evaluationTypes
-                    .filter(type => selectedEvaluationType === 'all' || type.id === selectedEvaluationType)
-                    .map(evalType => (
-                    <th key={evalType.id} className="p-3 text-center font-medium min-w-[120px]">
-                      <div>
-                        <div className="font-semibold">{evalType.name}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {evalType.weight_percentage}%
-                        </div>
-                      </div>
+          {students.length === 0 ? (
+            <div className="p-12 text-center">
+              <Grid className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Aucun étudiant trouvé</h3>
+              <p className="text-muted-foreground">
+                Aucun étudiant n'est inscrit pour cette matière ou ce programme. 
+                Vérifiez vos paramètres de sélection.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-muted/50">
+                  <tr>
+                    <th className="p-3 text-left font-medium sticky left-0 bg-muted/50 min-w-[200px]">
+                      Étudiant
                     </th>
-                  ))}
-                  {showAverages && (
-                    <th className="p-3 text-center font-medium bg-primary/10 min-w-[100px]">
-                      Moyenne
-                    </th>
-                  )}
-                </tr>
-              </thead>
-              
-              <tbody>
-                {students.map((student, index) => (
-                  <tr key={student.id} className={index % 2 === 0 ? 'bg-muted/20' : ''}>
-                    <td className="p-3 sticky left-0 bg-background font-medium">
-                      <div>
-                        <div className="font-semibold">{student.fullName}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {student.studentNumber}
-                        </div>
-                      </div>
-                    </td>
-                    
                     {evaluationTypes
                       .filter(type => selectedEvaluationType === 'all' || type.id === selectedEvaluationType)
-                      .map(evalType => {
-                        const cellKey = getCellKey(student.id, evalType.id);
-                        const cell = matrixData.get(cellKey);
-                        const isLocked = cell?.isLocked || lockedCells.has(cellKey);
-                        
-                        return (
-                          <td key={evalType.id} className="p-2">
-                            <div className="relative">
-                              <Input
-                                type="number"
-                                min="0"
-                                max={cell?.maxGrade || 20}
-                                step="0.25"
-                                value={cell?.grade || ''}
-                                onChange={(e) => updateCell(student.id, evalType.id, e.target.value)}
-                                disabled={isLocked}
-                                className={`text-center ${
-                                  isLocked 
-                                    ? 'bg-red-100 border-red-200' 
-                                    : cell?.grade !== undefined 
-                                      ? 'bg-green-50 border-green-200' 
-                                      : 'bg-orange-50 border-orange-200'
-                                }`}
-                                placeholder="--"
-                              />
-                              
-                              {cell?.editedBy && cell.editedBy !== 'Vous' && (
-                                <div className="absolute -top-2 -right-2 w-3 h-3 bg-blue-500 rounded-full" 
-                                     title={`Édité par ${cell.editedBy}`} />
-                              )}
-                              
-                              <button
-                                onClick={() => toggleCellLock(student.id, evalType.id)}
-                                className="absolute top-0 right-0 p-1 opacity-0 hover:opacity-100 transition-opacity"
-                              >
-                                {isLocked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
-                              </button>
-                            </div>
-                          </td>
-                        );
-                      })}
-                    
-                    {showAverages && (
-                      <td className="p-3 text-center bg-primary/5">
-                        <div className="font-semibold text-lg">
-                          {student.average 
-                            ? `${student.average.toFixed(2)}/20`
-                            : '--'
-                          }
+                      .map(evalType => (
+                      <th key={evalType.id} className="p-3 text-center font-medium min-w-[120px]">
+                        <div>
+                          <div className="font-semibold">{evalType.name}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {evalType.weight_percentage}%
+                          </div>
                         </div>
-                      </td>
+                      </th>
+                    ))}
+                    {showAverages && (
+                      <th className="p-3 text-center font-medium bg-primary/10 min-w-[100px]">
+                        Moyenne
+                      </th>
                     )}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                
+                <tbody>
+                  {students.map((student, index) => (
+                    <tr key={student.id} className={index % 2 === 0 ? 'bg-muted/20' : ''}>
+                      <td className="p-3 sticky left-0 bg-background font-medium">
+                        <div>
+                          <div className="font-semibold">{student.fullName}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {student.studentNumber}
+                          </div>
+                        </div>
+                      </td>
+                      
+                      {evaluationTypes
+                        .filter(type => selectedEvaluationType === 'all' || type.id === selectedEvaluationType)
+                        .map(evalType => {
+                          const cellKey = getCellKey(student.id, evalType.id);
+                          const cell = matrixData.get(cellKey);
+                          const isLocked = cell?.isLocked || lockedCells.has(cellKey);
+                          
+                          return (
+                            <td key={evalType.id} className="p-2">
+                              <div className="relative">
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  max={cell?.maxGrade || 20}
+                                  step="0.25"
+                                  value={cell?.grade || ''}
+                                  onChange={(e) => updateCell(student.id, evalType.id, e.target.value)}
+                                  disabled={isLocked}
+                                  className={`text-center ${
+                                    isLocked 
+                                      ? 'bg-red-100 border-red-200' 
+                                      : cell?.grade !== undefined 
+                                        ? 'bg-green-50 border-green-200' 
+                                        : 'bg-orange-50 border-orange-200'
+                                  }`}
+                                  placeholder="--"
+                                />
+                                
+                                {cell?.editedBy && cell.editedBy !== 'Vous' && (
+                                  <div className="absolute -top-2 -right-2 w-3 h-3 bg-blue-500 rounded-full" 
+                                       title={`Édité par ${cell.editedBy}`} />
+                                )}
+                                
+                                <button
+                                  onClick={() => toggleCellLock(student.id, evalType.id)}
+                                  className="absolute top-0 right-0 p-1 opacity-0 hover:opacity-100 transition-opacity"
+                                >
+                                  {isLocked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
+                                </button>
+                              </div>
+                            </td>
+                          );
+                        })}
+                      
+                      {showAverages && (
+                        <td className="p-3 text-center bg-primary/5">
+                          <div className="font-semibold text-lg">
+                            {student.average 
+                              ? `${student.average.toFixed(2)}/20`
+                              : '--'
+                            }
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </CardContent>
       </Card>
 
