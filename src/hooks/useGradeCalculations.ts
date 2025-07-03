@@ -12,6 +12,25 @@ export interface StudentAverages {
   calculated_at: string;
 }
 
+export interface WeightedGradeCalculation {
+  cc_grade: number;
+  exam_grade: number;
+  weighted_average: number; // ((CC × 0,4) + (EX × 0,6)) / 2
+  coefficient: number;
+  total: number; // weighted_average × coefficient
+  subject_id: string;
+  subject_name: string;
+  nature: 'fondamentale' | 'complementaire';
+}
+
+export interface SemesterCalculation {
+  semester: number;
+  courses: WeightedGradeCalculation[];
+  semester_average: number; // ∑(Total) / ∑(Coefficient)
+  total_coefficients: number;
+  total_points: number;
+}
+
 export interface StudentTranscript {
   student_info: {
     id: string;
@@ -236,6 +255,119 @@ export function useGradeCalculations() {
     }
   }, [calculateStudentAverages, toast]);
 
+  // Calculate weighted average using the specific formula
+  const calculateWeightedAverage = useCallback((ccGrade: number, examGrade: number): number => {
+    return ((ccGrade * 0.4) + (examGrade * 0.6)) / 2;
+  }, []);
+
+  // Calculate semester totals for a student
+  const calculateSemesterCalculations = useCallback(async (
+    studentId: string,
+    academicYearId: string,
+    semester: number
+  ): Promise<SemesterCalculation | null> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Get all grades for the student in this semester
+      const { data: grades, error: gradesError } = await supabase
+        .from('student_grades')
+        .select(`
+          *,
+          subjects!inner(id, name, credits_ects),
+          evaluation_types!inner(name, code)
+        `)
+        .eq('student_id', studentId)
+        .eq('academic_year_id', academicYearId)
+        .eq('semester', semester)
+        .eq('is_published', true);
+
+      if (gradesError) throw gradesError;
+
+      if (!grades || grades.length === 0) {
+        return null;
+      }
+
+      // Group grades by subject and evaluation type
+      const gradesBySubject = grades.reduce((acc, grade) => {
+        const subjectId = grade.subject_id;
+        if (!acc[subjectId]) {
+          acc[subjectId] = {
+            subject_id: subjectId,
+            subject_name: grade.subjects.name,
+            cc_grade: 0,
+            exam_grade: 0,
+            coefficient: grade.subjects.credits_ects || 1,
+            nature: 'fondamentale' as const // Default, should come from subjects table
+          };
+        }
+
+        // Assume CC and EX based on evaluation type code
+        if (grade.evaluation_types.code.toLowerCase().includes('cc') || 
+            grade.evaluation_types.code.toLowerCase().includes('continu')) {
+          acc[subjectId].cc_grade = grade.grade;
+        } else if (grade.evaluation_types.code.toLowerCase().includes('ex') || 
+                   grade.evaluation_types.code.toLowerCase().includes('final')) {
+          acc[subjectId].exam_grade = grade.grade;
+        }
+
+        return acc;
+      }, {} as Record<string, any>);
+
+      // Calculate weighted averages and totals
+      const courses: WeightedGradeCalculation[] = Object.values(gradesBySubject).map((subject: any) => {
+        const weighted_average = calculateWeightedAverage(subject.cc_grade, subject.exam_grade);
+        const total = weighted_average * subject.coefficient;
+
+        return {
+          ...subject,
+          weighted_average,
+          total
+        };
+      });
+
+      // Calculate semester average
+      const total_points = courses.reduce((sum, course) => sum + course.total, 0);
+      const total_coefficients = courses.reduce((sum, course) => sum + course.coefficient, 0);
+      const semester_average = total_coefficients > 0 ? total_points / total_coefficients : 0;
+
+      return {
+        semester,
+        courses,
+        semester_average,
+        total_coefficients,
+        total_points
+      };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erreur lors du calcul du semestre';
+      setError(message);
+      toast({
+        title: "Erreur",
+        description: message,
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, [calculateWeightedAverage, toast]);
+
+  // Calculate general average across semesters
+  const calculateGeneralAverage = useCallback((
+    semester1: SemesterCalculation | null,
+    semester2: SemesterCalculation | null
+  ): number => {
+    if (!semester1 && !semester2) return 0;
+    if (!semester1) return semester2?.semester_average || 0;
+    if (!semester2) return semester1.semester_average;
+
+    const totalPoints = semester1.total_points + semester2.total_points;
+    const totalCoefficients = semester1.total_coefficients + semester2.total_coefficients;
+
+    return totalCoefficients > 0 ? totalPoints / totalCoefficients : 0;
+  }, []);
+
   return {
     loading,
     error,
@@ -243,6 +375,9 @@ export function useGradeCalculations() {
     generateStudentTranscript,
     calculateClassAverages,
     getClassStatistics,
-    recalculateClassProgress
+    recalculateClassProgress,
+    calculateWeightedAverage,
+    calculateSemesterCalculations,
+    calculateGeneralAverage
   };
 }
