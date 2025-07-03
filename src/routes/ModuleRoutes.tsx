@@ -75,6 +75,7 @@ import ExamsMonitoring from '@/pages/exams/Monitoring';
 
 // New ACADEMIC+ modules
 import Results from '@/pages/Results';
+import ResultsMatrix from '@/pages/results/Matrix';
 import Services from '@/pages/Services';
 
 export function ModuleRoutes() {
@@ -166,6 +167,7 @@ export function ModuleRoutes() {
 
       {/* New ACADEMIC+ Module Routes */}
       <Route path="/results" element={<Results />} />
+      <Route path="/results/matrix" element={<ResultsMatrix />} />
       <Route path="/services" element={<Services />} />
     </Routes>
   );
