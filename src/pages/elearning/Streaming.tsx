@@ -1,22 +1,20 @@
+import React from 'react';
+import { ModuleLayout } from '@/components/layouts/ModuleLayout';
+import { ElearningModuleSidebar } from '@/components/ElearningModuleSidebar';
 import { ElearningPageHeader } from "@/components/ElearningPageHeader";
+import { StreamingDashboard } from '@/components/elearning/StreamingDashboard';
 
 export default function Streaming() {
   return (
-    <div className="min-h-screen bg-background">
-      <ElearningPageHeader 
-        title="Streaming vidéo" 
-        subtitle="Streaming adaptatif" 
-      />
-      <div className="p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-card rounded-lg border p-6">
-            <h2 className="text-xl font-semibold mb-4">Streaming Vidéo</h2>
-            <p className="text-muted-foreground">
-              Interface de streaming vidéo adaptatif à venir.
-            </p>
-          </div>
-        </div>
+    <ModuleLayout sidebar={<ElearningModuleSidebar />}>
+      <div className="p-8 space-y-8">
+        <ElearningPageHeader 
+          title="Streaming Vidéo" 
+          subtitle="Gestionnaire de contenu vidéo adaptatif avec analytics" 
+        />
+        
+        <StreamingDashboard />
       </div>
-    </div>
+    </ModuleLayout>
   );
 }

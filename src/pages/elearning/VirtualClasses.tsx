@@ -1,22 +1,20 @@
+import React from 'react';
+import { ModuleLayout } from '@/components/layouts/ModuleLayout';
+import { ElearningModuleSidebar } from '@/components/ElearningModuleSidebar';
 import { ElearningPageHeader } from "@/components/ElearningPageHeader";
+import { VirtualClassManager } from '@/components/elearning/VirtualClassManager';
 
 export default function VirtualClasses() {
   return (
-    <div className="min-h-screen bg-background">
-      <ElearningPageHeader 
-        title="Classes virtuelles" 
-        subtitle="Intégration Zoom, Teams" 
-      />
-      <div className="p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-card rounded-lg border p-6">
-            <h2 className="text-xl font-semibold mb-4">Classes Virtuelles</h2>
-            <p className="text-muted-foreground">
-              Interface de gestion des classes virtuelles à venir.
-            </p>
-          </div>
-        </div>
+    <ModuleLayout sidebar={<ElearningModuleSidebar />}>
+      <div className="p-8 space-y-8">
+        <ElearningPageHeader 
+          title="Classes Virtuelles" 
+          subtitle="Gérez vos sessions de cours en ligne avec Zoom et Teams" 
+        />
+        
+        <VirtualClassManager />
       </div>
-    </div>
+    </ModuleLayout>
   );
 }

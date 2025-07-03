@@ -2661,6 +2661,119 @@ export type Database = {
         }
         Relationships: []
       }
+      session_participants: {
+        Row: {
+          attendance_duration_seconds: number | null
+          created_at: string | null
+          id: string
+          joined_at: string | null
+          left_at: string | null
+          participation_score: number | null
+          session_id: string | null
+          status: string | null
+          student_id: string | null
+        }
+        Insert: {
+          attendance_duration_seconds?: number | null
+          created_at?: string | null
+          id?: string
+          joined_at?: string | null
+          left_at?: string | null
+          participation_score?: number | null
+          session_id?: string | null
+          status?: string | null
+          student_id?: string | null
+        }
+        Update: {
+          attendance_duration_seconds?: number | null
+          created_at?: string | null
+          id?: string
+          joined_at?: string | null
+          left_at?: string | null
+          participation_score?: number | null
+          session_id?: string | null
+          status?: string | null
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_participants_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "virtual_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_participants_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_recordings: {
+        Row: {
+          created_at: string | null
+          download_url: string | null
+          duration_seconds: number | null
+          expires_at: string | null
+          file_path: string | null
+          file_size: number | null
+          id: string
+          recorded_at: string | null
+          recording_type: string | null
+          session_id: string | null
+          status: string | null
+          streaming_url: string | null
+          thumbnail_url: string | null
+          title: string
+          transcription_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          download_url?: string | null
+          duration_seconds?: number | null
+          expires_at?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          recorded_at?: string | null
+          recording_type?: string | null
+          session_id?: string | null
+          status?: string | null
+          streaming_url?: string | null
+          thumbnail_url?: string | null
+          title: string
+          transcription_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          download_url?: string | null
+          duration_seconds?: number | null
+          expires_at?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          recorded_at?: string | null
+          recording_type?: string | null
+          session_id?: string | null
+          status?: string | null
+          streaming_url?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          transcription_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_recordings_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "virtual_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sites: {
         Row: {
           address: string | null
@@ -3095,6 +3208,62 @@ export type Database = {
         }
         Relationships: []
       }
+      subtitles: {
+        Row: {
+          confidence_score: number | null
+          content: string | null
+          created_at: string | null
+          file_format: string | null
+          file_path: string | null
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          language_code: string
+          subtitle_type: string | null
+          title: string
+          updated_at: string | null
+          video_stream_id: string | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          content?: string | null
+          created_at?: string | null
+          file_format?: string | null
+          file_path?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          language_code?: string
+          subtitle_type?: string | null
+          title: string
+          updated_at?: string | null
+          video_stream_id?: string | null
+        }
+        Update: {
+          confidence_score?: number | null
+          content?: string | null
+          created_at?: string | null
+          file_format?: string | null
+          file_path?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          language_code?: string
+          subtitle_type?: string | null
+          title?: string
+          updated_at?: string | null
+          video_stream_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subtitles_video_stream_id_fkey"
+            columns: ["video_stream_id"]
+            isOneToOne: false
+            referencedRelation: "video_streams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       suppliers: {
         Row: {
           address: string | null
@@ -3408,6 +3577,255 @@ export type Database = {
           {
             foreignKeyName: "user_badges_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_streams: {
+        Row: {
+          bitrate: number | null
+          chapters: Json | null
+          created_at: string | null
+          description: string | null
+          download_url: string | null
+          duration_seconds: number | null
+          file_path: string
+          file_size: number | null
+          id: string
+          is_public: boolean | null
+          lesson_id: string | null
+          quality_variants: Json | null
+          recording_id: string | null
+          resolution: string | null
+          status: string | null
+          streaming_url: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string | null
+          video_format: string | null
+        }
+        Insert: {
+          bitrate?: number | null
+          chapters?: Json | null
+          created_at?: string | null
+          description?: string | null
+          download_url?: string | null
+          duration_seconds?: number | null
+          file_path: string
+          file_size?: number | null
+          id?: string
+          is_public?: boolean | null
+          lesson_id?: string | null
+          quality_variants?: Json | null
+          recording_id?: string | null
+          resolution?: string | null
+          status?: string | null
+          streaming_url?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string | null
+          video_format?: string | null
+        }
+        Update: {
+          bitrate?: number | null
+          chapters?: Json | null
+          created_at?: string | null
+          description?: string | null
+          download_url?: string | null
+          duration_seconds?: number | null
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          is_public?: boolean | null
+          lesson_id?: string | null
+          quality_variants?: Json | null
+          recording_id?: string | null
+          resolution?: string | null
+          status?: string | null
+          streaming_url?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string | null
+          video_format?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_streams_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_streams_recording_id_fkey"
+            columns: ["recording_id"]
+            isOneToOne: false
+            referencedRelation: "session_recordings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      viewing_analytics: {
+        Row: {
+          browser: string | null
+          completed_at: string | null
+          completion_status: string | null
+          created_at: string | null
+          device_type: string | null
+          engagement_events: Json | null
+          id: string
+          last_position_seconds: number | null
+          playback_speed: number | null
+          progress_percentage: number | null
+          quality_selected: string | null
+          session_id: string | null
+          started_at: string | null
+          student_id: string | null
+          updated_at: string | null
+          video_stream_id: string | null
+          watch_time_seconds: number | null
+        }
+        Insert: {
+          browser?: string | null
+          completed_at?: string | null
+          completion_status?: string | null
+          created_at?: string | null
+          device_type?: string | null
+          engagement_events?: Json | null
+          id?: string
+          last_position_seconds?: number | null
+          playback_speed?: number | null
+          progress_percentage?: number | null
+          quality_selected?: string | null
+          session_id?: string | null
+          started_at?: string | null
+          student_id?: string | null
+          updated_at?: string | null
+          video_stream_id?: string | null
+          watch_time_seconds?: number | null
+        }
+        Update: {
+          browser?: string | null
+          completed_at?: string | null
+          completion_status?: string | null
+          created_at?: string | null
+          device_type?: string | null
+          engagement_events?: Json | null
+          id?: string
+          last_position_seconds?: number | null
+          playback_speed?: number | null
+          progress_percentage?: number | null
+          quality_selected?: string | null
+          session_id?: string | null
+          started_at?: string | null
+          student_id?: string | null
+          updated_at?: string | null
+          video_stream_id?: string | null
+          watch_time_seconds?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "viewing_analytics_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "viewing_analytics_video_stream_id_fkey"
+            columns: ["video_stream_id"]
+            isOneToOne: false
+            referencedRelation: "video_streams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      virtual_sessions: {
+        Row: {
+          actual_end_time: string | null
+          actual_start_time: string | null
+          auto_record: boolean | null
+          course_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          instructor_id: string | null
+          is_recurring: boolean | null
+          max_participants: number | null
+          meeting_id: string | null
+          meeting_url: string | null
+          metadata: Json | null
+          password: string | null
+          platform: string
+          recording_enabled: boolean | null
+          recurrence_pattern: Json | null
+          scheduled_end_time: string
+          scheduled_start_time: string
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          actual_end_time?: string | null
+          actual_start_time?: string | null
+          auto_record?: boolean | null
+          course_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          instructor_id?: string | null
+          is_recurring?: boolean | null
+          max_participants?: number | null
+          meeting_id?: string | null
+          meeting_url?: string | null
+          metadata?: Json | null
+          password?: string | null
+          platform?: string
+          recording_enabled?: boolean | null
+          recurrence_pattern?: Json | null
+          scheduled_end_time: string
+          scheduled_start_time: string
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          actual_end_time?: string | null
+          actual_start_time?: string | null
+          auto_record?: boolean | null
+          course_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          instructor_id?: string | null
+          is_recurring?: boolean | null
+          max_participants?: number | null
+          meeting_id?: string | null
+          meeting_url?: string | null
+          metadata?: Json | null
+          password?: string | null
+          platform?: string
+          recording_enabled?: boolean | null
+          recurrence_pattern?: Json | null
+          scheduled_end_time?: string
+          scheduled_start_time?: string
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "virtual_sessions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "virtual_sessions_instructor_id_fkey"
+            columns: ["instructor_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
