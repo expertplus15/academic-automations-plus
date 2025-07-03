@@ -111,7 +111,7 @@ export function TranscriptPreview({
         <div className="flex justify-between items-start mb-8">
           <div>
             <h1 className="text-2xl font-bold text-primary">
-              École de Management de Djibouti
+              École de Management
             </h1>
             <p className="text-sm text-gray-600 mt-1">EMD</p>
           </div>
@@ -264,7 +264,7 @@ export function TranscriptPreview({
           <p>Le Directeur Général</p>
           <div className="mt-8 border-t border-gray-300 pt-2">
             <p className="text-xs text-gray-500">
-              École de Management de Djibouti - {new Date().toLocaleDateString('fr-FR')}
+              École de Management - {new Date().toLocaleDateString('fr-FR')}
             </p>
           </div>
         </div>
