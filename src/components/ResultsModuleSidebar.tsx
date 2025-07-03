@@ -20,44 +20,35 @@ import {
   Award,
   TrendingUp,
   ArrowLeft,
+  Zap,
+  ClipboardList,
+  PieChart
 } from "lucide-react";
 
-const resultsSubModules = [
+const resultsSections = [
   {
-    title: "Interface matricielle",
-    url: "/results/matrix",
-    icon: Grid,
-    color: "#4f7cff",
-    description: "Saisie collaborative"
+    title: "Saisie & Interface",
+    icon: Zap,
+    items: [
+      { title: "Interface matricielle", url: "/results/matrix", icon: Grid, description: "Saisie collaborative" },
+      { title: "Calculs automatiques", url: "/results/calculations", icon: Calculator, description: "Moyennes, ECTS" }
+    ]
   },
   {
-    title: "Bulletins personnalisables",
-    url: "/results/reports",
-    icon: FileOutput,
-    color: "#10b981",
-    description: "< 5 secondes"
+    title: "Bulletins & Relevés",
+    icon: ClipboardList,
+    items: [
+      { title: "Bulletins personnalisables", url: "/results/reports", icon: FileOutput, description: "< 5 secondes" },
+      { title: "Relevés standards", url: "/results/transcripts", icon: Award, description: "Standards académiques" }
+    ]
   },
   {
-    title: "Calculs automatiques",
-    url: "/results/calculations",
-    icon: Calculator,
-    color: "#f59e0b",
-    description: "Moyennes, ECTS"
-  },
-  {
-    title: "Relevés standards",
-    url: "/results/transcripts",
-    icon: Award,
-    color: "#8b5cf6",
-    description: "Standards académiques"
-  },
-  {
-    title: "Analytics performance",
-    url: "/results/analytics",
-    icon: TrendingUp,
-    color: "#06b6d4",
-    description: "Insights avancés"
-  },
+    title: "Analytics & Insights",
+    icon: PieChart,
+    items: [
+      { title: "Analytics performance", url: "/results/analytics", icon: TrendingUp, description: "Insights avancés" }
+    ]
+  }
 ];
 
 export function ResultsModuleSidebar() {
@@ -71,60 +62,100 @@ export function ResultsModuleSidebar() {
             <BarChart3 className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
-            <h1 className="text-base font-semibold text-sidebar-foreground tracking-tight">Évaluations & Résultats</h1>
+            <h1 className="text-lg font-semibold text-sidebar-foreground tracking-tight">Évaluations & Résultats</h1>
             <p className="text-xs text-sidebar-foreground/60 mt-0.5">Module actif</p>
           </div>
         </div>
       </SidebarHeader>
 
       <SidebarContent className="px-4">
-        <div className="pt-4 pb-2">
-          <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors w-full">
+        <div className="pt-4 pb-2 space-y-2">
+          <Link to="/dashboard" className="flex items-center gap-2 px-3 py-3 rounded-lg hover:bg-sidebar-accent transition-colors w-full">
             <ArrowLeft className="w-4 h-4 text-sidebar-foreground" />
-            <span className="text-sm text-sidebar-foreground">Retour</span>
+            <span className="text-base text-sidebar-foreground">Retour au Dashboard</span>
+          </Link>
+          <Link 
+            to="/results" 
+            className={cn(
+              "flex items-center gap-2 px-3 py-3 rounded-lg transition-colors w-full relative",
+              "text-sidebar-foreground hover:bg-sidebar-accent",
+              location.pathname === "/results" && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+            )}
+          >
+            {location.pathname === "/results" && <div className="absolute left-0 w-1 h-6 bg-violet-500 rounded-r" />}
+            <BarChart3 className="w-4 h-4 text-violet-500" />
+            <span className="text-base text-sidebar-foreground">Tableau de Bord</span>
+            {location.pathname === "/results" && <div className="w-2 h-2 bg-violet-500 rounded-full" />}
           </Link>
         </div>
+        
         <SidebarGroup className="py-4">
           <SidebarGroupContent>
-            <Accordion type="multiple" defaultValue={["saisie-rapide"]} className="w-full space-y-2">
-              <AccordionItem value="saisie-rapide" className="border-0">
-                <AccordionTrigger className="py-2 px-3 hover:bg-sidebar-accent rounded-lg text-sm font-medium text-sidebar-foreground hover:no-underline">
-                  <div className="flex items-center gap-3">
-                    <Grid className="w-4 h-4 text-primary" />
-                    <span>Interface Matricielle</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="pb-0 pt-1">
-                  <SidebarMenu className="space-y-1 ml-4">
-                    {resultsSubModules.map(module => {
-                      const Icon = module.icon;
-                      const isActive = location.pathname === module.url;
-                      return (
-                        <SidebarMenuItem key={module.title}>
-                          <SidebarMenuButton asChild>
-                            <Link 
-                              to={module.url} 
-                              className={cn(
-                                "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors relative",
-                                "text-sidebar-foreground hover:bg-sidebar-accent",
-                                isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                              )}
-                            >
-                              {isActive && <div className="absolute left-0 w-1 h-5 bg-primary rounded-r" />}
-                              <Icon className="w-4 h-4 text-primary" />
-                              <div className="flex-1 min-w-0">
-                                <span className="text-sm block truncate">{module.title}</span>
-                                <span className="text-xs text-muted-foreground block truncate">{module.description}</span>
-                              </div>
-                              {isActive && <div className="w-2 h-2 bg-primary rounded-full" />}
-                            </Link>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      );
-                    })}
-                  </SidebarMenu>
-                </AccordionContent>
-              </AccordionItem>
+            <Accordion type="multiple" defaultValue={["saisie-interface"]} className="w-full space-y-3">
+              {resultsSections.map((section, index) => {
+                const SectionIcon = section.icon;
+                const sectionId = section.title.toLowerCase().replace(/\s+/g, '-').replace(/[àâä]/g, 'a').replace(/[éèêë]/g, 'e');
+                
+                // Définir les couleurs thématiques par section
+                const getSectionColor = (title: string) => {
+                  switch (title) {
+                    case 'Saisie & Interface': return 'text-violet-500'; // Results violet
+                    case 'Bulletins & Relevés': return 'text-blue-500'; // Academic blue  
+                    case 'Analytics & Insights': return 'text-emerald-500'; // Analytics green
+                    default: return 'text-violet-500';
+                  }
+                };
+
+                const getItemColor = (sectionTitle: string, itemTitle: string) => {
+                  const baseColor = getSectionColor(sectionTitle);
+                  return baseColor;
+                };
+
+                const sectionColor = getSectionColor(section.title);
+
+                return (
+                  <AccordionItem key={index} value={sectionId} className="border-0">
+                    <AccordionTrigger className="py-3 px-3 hover:bg-sidebar-accent rounded-lg text-base font-medium text-sidebar-foreground hover:no-underline">
+                      <div className="flex items-center gap-3">
+                        <SectionIcon className={`w-5 h-5 ${sectionColor}`} />
+                        <span>{section.title}</span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-0 pt-2">
+                      <SidebarMenu className="space-y-2 ml-4">
+                        {section.items.map(item => {
+                          const ItemIcon = item.icon;
+                          const isActive = location.pathname === item.url;
+                          const itemColor = getItemColor(section.title, item.title);
+                          
+                          return (
+                            <SidebarMenuItem key={item.title}>
+                              <SidebarMenuButton asChild>
+                                <Link 
+                                  to={item.url} 
+                                  className={cn(
+                                    "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
+                                    "text-sidebar-foreground hover:bg-sidebar-accent",
+                                    isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                                  )}
+                                >
+                                  {isActive && <div className={`absolute left-0 w-1 h-6 ${itemColor.replace('text-', 'bg-')} rounded-r`} />}
+                                  <ItemIcon className={`w-3.5 h-3.5 ${itemColor}`} />
+                                  <div className="flex-1 min-w-0">
+                                    <span className="text-base block truncate">{item.title}</span>
+                                    <span className="text-xs text-muted-foreground block truncate">{item.description}</span>
+                                  </div>
+                                  {isActive && <div className={`w-2 h-2 ${itemColor.replace('text-', 'bg-')} rounded-full`} />}
+                                </Link>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          );
+                        })}
+                      </SidebarMenu>
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })}
             </Accordion>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -132,11 +163,11 @@ export function ResultsModuleSidebar() {
 
       <SidebarFooter className="p-4 border-t border-sidebar-border/30">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center flex-shrink-0">
             <BarChart3 className="w-4 h-4 text-gray-600" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-sidebar-foreground truncate">Administrateur Principal</p>
+            <p className="text-base font-medium text-sidebar-foreground truncate">Administrateur Principal</p>
             <p className="text-xs text-sidebar-foreground/70 truncate">admin</p>
           </div>
         </div>
