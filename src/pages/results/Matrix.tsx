@@ -141,14 +141,6 @@ export default function Matrix() {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => setActiveTab('settings')}
-                  >
-                    <Settings className="w-4 h-4 mr-1" />
-                    Paramètres
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
                     onClick={() => setShowExcelImport(true)}
                   >
                     <Upload className="w-4 h-4 mr-1" />
@@ -157,6 +149,7 @@ export default function Matrix() {
                   <Button 
                     size="sm"
                     onClick={() => setShowManualEntry(true)}
+                    className="bg-primary hover:bg-primary/90"
                   >
                     <Plus className="w-4 h-4 mr-1" />
                     Saisie Manuelle
