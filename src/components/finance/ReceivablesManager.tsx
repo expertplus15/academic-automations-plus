@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 import { 
   AlertTriangle, 
   Clock, 
@@ -16,6 +17,21 @@ import {
 } from 'lucide-react';
 
 export function ReceivablesManager() {
+  const { toast } = useToast();
+
+  const handleAction = (studentName: string) => {
+    toast({
+      title: "Action Lancée",
+      description: `Procédure de recouvrement initiée pour ${studentName}`,
+    });
+  };
+
+  const handleRecommendation = (studentName: string, action: string) => {
+    toast({
+      title: "Recommandation Appliquée",
+      description: `${action} appliquée pour ${studentName}`,
+    });
+  };
   const receivablesByAge = [
     { range: "0-30j", amount: "€45,200", count: 23, percentage: 38, status: "current" },
     { range: "31-60j", amount: "€28,500", count: 15, percentage: 24, status: "attention" },
@@ -184,7 +200,7 @@ export function ReceivablesManager() {
                         {debtor.risk}
                       </Badge>
                     </div>
-                    <Button size="sm" className="ml-4">
+                    <Button size="sm" className="ml-4" onClick={() => handleAction(debtor.name)}>
                       Action
                     </Button>
                   </div>
@@ -228,7 +244,7 @@ export function ReceivablesManager() {
                         <span className="ml-2 font-medium">{rec.estimated_recovery}</span>
                       </div>
                     </div>
-                    <Button size="sm" className="mt-3 w-full">
+                    <Button size="sm" className="mt-3 w-full" onClick={() => handleRecommendation(rec.student, rec.action)}>
                       Appliquer la Recommandation
                     </Button>
                   </div>

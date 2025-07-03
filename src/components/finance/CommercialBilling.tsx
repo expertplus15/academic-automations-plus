@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Receipt, 
   Plus, 
@@ -15,6 +16,49 @@ import {
 } from 'lucide-react';
 
 export function CommercialBilling() {
+  const { toast } = useToast();
+
+  const handleNewInvoice = () => {
+    toast({
+      title: "Nouvelle Facture",
+      description: "Interface de création de facture commerciale ouverte",
+    });
+  };
+
+  const handleNewQuotation = () => {
+    toast({
+      title: "Nouveau Devis",
+      description: "Interface de création de devis commercial ouverte",
+    });
+  };
+
+  const handleNewClient = () => {
+    toast({
+      title: "Nouveau Client",
+      description: "Formulaire d'ajout de client B2B ouvert",
+    });
+  };
+
+  const handleViewInvoice = (invoiceNumber: string) => {
+    toast({
+      title: "Facture Ouverte",
+      description: `Détails de la facture ${invoiceNumber}`,
+    });
+  };
+
+  const handleViewQuotation = (quoteNumber: string) => {
+    toast({
+      title: "Devis Ouvert",
+      description: `Détails du devis ${quoteNumber}`,
+    });
+  };
+
+  const handleViewClient = (clientName: string) => {
+    toast({
+      title: "Client Ouvert",
+      description: `Profil détaillé de ${clientName}`,
+    });
+  };
   const serviceTypes = [
     { name: "Formations Inter-entreprises", revenue: "€85,200", count: 12, growth: "+15%" },
     { name: "Audits & Conseil", revenue: "€124,500", count: 8, growth: "+23%" },
@@ -141,7 +185,7 @@ export function CommercialBilling() {
         <TabsContent value="invoices" className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Factures Commerciales</h3>
-            <Button className="gap-2">
+            <Button className="gap-2" onClick={handleNewInvoice}>
               <Plus className="w-4 h-4" />
               Nouvelle Facture
             </Button>
@@ -170,7 +214,7 @@ export function CommercialBilling() {
                          invoice.status === 'sent' ? 'Envoyée' : 'Brouillon'}
                       </Badge>
                     </div>
-                    <Button size="sm" variant="outline" className="ml-4">
+                    <Button size="sm" variant="outline" className="ml-4" onClick={() => handleViewInvoice(invoice.number)}>
                       Voir
                     </Button>
                   </div>
@@ -183,7 +227,7 @@ export function CommercialBilling() {
         <TabsContent value="quotations" className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Devis Commerciaux</h3>
-            <Button className="gap-2">
+            <Button className="gap-2" onClick={handleNewQuotation}>
               <Plus className="w-4 h-4" />
               Nouveau Devis
             </Button>
@@ -215,7 +259,7 @@ export function CommercialBilling() {
                          quote.status === 'negotiation' ? 'Négociation' : 'En attente'}
                       </Badge>
                     </div>
-                    <Button size="sm" variant="outline" className="ml-4">
+                    <Button size="sm" variant="outline" className="ml-4" onClick={() => handleViewQuotation(quote.number)}>
                       Voir
                     </Button>
                   </div>
@@ -228,7 +272,7 @@ export function CommercialBilling() {
         <TabsContent value="clients" className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Portefeuille Clients B2B</h3>
-            <Button className="gap-2">
+            <Button className="gap-2" onClick={handleNewClient}>
               <Plus className="w-4 h-4" />
               Nouveau Client
             </Button>
@@ -259,7 +303,7 @@ export function CommercialBilling() {
                       <span className="font-medium text-green-600">{client.satisfaction}%</span>
                     </div>
                   </div>
-                  <Button size="sm" className="w-full mt-4">
+                  <Button size="sm" className="w-full mt-4" onClick={() => handleViewClient(client.name)}>
                     Voir Détails
                   </Button>
                 </CardContent>

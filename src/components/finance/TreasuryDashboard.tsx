@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -15,6 +16,35 @@ import {
 } from 'lucide-react';
 
 export function TreasuryDashboard() {
+  const { toast } = useToast();
+
+  const handleVirement = () => {
+    toast({
+      title: "Module Virement",
+      description: "Interface de virement bancaire ouverte",
+    });
+  };
+
+  const handlePlanifier = () => {
+    toast({
+      title: "Planification",
+      description: "Calendrier des échéances et prévisions ouvert",
+    });
+  };
+
+  const handleAnalyse = () => {
+    toast({
+      title: "Analyse Trésorerie",
+      description: "Rapport d'analyse détaillé généré",
+    });
+  };
+
+  const handlePlacement = () => {
+    toast({
+      title: "Gestion Placements",
+      description: "Module de gestion des placements financiers ouvert",
+    });
+  };
   const accounts = [
     { name: "Compte Principal BNP", balance: "€1,240,000", trend: "+5.2%", status: "healthy" },
     { name: "Compte Épargne", balance: "€580,000", trend: "+1.8%", status: "stable" },
@@ -141,19 +171,19 @@ export function TreasuryDashboard() {
 
       {/* Actions rapides */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Button className="h-auto p-4 flex flex-col gap-2">
+        <Button onClick={handleVirement} className="h-auto p-4 flex flex-col gap-2">
           <ArrowUpDown className="w-6 h-6" />
           <span>Virement</span>
         </Button>
-        <Button variant="outline" className="h-auto p-4 flex flex-col gap-2">
+        <Button onClick={handlePlanifier} variant="outline" className="h-auto p-4 flex flex-col gap-2">
           <Calendar className="w-6 h-6" />
           <span>Planifier</span>
         </Button>
-        <Button variant="outline" className="h-auto p-4 flex flex-col gap-2">
+        <Button onClick={handleAnalyse} variant="outline" className="h-auto p-4 flex flex-col gap-2">
           <PieChart className="w-6 h-6" />
           <span>Analyse</span>
         </Button>
-        <Button variant="outline" className="h-auto p-4 flex flex-col gap-2">
+        <Button onClick={handlePlacement} variant="outline" className="h-auto p-4 flex flex-col gap-2">
           <Wallet className="w-6 h-6" />
           <span>Placement</span>
         </Button>

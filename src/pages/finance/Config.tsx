@@ -4,9 +4,32 @@ import { FinanceModuleSidebar } from '@/components/FinanceModuleSidebar';
 import { FinancePageHeader } from '@/components/FinancePageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 import { Settings, Database, FileText, Users } from 'lucide-react';
 
 export default function Config() {
+  const { toast } = useToast();
+
+  const handleGererPlan = () => {
+    toast({
+      title: "Plan Comptable",
+      description: "Interface de gestion du plan comptable ouverte",
+    });
+  };
+
+  const handleConfigurerTemplates = () => {
+    toast({
+      title: "Templates Documents",
+      description: "Configuration des modèles de documents lancée",
+    });
+  };
+
+  const handleModifierParametres = () => {
+    toast({
+      title: "Paramètres Généraux",
+      description: "Interface de modification des paramètres système ouverte",
+    });
+  };
   const stats = [
     {
       label: "Comptes Configurés",
@@ -60,7 +83,7 @@ export default function Config() {
               <p className="text-muted-foreground mb-4">
                 Configuration des comptes et structure comptable
               </p>
-              <Button className="w-full gap-2">
+              <Button className="w-full gap-2" onClick={handleGererPlan}>
                 <Database className="w-4 h-4" />
                 Gérer le Plan
               </Button>
@@ -78,7 +101,7 @@ export default function Config() {
               <p className="text-muted-foreground mb-4">
                 Templates factures, devis et documents officiels
               </p>
-              <Button variant="outline" className="w-full gap-2">
+              <Button variant="outline" className="w-full gap-2" onClick={handleConfigurerTemplates}>
                 <FileText className="w-4 h-4" />
                 Configurer
               </Button>
@@ -96,7 +119,7 @@ export default function Config() {
               <p className="text-muted-foreground mb-4">
                 Devise, formats de date, numérotation automatique
               </p>
-              <Button variant="outline" className="w-full gap-2">
+              <Button variant="outline" className="w-full gap-2" onClick={handleModifierParametres}>
                 <Settings className="w-4 h-4" />
                 Modifier
               </Button>

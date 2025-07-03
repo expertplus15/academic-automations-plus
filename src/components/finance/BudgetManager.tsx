@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Calculator, 
   TrendingUp, 
@@ -19,6 +20,28 @@ import {
 } from 'lucide-react';
 
 export function BudgetManager() {
+  const { toast } = useToast();
+
+  const handleDuplicateTemplate = () => {
+    toast({
+      title: "Budget Dupliqué",
+      description: "Template du budget 2023-2024 copié avec succès",
+    });
+  };
+
+  const handleAIGeneration = () => {
+    toast({
+      title: "Génération IA",
+      description: "Analyse historique en cours, budget généré automatiquement",
+    });
+  };
+
+  const handleTemplateType = () => {
+    toast({
+      title: "Template Sélectionné",
+      description: "Template adapté au type d'établissement appliqué",
+    });
+  };
   const [selectedBudget, setSelectedBudget] = useState('2024-2025');
 
   const budgets = [
@@ -201,15 +224,15 @@ export function BudgetManager() {
                 <div className="space-y-4">
                   <h3 className="font-semibold">Templates Intelligents</h3>
                   <div className="space-y-3">
-                    <Button variant="outline" className="w-full justify-start gap-2">
+                    <Button variant="outline" className="w-full justify-start gap-2" onClick={handleDuplicateTemplate}>
                       <Copy className="w-4 h-4" />
                       Dupliquer budget 2023-2024
                     </Button>
-                    <Button variant="outline" className="w-full justify-start gap-2">
+                    <Button variant="outline" className="w-full justify-start gap-2" onClick={handleAIGeneration}>
                       <Bot className="w-4 h-4" />
                       Génération IA basée historique
                     </Button>
-                    <Button variant="outline" className="w-full justify-start gap-2">
+                    <Button variant="outline" className="w-full justify-start gap-2" onClick={handleTemplateType}>
                       <Calculator className="w-4 h-4" />
                       Template par type d'établissement
                     </Button>
