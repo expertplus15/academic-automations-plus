@@ -1,22 +1,25 @@
+import React from 'react';
+import { ModuleLayout } from '@/components/layouts/ModuleLayout';
+import { ElearningModuleSidebar } from '@/components/ElearningModuleSidebar';
 import { ElearningPageHeader } from "@/components/ElearningPageHeader";
+import { ForumsList } from '@/components/elearning/ForumsList';
 
 export default function Forums() {
   return (
-    <div className="min-h-screen bg-background">
-      <ElearningPageHeader 
-        title="Forums discussion" 
-        subtitle="Collaboration et échanges" 
-      />
-      <div className="p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-card rounded-lg border p-6">
-            <h2 className="text-xl font-semibold mb-4">Forums de Discussion</h2>
-            <p className="text-muted-foreground">
-              Interface de forums de discussion collaborative à venir.
-            </p>
-          </div>
-        </div>
+    <ModuleLayout sidebar={<ElearningModuleSidebar />}>
+      <div className="p-8 space-y-8">
+        <ElearningPageHeader 
+          title="Forums de Discussion" 
+          subtitle="Participez aux discussions collaboratives et échangez avec la communauté" 
+        />
+        
+        <ForumsList
+          onForumClick={(forumId) => {
+            // Navigation vers le forum spécifique
+            console.log('Navigate to forum:', forumId);
+          }}
+        />
       </div>
-    </div>
+    </ModuleLayout>
   );
 }

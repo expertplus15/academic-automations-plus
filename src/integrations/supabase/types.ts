@@ -1678,37 +1678,94 @@ export type Database = {
           },
         ]
       }
+      forum_votes: {
+        Row: {
+          created_at: string | null
+          id: string
+          post_id: string | null
+          user_id: string | null
+          vote_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          post_id?: string | null
+          user_id?: string | null
+          vote_type: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          post_id?: string | null
+          user_id?: string | null
+          vote_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_votes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "forum_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "forum_votes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       forums: {
         Row: {
+          category: string | null
           course_id: string | null
           created_at: string | null
           created_by: string | null
           description: string | null
+          display_order: number | null
           id: string
           is_general: boolean | null
+          is_locked: boolean | null
           is_moderated: boolean | null
+          last_post_at: string | null
+          last_post_by: string | null
+          posts_count: number | null
           title: string
           updated_at: string | null
         }
         Insert: {
+          category?: string | null
           course_id?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
+          display_order?: number | null
           id?: string
           is_general?: boolean | null
+          is_locked?: boolean | null
           is_moderated?: boolean | null
+          last_post_at?: string | null
+          last_post_by?: string | null
+          posts_count?: number | null
           title: string
           updated_at?: string | null
         }
         Update: {
+          category?: string | null
           course_id?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
+          display_order?: number | null
           id?: string
           is_general?: boolean | null
+          is_locked?: boolean | null
           is_moderated?: boolean | null
+          last_post_at?: string | null
+          last_post_by?: string | null
+          posts_count?: number | null
           title?: string
           updated_at?: string | null
         }
@@ -1723,6 +1780,13 @@ export type Database = {
           {
             foreignKeyName: "forums_created_by_fkey"
             columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "forums_last_post_by_fkey"
+            columns: ["last_post_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -2112,6 +2176,56 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_read: boolean | null
+          is_sent_email: boolean | null
+          message: string
+          notification_type: string
+          reference_id: string | null
+          reference_type: string | null
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          is_sent_email?: boolean | null
+          message: string
+          notification_type: string
+          reference_id?: string | null
+          reference_type?: string | null
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          is_sent_email?: boolean | null
+          message?: string
+          notification_type?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -2865,6 +2979,58 @@ export type Database = {
           },
         ]
       }
+      student_badges: {
+        Row: {
+          awarded_at: string | null
+          awarded_by: string | null
+          badge_id: string | null
+          criteria_met: Json | null
+          id: string
+          is_visible: boolean | null
+          student_id: string | null
+        }
+        Insert: {
+          awarded_at?: string | null
+          awarded_by?: string | null
+          badge_id?: string | null
+          criteria_met?: Json | null
+          id?: string
+          is_visible?: boolean | null
+          student_id?: string | null
+        }
+        Update: {
+          awarded_at?: string | null
+          awarded_by?: string | null
+          badge_id?: string | null
+          criteria_met?: Json | null
+          id?: string
+          is_visible?: boolean | null
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_badges_awarded_by_fkey"
+            columns: ["awarded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_badges_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_grades: {
         Row: {
           academic_year_id: string | null
@@ -2948,6 +3114,57 @@ export type Database = {
             columns: ["teacher_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_points: {
+        Row: {
+          academic_year_id: string | null
+          description: string | null
+          earned_at: string | null
+          id: string
+          point_type: string
+          points: number
+          reference_id: string | null
+          reference_type: string | null
+          student_id: string | null
+        }
+        Insert: {
+          academic_year_id?: string | null
+          description?: string | null
+          earned_at?: string | null
+          id?: string
+          point_type: string
+          points: number
+          reference_id?: string | null
+          reference_type?: string | null
+          student_id?: string | null
+        }
+        Update: {
+          academic_year_id?: string | null
+          description?: string | null
+          earned_at?: string | null
+          id?: string
+          point_type?: string
+          points?: number
+          reference_id?: string | null
+          reference_type?: string | null
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_points_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_points_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]

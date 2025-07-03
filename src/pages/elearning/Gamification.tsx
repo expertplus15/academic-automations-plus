@@ -1,22 +1,23 @@
+import React from 'react';
+import { ModuleLayout } from '@/components/layouts/ModuleLayout';
+import { ElearningModuleSidebar } from '@/components/ElearningModuleSidebar';
 import { ElearningPageHeader } from "@/components/ElearningPageHeader";
+import { GamificationDashboard } from '@/components/elearning/GamificationDashboard';
 
 export default function Gamification() {
+  // TODO: Get actual student ID from authentication context
+  const studentId = "demo-student-id"; // Placeholder
+
   return (
-    <div className="min-h-screen bg-background">
-      <ElearningPageHeader 
-        title="Gamification" 
-        subtitle="Badges, points et récompenses" 
-      />
-      <div className="p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-card rounded-lg border p-6">
-            <h2 className="text-xl font-semibold mb-4">Gamification</h2>
-            <p className="text-muted-foreground">
-              Interface de gamification avec badges et points à venir.
-            </p>
-          </div>
-        </div>
+    <ModuleLayout sidebar={<ElearningModuleSidebar />}>
+      <div className="p-8 space-y-8">
+        <ElearningPageHeader 
+          title="Gamification" 
+          subtitle="Suivez votre progression, gagnez des badges et points de récompense" 
+        />
+        
+        <GamificationDashboard studentId={studentId} />
       </div>
-    </div>
+    </ModuleLayout>
   );
 }
