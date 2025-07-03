@@ -125,6 +125,7 @@ import HrContracts from '@/pages/hr/Contracts';
 import HrSpecialties from '@/pages/hr/Specialties';
 import HrAvailability from '@/pages/hr/Availability';
 import HrPerformance from '@/pages/hr/Performance';
+import HrSync from '@/pages/hr/Sync';
 
 export function ModuleRoutes() {
   return (
@@ -278,6 +279,7 @@ export function ModuleRoutes() {
       <Route path="/hr/specialties" element={<HrSpecialties />} />
       <Route path="/hr/availability" element={<HrAvailability />} />
       <Route path="/hr/performance" element={<HrPerformance />} />
+      <Route path="/hr/sync" element={<HrSync />} />
     </Routes>
   );
 }
