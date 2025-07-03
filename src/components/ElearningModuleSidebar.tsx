@@ -28,9 +28,16 @@ import {
 
 const elearningSections = [
   {
+    title: "Gestion des Cours",
+    icon: Monitor,
+    defaultOpen: true,
+    items: [
+      { title: "Mes Cours", url: "/elearning/courses", icon: Monitor, description: "Gérer les cours" }
+    ]
+  },
+  {
     title: "Création de Contenu",
     icon: Edit,
-    defaultOpen: true,
     items: [
       { title: "Standards SCORM/xAPI", url: "/elearning/standards", icon: Settings, description: "Compatibles" },
       { title: "Authoring WYSIWYG", url: "/elearning/authoring", icon: Edit, description: "Création contenu" }
@@ -100,7 +107,7 @@ export function ElearningModuleSidebar() {
         </div>
         <SidebarGroup className="py-4">
           <SidebarGroupContent>
-            <Accordion type="multiple" defaultValue={["creation-de-contenu"]} className="w-full space-y-3">
+            <Accordion type="multiple" defaultValue={["gestion-des-cours"]} className="w-full space-y-3">
               {elearningSections.map((section, index) => {
                 const SectionIcon = section.icon;
                 const sectionId = section.title.toLowerCase().replace(/\s+/g, '-').replace(/[àâä]/g, 'a').replace(/[éèêë]/g, 'e');

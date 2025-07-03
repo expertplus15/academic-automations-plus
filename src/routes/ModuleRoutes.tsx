@@ -106,6 +106,17 @@ import ResultsInsights from '@/pages/results/Insights';
 import ResultsHistory from '@/pages/results/History';
 import Services from '@/pages/Services';
 
+// eLearning module pages
+import Elearning from '@/pages/Elearning';
+import ElearningCourses from '@/pages/elearning/Courses';
+import ElearningStandards from '@/pages/elearning/Standards';
+import ElearningAuthoring from '@/pages/elearning/Authoring';
+import ElearningVirtualClasses from '@/pages/elearning/VirtualClasses';
+import ElearningStreaming from '@/pages/elearning/Streaming';
+import ElearningForums from '@/pages/elearning/Forums';
+import ElearningGamification from '@/pages/elearning/Gamification';
+import ElearningAnalytics from '@/pages/elearning/Analytics';
+
 export function ModuleRoutes() {
   return (
     <Routes>
@@ -223,6 +234,17 @@ export function ModuleRoutes() {
       <Route path="/exams/invitations" element={<ExamsInvitations />} />
       <Route path="/exams/reports" element={<ExamsReports />} />
       <Route path="/exams/settings" element={<ExamsSettings />} />
+
+      {/* eLearning Module Routes */}
+      <Route path="/elearning" element={<Elearning />} />
+      <Route path="/elearning/courses" element={<ElearningCourses />} />
+      <Route path="/elearning/standards" element={<ElearningStandards />} />
+      <Route path="/elearning/authoring" element={<ElearningAuthoring />} />
+      <Route path="/elearning/virtual-classes" element={<ElearningVirtualClasses />} />
+      <Route path="/elearning/streaming" element={<ElearningStreaming />} />
+      <Route path="/elearning/forums" element={<ElearningForums />} />
+      <Route path="/elearning/gamification" element={<ElearningGamification />} />
+      <Route path="/elearning/analytics" element={<ElearningAnalytics />} />
 
       {/* New ACADEMIC+ Module Routes */}
       <Route path="/results" element={<Results />} />
