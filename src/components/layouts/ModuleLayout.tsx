@@ -1,7 +1,9 @@
 
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { StudentsModuleSidebar } from "@/components/StudentsModuleSidebar";
+import { getSidebarForPath } from "@/utils/sidebarUtils";
 
 interface ModuleLayoutProps {
   children: React.ReactNode;
@@ -12,10 +14,16 @@ interface ModuleLayoutProps {
 }
 
 export function ModuleLayout({ children, sidebar, title, subtitle, showHeader = false }: ModuleLayoutProps) {
+  const location = useLocation();
+  
+  // Auto-select sidebar based on current route
+  const AutoSidebar = getSidebarForPath(location.pathname);
+  const SelectedSidebar = sidebar || (AutoSidebar ? <AutoSidebar /> : <StudentsModuleSidebar />);
+
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-background">
-        {sidebar || <StudentsModuleSidebar />}
+        {SelectedSidebar}
         <div className="flex-1 flex flex-col">
           <header className="h-12 flex items-center border-b bg-card px-4">
             <SidebarTrigger />
