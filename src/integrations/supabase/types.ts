@@ -2948,6 +2948,10 @@ export type Database = {
         Args: { program_code: string; enrollment_year: number }
         Returns: string
       }
+      generate_student_transcript: {
+        Args: { p_student_id: string; p_academic_year_id: string }
+        Returns: Json
+      }
       generate_unique_code: {
         Args: { prefix: string; table_name: string; column_name: string }
         Returns: string
