@@ -12,6 +12,7 @@ import {
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Monitor,
   Settings,
@@ -29,7 +30,7 @@ import {
 
 const elearningSections = [
   {
-    title: "Gestion des Cours",
+    title: "Cours",
     icon: Monitor,
     defaultOpen: true,
     items: [
@@ -37,41 +38,56 @@ const elearningSections = [
     ]
   },
   {
-    title: "Création de Contenu",
+    title: "Création",
     icon: Edit,
     items: [
-      { title: "Standards SCORM/xAPI", url: "/elearning/standards", icon: Settings, description: "Compatibles" },
-      { title: "Authoring WYSIWYG", url: "/elearning/authoring", icon: Edit, description: "Création contenu" }
+      { title: "Standards", url: "/elearning/standards", icon: Settings, description: "SCORM/xAPI" },
+      { title: "Éditeur", url: "/elearning/authoring", icon: Edit, description: "Créer du contenu" }
     ]
   },
   {
-    title: "Diffusion & Streaming",
+    title: "Streaming",
     icon: Video,
     items: [
-      { title: "Classes virtuelles", url: "/elearning/virtual-classes", icon: Video, description: "Zoom, Teams" },
-      { title: "Streaming vidéo", url: "/elearning/streaming", icon: Play, description: "Adaptatif" }
+      { title: "Classes", url: "/elearning/virtual-classes", icon: Video, description: "Zoom, Teams" },
+      { title: "Vidéos", url: "/elearning/streaming", icon: Play, description: "Streaming adaptatif" }
     ]
   },
   {
     title: "Engagement",
     icon: Award,
     items: [
-      { title: "Forums discussion", url: "/elearning/forums", icon: MessageCircle, description: "Collaboration" },
-      { title: "Gamification", url: "/elearning/gamification", icon: Award, description: "Badges, points" },
-      { title: "Notifications", url: "/elearning/notifications", icon: Bell, description: "Centre notifications" }
+      { title: "Forums", url: "/elearning/forums", icon: MessageCircle, description: "Discussions" },
+      { title: "Gamification", url: "/elearning/gamification", icon: Award, description: "Badges & points" },
+      { title: "Notifications", url: "/elearning/notifications", icon: Bell, description: "Centre d'alertes" }
     ]
   },
   {
     title: "Analytics",
     icon: BarChart,
     items: [
-      { title: "Analytics engagement", url: "/elearning/analytics", icon: BarChart, description: "Insights" }
+      { title: "Engagement", url: "/elearning/analytics", icon: BarChart, description: "Métriques & insights" }
     ]
   }
 ];
 
 export function ElearningModuleSidebar() {
   const location = useLocation();
+  const { user, profile } = useAuth();
+
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case 'admin': return 'Administrateur';
+      case 'teacher': return 'Enseignant';
+      case 'student': return 'Étudiant';
+      case 'hr': return 'Ressources Humaines';
+      case 'finance': return 'Finance';
+      default: return 'Utilisateur';
+    }
+  };
+
+  const userName = profile?.full_name || user?.email?.split('@')[0] || 'Utilisateur';
+  const userRole = profile?.role ? getRoleLabel(profile.role) : 'Utilisateur';
 
   return (
     <Sidebar className="border-r-0">
@@ -117,8 +133,8 @@ export function ElearningModuleSidebar() {
                 // Couleurs thématiques pour eLearning
                 const getSectionColor = (title: string) => {
                   switch (title) {
-                    case 'Création de Contenu': return 'text-cyan-500';
-                    case 'Diffusion & Streaming': return 'text-blue-500';
+                    case 'Création': return 'text-cyan-500';
+                    case 'Streaming': return 'text-blue-500';
                     case 'Engagement': return 'text-green-500';
                     case 'Analytics': return 'text-purple-500';
                     default: return 'text-cyan-500';
@@ -176,12 +192,12 @@ export function ElearningModuleSidebar() {
 
       <SidebarFooter className="p-4 border-t border-sidebar-border/30">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-            <User className="w-4 h-4 text-gray-600" />
+          <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+            <User className="w-4 h-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-base font-medium text-sidebar-foreground truncate">Administrateur Principal</p>
-            <p className="text-xs text-sidebar-foreground/70 truncate">admin</p>
+            <p className="text-base font-medium text-sidebar-foreground truncate">{userName}</p>
+            <p className="text-xs text-sidebar-foreground/70 truncate">{userRole}</p>
           </div>
         </div>
         <div className="space-y-1 text-xs text-sidebar-foreground/50">
