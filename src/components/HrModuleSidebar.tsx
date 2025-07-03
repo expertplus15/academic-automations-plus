@@ -23,6 +23,7 @@ import {
   ArrowLeft,
   User,
   LayoutDashboard,
+  Star,
 } from "lucide-react";
 
 const hrSections = [
@@ -39,7 +40,7 @@ const hrSections = [
     title: "Compétences",
     icon: BookOpen,
     items: [
-      { title: "Spécialités & matières", url: "/hr/specialties", icon: BookOpen, description: "Domaines expertise" },
+      { title: "Spécialités & matières", url: "/hr/specialties", icon: Star, description: "Domaines expertise" },
       { title: "Disponibilités", url: "/hr/availability", icon: Calendar, description: "Planning créneaux" }
     ]
   },

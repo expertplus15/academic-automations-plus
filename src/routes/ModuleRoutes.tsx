@@ -122,6 +122,9 @@ import ElearningNotifications from '@/pages/elearning/Notifications';
 import Hr from '@/pages/Hr';
 import HrTeachers from '@/pages/hr/Teachers';
 import HrContracts from '@/pages/hr/Contracts';
+import HrSpecialties from '@/pages/hr/Specialties';
+import HrAvailability from '@/pages/hr/Availability';
+import HrPerformance from '@/pages/hr/Performance';
 
 export function ModuleRoutes() {
   return (
@@ -272,6 +275,9 @@ export function ModuleRoutes() {
       <Route path="/hr" element={<Hr />} />
       <Route path="/hr/teachers" element={<HrTeachers />} />
       <Route path="/hr/contracts" element={<HrContracts />} />
+      <Route path="/hr/specialties" element={<HrSpecialties />} />
+      <Route path="/hr/availability" element={<HrAvailability />} />
+      <Route path="/hr/performance" element={<HrPerformance />} />
     </Routes>
   );
 }
