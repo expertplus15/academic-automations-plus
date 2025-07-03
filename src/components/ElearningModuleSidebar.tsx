@@ -24,6 +24,7 @@ import {
   ArrowLeft,
   User,
   LayoutDashboard,
+  Bell,
 } from "lucide-react";
 
 const elearningSections = [
@@ -56,7 +57,8 @@ const elearningSections = [
     icon: Award,
     items: [
       { title: "Forums discussion", url: "/elearning/forums", icon: MessageCircle, description: "Collaboration" },
-      { title: "Gamification", url: "/elearning/gamification", icon: Award, description: "Badges, points" }
+      { title: "Gamification", url: "/elearning/gamification", icon: Award, description: "Badges, points" },
+      { title: "Notifications", url: "/elearning/notifications", icon: Bell, description: "Centre notifications" }
     ]
   },
   {

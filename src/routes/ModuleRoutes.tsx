@@ -116,6 +116,7 @@ import ElearningStreaming from '@/pages/elearning/Streaming';
 import ElearningForums from '@/pages/elearning/Forums';
 import ElearningGamification from '@/pages/elearning/Gamification';
 import ElearningAnalytics from '@/pages/elearning/Analytics';
+import ElearningNotifications from '@/pages/elearning/Notifications';
 
 export function ModuleRoutes() {
   return (
@@ -245,6 +246,7 @@ export function ModuleRoutes() {
       <Route path="/elearning/forums" element={<ElearningForums />} />
       <Route path="/elearning/gamification" element={<ElearningGamification />} />
       <Route path="/elearning/analytics" element={<ElearningAnalytics />} />
+      <Route path="/elearning/notifications" element={<ElearningNotifications />} />
 
       {/* New ACADEMIC+ Module Routes */}
       <Route path="/results" element={<Results />} />
