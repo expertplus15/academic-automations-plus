@@ -4,9 +4,33 @@ import { FinanceModuleSidebar } from '@/components/FinanceModuleSidebar';
 import { FinancePageHeader } from '@/components/FinancePageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 import { Award, Plus, RefreshCw, AlertTriangle } from 'lucide-react';
 
 export default function Credits() {
+  const { toast } = useToast();
+
+  const handleConfigureRules = () => {
+    toast({
+      title: "Configuration des Règles",
+      description: "Interface de configuration des règles d'avoirs automatiques ouverte",
+    });
+  };
+
+  const handleNewRegularization = () => {
+    toast({
+      title: "Nouvelle Régularisation",
+      description: "Formulaire de régularisation comptable ouvert",
+    });
+  };
+
+  const handleNewDispute = () => {
+    toast({
+      title: "Nouveau Litige",
+      description: "Interface de gestion des litiges ouverte",
+    });
+  };
+
   const stats = [
     {
       label: "Avoirs Émis",
@@ -60,7 +84,7 @@ export default function Credits() {
               <p className="text-muted-foreground mb-4">
                 Génération automatique basée sur les règles métier
               </p>
-              <Button className="w-full gap-2">
+              <Button className="w-full gap-2" onClick={handleConfigureRules}>
                 <Plus className="w-4 h-4" />
                 Configurer Règles
               </Button>
@@ -78,7 +102,7 @@ export default function Credits() {
               <p className="text-muted-foreground mb-4">
                 Corrections comptables et ajustements de factures
               </p>
-              <Button variant="outline" className="w-full gap-2">
+              <Button variant="outline" className="w-full gap-2" onClick={handleNewRegularization}>
                 <Plus className="w-4 h-4" />
                 Nouvelle Régularisation
               </Button>
@@ -96,7 +120,7 @@ export default function Credits() {
               <p className="text-muted-foreground mb-4">
                 Gestion des contestations et réclamations clients
               </p>
-              <Button variant="outline" className="w-full gap-2">
+              <Button variant="outline" className="w-full gap-2" onClick={handleNewDispute}>
                 <Plus className="w-4 h-4" />
                 Nouveau Litige
               </Button>

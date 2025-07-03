@@ -4,6 +4,7 @@ import { FinanceModuleSidebar } from '@/components/FinanceModuleSidebar';
 import { FinancePageHeader } from '@/components/FinancePageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -16,6 +17,29 @@ import {
 } from 'lucide-react';
 
 export default function Finance() {
+  const { toast } = useToast();
+
+  const handleCreateInvoice = () => {
+    toast({
+      title: "Créer une facture",
+      description: "Interface de création de facture ouverte",
+    });
+  };
+
+  const handleRecordPayment = () => {
+    toast({
+      title: "Enregistrer un paiement",
+      description: "Interface de saisie de paiement ouverte",
+    });
+  };
+
+  const handleManageScholarships = () => {
+    toast({
+      title: "Gestion des bourses",
+      description: "Interface de gestion des bourses ouverte",
+    });
+  };
+
   const stats = [
     {
       label: "Revenus du mois",
@@ -160,7 +184,10 @@ export default function Finance() {
                 <CardTitle className="text-lg">Actions rapides</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <button className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
+                <button 
+                  className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
+                  onClick={handleCreateInvoice}
+                >
                   <div className="flex items-center gap-3">
                     <FileText className="w-5 h-5 text-[rgb(245,158,11)]" />
                     <div>
@@ -170,7 +197,10 @@ export default function Finance() {
                   </div>
                 </button>
                 
-                <button className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
+                <button 
+                  className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
+                  onClick={handleRecordPayment}
+                >
                   <div className="flex items-center gap-3">
                     <CreditCard className="w-5 h-5 text-[rgb(245,158,11)]" />
                     <div>
@@ -180,7 +210,10 @@ export default function Finance() {
                   </div>
                 </button>
 
-                <button className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
+                <button 
+                  className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
+                  onClick={handleManageScholarships}
+                >
                   <div className="flex items-center gap-3">
                     <Users className="w-5 h-5 text-[rgb(245,158,11)]" />
                     <div>
