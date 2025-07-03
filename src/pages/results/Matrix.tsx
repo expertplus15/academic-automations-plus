@@ -1,10 +1,16 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ResultsPageHeader } from "@/components/ResultsPageHeader";
 import { MatriceInterface } from "@/components/results/MatriceInterface";
+import { EvaluationTypesSettings } from "@/components/results/EvaluationTypesSettings";
+import { ExcelImportDialog } from "@/components/results/ExcelImportDialog";
+import { ManualGradeEntry } from "@/components/results/ManualGradeEntry";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Grid, Plus, Settings } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { Grid, Plus, Settings, ArrowLeft, Upload, FileSpreadsheet } from 'lucide-react';
 import { useAcademicYears } from '@/hooks/useAcademicYears';
 import { useSubjects } from '@/hooks/useSubjects';
 
@@ -12,6 +18,11 @@ export default function Matrix() {
   const [selectedSubject, setSelectedSubject] = useState<string>('');
   const [selectedProgram, setSelectedProgram] = useState<string>('');
   const [selectedSemester, setSelectedSemester] = useState<string>('1');
+  const [activeTab, setActiveTab] = useState<string>('matrix');
+  const [showExcelImport, setShowExcelImport] = useState(false);
+  const [showManualEntry, setShowManualEntry] = useState(false);
+  
+  const navigate = useNavigate();
   
   // Real hooks
   const { currentYear } = useAcademicYears();
@@ -25,12 +36,52 @@ export default function Matrix() {
     { id: '4', name: 'Master Mathématiques' }
   ];
 
+  const handleBackToResults = () => {
+    navigate('/results');
+  };
+
+  const handleMatrixRefresh = () => {
+    // Force refresh of matrix data
+    window.location.reload();
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <ResultsPageHeader 
-        title="Interface Matricielle" 
-        subtitle="Saisie collaborative des notes en temps réel" 
-      />
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="p-6">
+          <div className="max-w-7xl mx-auto">
+            {/* Breadcrumb Navigation */}
+            <Breadcrumb className="mb-4">
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink onClick={handleBackToResults} className="cursor-pointer">
+                    Résultats
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Interface Matricielle</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+
+            {/* Header with back button */}
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" onClick={handleBackToResults}>
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Retour
+              </Button>
+              <div>
+                <h1 className="text-3xl font-bold">Interface Matricielle</h1>
+                <p className="text-muted-foreground">
+                  Saisie collaborative des notes en temps réel
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           
@@ -87,37 +138,89 @@ export default function Matrix() {
                 </Select>
                 
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setActiveTab('settings')}
+                  >
                     <Settings className="w-4 h-4 mr-1" />
                     Paramètres
                   </Button>
-                  <Button size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setShowExcelImport(true)}
+                  >
+                    <Upload className="w-4 h-4 mr-1" />
+                    Import Excel
+                  </Button>
+                  <Button 
+                    size="sm"
+                    onClick={() => setShowManualEntry(true)}
+                  >
                     <Plus className="w-4 h-4 mr-1" />
-                    Nouvelle Session
+                    Saisie Manuelle
                   </Button>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Matrix Interface */}
-          {selectedSubject && selectedProgram && currentYear ? (
-            <MatriceInterface
+          {/* Main Content with Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="matrix" className="flex items-center gap-2">
+                <Grid className="w-4 h-4" />
+                Matrice des Notes
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="flex items-center gap-2">
+                <Settings className="w-4 h-4" />
+                Paramètres
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="matrix">
+              {selectedSubject && selectedProgram && currentYear ? (
+                <MatriceInterface
+                  subjectId={selectedSubject}
+                  academicYearId={currentYear.id}
+                  semester={parseInt(selectedSemester)}
+                  programId={selectedProgram}
+                />
+              ) : (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <Grid className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-xl font-semibold mb-2">Sélectionnez une configuration</h3>
+                    <p className="text-muted-foreground">
+                      Choisissez un programme et une matière pour commencer la saisie collaborative des notes.
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+
+            <TabsContent value="settings">
+              <EvaluationTypesSettings onClose={() => setActiveTab('matrix')} />
+            </TabsContent>
+          </Tabs>
+
+          {/* Dialog Components */}
+          <ExcelImportDialog
+            open={showExcelImport}
+            onOpenChange={setShowExcelImport}
+            onImportComplete={handleMatrixRefresh}
+          />
+
+          {selectedSubject && selectedProgram && currentYear && (
+            <ManualGradeEntry
+              open={showManualEntry}
+              onOpenChange={setShowManualEntry}
               subjectId={selectedSubject}
               academicYearId={currentYear.id}
               semester={parseInt(selectedSemester)}
-              programId={selectedProgram}
+              onGradeAdded={handleMatrixRefresh}
             />
-          ) : (
-            <Card>
-              <CardContent className="p-12 text-center">
-                <Grid className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Sélectionnez une configuration</h3>
-                <p className="text-muted-foreground">
-                  Choisissez un programme et une matière pour commencer la saisie collaborative des notes.
-                </p>
-              </CardContent>
-            </Card>
           )}
         </div>
       </div>
