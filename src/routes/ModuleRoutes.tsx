@@ -57,6 +57,7 @@ import FinanceCollection from '@/pages/finance/Collection';
 import FinanceRiskScoring from '@/pages/finance/RiskScoring';
 import FinanceAnalyticsAccounting from '@/pages/finance/AnalyticsAccounting';
 import FinanceStatements from '@/pages/finance/Statements';
+import FinanceAccounting from '@/pages/finance/Accounting';
 import FinanceManagementControl from '@/pages/finance/ManagementControl';
 import FinanceClosing from '@/pages/finance/Closing';
 
@@ -164,6 +165,7 @@ export function ModuleRoutes() {
       <Route path="/finance/risk-scoring" element={<FinanceRiskScoring />} />
       
       {/* SM5: Comptabilité Générale */}
+      <Route path="/finance/accounting" element={<FinanceAccounting />} />
       <Route path="/finance/analytics-accounting" element={<FinanceAnalyticsAccounting />} />
       <Route path="/finance/statements" element={<FinanceStatements />} />
       
