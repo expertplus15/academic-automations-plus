@@ -50,7 +50,7 @@ const financeSections = [
     ]
   },
   {
-    title: "Trésorerie & Paiements",
+    title: "Trésorerie",
     icon: Wallet,
     items: [
       { title: "Trésorerie & Hub Paiements", url: "/finance/treasury-payments", icon: Wallet, description: "Position temps réel + tous paiements" },
@@ -60,7 +60,7 @@ const financeSections = [
     ]
   },
   {
-    title: "Dépenses & Fournisseurs",
+    title: "Dépenses",
     icon: Receipt,
     items: [
       { title: "Gestion des Dépenses", url: "/finance/expenses", icon: Receipt, description: "Saisie & validation dépenses" },
