@@ -101,28 +101,51 @@ export function useStudentGrades() {
     setError(null);
 
     try {
-      let query = supabase
+      // First get all students for the program
+      let studentsQuery = supabase
+        .from('students')
+        .select(`
+          id, student_number, profile_id,
+          profiles!inner(full_name)
+        `)
+        .eq('status', 'active');
+
+      if (programId) {
+        studentsQuery = studentsQuery.eq('program_id', programId);
+      }
+
+      const { data: students, error: studentsError } = await studentsQuery
+        .order('student_number');
+
+      if (studentsError) throw studentsError;
+
+      // Then get grades for these students
+      const studentIds = students?.map(s => s.id) || [];
+      
+      if (studentIds.length === 0) {
+        return [];
+      }
+
+      const { data: grades, error: gradesError } = await supabase
         .from('student_grades')
         .select(`
           *,
-          students!inner(
-            id, student_number, profile_id,
-            profiles!inner(full_name)
-          ),
           evaluation_types!inner(name, code, weight_percentage)
         `)
         .eq('subject_id', subjectId)
         .eq('academic_year_id', academicYearId)
-        .eq('semester', semester);
+        .eq('semester', semester)
+        .in('student_id', studentIds);
 
-      if (programId) {
-        query = query.eq('students.program_id', programId);
-      }
+      if (gradesError) throw gradesError;
 
-      const { data, error } = await query.order('students.student_number');
+      // Combine students and grades data
+      const result = students?.map(student => ({
+        student,
+        grades: grades?.filter(g => g.student_id === student.id) || []
+      })) || [];
 
-      if (error) throw error;
-      return data || [];
+      return result;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erreur lors de la récupération de la matrice';
       setError(message);

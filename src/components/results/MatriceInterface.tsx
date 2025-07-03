@@ -70,15 +70,15 @@ export function MatriceInterface({ subjectId, academicYearId, semester, programI
   // Load matrix data
   const loadMatrixData = useCallback(async () => {
     try {
-      const grades = await getMatriceGrades(subjectId, academicYearId, semester, programId);
+      const data = await getMatriceGrades(subjectId, academicYearId, semester, programId);
       
-      // Process grades into matrix format
+      // Process data into matrix format
       const newMatrixData = new Map<string, MatriceCell>();
       const studentsMap = new Map<string, MatriceStudent>();
 
-      grades.forEach((grade: any) => {
-        const student = grade.students;
-        const cellKey = getCellKey(student.id, grade.evaluation_type_id);
+      data.forEach((studentData: any) => {
+        const student = studentData.student;
+        const grades = studentData.grades || [];
         
         // Add student
         if (!studentsMap.has(student.id)) {
@@ -89,14 +89,17 @@ export function MatriceInterface({ subjectId, academicYearId, semester, programI
           });
         }
 
-        // Add grade cell
-        newMatrixData.set(cellKey, {
-          studentId: student.id,
-          evaluationTypeId: grade.evaluation_type_id,
-          grade: grade.grade,
-          maxGrade: grade.max_grade,
-          isLocked: grade.is_published,
-          lastModified: grade.updated_at
+        // Add grade cells for this student
+        grades.forEach((grade: any) => {
+          const cellKey = getCellKey(student.id, grade.evaluation_type_id);
+          newMatrixData.set(cellKey, {
+            studentId: student.id,
+            evaluationTypeId: grade.evaluation_type_id,
+            grade: grade.grade,
+            maxGrade: grade.max_grade || 20,
+            isLocked: grade.is_published || false,
+            lastModified: grade.updated_at
+          });
         });
       });
 

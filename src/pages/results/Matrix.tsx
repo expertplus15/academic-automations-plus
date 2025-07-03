@@ -5,22 +5,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Grid, Plus, Settings } from 'lucide-react';
+import { useAcademicYears } from '@/hooks/useAcademicYears';
+import { useSubjects } from '@/hooks/useSubjects';
 
 export default function Matrix() {
   const [selectedSubject, setSelectedSubject] = useState<string>('');
   const [selectedProgram, setSelectedProgram] = useState<string>('');
   const [selectedSemester, setSelectedSemester] = useState<string>('1');
   
-  // Mock data - replace with real hooks
-  const subjects = [
-    { id: '1', name: 'Mathématiques', code: 'MATH101' },
-    { id: '2', name: 'Physique', code: 'PHYS101' },
-    { id: '3', name: 'Informatique', code: 'INFO101' }
-  ];
+  // Real hooks
+  const { currentYear } = useAcademicYears();
+  const { subjects, loading: subjectsLoading } = useSubjects();
   
+  // Mock programs data for now - could be replaced with real programs hook
   const programs = [
     { id: '1', name: 'Licence Informatique' },
-    { id: '2', name: 'Licence Mathématiques' }
+    { id: '2', name: 'Licence Mathématiques' },
+    { id: '3', name: 'Master Informatique' },
+    { id: '4', name: 'Master Mathématiques' }
   ];
 
   return (
@@ -60,11 +62,15 @@ export default function Matrix() {
                     <SelectValue placeholder="Sélectionner une matière" />
                   </SelectTrigger>
                   <SelectContent>
-                    {subjects.map(subject => (
-                      <SelectItem key={subject.id} value={subject.id}>
-                        {subject.name} ({subject.code})
-                      </SelectItem>
-                    ))}
+                    {subjectsLoading ? (
+                      <SelectItem value="" disabled>Chargement...</SelectItem>
+                    ) : (
+                      subjects.map(subject => (
+                        <SelectItem key={subject.id} value={subject.id}>
+                          {subject.name} ({subject.code})
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
                 
@@ -93,10 +99,10 @@ export default function Matrix() {
           </Card>
 
           {/* Matrix Interface */}
-          {selectedSubject && selectedProgram ? (
+          {selectedSubject && selectedProgram && currentYear ? (
             <MatriceInterface
               subjectId={selectedSubject}
-              academicYearId="current" // Replace with actual academic year
+              academicYearId={currentYear.id}
               semester={parseInt(selectedSemester)}
               programId={selectedProgram}
             />
