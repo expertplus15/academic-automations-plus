@@ -22,31 +22,49 @@ import {
   ArrowLeft,
   Zap,
   ClipboardList,
-  PieChart
+  PieChart,
+  Upload,
+  CheckCircle,
+  Cpu,
+  Layout,
+  Brain,
+  Clock
 } from "lucide-react";
 
 const resultsSections = [
   {
-    title: "Saisie & Interface",
+    title: "Saisie & Validation",
     icon: Zap,
     items: [
       { title: "Interface matricielle", url: "/results/matrix", icon: Grid, description: "Saisie collaborative" },
-      { title: "Calculs automatiques", url: "/results/calculations", icon: Calculator, description: "Moyennes, ECTS" }
+      { title: "Import de données", url: "/results/import", icon: Upload, description: "Excel, CSV, API" },
+      { title: "Validation & Contrôle", url: "/results/validation", icon: CheckCircle, description: "Vérifications automatiques" }
     ]
   },
   {
-    title: "Bulletins & Relevés",
+    title: "Calculs & Traitement",
+    icon: Calculator,
+    items: [
+      { title: "Calculs automatiques", url: "/results/calculations", icon: Calculator, description: "Moyennes, ECTS" },
+      { title: "Traitement avancé", url: "/results/processing", icon: Cpu, description: "Algorithmes complexes" }
+    ]
+  },
+  {
+    title: "Génération & Export",
     icon: ClipboardList,
     items: [
       { title: "Bulletins personnalisables", url: "/results/reports", icon: FileOutput, description: "< 5 secondes" },
-      { title: "Relevés standards", url: "/results/transcripts", icon: Award, description: "Standards académiques" }
+      { title: "Relevés standards", url: "/results/transcripts", icon: Award, description: "Standards académiques" },
+      { title: "Templates & Modèles", url: "/results/templates", icon: Layout, description: "Personnalisation" }
     ]
   },
   {
-    title: "Analytics & Insights",
+    title: "Analytics & Suivi",
     icon: PieChart,
     items: [
-      { title: "Analytics performance", url: "/results/analytics", icon: TrendingUp, description: "Insights avancés" }
+      { title: "Analytics performance", url: "/results/analytics", icon: TrendingUp, description: "Insights avancés" },
+      { title: "Insights pédagogiques", url: "/results/insights", icon: Brain, description: "IA & prédictions" },
+      { title: "Historique & Audit", url: "/results/history", icon: Clock, description: "Traçabilité complète" }
     ]
   }
 ];
@@ -99,9 +117,10 @@ export function ResultsModuleSidebar() {
                 // Définir les couleurs thématiques par section
                 const getSectionColor = (title: string) => {
                   switch (title) {
-                    case 'Saisie & Interface': return 'text-violet-500'; // Results violet
-                    case 'Bulletins & Relevés': return 'text-blue-500'; // Academic blue  
-                    case 'Analytics & Insights': return 'text-emerald-500'; // Analytics green
+                    case 'Saisie & Validation': return 'text-violet-500'; // Results violet
+                    case 'Calculs & Traitement': return 'text-blue-500'; // Academic blue
+                    case 'Génération & Export': return 'text-emerald-500'; // Export green
+                    case 'Analytics & Suivi': return 'text-amber-500'; // Analytics amber
                     default: return 'text-violet-500';
                   }
                 };
