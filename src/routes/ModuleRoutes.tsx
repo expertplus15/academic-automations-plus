@@ -118,6 +118,11 @@ import ElearningGamification from '@/pages/elearning/Gamification';
 import ElearningAnalytics from '@/pages/elearning/Analytics';
 import ElearningNotifications from '@/pages/elearning/Notifications';
 
+// HR module pages
+import Hr from '@/pages/Hr';
+import HrTeachers from '@/pages/hr/Teachers';
+import HrContracts from '@/pages/hr/Contracts';
+
 export function ModuleRoutes() {
   return (
     <Routes>
@@ -262,6 +267,11 @@ export function ModuleRoutes() {
       <Route path="/results/insights" element={<ResultsInsights />} />
       <Route path="/results/history" element={<ResultsHistory />} />
       <Route path="/services" element={<Services />} />
+
+      {/* HR Module Routes */}
+      <Route path="/hr" element={<Hr />} />
+      <Route path="/hr/teachers" element={<HrTeachers />} />
+      <Route path="/hr/contracts" element={<HrContracts />} />
     </Routes>
   );
 }

@@ -14,58 +14,70 @@ import {
   AlertTriangle,
   CheckCircle
 } from 'lucide-react';
+import { useTeacherProfiles } from '@/hooks/hr/useTeacherProfiles';
+import { useTeacherContracts } from '@/hooks/hr/useTeacherContracts';
 
 export default function Hr() {
+  const { teacherProfiles, loading: profilesLoading } = useTeacherProfiles();
+  const { contracts, loading: contractsLoading } = useTeacherContracts();
+
+  const activeTeachers = teacherProfiles.filter(t => t.status === 'active').length;
+  const activeContracts = contracts.filter(c => c.status === 'active').length;
+  const totalProfiles = teacherProfiles.length;
+  
+  // Calculer les contrats qui expirent bientôt (dans les 30 prochains jours)
+  const soonExpiringContracts = contracts.filter(c => {
+    if (!c.end_date || c.status !== 'active') return false;
+    const endDate = new Date(c.end_date);
+    const now = new Date();
+    const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    return endDate <= thirtyDaysFromNow && endDate >= now;
+  }).length;
+
   const stats = [
     {
       label: "Enseignants actifs",
-      value: "127",
-      change: "+3",
+      value: activeTeachers.toString(),
+      change: `${totalProfiles} total`,
       changeType: "positive" as const
     },
     {
-      label: "Contrats en cours",
-      value: "98",
-      change: "+5%",
+      label: "Contrats actifs",
+      value: activeContracts.toString(),
+      change: `${contracts.length} total`,
       changeType: "positive" as const
     },
     {
-      label: "Disponibilités mises à jour",
-      value: "89%",
-      change: "+12%",
-      changeType: "positive" as const
+      label: "Contrats à renouveler",
+      value: soonExpiringContracts.toString(),
+      change: "30 prochains jours",
+      changeType: soonExpiringContracts > 0 ? "warning" as const : "positive" as const
     },
     {
-      label: "Évaluations complètes",
-      value: "76%",
-      change: "+8%",
+      label: "Profils complets",
+      value: totalProfiles > 0 ? Math.round((activeTeachers / totalProfiles) * 100) + "%" : "0%",
+      change: "Données à jour",
       changeType: "positive" as const
     }
   ];
 
+  // Activités récentes basées sur les vraies données
   const recentActivities = [
-    {
-      id: 1,
-      teacher: "Dr. Marie Dubois",
-      action: "Contrat renouvelé",
-      status: "completed",
-      date: "2024-01-15"
-    },
-    {
-      id: 2,
-      teacher: "Prof. Jean Martin",
-      action: "Disponibilités mises à jour",
-      status: "pending",
-      date: "2024-01-14"
-    },
-    {
-      id: 3,
-      teacher: "Dr. Sophie Laurent",
-      action: "Évaluation en cours",
-      status: "progress",
-      date: "2024-01-13"
-    }
-  ];
+    ...teacherProfiles.slice(0, 2).map(teacher => ({
+      id: teacher.id,
+      teacher: teacher.profile?.full_name || 'Nom non défini',
+      action: "Profil créé",
+      status: teacher.status === 'active' ? "completed" : "pending",
+      date: new Date(teacher.created_at).toISOString().split('T')[0]
+    })),
+    ...contracts.slice(0, 1).map(contract => ({
+      id: contract.id,
+      teacher: contract.teacher_profile?.profile?.full_name || 'Nom non défini',
+      action: contract.status === 'active' ? "Contrat actif" : "Contrat créé",
+      status: contract.status === 'active' ? "completed" : "progress",
+      date: new Date(contract.created_at).toISOString().split('T')[0]
+    }))
+  ].slice(0, 3);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -127,7 +139,16 @@ export default function Hr() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {recentActivities.map((activity) => (
+              {profilesLoading || contractsLoading ? (
+                <div className="text-center py-4 text-muted-foreground">
+                  Chargement des activités...
+                </div>
+              ) : recentActivities.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <UserCheck className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p>Aucune activité récente</p>
+                </div>
+              ) : recentActivities.map((activity) => (
                     <div
                       key={activity.id}
                       className="flex items-center justify-between p-4 rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
@@ -224,7 +245,9 @@ export default function Hr() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="p-3 bg-yellow-50 rounded-xl border border-yellow-200">
-                  <p className="text-sm font-medium text-yellow-700">12 contrats à renouveler</p>
+                  <p className="text-sm font-medium text-yellow-700">
+                    {soonExpiringContracts} contrats à renouveler
+                  </p>
                   <p className="text-xs text-yellow-600">Échéance dans 30 jours</p>
                 </div>
                 
