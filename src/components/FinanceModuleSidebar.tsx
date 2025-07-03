@@ -40,18 +40,9 @@ import {
 
 const financeSections = [
   {
-    title: "Pilotage IA & Configuration",
-    icon: Bot,
-    defaultOpen: true,
-    items: [
-      { title: "Intelligence Financière", url: "/finance/admin-ia", icon: Bot, description: "IA prédictive & optimisation" },
-      { title: "Gestionnaire Budgétaire", url: "/finance/budget-manager", icon: Calculator, description: "Pilotage budgets unifié" },
-      { title: "Configuration Système", url: "/finance/config", icon: Settings, description: "Plan comptable & paramètres" }
-    ]
-  },
-  {
-    title: "Facturation & Régularisations",
+    title: "Facturation",
     icon: FileText,
+    defaultOpen: true,
     items: [
       { title: "Facturation Étudiante", url: "/finance/invoices", icon: FileText, description: "Scolarité & frais" },
       { title: "Facturation Commerciale", url: "/finance/commercial", icon: Receipt, description: "Prestations B2B" },
@@ -59,20 +50,13 @@ const financeSections = [
     ]
   },
   {
-    title: "Encaissements & Trésorerie",
+    title: "Trésorerie Unifiée",
     icon: Wallet,
     items: [
       { title: "Hub Paiements", url: "/finance/payments", icon: CreditCard, description: "Tous moyens de paiement" },
+      { title: "Trésorerie Live", url: "/finance/treasury", icon: Wallet, description: "Position temps réel + prédictions" },
+      { title: "Suivi des Créances", url: "/finance/receivables", icon: PieChart, description: "Analytics & recouvrement" },
       { title: "Réconciliation Auto", url: "/finance/reconciliation", icon: Zap, description: "Matching intelligent" },
-      { title: "Trésorerie Live", url: "/finance/treasury", icon: Wallet, description: "Position temps réel" }
-    ]
-  },
-  {
-    title: "Créances & Recouvrement",
-    icon: Target,
-    items: [
-      { title: "Suivi des Créances", url: "/finance/receivables", icon: PieChart, description: "Analytics & alertes" },
-      { title: "Recouvrement IA", url: "/finance/collection", icon: Bot, description: "Workflows adaptatifs" },
       { title: "Scoring Risques", url: "/finance/risk-scoring", icon: AlertTriangle, description: "Prédiction défaillances" }
     ]
   },
@@ -86,11 +70,12 @@ const financeSections = [
     ]
   },
   {
-    title: "Contrôle & Reporting",
-    icon: TrendingUp,
+    title: "Pilotage & Configuration",
+    icon: Bot,
     items: [
+      { title: "Intelligence Financière", url: "/finance/admin-ia", icon: Bot, description: "IA prédictive & optimisation" },
+      { title: "Gestionnaire Budgétaire", url: "/finance/budget-manager", icon: Calculator, description: "Pilotage budgets unifié" },
       { title: "Contrôle de Gestion", url: "/finance/management-control", icon: Target, description: "KPIs & tableaux de bord" },
-      { title: "Reporting Avancé", url: "/finance/reporting", icon: BarChart3, description: "États automatisés" },
       { title: "Clôtures Rapides", url: "/finance/closing", icon: CheckCircle, description: "Automatisation J+3" }
     ]
   }
