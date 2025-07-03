@@ -2883,6 +2883,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_student_averages: {
+        Args: {
+          p_student_id: string
+          p_academic_year_id: string
+          p_semester?: number
+        }
+        Returns: Json
+      }
       calculate_student_progress: {
         Args: {
           p_student_id: string
