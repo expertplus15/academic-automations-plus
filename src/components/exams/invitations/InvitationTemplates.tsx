@@ -205,7 +205,7 @@ L'équipe pédagogique`,
         <div>
           <label className="text-sm font-medium">Variables disponibles</label>
           <div className="text-xs text-muted-foreground mb-2">
-            {{student_name}}, {{exam_title}}, {{exam_date}}, {{exam_time}}, {{exam_room}}, {{exam_duration}}, {{allowed_materials}}
+            {`{{student_name}}, {{exam_title}}, {{exam_date}}, {{exam_time}}, {{exam_room}}, {{exam_duration}}, {{allowed_materials}}`}
           </div>
         </div>
 
