@@ -105,14 +105,9 @@ export function ResourcesModuleSidebar() {
         </div>
         
         {resourcesSections.map((section, index) => {
-          const SectionIcon = section.icon;
           
           return (
             <SidebarGroup key={index} className="py-2">
-              <div className="flex items-center gap-3 px-3 py-2 mb-2">
-                <SectionIcon className={cn("w-4 h-4", section.color)} />
-                <span className="text-sm font-medium text-sidebar-foreground/80">{section.title}</span>
-              </div>
               <SidebarGroupContent>
                 <SidebarMenu className="space-y-1">
                   {section.items.map(item => {
