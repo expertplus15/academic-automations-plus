@@ -27,43 +27,18 @@ import {
   Mail
 } from "lucide-react";
 
-const studentsSections = [
-  {
-    title: "Inscription Express",
-    icon: Zap,
-    defaultOpen: true,
-    items: [
-      { title: "Inscription automatisée", url: "/students/registration", icon: UserPlus },
-      { title: "Tableau de bord", url: "/students/registration/dashboard", icon: BarChart3 },
-      { title: "Analyses", url: "/students/registration/analytics", icon: BarChart3 },
-      { title: "Approbations", url: "/students/registration/approval", icon: AlertCircle },
-      { title: "Entretiens", url: "/students/registration/interviews", icon: Mail },
-      { title: "Configuration", url: "/students/registration/settings", icon: AlertCircle }
-    ]
-  },
-  {
-    title: "Profils & Suivi",
-    icon: User,
-    items: [
-      { title: "Profils étudiants", url: "/students/profiles", icon: User },
-      { title: "Suivi académique", url: "/students/tracking", icon: Activity }
-    ]
-  },
-  {
-    title: "Communication",
-    icon: MessageSquare,
-    items: [
-      { title: "Alertes automatiques", url: "/students/alerts", icon: Bell },
-      { title: "Communication intégrée", url: "/students/communication", icon: MessageSquare }
-    ]
-  },
-  {
-    title: "Documents",
-    icon: FileText,
-    items: [
-      { title: "Documents administratifs", url: "/students/documents", icon: FileText }
-    ]
-  }
+const studentsItems = [
+  { title: "Inscription automatisée", url: "/students/registration", icon: UserPlus },
+  { title: "Tableau de bord", url: "/students/registration/dashboard", icon: BarChart3 },
+  { title: "Analyses", url: "/students/registration/analytics", icon: BarChart3 },
+  { title: "Approbations", url: "/students/registration/approval", icon: AlertCircle },
+  { title: "Entretiens", url: "/students/registration/interviews", icon: Mail },
+  { title: "Configuration", url: "/students/registration/settings", icon: AlertCircle },
+  { title: "Profils étudiants", url: "/students/profiles", icon: User },
+  { title: "Suivi académique", url: "/students/tracking", icon: Activity },
+  { title: "Alertes automatiques", url: "/students/alerts", icon: Bell },
+  { title: "Communication intégrée", url: "/students/communication", icon: MessageSquare },
+  { title: "Documents administratifs", url: "/students/documents", icon: FileText }
 ];
 
 export function StudentsModuleSidebar() {
@@ -104,62 +79,38 @@ export function StudentsModuleSidebar() {
           </Link>
         </div>
         
-        {studentsSections.map((section, index) => {
-          
-          // Définir les couleurs thématiques par section
-          const getSectionColor = (title: string) => {
-            switch (title) {
-              case 'Inscription Express': return 'text-emerald-500'; // Students green
-              case 'Profils & Suivi': return 'text-blue-500'; // Academic blue  
-              case 'Communication': return 'text-violet-500'; // Communication violet
-              case 'Documents': return 'text-orange-500'; // Documents orange
-              default: return 'text-emerald-500';
-            }
-          };
-
-          const getItemColor = (sectionTitle: string, itemTitle: string) => {
-            const baseColor = getSectionColor(sectionTitle);
-            return baseColor;
-          };
-
-          const sectionColor = getSectionColor(section.title);
-
-          return (
-            <SidebarGroup key={index} className="py-2">
-              <SidebarGroupContent>
-                <SidebarMenu className="space-y-1">
-                  {section.items.map(item => {
-                    const ItemIcon = item.icon;
-                    const isActive = location.pathname === item.url;
-                    const itemColor = getItemColor(section.title, item.title);
-                    
-                    return (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild>
-                          <Link 
-                            to={item.url} 
-                            className={cn(
-                              "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
-                              "text-sidebar-foreground hover:bg-sidebar-accent",
-                              isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                            )}
-                          >
-                            {isActive && <div className={`absolute left-0 w-1 h-6 ${itemColor.replace('text-', 'bg-')} rounded-r`} />}
-                            <ItemIcon className={`w-3.5 h-3.5 ${itemColor}`} />
-                            <div className="flex-1 min-w-0">
-                              <span className="text-base block truncate">{item.title}</span>
-                            </div>
-                            {isActive && <div className={`w-2 h-2 ${itemColor.replace('text-', 'bg-')} rounded-full`} />}
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          );
-        })}
+        <SidebarGroup className="py-2">
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {studentsItems.map(item => {
+                const ItemIcon = item.icon;
+                const isActive = location.pathname === item.url;
+                
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Link 
+                        to={item.url} 
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
+                          "text-sidebar-foreground hover:bg-sidebar-accent",
+                          isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                        )}
+                      >
+                        {isActive && <div className="absolute left-0 w-1 h-6 bg-emerald-500 rounded-r" />}
+                        <ItemIcon className="w-4 h-4 text-emerald-500" />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-base block truncate">{item.title}</span>
+                        </div>
+                        {isActive && <div className="w-2 h-2 bg-emerald-500 rounded-full" />}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border/30">

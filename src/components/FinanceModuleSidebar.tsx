@@ -39,64 +39,27 @@ import {
   Building
 } from "lucide-react";
 
-const financeSections = [
-  {
-    title: "Facturation",
-    icon: FileText,
-    defaultOpen: true,
-    items: [
-      { title: "Facturation Unifiée", url: "/finance/invoices", icon: FileText },
-      { title: "Avoirs & Corrections", url: "/finance/credits", icon: RefreshCw }
-    ]
-  },
-  {
-    title: "Trésorerie",
-    icon: Wallet,
-    items: [
-      { title: "Trésorerie & Hub Paiements", url: "/finance/treasury-payments", icon: Wallet },
-      { title: "Suivi des Créances", url: "/finance/receivables", icon: PieChart },
-      { title: "Réconciliation Auto", url: "/finance/reconciliation", icon: Zap },
-      { title: "Scoring Risques", url: "/finance/risk-scoring", icon: AlertTriangle }
-    ]
-  },
-  {
-    title: "Dépenses",
-    icon: Receipt,
-    items: [
-      { title: "Gestion des Dépenses", url: "/finance/expenses", icon: Receipt },
-      { title: "Postes de Dépenses", url: "/finance/expense-categories", icon: Target },
-      { title: "Fournisseurs", url: "/finance/suppliers", icon: Building }
-    ]
-  },
-  {
-    title: "Comptabilité",
-    icon: Calculator,
-    items: [
-      { title: "Écritures Auto", url: "/finance/accounting", icon: Calculator },
-      { title: "Analytique Multi-axes", url: "/finance/analytics-accounting", icon: BarChart3 },
-      { title: "États Financiers", url: "/finance/statements", icon: FileText }
-    ]
-  },
-  {
-    title: "Pilotage",
-    icon: Bot,
-    items: [
-      { title: "Intelligence Financière", url: "/finance/admin-ia", icon: Bot },
-      { title: "Gestionnaire Budgétaire", url: "/finance/budget-manager", icon: Calculator },
-      { title: "Contrôle de Gestion", url: "/finance/management-control", icon: Target },
-      { title: "Clôtures Rapides", url: "/finance/closing", icon: CheckCircle }
-    ]
-  },
-  {
-    title: "Paramètres",
-    icon: Settings,
-    items: [
-      { title: "Configuration Système", url: "/finance/config", icon: Settings },
-      { title: "Paramètres Fiscaux", url: "/finance/tax-settings", icon: Calculator },
-      { title: "Gestion des Utilisateurs", url: "/finance/users", icon: User },
-      { title: "Sauvegardes", url: "/finance/backups", icon: RefreshCw }
-    ]
-  }
+const financeItems = [
+  { title: "Facturation Unifiée", url: "/finance/invoices", icon: FileText },
+  { title: "Avoirs & Corrections", url: "/finance/credits", icon: RefreshCw },
+  { title: "Trésorerie & Hub Paiements", url: "/finance/treasury-payments", icon: Wallet },
+  { title: "Suivi des Créances", url: "/finance/receivables", icon: PieChart },
+  { title: "Réconciliation Auto", url: "/finance/reconciliation", icon: Zap },
+  { title: "Scoring Risques", url: "/finance/risk-scoring", icon: AlertTriangle },
+  { title: "Gestion des Dépenses", url: "/finance/expenses", icon: Receipt },
+  { title: "Postes de Dépenses", url: "/finance/expense-categories", icon: Target },
+  { title: "Fournisseurs", url: "/finance/suppliers", icon: Building },
+  { title: "Écritures Auto", url: "/finance/accounting", icon: Calculator },
+  { title: "Analytique Multi-axes", url: "/finance/analytics-accounting", icon: BarChart3 },
+  { title: "États Financiers", url: "/finance/statements", icon: FileText },
+  { title: "Intelligence Financière", url: "/finance/admin-ia", icon: Bot },
+  { title: "Gestionnaire Budgétaire", url: "/finance/budget-manager", icon: Calculator },
+  { title: "Contrôle de Gestion", url: "/finance/management-control", icon: Target },
+  { title: "Clôtures Rapides", url: "/finance/closing", icon: CheckCircle },
+  { title: "Configuration Système", url: "/finance/config", icon: Settings },
+  { title: "Paramètres Fiscaux", url: "/finance/tax-settings", icon: Calculator },
+  { title: "Gestion des Utilisateurs", url: "/finance/users", icon: User },
+  { title: "Sauvegardes", url: "/finance/backups", icon: RefreshCw }
 ];
 
 export function FinanceModuleSidebar() {
@@ -137,58 +100,38 @@ export function FinanceModuleSidebar() {
           </Link>
         </div>
         
-        {financeSections.map((section, index) => {
-          
-          // Couleurs thématiques pour Finance
-          const getSectionColor = (title: string) => {
-            switch (title) {
-              case 'Facturation': return 'text-blue-500';
-              case 'Trésorerie': return 'text-green-500';
-              case 'Dépenses': return 'text-red-500';
-              case 'Comptabilité': return 'text-purple-500';
-              case 'Pilotage': return 'text-orange-500';
-              case 'Paramètres': return 'text-gray-500';
-              default: return 'text-emerald-500';
-            }
-          };
-
-          const sectionColor = getSectionColor(section.title);
-
-          return (
-            <SidebarGroup key={index} className="py-2">
-              <SidebarGroupContent>
-                <SidebarMenu className="space-y-1">
-                  {section.items.map(item => {
-                    const ItemIcon = item.icon;
-                    const isActive = location.pathname === item.url;
-                    
-                    return (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild>
-                          <Link 
-                            to={item.url} 
-                            className={cn(
-                              "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
-                              "text-sidebar-foreground hover:bg-sidebar-accent",
-                              isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                            )}
-                          >
-                            {isActive && <div className={`absolute left-0 w-1 h-6 ${sectionColor.replace('text-', 'bg-')} rounded-r`} />}
-                            <ItemIcon className={`w-3.5 h-3.5 ${sectionColor}`} />
-                            <div className="flex-1 min-w-0">
-                              <span className="text-base block truncate">{item.title}</span>
-                            </div>
-                            {isActive && <div className={`w-2 h-2 ${sectionColor.replace('text-', 'bg-')} rounded-full`} />}
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          );
-        })}
+        <SidebarGroup className="py-2">
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {financeItems.map(item => {
+                const ItemIcon = item.icon;
+                const isActive = location.pathname === item.url;
+                
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Link 
+                        to={item.url} 
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
+                          "text-sidebar-foreground hover:bg-sidebar-accent",
+                          isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                        )}
+                      >
+                        {isActive && <div className="absolute left-0 w-1 h-6 bg-emerald-500 rounded-r" />}
+                        <ItemIcon className="w-4 h-4 text-emerald-500" />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-base block truncate">{item.title}</span>
+                        </div>
+                        {isActive && <div className="w-2 h-2 bg-emerald-500 rounded-full" />}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border/30">
