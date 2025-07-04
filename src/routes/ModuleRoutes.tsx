@@ -142,6 +142,7 @@ import ResourcesSettings from '@/pages/resources/Settings';
 
 // Settings module pages
 import Settings from '@/pages/Settings';
+import SettingsGeneral from '@/pages/settings/General';
 import SettingsCustomization from '@/pages/settings/Customization';
 import SettingsInstitutions from '@/pages/settings/Institutions';
 import SettingsIntegrations from '@/pages/settings/Integrations';
@@ -325,6 +326,7 @@ export function ModuleRoutes() {
 
       {/* Settings Module Routes */}
       <Route path="/settings" element={<Settings />} />
+      <Route path="/settings/general" element={<SettingsGeneral />} />
       <Route path="/settings/customization" element={<SettingsCustomization />} />
       <Route path="/settings/institutions" element={<SettingsInstitutions />} />
       <Route path="/settings/integrations" element={<SettingsIntegrations />} />

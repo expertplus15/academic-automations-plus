@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 
 const settingsItems = [
+  { title: "Configuration générale", url: "/settings/general", icon: Settings, description: "Paramètres système" },
   { title: "Multi-établissements", url: "/settings/institutions", icon: Building, description: "Gestion centralisée" },
   { title: "Utilisateurs & rôles", url: "/settings/users", icon: Users, description: "RBAC contrôle accès" },
   { title: "Personnalisation", url: "/settings/customization", icon: Palette, description: "Interface & thèmes" },

@@ -4039,6 +4039,69 @@ export type Database = {
         }
         Relationships: []
       }
+      system_settings: {
+        Row: {
+          academic_year_auto_init: boolean | null
+          attendance_required_percentage: number | null
+          created_at: string
+          created_by: string | null
+          date_format: string | null
+          default_currency: string | null
+          default_language: string | null
+          default_timezone: string | null
+          grade_scale_max: number | null
+          id: string
+          institution_address: string | null
+          institution_email: string | null
+          institution_logo_url: string | null
+          institution_name: string | null
+          institution_phone: string | null
+          passing_grade_min: number | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          academic_year_auto_init?: boolean | null
+          attendance_required_percentage?: number | null
+          created_at?: string
+          created_by?: string | null
+          date_format?: string | null
+          default_currency?: string | null
+          default_language?: string | null
+          default_timezone?: string | null
+          grade_scale_max?: number | null
+          id?: string
+          institution_address?: string | null
+          institution_email?: string | null
+          institution_logo_url?: string | null
+          institution_name?: string | null
+          institution_phone?: string | null
+          passing_grade_min?: number | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          academic_year_auto_init?: boolean | null
+          attendance_required_percentage?: number | null
+          created_at?: string
+          created_by?: string | null
+          date_format?: string | null
+          default_currency?: string | null
+          default_language?: string | null
+          default_timezone?: string | null
+          grade_scale_max?: number | null
+          id?: string
+          institution_address?: string | null
+          institution_email?: string | null
+          institution_logo_url?: string | null
+          institution_name?: string | null
+          institution_phone?: string | null
+          passing_grade_min?: number | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       teacher_availability: {
         Row: {
           academic_year_id: string | null
