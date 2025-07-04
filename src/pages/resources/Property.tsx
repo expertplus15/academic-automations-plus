@@ -1,9 +1,10 @@
+import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { ResourcesPageHeader } from "@/components/ResourcesPageHeader";
 import { PropertyDashboard } from "@/components/resources/PropertyDashboard";
 
 export default function Property() {
   return (
-    <div className="min-h-screen bg-background">
+    <ModuleLayout>
       <ResourcesPageHeader 
         title="Patrimoine immobilier" 
         subtitle="Suivi et valorisation" 
@@ -13,6 +14,6 @@ export default function Property() {
           <PropertyDashboard />
         </div>
       </div>
-    </div>
+    </ModuleLayout>
   );
 }

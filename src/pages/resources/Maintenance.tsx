@@ -1,9 +1,10 @@
+import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { ResourcesPageHeader } from "@/components/ResourcesPageHeader";
 import { MaintenanceDashboard } from "@/components/resources/MaintenanceDashboard";
 
 export default function Maintenance() {
   return (
-    <div className="min-h-screen bg-background">
+    <ModuleLayout>
       <ResourcesPageHeader 
         title="Maintenance préventive" 
         subtitle="Maintenance automatisée" 
@@ -13,6 +14,6 @@ export default function Maintenance() {
           <MaintenanceDashboard />
         </div>
       </div>
-    </div>
+    </ModuleLayout>
   );
 }

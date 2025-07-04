@@ -1,8 +1,9 @@
+import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { ResourcesPageHeader } from "@/components/ResourcesPageHeader";
 
 export default function Resources() {
   return (
-    <div className="min-h-screen bg-background">
+    <ModuleLayout>
       <ResourcesPageHeader 
         title="Ressources & Patrimoine" 
         subtitle="Gestion des équipements et infrastructures" 
@@ -17,6 +18,6 @@ export default function Resources() {
           </div>
         </div>
       </div>
-    </div>
+    </ModuleLayout>
   );
 }

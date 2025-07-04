@@ -1,8 +1,9 @@
+import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { ResourcesPageHeader } from "@/components/ResourcesPageHeader";
 
 export default function Bookings() {
   return (
-    <div className="min-h-screen bg-background">
+    <ModuleLayout>
       <ResourcesPageHeader 
         title="Réservation salles" 
         subtitle="Salles & équipements" 
@@ -17,6 +18,6 @@ export default function Bookings() {
           </div>
         </div>
       </div>
-    </div>
+    </ModuleLayout>
   );
 }

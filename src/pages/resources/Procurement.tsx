@@ -1,9 +1,10 @@
+import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { ResourcesPageHeader } from "@/components/ResourcesPageHeader";
 import { ProcurementDashboard } from "@/components/resources/ProcurementDashboard";
 
 export default function Procurement() {
   return (
-    <div className="min-h-screen bg-background">
+    <ModuleLayout>
       <ResourcesPageHeader 
         title="Achats & approvisionnements" 
         subtitle="Gestion des commandes" 
@@ -13,6 +14,6 @@ export default function Procurement() {
           <ProcurementDashboard />
         </div>
       </div>
-    </div>
+    </ModuleLayout>
   );
 }

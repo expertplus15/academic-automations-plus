@@ -1,8 +1,9 @@
+import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { ResourcesPageHeader } from "@/components/ResourcesPageHeader";
 
 export default function Inventory() {
   return (
-    <div className="min-h-screen bg-background">
+    <ModuleLayout>
       <ResourcesPageHeader 
         title="Inventaire numérique" 
         subtitle="QR codes et traçabilité" 
@@ -17,6 +18,6 @@ export default function Inventory() {
           </div>
         </div>
       </div>
-    </div>
+    </ModuleLayout>
   );
 }
