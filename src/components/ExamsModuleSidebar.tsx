@@ -29,39 +29,14 @@ import {
   LayoutDashboard
 } from "lucide-react";
 
-const examsSections = [
-  {
-    title: "IA Anti-Conflits",
-    icon: Bot,
-    defaultOpen: true,
-    items: [
-      { title: "Planification examens", url: "/exams/planning", icon: Calendar },
-      { title: "Optimisation automatique", url: "/exams/optimization", icon: BarChart3 }
-    ]
-  },
-  {
-    title: "Logistique",
-    icon: MapPin,
-    items: [
-      { title: "Gestion salles", url: "/exams/rooms", icon: Building },
-      { title: "Attribution surveillants", url: "/exams/supervisors", icon: Users }
-    ]
-  },
-  {
-    title: "Communication",
-    icon: MessageCircle,
-    items: [
-      { title: "Convocations massives", url: "/exams/invitations", icon: Mail }
-    ]
-  },
-  {
-    title: "Suivi Temps Réel",
-    icon: Monitor,
-    items: [
-      { title: "Surveillance temps réel", url: "/exams/monitoring", icon: Monitor },
-      { title: "Incidents & PV", url: "/exams/incidents", icon: AlertTriangle }
-    ]
-  }
+const examsItems = [
+  { title: "Planification examens", url: "/exams/planning", icon: Calendar },
+  { title: "Optimisation automatique", url: "/exams/optimization", icon: BarChart3 },
+  { title: "Gestion salles", url: "/exams/rooms", icon: Building },
+  { title: "Attribution surveillants", url: "/exams/supervisors", icon: Users },
+  { title: "Convocations massives", url: "/exams/invitations", icon: Mail },
+  { title: "Surveillance temps réel", url: "/exams/monitoring", icon: Monitor },
+  { title: "Incidents & PV", url: "/exams/incidents", icon: AlertTriangle }
 ];
 
 export function ExamsModuleSidebar() {
@@ -102,60 +77,39 @@ export function ExamsModuleSidebar() {
           </Link>
         </div>
         
-        {examsSections.map((section, index) => {
-          const SectionIcon = section.icon;
-          
-          const getSectionColor = (title: string) => {
-            switch (title) {
-              case 'IA Anti-Conflits': return 'text-violet-500';
-              case 'Logistique': return 'text-blue-500';
-              case 'Communication': return 'text-green-500';
-              case 'Suivi Temps Réel': return 'text-orange-500';
-              default: return 'text-violet-500';
-            }
-          };
-
-          const sectionColor = getSectionColor(section.title);
-
-          return (
-            <SidebarGroup key={index} className="py-2">
-              <div className="flex items-center gap-3 px-3 py-2 mb-2">
-                <SectionIcon className={`w-4 h-4 ${sectionColor}`} />
-                <span className="text-sm font-medium text-sidebar-foreground/80">{section.title}</span>
-              </div>
-              <SidebarGroupContent>
-                <SidebarMenu className="space-y-1">
-                  {section.items.map(item => {
-                    const ItemIcon = item.icon;
-                    const isActive = location.pathname === item.url;
-                    
-                    return (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild>
-                          <Link 
-                            to={item.url} 
-                            className={cn(
-                              "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
-                              "text-sidebar-foreground hover:bg-sidebar-accent",
-                              isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                            )}
-                          >
-                            {isActive && <div className={`absolute left-0 w-1 h-6 ${sectionColor.replace('text-', 'bg-')} rounded-r`} />}
-                            <ItemIcon className={`w-3.5 h-3.5 ${sectionColor}`} />
-                            <div className="flex-1 min-w-0">
-                              <span className="text-base block truncate">{item.title}</span>
-                            </div>
-                            {isActive && <div className={`w-2 h-2 ${sectionColor.replace('text-', 'bg-')} rounded-full`} />}
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          );
-        })}
+        
+        <SidebarGroup className="py-2">
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {examsItems.map(item => {
+                const ItemIcon = item.icon;
+                const isActive = location.pathname === item.url;
+                
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Link 
+                        to={item.url} 
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
+                          "text-sidebar-foreground hover:bg-sidebar-accent",
+                          isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                        )}
+                      >
+                        {isActive && <div className="absolute left-0 w-1 h-6 bg-violet-500 rounded-r" />}
+                        <ItemIcon className="w-4 h-4 text-violet-500" />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-base block truncate">{item.title}</span>
+                        </div>
+                        {isActive && <div className="w-2 h-2 bg-violet-500 rounded-full" />}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border/30">
