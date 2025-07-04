@@ -36,35 +36,35 @@ const resultsSections = [
     title: "Saisie & Validation",
     icon: Zap,
     items: [
-      { title: "Interface matricielle", url: "/results/matrix", icon: Grid, description: "Saisie collaborative" },
-      { title: "Import de données", url: "/results/import", icon: Upload, description: "Excel, CSV, API" },
-      { title: "Validation & Contrôle", url: "/results/validation", icon: CheckCircle, description: "Vérifications automatiques" }
+      { title: "Interface matricielle", url: "/results/matrix", icon: Grid },
+      { title: "Import de données", url: "/results/import", icon: Upload },
+      { title: "Validation & Contrôle", url: "/results/validation", icon: CheckCircle }
     ]
   },
   {
     title: "Calculs & Traitement",
     icon: Calculator,
     items: [
-      { title: "Calculs automatiques", url: "/results/calculations", icon: Calculator, description: "Moyennes, ECTS" },
-      { title: "Traitement avancé", url: "/results/processing", icon: Cpu, description: "Algorithmes complexes" }
+      { title: "Calculs automatiques", url: "/results/calculations", icon: Calculator },
+      { title: "Traitement avancé", url: "/results/processing", icon: Cpu }
     ]
   },
   {
     title: "Génération & Export",
     icon: ClipboardList,
     items: [
-      { title: "Bulletins personnalisables", url: "/results/reports", icon: FileOutput, description: "< 5 secondes" },
-      { title: "Relevés standards", url: "/results/transcripts", icon: Award, description: "Standards académiques" },
-      { title: "Templates & Modèles", url: "/results/templates", icon: Layout, description: "Personnalisation" }
+      { title: "Bulletins personnalisables", url: "/results/reports", icon: FileOutput },
+      { title: "Relevés standards", url: "/results/transcripts", icon: Award },
+      { title: "Templates & Modèles", url: "/results/templates", icon: Layout }
     ]
   },
   {
     title: "Analytics & Suivi",
     icon: PieChart,
     items: [
-      { title: "Analytics performance", url: "/results/analytics", icon: TrendingUp, description: "Insights avancés" },
-      { title: "Insights pédagogiques", url: "/results/insights", icon: Brain, description: "IA & prédictions" },
-      { title: "Historique & Audit", url: "/results/history", icon: Clock, description: "Traçabilité complète" }
+      { title: "Analytics performance", url: "/results/analytics", icon: TrendingUp },
+      { title: "Insights pédagogiques", url: "/results/insights", icon: Brain },
+      { title: "Historique & Audit", url: "/results/history", icon: Clock }
     ]
   }
 ];
@@ -144,7 +144,6 @@ export function ResultsModuleSidebar() {
                             <ItemIcon className={`w-3.5 h-3.5 ${sectionColor}`} />
                             <div className="flex-1 min-w-0">
                               <span className="text-base block truncate">{item.title}</span>
-                              <span className="text-sm text-muted-foreground block truncate">{item.description}</span>
                             </div>
                             {isActive && <div className={`w-2 h-2 ${sectionColor.replace('text-', 'bg-')} rounded-full`} />}
                           </Link>

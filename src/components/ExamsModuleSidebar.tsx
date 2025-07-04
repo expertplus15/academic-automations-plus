@@ -35,31 +35,31 @@ const examsSections = [
     icon: Bot,
     defaultOpen: true,
     items: [
-      { title: "Planification examens", url: "/exams/planning", icon: Calendar, description: "IA anti-conflits" },
-      { title: "Optimisation automatique", url: "/exams/optimization", icon: BarChart3, description: "Algorithmes avancés" }
+      { title: "Planification examens", url: "/exams/planning", icon: Calendar },
+      { title: "Optimisation automatique", url: "/exams/optimization", icon: BarChart3 }
     ]
   },
   {
     title: "Logistique",
     icon: MapPin,
     items: [
-      { title: "Gestion salles", url: "/exams/rooms", icon: Building, description: "Capacités" },
-      { title: "Attribution surveillants", url: "/exams/supervisors", icon: Users, description: "Attribution automatique" }
+      { title: "Gestion salles", url: "/exams/rooms", icon: Building },
+      { title: "Attribution surveillants", url: "/exams/supervisors", icon: Users }
     ]
   },
   {
     title: "Communication",
     icon: MessageCircle,
     items: [
-      { title: "Convocations massives", url: "/exams/invitations", icon: Mail, description: "Génération automatique" }
+      { title: "Convocations massives", url: "/exams/invitations", icon: Mail }
     ]
   },
   {
     title: "Suivi Temps Réel",
     icon: Monitor,
     items: [
-      { title: "Surveillance temps réel", url: "/exams/monitoring", icon: Monitor, description: "Sessions en cours" },
-      { title: "Incidents & PV", url: "/exams/incidents", icon: AlertTriangle, description: "Gestion des problèmes" }
+      { title: "Surveillance temps réel", url: "/exams/monitoring", icon: Monitor },
+      { title: "Incidents & PV", url: "/exams/incidents", icon: AlertTriangle }
     ]
   }
 ];
@@ -144,7 +144,6 @@ export function ExamsModuleSidebar() {
                             <ItemIcon className={`w-3.5 h-3.5 ${sectionColor}`} />
                             <div className="flex-1 min-w-0">
                               <span className="text-base block truncate">{item.title}</span>
-                              <span className="text-sm text-muted-foreground block truncate">{item.description}</span>
                             </div>
                             {isActive && <div className={`w-2 h-2 ${sectionColor.replace('text-', 'bg-')} rounded-full`} />}
                           </Link>

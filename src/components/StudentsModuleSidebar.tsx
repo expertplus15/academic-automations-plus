@@ -33,35 +33,35 @@ const studentsSections = [
     icon: Zap,
     defaultOpen: true,
     items: [
-      { title: "Inscription automatisée", url: "/students/registration", icon: UserPlus, description: "< 30 secondes" },
-      { title: "Tableau de bord", url: "/students/registration/dashboard", icon: BarChart3, description: "Vue d'ensemble" },
-      { title: "Analyses", url: "/students/registration/analytics", icon: BarChart3, description: "Statistiques" },
-      { title: "Approbations", url: "/students/registration/approval", icon: AlertCircle, description: "Validations" },
-      { title: "Entretiens", url: "/students/registration/interviews", icon: Mail, description: "Planification" },
-      { title: "Configuration", url: "/students/registration/settings", icon: AlertCircle, description: "Paramètres" }
+      { title: "Inscription automatisée", url: "/students/registration", icon: UserPlus },
+      { title: "Tableau de bord", url: "/students/registration/dashboard", icon: BarChart3 },
+      { title: "Analyses", url: "/students/registration/analytics", icon: BarChart3 },
+      { title: "Approbations", url: "/students/registration/approval", icon: AlertCircle },
+      { title: "Entretiens", url: "/students/registration/interviews", icon: Mail },
+      { title: "Configuration", url: "/students/registration/settings", icon: AlertCircle }
     ]
   },
   {
     title: "Profils & Suivi",
     icon: User,
     items: [
-      { title: "Profils étudiants", url: "/students/profiles", icon: User, description: "Profils complets" },
-      { title: "Suivi académique", url: "/students/tracking", icon: Activity, description: "Temps réel" }
+      { title: "Profils étudiants", url: "/students/profiles", icon: User },
+      { title: "Suivi académique", url: "/students/tracking", icon: Activity }
     ]
   },
   {
     title: "Communication",
     icon: MessageSquare,
     items: [
-      { title: "Alertes automatiques", url: "/students/alerts", icon: Bell, description: "Absences, notes" },
-      { title: "Communication intégrée", url: "/students/communication", icon: MessageSquare, description: "Messagerie" }
+      { title: "Alertes automatiques", url: "/students/alerts", icon: Bell },
+      { title: "Communication intégrée", url: "/students/communication", icon: MessageSquare }
     ]
   },
   {
     title: "Documents",
     icon: FileText,
     items: [
-      { title: "Documents administratifs", url: "/students/documents", icon: FileText, description: "Certificats" }
+      { title: "Documents administratifs", url: "/students/documents", icon: FileText }
     ]
   }
 ];
@@ -148,7 +148,6 @@ export function StudentsModuleSidebar() {
                             <ItemIcon className={`w-3.5 h-3.5 ${itemColor}`} />
                             <div className="flex-1 min-w-0">
                               <span className="text-base block truncate">{item.title}</span>
-                              <span className="text-sm text-muted-foreground block truncate">{item.description}</span>
                             </div>
                             {isActive && <div className={`w-2 h-2 ${itemColor.replace('text-', 'bg-')} rounded-full`} />}
                           </Link>

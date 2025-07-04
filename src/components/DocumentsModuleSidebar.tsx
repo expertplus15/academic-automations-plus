@@ -34,40 +34,40 @@ const documentsSections = [
     icon: Layout,
     defaultOpen: true,
     items: [
-      { title: "Modèles de documents", url: "/documents/templates", icon: Layout, description: "Gestion des modèles" },
-      { title: "Générateur de docs", url: "/documents/generator", icon: PenTool, description: "Création automatique" }
+      { title: "Modèles de documents", url: "/documents/templates", icon: Layout },
+      { title: "Générateur de docs", url: "/documents/generator", icon: PenTool }
     ]
   },
   {
     title: "Archives & Stockage",
     icon: Archive,
     items: [
-      { title: "Centre d'archives", url: "/documents/archives", icon: Archive, description: "Documents archivés" },
-      { title: "Recherche avancée", url: "/documents/search", icon: FolderOpen, description: "Recherche intelligente" }
+      { title: "Centre d'archives", url: "/documents/archives", icon: Archive },
+      { title: "Recherche avancée", url: "/documents/search", icon: FolderOpen }
     ]
   },
   {
     title: "Signatures & Validation",
     icon: FileSignature,
     items: [
-      { title: "Signatures électroniques", url: "/documents/signatures", icon: FileSignature, description: "e-Signature" },
-      { title: "Validation officielle", url: "/documents/validation", icon: Stamp, description: "Tampons & cachets" }
+      { title: "Signatures électroniques", url: "/documents/signatures", icon: FileSignature },
+      { title: "Validation officielle", url: "/documents/validation", icon: Stamp }
     ]
   },
   {
     title: "Distribution & Envoi",
     icon: Send,
     items: [
-      { title: "Envoi automatique", url: "/documents/distribution", icon: Send, description: "Distribution massive" },
-      { title: "Notifications", url: "/documents/notifications", icon: BarChart3, description: "Suivi des envois" }
+      { title: "Envoi automatique", url: "/documents/distribution", icon: Send },
+      { title: "Notifications", url: "/documents/notifications", icon: BarChart3 }
     ]
   },
   {
     title: "Paramètres & Conformité",
     icon: Shield,
     items: [
-      { title: "Paramètres", url: "/documents/settings", icon: Settings, description: "Configuration système" },
-      { title: "Conformité RGPD", url: "/documents/compliance", icon: Shield, description: "Règles & audits" }
+      { title: "Paramètres", url: "/documents/settings", icon: Settings },
+      { title: "Conformité RGPD", url: "/documents/compliance", icon: Shield }
     ]
   }
 ];
@@ -149,7 +149,6 @@ export function DocumentsModuleSidebar() {
                             <ItemIcon className={`w-3.5 h-3.5 ${itemColor}`} />
                             <div className="flex-1 min-w-0">
                               <span className="text-base block truncate">{item.title}</span>
-                              <span className="text-sm text-muted-foreground block truncate">{item.description}</span>
                             </div>
                             {isActive && <div className={`w-2 h-2 ${itemColor.replace('text-', 'bg-')} rounded-full`} />}
                           </Link>

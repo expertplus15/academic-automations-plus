@@ -45,56 +45,56 @@ const financeSections = [
     icon: FileText,
     defaultOpen: true,
     items: [
-      { title: "Facturation Unifiée", url: "/finance/invoices", icon: FileText, description: "Étudiants & commerciale + devis" },
-      { title: "Avoirs & Corrections", url: "/finance/credits", icon: RefreshCw, description: "Régularisations automatiques" }
+      { title: "Facturation Unifiée", url: "/finance/invoices", icon: FileText },
+      { title: "Avoirs & Corrections", url: "/finance/credits", icon: RefreshCw }
     ]
   },
   {
     title: "Trésorerie",
     icon: Wallet,
     items: [
-      { title: "Trésorerie & Hub Paiements", url: "/finance/treasury-payments", icon: Wallet, description: "Position temps réel + tous paiements" },
-      { title: "Suivi des Créances", url: "/finance/receivables", icon: PieChart, description: "Analytics & recouvrement" },
-      { title: "Réconciliation Auto", url: "/finance/reconciliation", icon: Zap, description: "Matching intelligent" },
-      { title: "Scoring Risques", url: "/finance/risk-scoring", icon: AlertTriangle, description: "Prédiction défaillances" }
+      { title: "Trésorerie & Hub Paiements", url: "/finance/treasury-payments", icon: Wallet },
+      { title: "Suivi des Créances", url: "/finance/receivables", icon: PieChart },
+      { title: "Réconciliation Auto", url: "/finance/reconciliation", icon: Zap },
+      { title: "Scoring Risques", url: "/finance/risk-scoring", icon: AlertTriangle }
     ]
   },
   {
     title: "Dépenses",
     icon: Receipt,
     items: [
-      { title: "Gestion des Dépenses", url: "/finance/expenses", icon: Receipt, description: "Saisie & validation dépenses" },
-      { title: "Postes de Dépenses", url: "/finance/expense-categories", icon: Target, description: "Catégories & budgets" },
-      { title: "Fournisseurs", url: "/finance/suppliers", icon: Building, description: "Base fournisseurs & contrats" }
+      { title: "Gestion des Dépenses", url: "/finance/expenses", icon: Receipt },
+      { title: "Postes de Dépenses", url: "/finance/expense-categories", icon: Target },
+      { title: "Fournisseurs", url: "/finance/suppliers", icon: Building }
     ]
   },
   {
     title: "Comptabilité",
     icon: Calculator,
     items: [
-      { title: "Écritures Auto", url: "/finance/accounting", icon: Calculator, description: "Comptabilisation automatique" },
-      { title: "Analytique Multi-axes", url: "/finance/analytics-accounting", icon: BarChart3, description: "Centres de coût" },
-      { title: "États Financiers", url: "/finance/statements", icon: FileText, description: "Bilan & compte résultat" }
+      { title: "Écritures Auto", url: "/finance/accounting", icon: Calculator },
+      { title: "Analytique Multi-axes", url: "/finance/analytics-accounting", icon: BarChart3 },
+      { title: "États Financiers", url: "/finance/statements", icon: FileText }
     ]
   },
   {
     title: "Pilotage",
     icon: Bot,
     items: [
-      { title: "Intelligence Financière", url: "/finance/admin-ia", icon: Bot, description: "IA prédictive & optimisation" },
-      { title: "Gestionnaire Budgétaire", url: "/finance/budget-manager", icon: Calculator, description: "Pilotage budgets unifié" },
-      { title: "Contrôle de Gestion", url: "/finance/management-control", icon: Target, description: "KPIs & tableaux de bord" },
-      { title: "Clôtures Rapides", url: "/finance/closing", icon: CheckCircle, description: "Automatisation J+3" }
+      { title: "Intelligence Financière", url: "/finance/admin-ia", icon: Bot },
+      { title: "Gestionnaire Budgétaire", url: "/finance/budget-manager", icon: Calculator },
+      { title: "Contrôle de Gestion", url: "/finance/management-control", icon: Target },
+      { title: "Clôtures Rapides", url: "/finance/closing", icon: CheckCircle }
     ]
   },
   {
     title: "Paramètres",
     icon: Settings,
     items: [
-      { title: "Configuration Système", url: "/finance/config", icon: Settings, description: "Plan comptable & paramètres" },
-      { title: "Paramètres Fiscaux", url: "/finance/tax-settings", icon: Calculator, description: "TVA & réglementations" },
-      { title: "Gestion des Utilisateurs", url: "/finance/users", icon: User, description: "Droits & permissions" },
-      { title: "Sauvegardes", url: "/finance/backups", icon: RefreshCw, description: "Archivage & restauration" }
+      { title: "Configuration Système", url: "/finance/config", icon: Settings },
+      { title: "Paramètres Fiscaux", url: "/finance/tax-settings", icon: Calculator },
+      { title: "Gestion des Utilisateurs", url: "/finance/users", icon: User },
+      { title: "Sauvegardes", url: "/finance/backups", icon: RefreshCw }
     ]
   }
 ];
@@ -177,7 +177,6 @@ export function FinanceModuleSidebar() {
                             <ItemIcon className={`w-3.5 h-3.5 ${sectionColor}`} />
                             <div className="flex-1 min-w-0">
                               <span className="text-base block truncate">{item.title}</span>
-                              <span className="text-sm text-muted-foreground block truncate">{item.description}</span>
                             </div>
                             {isActive && <div className={`w-2 h-2 ${sectionColor.replace('text-', 'bg-')} rounded-full`} />}
                           </Link>

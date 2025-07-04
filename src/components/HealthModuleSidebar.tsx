@@ -29,23 +29,23 @@ const healthSections = [
     icon: FileText,
     defaultOpen: true,
     items: [
-      { title: "Dossiers médicaux", url: "/health/records", icon: FileText, description: "Sécurisés RGPD" },
-      { title: "Planning consultations", url: "/health/appointments", icon: Calendar, description: "Infirmerie" }
+      { title: "Dossiers médicaux", url: "/health/records", icon: FileText },
+      { title: "Planning consultations", url: "/health/appointments", icon: Calendar }
     ]
   },
   {
     title: "Médicaments",
     icon: Pill,
     items: [
-      { title: "Gestion médicaments", url: "/health/medications", icon: Pill, description: "Prescriptions" }
+      { title: "Gestion médicaments", url: "/health/medications", icon: Pill }
     ]
   },
   {
     title: "Urgences & Accessibilité",
     icon: AlertTriangle,
     items: [
-      { title: "Protocoles d'urgence", url: "/health/emergency", icon: AlertTriangle, description: "Procédures" },
-      { title: "Aménagements handicap", url: "/health/accessibility", icon: Accessibility, description: "PAI" }
+      { title: "Protocoles d'urgence", url: "/health/emergency", icon: AlertTriangle },
+      { title: "Aménagements handicap", url: "/health/accessibility", icon: Accessibility }
     ]
   }
 ];
@@ -125,7 +125,6 @@ export function HealthModuleSidebar() {
                             <ItemIcon className={`w-3.5 h-3.5 ${itemColor}`} />
                             <div className="flex-1 min-w-0">
                               <span className="text-base block truncate">{item.title}</span>
-                              <span className="text-sm text-muted-foreground block truncate">{item.description}</span>
                             </div>
                             {isActive && <div className={`w-2 h-2 ${itemColor.replace('text-', 'bg-')} rounded-full`} />}
                           </Link>

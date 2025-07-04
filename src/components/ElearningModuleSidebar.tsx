@@ -34,39 +34,39 @@ const elearningSections = [
     icon: Monitor,
     defaultOpen: true,
     items: [
-      { title: "Mes Cours", url: "/elearning/courses", icon: Monitor, description: "Gérer les cours" }
+      { title: "Mes Cours", url: "/elearning/courses", icon: Monitor }
     ]
   },
   {
     title: "Création",
     icon: Edit,
     items: [
-      { title: "Standards", url: "/elearning/standards", icon: Settings, description: "SCORM/xAPI" },
-      { title: "Éditeur", url: "/elearning/authoring", icon: Edit, description: "Créer du contenu" }
+      { title: "Standards", url: "/elearning/standards", icon: Settings },
+      { title: "Éditeur", url: "/elearning/authoring", icon: Edit }
     ]
   },
   {
     title: "Streaming",
     icon: Video,
     items: [
-      { title: "Classes", url: "/elearning/virtual-classes", icon: Video, description: "Zoom, Teams" },
-      { title: "Vidéos", url: "/elearning/streaming", icon: Play, description: "Streaming adaptatif" }
+      { title: "Classes", url: "/elearning/virtual-classes", icon: Video },
+      { title: "Vidéos", url: "/elearning/streaming", icon: Play }
     ]
   },
   {
     title: "Engagement",
     icon: Award,
     items: [
-      { title: "Forums", url: "/elearning/forums", icon: MessageCircle, description: "Discussions" },
-      { title: "Gamification", url: "/elearning/gamification", icon: Award, description: "Badges & points" },
-      { title: "Notifications", url: "/elearning/notifications", icon: Bell, description: "Centre d'alertes" }
+      { title: "Forums", url: "/elearning/forums", icon: MessageCircle },
+      { title: "Gamification", url: "/elearning/gamification", icon: Award },
+      { title: "Notifications", url: "/elearning/notifications", icon: Bell }
     ]
   },
   {
     title: "Analytics",
     icon: BarChart,
     items: [
-      { title: "Engagement", url: "/elearning/analytics", icon: BarChart, description: "Métriques & insights" }
+      { title: "Engagement", url: "/elearning/analytics", icon: BarChart }
     ]
   }
 ];
@@ -162,7 +162,6 @@ export function ElearningModuleSidebar() {
                             <ItemIcon className={`w-3.5 h-3.5 ${sectionColor}`} />
                             <div className="flex-1 min-w-0">
                               <span className="text-base block truncate">{item.title}</span>
-                              <span className="text-sm text-muted-foreground block truncate">{item.description}</span>
                             </div>
                             {isActive && <div className={`w-2 h-2 ${sectionColor.replace('text-', 'bg-')} rounded-full`} />}
                           </Link>
