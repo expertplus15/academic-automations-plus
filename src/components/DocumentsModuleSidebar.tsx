@@ -1,51 +1,51 @@
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarHeader,
-  SidebarFooter,
-} from "@/components/ui/sidebar";
-
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter } from "@/components/ui/sidebar";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import {
-  FileText,
-  FolderOpen,
-  PenTool,
-  Archive,
-  FileSignature,
-  Send,
-  Settings,
-  Shield,
-  ArrowLeft,
-  User,
-  BarChart3,
-  Layout,
-  Stamp
-} from "lucide-react";
-
-const documentsItems = [
-  { title: "Modèles de documents", url: "/documents/templates", icon: Layout },
-  { title: "Générateur de docs", url: "/documents/generator", icon: PenTool },
-  { title: "Centre d'archives", url: "/documents/archives", icon: Archive },
-  { title: "Recherche avancée", url: "/documents/search", icon: FolderOpen },
-  { title: "Signatures électroniques", url: "/documents/signatures", icon: FileSignature },
-  { title: "Validation officielle", url: "/documents/validation", icon: Stamp },
-  { title: "Envoi automatique", url: "/documents/distribution", icon: Send },
-  { title: "Notifications", url: "/documents/notifications", icon: BarChart3 },
-  { title: "Paramètres", url: "/documents/settings", icon: Settings },
-  { title: "Conformité RGPD", url: "/documents/compliance", icon: Shield }
-];
-
+import { FileText, FolderOpen, PenTool, Archive, FileSignature, Send, Settings, Shield, ArrowLeft, User, BarChart3, Layout, Stamp } from "lucide-react";
+const documentsItems = [{
+  title: "Modèles de documents",
+  url: "/documents/templates",
+  icon: Layout
+}, {
+  title: "Générateur de docs",
+  url: "/documents/generator",
+  icon: PenTool
+}, {
+  title: "Centre d'archives",
+  url: "/documents/archives",
+  icon: Archive
+}, {
+  title: "Recherche avancée",
+  url: "/documents/search",
+  icon: FolderOpen
+}, {
+  title: "Signatures électroniques",
+  url: "/documents/signatures",
+  icon: FileSignature
+}, {
+  title: "Validation officielle",
+  url: "/documents/validation",
+  icon: Stamp
+}, {
+  title: "Envoi automatique",
+  url: "/documents/distribution",
+  icon: Send
+}, {
+  title: "Notifications",
+  url: "/documents/notifications",
+  icon: BarChart3
+}, {
+  title: "Paramètres",
+  url: "/documents/settings",
+  icon: Settings
+}, {
+  title: "Conformité RGPD",
+  url: "/documents/compliance",
+  icon: Shield
+}];
 export function DocumentsModuleSidebar() {
   const location = useLocation();
-
-  return (
-    <Sidebar className="border-r-0">
+  return <Sidebar className="border-r-0">
       <SidebarHeader className="p-6 border-b border-sidebar-border/30">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 bg-[#4F78FF] rounded-xl flex items-center justify-center shadow-sm">
@@ -64,17 +64,10 @@ export function DocumentsModuleSidebar() {
             <ArrowLeft className="w-4 h-4" />
             <span className="text-base">Retour au Dashboard</span>
           </Link>
-          <Link 
-            to="/documents" 
-            className={cn(
-              "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors w-full relative",
-              "text-sidebar-foreground hover:bg-sidebar-accent",
-              location.pathname === "/documents" && "bg-primary/10 hover:bg-primary/15 text-primary font-medium"
-            )}
-          >
+          <Link to="/documents" className={cn("flex items-center gap-3 px-3 py-3 rounded-lg transition-colors w-full relative", "text-sidebar-foreground hover:bg-sidebar-accent", location.pathname === "/documents" && "bg-primary/10 hover:bg-primary/15 text-primary font-medium")}>
             {location.pathname === "/documents" && <div className="absolute left-0 w-1 h-6 bg-blue-500 rounded-r" />}
             <BarChart3 className="w-4 h-4 text-blue-500" />
-            <span className="text-base">Tableau de Bord</span>
+            <span className="text-base text-gray-50">Tableau de Bord</span>
             {location.pathname === "/documents" && <div className="w-2 h-2 bg-blue-500 rounded-full" />}
           </Link>
         </div>
@@ -83,20 +76,11 @@ export function DocumentsModuleSidebar() {
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
               {documentsItems.map(item => {
-                const ItemIcon = item.icon;
-                const isActive = location.pathname === item.url;
-                
-                return (
-                  <SidebarMenuItem key={item.title}>
+              const ItemIcon = item.icon;
+              const isActive = location.pathname === item.url;
+              return <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <Link 
-                        to={item.url} 
-                        className={cn(
-                          "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
-                          "text-sidebar-foreground hover:bg-sidebar-accent",
-                          isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                        )}
-                      >
+                      <Link to={item.url} className={cn("flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative", "text-sidebar-foreground hover:bg-sidebar-accent", isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium")}>
                         {isActive && <div className="absolute left-0 w-1 h-6 bg-blue-500 rounded-r" />}
                         <ItemIcon className="w-4 h-4 text-blue-500" />
                         <div className="flex-1 min-w-0">
@@ -105,9 +89,8 @@ export function DocumentsModuleSidebar() {
                         {isActive && <div className="w-2 h-2 bg-blue-500 rounded-full" />}
                       </Link>
                     </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
+                  </SidebarMenuItem>;
+            })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -131,6 +114,5 @@ export function DocumentsModuleSidebar() {
           </div>
         </div>
       </SidebarFooter>
-    </Sidebar>
-  );
+    </Sidebar>;
 }
