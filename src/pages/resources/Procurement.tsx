@@ -1,4 +1,5 @@
 import { ResourcesPageHeader } from "@/components/ResourcesPageHeader";
+import { ProcurementDashboard } from "@/components/resources/ProcurementDashboard";
 
 export default function Procurement() {
   return (
@@ -8,13 +9,8 @@ export default function Procurement() {
         subtitle="Gestion des commandes" 
       />
       <div className="p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-card rounded-lg border p-6">
-            <h2 className="text-xl font-semibold mb-4">Achats & Approvisionnements</h2>
-            <p className="text-muted-foreground">
-              Interface de gestion des achats et approvisionnements à venir.
-            </p>
-          </div>
+        <div className="max-w-7xl mx-auto">
+          <ProcurementDashboard />
         </div>
       </div>
     </div>
