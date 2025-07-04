@@ -23,30 +23,12 @@ import {
   User,
 } from "lucide-react";
 
-const settingsSections = [
-  {
-    title: "Configuration Globale",
-    icon: Building,
-    items: [
-      { title: "Multi-établissements", url: "/settings/institutions", icon: Building, description: "Gestion centralisée" },
-      { title: "Utilisateurs & rôles", url: "/settings/users", icon: Users, description: "RBAC contrôle accès" }
-    ]
-  },
-  {
-    title: "Interface & Intégrations", 
-    icon: Palette,
-    items: [
-      { title: "Personnalisation", url: "/settings/customization", icon: Palette, description: "Interface & thèmes" },
-      { title: "Intégrations tierces", url: "/settings/integrations", icon: Plug, description: "API webhooks" }
-    ]
-  },
-  {
-    title: "Surveillance",
-    icon: Activity,
-    items: [
-      { title: "Monitoring & logs", url: "/settings/monitoring", icon: Activity, description: "Surveillance système" }
-    ]
-  }
+const settingsItems = [
+  { title: "Multi-établissements", url: "/settings/institutions", icon: Building, description: "Gestion centralisée" },
+  { title: "Utilisateurs & rôles", url: "/settings/users", icon: Users, description: "RBAC contrôle accès" },
+  { title: "Personnalisation", url: "/settings/customization", icon: Palette, description: "Interface & thèmes" },
+  { title: "Intégrations tierces", url: "/settings/integrations", icon: Plug, description: "API webhooks" },
+  { title: "Monitoring & logs", url: "/settings/monitoring", icon: Activity, description: "Surveillance système" }
 ];
 
 export function SettingsModuleSidebar() {
@@ -77,46 +59,38 @@ export function SettingsModuleSidebar() {
             <span className="text-base font-medium text-primary">Tableau de Bord</span>
           </Link>
         </div>
-        {settingsSections.map((section, index) => (
-          <SidebarGroup key={index} className="py-4">
-            <SidebarGroupContent>
-              <div className="mb-3 px-3">
-                <div className="flex items-center gap-3 py-2">
-                  <section.icon className="w-5 h-5 text-gray-500" />
-                  <span className="text-base font-medium text-sidebar-foreground">{section.title}</span>
-                </div>
-              </div>
-              <SidebarMenu className="space-y-1 ml-4">
-                {section.items.map(item => {
-                  const ItemIcon = item.icon;
-                  const isActive = location.pathname === item.url;
-                  return (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
-                        <Link 
-                          to={item.url} 
-                          className={cn(
-                            "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
-                            "text-sidebar-foreground hover:bg-sidebar-accent",
-                            isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                          )}
-                        >
-                          {isActive && <div className="absolute left-0 w-1 h-6 bg-gray-500 rounded-r" />}
-                          <ItemIcon className="w-3.5 h-3.5 text-gray-500" />
-                          <div className="flex-1 min-w-0">
-                            <span className="text-base block truncate">{item.title}</span>
-                            <span className="text-sm text-muted-foreground block truncate">{item.description}</span>
-                          </div>
-                          {isActive && <div className="w-2 h-2 bg-gray-500 rounded-full" />}
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+        <SidebarGroup className="py-4">
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {settingsItems.map(item => {
+                const ItemIcon = item.icon;
+                const isActive = location.pathname === item.url;
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Link 
+                        to={item.url} 
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
+                          "text-sidebar-foreground hover:bg-sidebar-accent",
+                          isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                        )}
+                      >
+                        {isActive && <div className="absolute left-0 w-1 h-6 bg-gray-500 rounded-r" />}
+                        <ItemIcon className="w-3.5 h-3.5 text-gray-500" />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-base block truncate">{item.title}</span>
+                          <span className="text-sm text-muted-foreground block truncate">{item.description}</span>
+                        </div>
+                        {isActive && <div className="w-2 h-2 bg-gray-500 rounded-full" />}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border/30">
