@@ -19,9 +19,15 @@ import {
   Award,
   Calendar
 } from 'lucide-react';
+import { PerformanceEvaluationModal } from '@/components/hr/PerformanceEvaluationModal';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Performance() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedEvaluation, setSelectedEvaluation] = useState(null);
+  const [modalMode, setModalMode] = useState<'create' | 'edit' | 'view'>('create');
+  const { toast } = useToast();
 
   // Données factices pour les évaluations
   const mockEvaluations = [
@@ -103,6 +109,32 @@ export default function Performance() {
     ? Math.round(completedEvaluations.reduce((sum, e) => sum + e.overall_score, 0) / completedEvaluations.length)
     : 0;
 
+  const handleCreateEvaluation = () => {
+    setSelectedEvaluation(null);
+    setModalMode('create');
+    setModalOpen(true);
+  };
+
+  const handleViewEvaluation = (evaluation: any) => {
+    setSelectedEvaluation(evaluation);
+    setModalMode('view');
+    setModalOpen(true);
+  };
+
+  const handleEditEvaluation = (evaluation: any) => {
+    setSelectedEvaluation(evaluation);
+    setModalMode('edit');
+    setModalOpen(true);
+  };
+
+  const handleSaveEvaluation = (data: any) => {
+    console.log('Saving evaluation:', data);
+    toast({
+      title: "Évaluation sauvegardée",
+      description: "L'évaluation a été sauvegardée avec succès.",
+    });
+  };
+
   const stats = [
     {
       label: "Évaluations totales",
@@ -135,7 +167,10 @@ export default function Performance() {
             <h1 className="text-3xl font-bold text-foreground">Performance & Évaluations</h1>
             <p className="text-muted-foreground mt-1">Suivi des performances et évaluations des enseignants</p>
           </div>
-          <Button className="bg-amber-500 hover:bg-amber-600 text-white">
+          <Button 
+            className="bg-amber-500 hover:bg-amber-600 text-white"
+            onClick={handleCreateEvaluation}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Nouvelle évaluation
           </Button>
@@ -261,10 +296,18 @@ export default function Performance() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleViewEvaluation(evaluation)}
+                    >
                       <Eye className="w-4 h-4" />
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleEditEvaluation(evaluation)}
+                    >
                       <Edit className="w-4 h-4" />
                     </Button>
                   </div>
@@ -280,6 +323,15 @@ export default function Performance() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Modal */}
+        <PerformanceEvaluationModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          onSave={handleSaveEvaluation}
+          evaluation={selectedEvaluation}
+          mode={modalMode}
+        />
       </div>
     </ModuleLayout>
   );

@@ -17,10 +17,14 @@ import {
   MapPin
 } from 'lucide-react';
 import { useTeacherProfiles } from '@/hooks/hr/useTeacherProfiles';
+import { TeacherFormModal } from '@/components/hr/TeacherFormModal';
 
 export default function Teachers() {
   const { teacherProfiles, loading, error } = useTeacherProfiles();
   const [searchTerm, setSearchTerm] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
+  const [modalMode, setModalMode] = useState<'create' | 'edit' | 'view'>('create');
 
   const filteredTeachers = teacherProfiles.filter(teacher =>
     teacher.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -41,6 +45,29 @@ export default function Teachers() {
       default:
         return <Badge>{status}</Badge>;
     }
+  };
+
+  const handleCreateTeacher = () => {
+    setSelectedTeacher(null);
+    setModalMode('create');
+    setModalOpen(true);
+  };
+
+  const handleViewTeacher = (teacher: any) => {
+    setSelectedTeacher(teacher);
+    setModalMode('view');
+    setModalOpen(true);
+  };
+
+  const handleEditTeacher = (teacher: any) => {
+    setSelectedTeacher(teacher);
+    setModalMode('edit');
+    setModalOpen(true);
+  };
+
+  const handleSaveTeacher = (data: any) => {
+    // Ici on pourrait appeler l'API pour sauvegarder
+    console.log('Saving teacher:', data);
   };
 
   const stats = [
@@ -90,7 +117,10 @@ export default function Teachers() {
             <h1 className="text-3xl font-bold text-foreground">Gestion des Enseignants</h1>
             <p className="text-muted-foreground mt-1">Gérer les profils et informations des enseignants</p>
           </div>
-          <Button className="bg-amber-500 hover:bg-amber-600 text-white">
+          <Button 
+            className="bg-amber-500 hover:bg-amber-600 text-white"
+            onClick={handleCreateTeacher}
+          >
             <UserPlus className="w-4 h-4 mr-2" />
             Ajouter un enseignant
           </Button>
@@ -193,10 +223,18 @@ export default function Teachers() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleViewTeacher(teacher)}
+                    >
                       <Eye className="w-4 h-4" />
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleEditTeacher(teacher)}
+                    >
                       <Edit className="w-4 h-4" />
                     </Button>
                   </div>
@@ -212,6 +250,15 @@ export default function Teachers() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Modal */}
+        <TeacherFormModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          onSave={handleSaveTeacher}
+          teacher={selectedTeacher}
+          mode={modalMode}
+        />
       </div>
     </ModuleLayout>
   );
