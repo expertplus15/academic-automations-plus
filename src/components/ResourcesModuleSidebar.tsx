@@ -27,52 +27,16 @@ import {
   Home,
 } from "lucide-react";
 
-const resourcesSections = [
-  {
-    title: "Inventaire & Traçabilité",
-    icon: QrCode,
-    color: "text-blue-500",
-    defaultOpen: true,
-    items: [
-      { title: "Inventaire numérique", url: "/resources/inventory", icon: QrCode, description: "QR codes traçabilité" },
-      { title: "Catégories d'équipements", url: "/resources/categories", icon: Package, description: "Classification" },
-      { title: "Historique mouvements", url: "/resources/history", icon: Clock, description: "Traçabilité complète" },
-      { title: "Maintenance préventive", url: "/resources/maintenance", icon: Wrench, description: "Automatisée" }
-    ]
-  },
-  {
-    title: "Approvisionnement",
-    icon: ShoppingCart,
-    color: "text-orange-500",
-    items: [
-      { title: "Achats & approvisionnements", url: "/resources/procurement", icon: ShoppingCart, description: "Gestion commandes" }
-    ]
-  },
-  {
-    title: "Réservations",
-    icon: Calendar,
-    color: "text-green-500",
-    items: [
-      { title: "Réservation salles", url: "/resources/bookings", icon: Calendar, description: "Salles & équipements" }
-    ]
-  },
-  {
-    title: "Patrimoine",
-    icon: Building,
-    color: "text-purple-500",
-    items: [
-      { title: "Patrimoine immobilier", url: "/resources/property", icon: Building, description: "Suivi valorisation" }
-    ]
-  },
-  {
-    title: "Administration",
-    icon: Settings,
-    color: "text-gray-500",
-    items: [
-      { title: "Rapports & analyses", url: "/resources/analytics", icon: BarChart3, description: "Statistiques KPIs" },
-      { title: "Configuration", url: "/resources/settings", icon: Settings, description: "Paramètres module" }
-    ]
-  }
+const resourcesItems = [
+  { title: "Inventaire numérique", url: "/resources/inventory", icon: QrCode },
+  { title: "Catégories d'équipements", url: "/resources/categories", icon: Package },
+  { title: "Historique mouvements", url: "/resources/history", icon: Clock },
+  { title: "Maintenance préventive", url: "/resources/maintenance", icon: Wrench },
+  { title: "Achats & approvisionnements", url: "/resources/procurement", icon: ShoppingCart },
+  { title: "Réservation salles", url: "/resources/bookings", icon: Calendar },
+  { title: "Patrimoine immobilier", url: "/resources/property", icon: Building },
+  { title: "Rapports & analyses", url: "/resources/analytics", icon: BarChart3 },
+  { title: "Configuration", url: "/resources/settings", icon: Settings }
 ];
 
 export function ResourcesModuleSidebar() {
@@ -113,43 +77,38 @@ export function ResourcesModuleSidebar() {
           </Link>
         </div>
         
-        {resourcesSections.map((section, index) => {
-          
-          return (
-            <SidebarGroup key={index} className="py-2">
-              <SidebarGroupContent>
-                <SidebarMenu className="space-y-1">
-                  {section.items.map(item => {
-                    const ItemIcon = item.icon;
-                    const isActive = location.pathname === item.url;
-                    
-                    return (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild>
-                          <Link 
-                            to={item.url} 
-                            className={cn(
-                              "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
-                              "text-sidebar-foreground hover:bg-sidebar-accent",
-                              isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                            )}
-                          >
-                            {isActive && <div className={cn("absolute left-0 w-1 h-6 rounded-r", section.color.replace('text-', 'bg-'))} />}
-                            <ItemIcon className={cn("w-3.5 h-3.5", section.color)} />
-                            <div className="flex-1 min-w-0">
+        <SidebarGroup className="py-2">
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {resourcesItems.map(item => {
+                const ItemIcon = item.icon;
+                const isActive = location.pathname === item.url;
+                
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Link 
+                        to={item.url} 
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
+                          "text-sidebar-foreground hover:bg-sidebar-accent",
+                          isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                        )}
+                      >
+                        {isActive && <div className="absolute left-0 w-1 h-6 bg-lime-500 rounded-r" />}
+                        <ItemIcon className="w-4 h-4 text-lime-500" />
+                        <div className="flex-1 min-w-0">
                           <span className="text-base block truncate">{item.title}</span>
-                            </div>
-                            {isActive && <div className={cn("w-2 h-2 rounded-full", section.color.replace('text-', 'bg-'))} />}
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          );
-        })}
+                        </div>
+                        {isActive && <div className="w-2 h-2 bg-lime-500 rounded-full" />}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border/30">

@@ -16,7 +16,6 @@ import {
   UserCheck,
   Users,
   FileText,
-  BookOpen,
   Calendar,
   TrendingUp,
   RefreshCw,
@@ -24,40 +23,17 @@ import {
   User,
   LayoutDashboard,
   Star,
+  BarChart3,
 } from "lucide-react";
 
-const hrSections = [
-  {
-    title: "Gestion Personnel",
-    icon: Users,
-    defaultOpen: true,
-    items: [
-      { title: "Gestion enseignants", url: "/hr/teachers", icon: Users, description: "Référentiel centralisé" },
-      { title: "Types de contrats", url: "/hr/contracts", icon: FileText, description: "Permanent/vacataire" }
-    ]
-  },
-  {
-    title: "Compétences",
-    icon: BookOpen,
-    items: [
-      { title: "Spécialités & matières", url: "/hr/specialties", icon: Star, description: "Domaines expertise" },
-      { title: "Disponibilités", url: "/hr/availability", icon: Calendar, description: "Planning créneaux" }
-    ]
-  },
-  {
-    title: "Performance",
-    icon: TrendingUp,
-    items: [
-      { title: "Performance", url: "/hr/performance", icon: TrendingUp, description: "Évaluations" }
-    ]
-  },
-  {
-    title: "Intégrations",
-    icon: RefreshCw,
-    items: [
-      { title: "Synchronisation", url: "/hr/sync", icon: RefreshCw, description: "RH ↔ Académique ↔ Finance" }
-    ]
-  }
+const hrItems = [
+  { title: "Gestion enseignants", url: "/hr/teachers", icon: Users },
+  { title: "Types de contrats", url: "/hr/contracts", icon: FileText },
+  { title: "Spécialités & matières", url: "/hr/specialties", icon: Star },
+  { title: "Disponibilités", url: "/hr/availability", icon: Calendar },
+  { title: "Performance", url: "/hr/performance", icon: TrendingUp },
+  { title: "Synchronisation", url: "/hr/sync", icon: RefreshCw },
+  { title: "Analytics", url: "/hr/analytics", icon: BarChart3 }
 ];
 
 export function HrModuleSidebar() {
@@ -97,55 +73,39 @@ export function HrModuleSidebar() {
             {location.pathname === "/hr" && <div className="w-2 h-2 bg-amber-500 rounded-full" />}
           </Link>
         </div>
-        {hrSections.map((section, index) => {
-          
-          const getSectionColor = (title: string) => {
-            switch (title) {
-              case 'Gestion Personnel': return 'text-amber-500';
-              case 'Compétences': return 'text-blue-500';
-              case 'Performance': return 'text-green-500';
-              case 'Intégrations': return 'text-purple-500';
-              default: return 'text-amber-500';
-            }
-          };
-
-          const sectionColor = getSectionColor(section.title);
-
-          return (
-            <SidebarGroup key={index} className="py-2">
-              <SidebarGroupContent>
-                <SidebarMenu className="space-y-1">
-                  {section.items.map(item => {
-                    const ItemIcon = item.icon;
-                    const isActive = location.pathname === item.url;
-                    
-                    return (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild>
-                          <Link 
-                            to={item.url} 
-                            className={cn(
-                              "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
-                              "text-sidebar-foreground hover:bg-sidebar-accent",
-                              isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                            )}
-                          >
-                            {isActive && <div className={`absolute left-0 w-1 h-6 ${sectionColor.replace('text-', 'bg-')} rounded-r`} />}
-                            <ItemIcon className={`w-3.5 h-3.5 ${sectionColor}`} />
-                            <div className="flex-1 min-w-0">
+        
+        <SidebarGroup className="py-2">
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {hrItems.map(item => {
+                const ItemIcon = item.icon;
+                const isActive = location.pathname === item.url;
+                
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Link 
+                        to={item.url} 
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
+                          "text-sidebar-foreground hover:bg-sidebar-accent",
+                          isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                        )}
+                      >
+                        {isActive && <div className="absolute left-0 w-1 h-6 bg-amber-500 rounded-r" />}
+                        <ItemIcon className="w-4 h-4 text-amber-500" />
+                        <div className="flex-1 min-w-0">
                           <span className="text-base block truncate">{item.title}</span>
-                            </div>
-                            {isActive && <div className={`w-2 h-2 ${sectionColor.replace('text-', 'bg-')} rounded-full`} />}
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          );
-        })}
+                        </div>
+                        {isActive && <div className="w-2 h-2 bg-amber-500 rounded-full" />}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border/30">
