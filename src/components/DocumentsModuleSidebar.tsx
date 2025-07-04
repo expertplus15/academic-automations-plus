@@ -67,7 +67,7 @@ export function DocumentsModuleSidebar() {
           <Link to="/documents" className={cn("flex items-center gap-3 px-3 py-3 rounded-lg transition-colors w-full relative", "text-sidebar-foreground hover:bg-sidebar-accent", location.pathname === "/documents" && "bg-primary/10 hover:bg-primary/15 text-primary font-medium")}>
             {location.pathname === "/documents" && <div className="absolute left-0 w-1 h-6 bg-blue-500 rounded-r" />}
             <BarChart3 className="w-4 h-4 text-blue-500" />
-            <span className="text-base text-gray-50">Tableau de Bord</span>
+            <span className="text-base text-slate-50">Tableau de Bord</span>
             {location.pathname === "/documents" && <div className="w-2 h-2 bg-blue-500 rounded-full" />}
           </Link>
         </div>
