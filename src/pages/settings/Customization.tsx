@@ -1,14 +1,15 @@
+import { SettingsModuleLayout } from "@/components/layouts/SettingsModuleLayout";
 import { SettingsPageHeader } from "@/components/SettingsPageHeader";
 
 export default function Customization() {
   return (
-    <div className="min-h-screen bg-background">
+    <SettingsModuleLayout>
       <SettingsPageHeader 
         title="Personnalisation" 
         subtitle="Interface & thèmes" 
       />
       <div className="p-6">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="bg-card rounded-lg border p-6">
             <h2 className="text-xl font-semibold mb-4">Personnalisation</h2>
             <p className="text-muted-foreground">
@@ -17,6 +18,6 @@ export default function Customization() {
           </div>
         </div>
       </div>
-    </div>
+    </SettingsModuleLayout>
   );
 }

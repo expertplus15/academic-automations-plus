@@ -55,40 +55,44 @@ export function SettingsModuleSidebar() {
 
   return (
     <Sidebar className="border-r-0">
-      <SidebarHeader className="p-4 border-b border-sidebar-border/30">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-[#6b7280] rounded-xl flex items-center justify-center shadow-sm">
+      <SidebarHeader className="p-6 border-b border-sidebar-border/30">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 bg-[#6b7280] rounded-xl flex items-center justify-center shadow-sm">
             <Settings className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
-            <h1 className="text-base font-semibold text-sidebar-foreground tracking-tight">Paramètres & Configuration</h1>
-            <p className="text-xs text-sidebar-foreground/60 mt-0.5">Module actif</p>
+            <h1 className="text-lg font-semibold text-sidebar-foreground tracking-tight">Paramètres & Configuration</h1>
+            <p className="text-sm text-sidebar-foreground/60 mt-0.5">Module actif</p>
           </div>
         </div>
       </SidebarHeader>
 
       <SidebarContent className="px-4">
-        <div className="pt-4 pb-2">
-          <Link to="/settings" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors w-full">
-            <ArrowLeft className="w-4 h-4 text-sidebar-foreground" />
-            <span className="text-sm text-sidebar-foreground">Retour</span>
+        <div className="pt-4 pb-3 space-y-2">
+          <Link to="/" className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-sidebar-accent transition-colors w-full text-sidebar-foreground/70 hover:text-sidebar-foreground">
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-base">Retour au Dashboard</span>
+          </Link>
+          <Link to="/settings" className="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary/10 hover:bg-primary/15 transition-colors w-full">
+            <Settings className="w-4 h-4 text-primary" />
+            <span className="text-base font-medium text-primary">Tableau de Bord</span>
           </Link>
         </div>
         <SidebarGroup className="py-4">
           <SidebarGroupContent>
-            <Accordion type="multiple" defaultValue={["configuration-globale"]} className="w-full space-y-2">
+            <Accordion type="multiple" defaultValue={["configuration-globale"]} className="w-full space-y-3">
               {settingsSections.map((section, index) => {
                 const SectionIcon = section.icon;
                 const sectionId = section.title.toLowerCase().replace(/\s+/g, '-').replace(/[àâä]/g, 'a').replace(/[éèêë]/g, 'e');
                 return (
                   <AccordionItem key={index} value={sectionId} className="border-0">
-                    <AccordionTrigger className="py-2 px-3 hover:bg-sidebar-accent rounded-lg text-sm font-medium text-sidebar-foreground hover:no-underline">
+                    <AccordionTrigger className="py-3 px-3 hover:bg-sidebar-accent rounded-lg text-base font-medium text-sidebar-foreground hover:no-underline">
                       <div className="flex items-center gap-3">
-                        <SectionIcon className="w-4 h-4 text-primary" />
+                        <SectionIcon className="w-5 h-5 text-gray-500" />
                         <span>{section.title}</span>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="pb-0 pt-1">
+                    <AccordionContent className="pb-0 pt-2">
                       <SidebarMenu className="space-y-1 ml-4">
                         {section.items.map(item => {
                           const ItemIcon = item.icon;
@@ -99,18 +103,18 @@ export function SettingsModuleSidebar() {
                                 <Link 
                                   to={item.url} 
                                   className={cn(
-                                    "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors relative",
+                                    "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
                                     "text-sidebar-foreground hover:bg-sidebar-accent",
                                     isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                                   )}
                                 >
-                                  {isActive && <div className="absolute left-0 w-1 h-5 bg-primary rounded-r" />}
-                                  <ItemIcon className="w-4 h-4 text-primary" />
+                                  {isActive && <div className="absolute left-0 w-1 h-6 bg-gray-500 rounded-r" />}
+                                  <ItemIcon className="w-3.5 h-3.5 text-gray-500" />
                                   <div className="flex-1 min-w-0">
-                                    <span className="text-sm block truncate">{item.title}</span>
-                                    <span className="text-xs text-muted-foreground block truncate">{item.description}</span>
+                                    <span className="text-base block truncate">{item.title}</span>
+                                    <span className="text-sm text-muted-foreground block truncate">{item.description}</span>
                                   </div>
-                                  {isActive && <div className="w-2 h-2 bg-primary rounded-full" />}
+                                  {isActive && <div className="w-2 h-2 bg-gray-500 rounded-full" />}
                                 </Link>
                               </SidebarMenuButton>
                             </SidebarMenuItem>
