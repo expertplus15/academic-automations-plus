@@ -98,7 +98,6 @@ export function HrModuleSidebar() {
           </Link>
         </div>
         {hrSections.map((section, index) => {
-          const SectionIcon = section.icon;
           
           const getSectionColor = (title: string) => {
             switch (title) {
@@ -114,10 +113,6 @@ export function HrModuleSidebar() {
 
           return (
             <SidebarGroup key={index} className="py-2">
-              <div className="flex items-center gap-3 px-3 py-2 mb-2">
-                <SectionIcon className={`w-4 h-4 ${sectionColor}`} />
-                <span className="text-sm font-medium text-sidebar-foreground/80">{section.title}</span>
-              </div>
               <SidebarGroupContent>
                 <SidebarMenu className="space-y-1">
                   {section.items.map(item => {
