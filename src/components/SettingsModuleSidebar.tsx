@@ -27,14 +27,13 @@ const settingsSections = [
   {
     title: "Configuration Globale",
     icon: Building,
-    defaultOpen: true,
     items: [
       { title: "Multi-établissements", url: "/settings/institutions", icon: Building, description: "Gestion centralisée" },
       { title: "Utilisateurs & rôles", url: "/settings/users", icon: Users, description: "RBAC contrôle accès" }
     ]
   },
   {
-    title: "Interface & Intégrations",
+    title: "Interface & Intégrations", 
     icon: Palette,
     items: [
       { title: "Personnalisation", url: "/settings/customization", icon: Palette, description: "Interface & thèmes" },
