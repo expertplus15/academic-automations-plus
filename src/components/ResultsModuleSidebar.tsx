@@ -31,42 +31,18 @@ import {
   Clock
 } from "lucide-react";
 
-const resultsSections = [
-  {
-    title: "Saisie & Validation",
-    icon: Zap,
-    items: [
-      { title: "Interface matricielle", url: "/results/matrix", icon: Grid },
-      { title: "Import de données", url: "/results/import", icon: Upload },
-      { title: "Validation & Contrôle", url: "/results/validation", icon: CheckCircle }
-    ]
-  },
-  {
-    title: "Calculs & Traitement",
-    icon: Calculator,
-    items: [
-      { title: "Calculs automatiques", url: "/results/calculations", icon: Calculator },
-      { title: "Traitement avancé", url: "/results/processing", icon: Cpu }
-    ]
-  },
-  {
-    title: "Génération & Export",
-    icon: ClipboardList,
-    items: [
-      { title: "Bulletins personnalisables", url: "/results/reports", icon: FileOutput },
-      { title: "Relevés standards", url: "/results/transcripts", icon: Award },
-      { title: "Templates & Modèles", url: "/results/templates", icon: Layout }
-    ]
-  },
-  {
-    title: "Analytics & Suivi",
-    icon: PieChart,
-    items: [
-      { title: "Analytics performance", url: "/results/analytics", icon: TrendingUp },
-      { title: "Insights pédagogiques", url: "/results/insights", icon: Brain },
-      { title: "Historique & Audit", url: "/results/history", icon: Clock }
-    ]
-  }
+const resultsItems = [
+  { title: "Interface matricielle", url: "/results/matrix", icon: Grid },
+  { title: "Import de données", url: "/results/import", icon: Upload },
+  { title: "Validation & Contrôle", url: "/results/validation", icon: CheckCircle },
+  { title: "Calculs automatiques", url: "/results/calculations", icon: Calculator },
+  { title: "Traitement avancé", url: "/results/processing", icon: Cpu },
+  { title: "Bulletins personnalisables", url: "/results/reports", icon: FileOutput },
+  { title: "Relevés standards", url: "/results/transcripts", icon: Award },
+  { title: "Templates & Modèles", url: "/results/templates", icon: Layout },
+  { title: "Analytics performance", url: "/results/analytics", icon: TrendingUp },
+  { title: "Insights pédagogiques", url: "/results/insights", icon: Brain },
+  { title: "Historique & Audit", url: "/results/history", icon: Clock }
 ];
 
 export function ResultsModuleSidebar() {
@@ -107,55 +83,38 @@ export function ResultsModuleSidebar() {
           </Link>
         </div>
         
-        {resultsSections.map((section, index) => {
-          
-          const getSectionColor = (title: string) => {
-            switch (title) {
-              case 'Saisie & Validation': return 'text-violet-500';
-              case 'Calculs & Traitement': return 'text-blue-500';
-              case 'Génération & Export': return 'text-emerald-500';
-              case 'Analytics & Suivi': return 'text-amber-500';
-              default: return 'text-violet-500';
-            }
-          };
-
-          const sectionColor = getSectionColor(section.title);
-
-          return (
-            <SidebarGroup key={index} className="py-2">
-              <SidebarGroupContent>
-                <SidebarMenu className="space-y-1">
-                  {section.items.map(item => {
-                    const ItemIcon = item.icon;
-                    const isActive = location.pathname === item.url;
-                    
-                    return (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild>
-                          <Link 
-                            to={item.url} 
-                            className={cn(
-                              "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
-                              "text-sidebar-foreground hover:bg-sidebar-accent",
-                              isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                            )}
-                          >
-                            {isActive && <div className={`absolute left-0 w-1 h-6 ${sectionColor.replace('text-', 'bg-')} rounded-r`} />}
-                            <ItemIcon className={`w-3.5 h-3.5 ${sectionColor}`} />
-                            <div className="flex-1 min-w-0">
-                              <span className="text-base block truncate">{item.title}</span>
-                            </div>
-                            {isActive && <div className={`w-2 h-2 ${sectionColor.replace('text-', 'bg-')} rounded-full`} />}
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          );
-        })}
+        <SidebarGroup className="py-2">
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {resultsItems.map(item => {
+                const ItemIcon = item.icon;
+                const isActive = location.pathname === item.url;
+                
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Link 
+                        to={item.url} 
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
+                          "text-sidebar-foreground hover:bg-sidebar-accent",
+                          isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                        )}
+                      >
+                        {isActive && <div className="absolute left-0 w-1 h-6 bg-violet-500 rounded-r" />}
+                        <ItemIcon className="w-4 h-4 text-violet-500" />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-base block truncate">{item.title}</span>
+                        </div>
+                        {isActive && <div className="w-2 h-2 bg-violet-500 rounded-full" />}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border/30">
