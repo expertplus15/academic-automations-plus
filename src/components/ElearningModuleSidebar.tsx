@@ -9,7 +9,7 @@ import {
   SidebarHeader,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -123,71 +123,58 @@ export function ElearningModuleSidebar() {
             {location.pathname === "/elearning" && <div className="w-2 h-2 bg-cyan-500 rounded-full" />}
           </Link>
         </div>
-        <SidebarGroup className="py-4">
-          <SidebarGroupContent>
-            <Accordion type="multiple" defaultValue={["gestion-des-cours"]} className="w-full space-y-3">
-              {elearningSections.map((section, index) => {
-                const SectionIcon = section.icon;
-                const sectionId = section.title.toLowerCase().replace(/\s+/g, '-').replace(/[àâä]/g, 'a').replace(/[éèêë]/g, 'e');
-                
-                // Couleurs thématiques pour eLearning
-                const getSectionColor = (title: string) => {
-                  switch (title) {
-                    case 'Création': return 'text-cyan-500';
-                    case 'Streaming': return 'text-blue-500';
-                    case 'Engagement': return 'text-green-500';
-                    case 'Analytics': return 'text-purple-500';
-                    default: return 'text-cyan-500';
-                  }
-                };
+        {elearningSections.map((section, index) => {
+          
+          // Couleurs thématiques pour eLearning
+          const getSectionColor = (title: string) => {
+            switch (title) {
+              case 'Cours': return 'text-cyan-500';
+              case 'Création': return 'text-cyan-500';
+              case 'Streaming': return 'text-blue-500';
+              case 'Engagement': return 'text-green-500';
+              case 'Analytics': return 'text-purple-500';
+              default: return 'text-cyan-500';
+            }
+          };
 
-                const sectionColor = getSectionColor(section.title);
+          const sectionColor = getSectionColor(section.title);
 
-                return (
-                  <AccordionItem key={index} value={sectionId} className="border-0">
-                    <AccordionTrigger className="py-3 px-3 hover:bg-sidebar-accent rounded-lg text-base font-medium text-sidebar-foreground hover:no-underline">
-                      <div className="flex items-center gap-3">
-                        <SectionIcon className={`w-5 h-5 ${sectionColor}`} />
-                        <span>{section.title}</span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="pb-0 pt-2">
-                      <SidebarMenu className="space-y-2 ml-4">
-                        {section.items.map(item => {
-                          const ItemIcon = item.icon;
-                          const isActive = location.pathname === item.url;
-                          
-                          return (
-                            <SidebarMenuItem key={item.title}>
-                              <SidebarMenuButton asChild>
-                                <Link 
-                                  to={item.url} 
-                                  className={cn(
-                                    "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
-                                    "text-sidebar-foreground hover:bg-sidebar-accent",
-                                    isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                                  )}
-                                >
-                                  {isActive && <div className={`absolute left-0 w-1 h-6 ${sectionColor.replace('text-', 'bg-')} rounded-r`} />}
-                                  <ItemIcon className={`w-3.5 h-3.5 ${sectionColor}`} />
-                                  <div className="flex-1 min-w-0">
-                                    <span className="text-base block truncate">{item.title}</span>
-                                    <span className="text-xs text-muted-foreground block truncate">{item.description}</span>
-                                  </div>
-                                  {isActive && <div className={`w-2 h-2 ${sectionColor.replace('text-', 'bg-')} rounded-full`} />}
-                                </Link>
-                              </SidebarMenuButton>
-                            </SidebarMenuItem>
-                          );
-                        })}
-                      </SidebarMenu>
-                    </AccordionContent>
-                  </AccordionItem>
-                );
-              })}
-            </Accordion>
-          </SidebarGroupContent>
-        </SidebarGroup>
+          return (
+            <SidebarGroup key={index} className="py-2">
+              <SidebarGroupContent>
+                <SidebarMenu className="space-y-1">
+                  {section.items.map(item => {
+                    const ItemIcon = item.icon;
+                    const isActive = location.pathname === item.url;
+                    
+                    return (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton asChild>
+                          <Link 
+                            to={item.url} 
+                            className={cn(
+                              "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
+                              "text-sidebar-foreground hover:bg-sidebar-accent",
+                              isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                            )}
+                          >
+                            {isActive && <div className={`absolute left-0 w-1 h-6 ${sectionColor.replace('text-', 'bg-')} rounded-r`} />}
+                            <ItemIcon className={`w-3.5 h-3.5 ${sectionColor}`} />
+                            <div className="flex-1 min-w-0">
+                              <span className="text-base block truncate">{item.title}</span>
+                              <span className="text-sm text-muted-foreground block truncate">{item.description}</span>
+                            </div>
+                            {isActive && <div className={`w-2 h-2 ${sectionColor.replace('text-', 'bg-')} rounded-full`} />}
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          );
+        })}
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border/30">
