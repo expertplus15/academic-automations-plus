@@ -1,14 +1,15 @@
+import { PartnershipsModuleLayout } from "@/components/layouts/PartnershipsModuleLayout";
 import { PartnershipsPageHeader } from "@/components/PartnershipsPageHeader";
 
 export default function Crm() {
   return (
-    <div className="min-h-screen bg-background">
+    <PartnershipsModuleLayout>
       <PartnershipsPageHeader 
         title="CRM partenaires" 
         subtitle="Gestion des relations partenaires" 
       />
       <div className="p-6">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="bg-card rounded-lg border p-6">
             <h2 className="text-xl font-semibold mb-4">CRM Partenaires</h2>
             <p className="text-muted-foreground">
@@ -17,6 +18,6 @@ export default function Crm() {
           </div>
         </div>
       </div>
-    </div>
+    </PartnershipsModuleLayout>
   );
 }

@@ -148,6 +148,14 @@ import SettingsIntegrations from '@/pages/settings/Integrations';
 import SettingsMonitoring from '@/pages/settings/Monitoring';
 import SettingsUsers from '@/pages/settings/Users';
 
+// Partnerships module pages
+import Partnerships from '@/pages/Partnerships';
+import PartnershipsCrm from '@/pages/partnerships/Crm';
+import PartnershipsInternships from '@/pages/partnerships/Internships';
+import PartnershipsAlumni from '@/pages/partnerships/Alumni';
+import PartnershipsInternational from '@/pages/partnerships/International';
+import PartnershipsEvents from '@/pages/partnerships/Events';
+
 export function ModuleRoutes() {
   return (
     <Routes>
@@ -322,6 +330,14 @@ export function ModuleRoutes() {
       <Route path="/settings/integrations" element={<SettingsIntegrations />} />
       <Route path="/settings/monitoring" element={<SettingsMonitoring />} />
       <Route path="/settings/users" element={<SettingsUsers />} />
+
+      {/* Partnerships Module Routes */}
+      <Route path="/partnerships" element={<Partnerships />} />
+      <Route path="/partnerships/crm" element={<PartnershipsCrm />} />
+      <Route path="/partnerships/internships" element={<PartnershipsInternships />} />
+      <Route path="/partnerships/alumni" element={<PartnershipsAlumni />} />
+      <Route path="/partnerships/international" element={<PartnershipsInternational />} />
+      <Route path="/partnerships/events" element={<PartnershipsEvents />} />
     </Routes>
   );
 }
