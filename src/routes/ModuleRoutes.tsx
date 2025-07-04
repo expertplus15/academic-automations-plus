@@ -131,10 +131,14 @@ import HrAnalytics from '@/pages/hr/Analytics';
 // Resources module pages
 import Resources from '@/pages/Resources';
 import ResourcesInventory from '@/pages/resources/Inventory';
+import ResourcesCategories from '@/pages/resources/Categories';
+import ResourcesHistory from '@/pages/resources/History';
 import ResourcesBookings from '@/pages/resources/Bookings';
 import ResourcesMaintenance from '@/pages/resources/Maintenance';
 import ResourcesProcurement from '@/pages/resources/Procurement';
 import ResourcesProperty from '@/pages/resources/Property';
+import ResourcesAnalytics from '@/pages/resources/Analytics';
+import ResourcesSettings from '@/pages/resources/Settings';
 
 // Settings module pages
 import Settings from '@/pages/Settings';
@@ -302,10 +306,14 @@ export function ModuleRoutes() {
       {/* Resources Module Routes */}
       <Route path="/resources" element={<Resources />} />
       <Route path="/resources/inventory" element={<ResourcesInventory />} />
+      <Route path="/resources/categories" element={<ResourcesCategories />} />
+      <Route path="/resources/history" element={<ResourcesHistory />} />
       <Route path="/resources/bookings" element={<ResourcesBookings />} />
       <Route path="/resources/maintenance" element={<ResourcesMaintenance />} />
       <Route path="/resources/procurement" element={<ResourcesProcurement />} />
       <Route path="/resources/property" element={<ResourcesProperty />} />
+      <Route path="/resources/analytics" element={<ResourcesAnalytics />} />
+      <Route path="/resources/settings" element={<ResourcesSettings />} />
 
       {/* Settings Module Routes */}
       <Route path="/settings" element={<Settings />} />
