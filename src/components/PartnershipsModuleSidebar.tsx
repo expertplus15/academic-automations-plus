@@ -80,7 +80,6 @@ export function PartnershipsModuleSidebar() {
                         <LinkIcon className={cn("w-4 h-4", link.color)} />
                         <div className="flex-1 min-w-0">
                           <span className="text-base block truncate">{link.title}</span>
-                          <span className="text-sm text-muted-foreground block truncate">{link.description}</span>
                         </div>
                         {isActive && <div className={cn("w-2 h-2 rounded-full", link.color.replace('text-', 'bg-'))} />}
                       </Link>

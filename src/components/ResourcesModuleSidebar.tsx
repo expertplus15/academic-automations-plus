@@ -137,8 +137,7 @@ export function ResourcesModuleSidebar() {
                             {isActive && <div className={cn("absolute left-0 w-1 h-6 rounded-r", section.color.replace('text-', 'bg-'))} />}
                             <ItemIcon className={cn("w-3.5 h-3.5", section.color)} />
                             <div className="flex-1 min-w-0">
-                              <span className="text-base block truncate">{item.title}</span>
-                              <span className="text-sm text-muted-foreground block truncate">{item.description}</span>
+                          <span className="text-base block truncate">{item.title}</span>
                             </div>
                             {isActive && <div className={cn("w-2 h-2 rounded-full", section.color.replace('text-', 'bg-'))} />}
                           </Link>

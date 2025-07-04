@@ -32,50 +32,19 @@ import {
   FileText
 } from "lucide-react";
 
-const servicesSections = [
-  {
-    title: "Transport & Mobilité",
-    icon: Bus,
-    defaultOpen: true,
-    items: [
-      { title: "Transport scolaire", url: "/services/transport", icon: Bus, description: "Lignes & réservations" }
-    ]
-  },
-  {
-    title: "Restauration & Hébergement",
-    icon: UtensilsCrossed,
-    items: [
-      { title: "Restauration", url: "/services/catering", icon: UtensilsCrossed, description: "Menus & commandes" },
-      { title: "Hébergement", url: "/services/accommodation", icon: Home, description: "Résidences universitaires" }
-    ]
-  },
-  {
-    title: "Ressources & Activités",
-    icon: BookOpen,
-    items: [
-      { title: "Bibliothèque", url: "/services/library", icon: BookOpen, description: "Catalogue & emprunts" },
-      { title: "Activités extra-scolaires", url: "/services/activities", icon: Heart, description: "Sports & associations" }
-    ]
-  },
-  {
-    title: "Orientation & Carrières",
-    icon: MapPin,
-    items: [
-      { title: "Orientation", url: "/services/orientation", icon: MapPin, description: "Conseils & stages" },
-      { title: "Job board", url: "/services/careers", icon: Globe, description: "Offres d'emploi" }
-    ]
-  },
-  {
-    title: "Santé & Bien-être",
-    icon: Shield,
-    items: [
-      { title: "Dossiers médicaux", url: "/services/health/records", icon: FileText, description: "Gestion des dossiers" },
-      { title: "Suivi santé", url: "/services/health/appointments", icon: Stethoscope, description: "Rendez-vous médecins" },
-      { title: "Médicaments", url: "/services/health/medications", icon: Pill, description: "Gestion des traitements" },
-      { title: "Services d'urgence", url: "/services/health/emergency", icon: AlertTriangle, description: "Protocoles d'urgence" },
-      { title: "Accessibilité", url: "/services/health/accessibility", icon: Activity, description: "Support handicap" }
-    ]
-  }
+const servicesItems = [
+  { title: "Transport scolaire", url: "/services/transport", icon: Bus },
+  { title: "Restauration", url: "/services/catering", icon: UtensilsCrossed },
+  { title: "Hébergement", url: "/services/accommodation", icon: Home },
+  { title: "Bibliothèque", url: "/services/library", icon: BookOpen },
+  { title: "Activités extra-scolaires", url: "/services/activities", icon: Heart },
+  { title: "Orientation", url: "/services/orientation", icon: MapPin },
+  { title: "Job board", url: "/services/careers", icon: Globe },
+  { title: "Dossiers médicaux", url: "/services/health/records", icon: FileText },
+  { title: "Suivi santé", url: "/services/health/appointments", icon: Stethoscope },
+  { title: "Médicaments", url: "/services/health/medications", icon: Pill },
+  { title: "Services d'urgence", url: "/services/health/emergency", icon: AlertTriangle },
+  { title: "Accessibilité", url: "/services/health/accessibility", icon: Activity }
 ];
 
 export function ServicesModuleSidebar() {
@@ -116,58 +85,38 @@ export function ServicesModuleSidebar() {
           </Link>
         </div>
         
-        {servicesSections.map((section, index) => {
-          
-          const getSectionColor = (title: string) => {
-            switch (title) {
-              case 'Transport & Mobilité': return 'text-blue-500';
-              case 'Restauration & Hébergement': return 'text-green-500';
-              case 'Ressources & Activités': return 'text-orange-500';
-              case 'Orientation & Carrières': return 'text-purple-500';
-              case 'Santé & Bien-être': return 'text-red-500';
-              default: return 'text-red-500';
-            }
-          };
-
-          const sectionColor = getSectionColor(section.title);
-          
-          return (
-            <SidebarGroup key={index} className="py-2">
-              <SidebarGroupContent>
-                <SidebarMenu className="space-y-1">
-                  {section.items.map(item => {
-                    const ItemIcon = item.icon;
-                    const isActive = location.pathname === item.url;
-                    const itemColor = getSectionColor(section.title);
-                    
-                    return (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild>
-                          <Link 
-                            to={item.url} 
-                            className={cn(
-                              "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
-                              "text-sidebar-foreground hover:bg-sidebar-accent",
-                              isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                            )}
-                          >
-                            {isActive && <div className={`absolute left-0 w-1 h-6 ${itemColor.replace('text-', 'bg-')} rounded-r`} />}
-                            <ItemIcon className={`w-3.5 h-3.5 ${itemColor}`} />
-                            <div className="flex-1 min-w-0">
-                              <span className="text-base block truncate">{item.title}</span>
-                              <span className="text-sm text-muted-foreground block truncate">{item.description}</span>
-                            </div>
-                            {isActive && <div className={`w-2 h-2 ${itemColor.replace('text-', 'bg-')} rounded-full`} />}
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          );
-        })}
+        <SidebarGroup className="py-2">
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {servicesItems.map(item => {
+                const ItemIcon = item.icon;
+                const isActive = location.pathname === item.url;
+                
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Link 
+                        to={item.url} 
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
+                          "text-sidebar-foreground hover:bg-sidebar-accent",
+                          isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                        )}
+                      >
+                        {isActive && <div className="absolute left-0 w-1 h-6 bg-red-500 rounded-r" />}
+                        <ItemIcon className="w-3.5 h-3.5 text-red-500" />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-base block truncate">{item.title}</span>
+                        </div>
+                        {isActive && <div className="w-2 h-2 bg-red-500 rounded-full" />}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border/30">

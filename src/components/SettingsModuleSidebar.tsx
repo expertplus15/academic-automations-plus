@@ -55,9 +55,18 @@ export function SettingsModuleSidebar() {
             <ArrowLeft className="w-4 h-4" />
             <span className="text-base">Retour au Dashboard</span>
           </Link>
-          <Link to="/settings" className="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary/10 hover:bg-primary/15 transition-colors w-full">
-            <Settings className="w-4 h-4 text-primary" />
-            <span className="text-base font-medium text-primary">Tableau de Bord</span>
+          <Link 
+            to="/settings" 
+            className={cn(
+              "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors w-full relative",
+              "text-sidebar-foreground hover:bg-sidebar-accent",
+              location.pathname === "/settings" && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+            )}
+          >
+            {location.pathname === "/settings" && <div className="absolute left-0 w-1 h-6 bg-slate-500 rounded-r" />}
+            <Settings className="w-4 h-4 text-slate-500" />
+            <span className="text-base">Tableau de Bord</span>
+            {location.pathname === "/settings" && <div className="w-2 h-2 bg-slate-500 rounded-full" />}
           </Link>
         </div>
         <SidebarGroup className="py-4">
@@ -77,13 +86,12 @@ export function SettingsModuleSidebar() {
                           isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                         )}
                       >
-                        {isActive && <div className="absolute left-0 w-1 h-6 bg-gray-500 rounded-r" />}
-                        <ItemIcon className="w-3.5 h-3.5 text-gray-500" />
+                        {isActive && <div className="absolute left-0 w-1 h-6 bg-slate-500 rounded-r" />}
+                        <ItemIcon className="w-3.5 h-3.5 text-slate-500" />
                         <div className="flex-1 min-w-0">
                           <span className="text-base block truncate">{item.title}</span>
-                          <span className="text-sm text-muted-foreground block truncate">{item.description}</span>
                         </div>
-                        {isActive && <div className="w-2 h-2 bg-gray-500 rounded-full" />}
+                        {isActive && <div className="w-2 h-2 bg-slate-500 rounded-full" />}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

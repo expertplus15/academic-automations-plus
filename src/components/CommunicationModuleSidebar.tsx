@@ -30,45 +30,20 @@ import {
   Briefcase
 } from "lucide-react";
 
-const communicationSections = [
-  {
-    title: "Messagerie Intégrée",
-    icon: MessageSquare,
-    defaultOpen: true,
-    items: [
-      { title: "Messages instantanés", url: "/communication/messages", icon: MessageSquare, description: "Chat en temps réel" },
-      { title: "Appels & Visio", url: "/communication/calls", icon: Video, description: "Communication vocale/vidéo" },
-      { title: "Notifications", url: "/communication/notifications", icon: Bell, description: "Centre de notifications" }
-    ]
-  },
-  {
-    title: "Relations Externes",
-    icon: Building,
-    items: [
-      { title: "Partenaires CRM", url: "/communication/external/crm", icon: Handshake, description: "Gestion partenaires" },
-      { title: "Stages & Emplois", url: "/communication/external/internships", icon: Briefcase, description: "Opportunités professionnelles" },
-      { title: "Alumni", url: "/communication/external/alumni", icon: GraduationCap, description: "Réseau diplômés" },
-      { title: "Relations internationales", url: "/communication/external/international", icon: Globe, description: "Partenariats globaux" },
-      { title: "Événements", url: "/communication/external/events", icon: Users, description: "Organisation événements" }
-    ]
-  },
-  {
-    title: "Communication Interne",
-    icon: Users,
-    items: [
-      { title: "Annonces officielles", url: "/communication/internal/announcements", icon: Bell, description: "Communications officielles" },
-      { title: "Emails automatiques", url: "/communication/internal/emails", icon: Mail, description: "Envois programmés" },
-      { title: "Répertoire interne", url: "/communication/internal/directory", icon: Phone, description: "Contacts organisation" }
-    ]
-  },
-  {
-    title: "Intégrations",
-    icon: Settings,
-    items: [
-      { title: "Paramètres", url: "/communication/settings", icon: Settings, description: "Configuration système" },
-      { title: "APIs externes", url: "/communication/integrations", icon: Globe, description: "Connecteurs tiers" }
-    ]
-  }
+const communicationItems = [
+  { title: "Messages instantanés", url: "/communication/messages", icon: MessageSquare },
+  { title: "Appels & Visio", url: "/communication/calls", icon: Video },
+  { title: "Notifications", url: "/communication/notifications", icon: Bell },
+  { title: "Partenaires CRM", url: "/communication/external/crm", icon: Handshake },
+  { title: "Stages & Emplois", url: "/communication/external/internships", icon: Briefcase },
+  { title: "Alumni", url: "/communication/external/alumni", icon: GraduationCap },
+  { title: "Relations internationales", url: "/communication/external/international", icon: Globe },
+  { title: "Événements", url: "/communication/external/events", icon: Users },
+  { title: "Annonces officielles", url: "/communication/internal/announcements", icon: Bell },
+  { title: "Emails automatiques", url: "/communication/internal/emails", icon: Mail },
+  { title: "Répertoire interne", url: "/communication/internal/directory", icon: Phone },
+  { title: "Paramètres", url: "/communication/settings", icon: Settings },
+  { title: "APIs externes", url: "/communication/integrations", icon: Globe }
 ];
 
 export function CommunicationModuleSidebar() {
@@ -102,64 +77,45 @@ export function CommunicationModuleSidebar() {
               location.pathname === "/communication" && "bg-primary/10 hover:bg-primary/15 text-primary font-medium"
             )}
           >
-            {location.pathname === "/communication" && <div className="absolute left-0 w-1 h-6 bg-purple-500 rounded-r" />}
-            <BarChart3 className="w-4 h-4 text-purple-500" />
+            {location.pathname === "/communication" && <div className="absolute left-0 w-1 h-6 bg-violet-500 rounded-r" />}
+            <BarChart3 className="w-4 h-4 text-violet-500" />
             <span className="text-base">Tableau de Bord</span>
-            {location.pathname === "/communication" && <div className="w-2 h-2 bg-purple-500 rounded-full" />}
+            {location.pathname === "/communication" && <div className="w-2 h-2 bg-violet-500 rounded-full" />}
           </Link>
         </div>
         
-        {communicationSections.map((section, index) => {
-          
-          const getSectionColor = (title: string) => {
-            switch (title) {
-              case 'Messagerie Intégrée': return 'text-blue-500';
-              case 'Relations Externes': return 'text-purple-500';
-              case 'Communication Interne': return 'text-green-500';
-              case 'Intégrations': return 'text-orange-500';
-              default: return 'text-purple-500';
-            }
-          };
-
-          const sectionColor = getSectionColor(section.title);
-          
-          return (
-            <SidebarGroup key={index} className="py-2">
-              <SidebarGroupContent>
-                <SidebarMenu className="space-y-1">
-                  {section.items.map(item => {
-                    const ItemIcon = item.icon;
-                    const isActive = location.pathname === item.url;
-                    const itemColor = getSectionColor(section.title);
-                    
-                    return (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild>
-                          <Link 
-                            to={item.url} 
-                            className={cn(
-                              "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
-                              "text-sidebar-foreground hover:bg-sidebar-accent",
-                              isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                            )}
-                          >
-                            {isActive && <div className={`absolute left-0 w-1 h-6 ${itemColor.replace('text-', 'bg-')} rounded-r`} />}
-                            <ItemIcon className={`w-3.5 h-3.5 ${itemColor}`} />
-                            <div className="flex-1 min-w-0">
-                              <span className="text-base block truncate">{item.title}</span>
-                              <span className="text-sm text-muted-foreground block truncate">{item.description}</span>
-                            </div>
-                            {isActive && <div className={`w-2 h-2 ${itemColor.replace('text-', 'bg-')} rounded-full`} />}
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          );
-        })}
+        <SidebarGroup className="py-2">
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {communicationItems.map(item => {
+                const ItemIcon = item.icon;
+                const isActive = location.pathname === item.url;
+                
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Link 
+                        to={item.url} 
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
+                          "text-sidebar-foreground hover:bg-sidebar-accent",
+                          isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                        )}
+                      >
+                        {isActive && <div className="absolute left-0 w-1 h-6 bg-violet-500 rounded-r" />}
+                        <ItemIcon className="w-3.5 h-3.5 text-violet-500" />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-base block truncate">{item.title}</span>
+                        </div>
+                        {isActive && <div className="w-2 h-2 bg-violet-500 rounded-full" />}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border/30">
