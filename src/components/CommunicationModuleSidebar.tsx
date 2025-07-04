@@ -13,83 +13,76 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
-  Coffee,
-  Bus,
-  UtensilsCrossed,
-  Home,
-  BookOpen,
-  Heart,
-  MapPin,
+  MessageSquare,
+  Users,
+  Building,
+  Globe,
+  Bell,
+  Settings,
   ArrowLeft,
   User,
   BarChart3,
-  Globe,
-  Shield,
-  Activity,
-  Stethoscope,
-  Pill,
-  AlertTriangle,
-  FileText
+  Phone,
+  Mail,
+  Video,
+  Handshake,
+  GraduationCap,
+  Briefcase
 } from "lucide-react";
 
-const servicesSections = [
+const communicationSections = [
   {
-    title: "Transport & Mobilité",
-    icon: Bus,
+    title: "Messagerie Intégrée",
+    icon: MessageSquare,
     defaultOpen: true,
     items: [
-      { title: "Transport scolaire", url: "/services/transport", icon: Bus, description: "Lignes & réservations" }
+      { title: "Messages instantanés", url: "/communication/messages", icon: MessageSquare, description: "Chat en temps réel" },
+      { title: "Appels & Visio", url: "/communication/calls", icon: Video, description: "Communication vocale/vidéo" },
+      { title: "Notifications", url: "/communication/notifications", icon: Bell, description: "Centre de notifications" }
     ]
   },
   {
-    title: "Restauration & Hébergement",
-    icon: UtensilsCrossed,
+    title: "Relations Externes",
+    icon: Building,
     items: [
-      { title: "Restauration", url: "/services/catering", icon: UtensilsCrossed, description: "Menus & commandes" },
-      { title: "Hébergement", url: "/services/accommodation", icon: Home, description: "Résidences universitaires" }
+      { title: "Partenaires CRM", url: "/communication/external/crm", icon: Handshake, description: "Gestion partenaires" },
+      { title: "Stages & Emplois", url: "/communication/external/internships", icon: Briefcase, description: "Opportunités professionnelles" },
+      { title: "Alumni", url: "/communication/external/alumni", icon: GraduationCap, description: "Réseau diplômés" },
+      { title: "Relations internationales", url: "/communication/external/international", icon: Globe, description: "Partenariats globaux" },
+      { title: "Événements", url: "/communication/external/events", icon: Users, description: "Organisation événements" }
     ]
   },
   {
-    title: "Ressources & Activités",
-    icon: BookOpen,
+    title: "Communication Interne",
+    icon: Users,
     items: [
-      { title: "Bibliothèque", url: "/services/library", icon: BookOpen, description: "Catalogue & emprunts" },
-      { title: "Activités extra-scolaires", url: "/services/activities", icon: Heart, description: "Sports & associations" }
+      { title: "Annonces officielles", url: "/communication/internal/announcements", icon: Bell, description: "Communications officielles" },
+      { title: "Emails automatiques", url: "/communication/internal/emails", icon: Mail, description: "Envois programmés" },
+      { title: "Répertoire interne", url: "/communication/internal/directory", icon: Phone, description: "Contacts organisation" }
     ]
   },
   {
-    title: "Orientation & Carrières",
-    icon: MapPin,
+    title: "Intégrations",
+    icon: Settings,
     items: [
-      { title: "Orientation", url: "/services/orientation", icon: MapPin, description: "Conseils & stages" },
-      { title: "Job board", url: "/services/careers", icon: Globe, description: "Offres d'emploi" }
-    ]
-  },
-  {
-    title: "Santé & Bien-être",
-    icon: Shield,
-    items: [
-      { title: "Dossiers médicaux", url: "/services/health/records", icon: FileText, description: "Gestion des dossiers" },
-      { title: "Suivi santé", url: "/services/health/appointments", icon: Stethoscope, description: "Rendez-vous médecins" },
-      { title: "Médicaments", url: "/services/health/medications", icon: Pill, description: "Gestion des traitements" },
-      { title: "Services d'urgence", url: "/services/health/emergency", icon: AlertTriangle, description: "Protocoles d'urgence" },
-      { title: "Accessibilité", url: "/services/health/accessibility", icon: Activity, description: "Support handicap" }
+      { title: "Paramètres", url: "/communication/settings", icon: Settings, description: "Configuration système" },
+      { title: "APIs externes", url: "/communication/integrations", icon: Globe, description: "Connecteurs tiers" }
     ]
   }
 ];
 
-export function ServicesModuleSidebar() {
+export function CommunicationModuleSidebar() {
   const location = useLocation();
 
   return (
     <Sidebar className="border-r-0">
       <SidebarHeader className="p-6 border-b border-sidebar-border/30">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-[#ef4444] rounded-xl flex items-center justify-center shadow-sm">
-            <Coffee className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 bg-[#8B5CF6] rounded-xl flex items-center justify-center shadow-sm">
+            <MessageSquare className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
-            <h1 className="text-lg font-semibold text-sidebar-foreground tracking-tight">Services aux Étudiants</h1>
+            <h1 className="text-lg font-semibold text-sidebar-foreground tracking-tight">Communication & Relations</h1>
             <p className="text-sm text-sidebar-foreground/60 mt-0.5">Module actif</p>
           </div>
         </div>
@@ -102,36 +95,34 @@ export function ServicesModuleSidebar() {
             <span className="text-base">Retour au Dashboard</span>
           </Link>
           <Link 
-            to="/services" 
+            to="/communication" 
             className={cn(
               "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors w-full relative",
               "text-sidebar-foreground hover:bg-sidebar-accent",
-              location.pathname === "/services" && "bg-primary/10 hover:bg-primary/15 text-primary font-medium"
+              location.pathname === "/communication" && "bg-primary/10 hover:bg-primary/15 text-primary font-medium"
             )}
           >
-            {location.pathname === "/services" && <div className="absolute left-0 w-1 h-6 bg-red-500 rounded-r" />}
-            <BarChart3 className="w-4 h-4 text-red-500" />
+            {location.pathname === "/communication" && <div className="absolute left-0 w-1 h-6 bg-purple-500 rounded-r" />}
+            <BarChart3 className="w-4 h-4 text-purple-500" />
             <span className="text-base">Tableau de Bord</span>
-            {location.pathname === "/services" && <div className="w-2 h-2 bg-red-500 rounded-full" />}
+            {location.pathname === "/communication" && <div className="w-2 h-2 bg-purple-500 rounded-full" />}
           </Link>
         </div>
         
         <SidebarGroup className="py-4">
           <SidebarGroupContent>
-            <Accordion type="multiple" defaultValue={["transport-mobilite"]} className="w-full space-y-3">
-              {servicesSections.map((section, index) => {
+            <Accordion type="multiple" defaultValue={["messagerie-integree"]} className="w-full space-y-3">
+              {communicationSections.map((section, index) => {
                 const SectionIcon = section.icon;
                 const sectionId = section.title.toLowerCase().replace(/\s+/g, '-').replace(/[àâä]/g, 'a').replace(/[éèêë]/g, 'e');
                 
-                // Définir les couleurs thématiques par section
                 const getSectionColor = (title: string) => {
                   switch (title) {
-                    case 'Transport & Mobilité': return 'text-blue-500';
-                    case 'Restauration & Hébergement': return 'text-green-500';
-                    case 'Ressources & Activités': return 'text-orange-500';
-                    case 'Orientation & Carrières': return 'text-purple-500';
-                    case 'Santé & Bien-être': return 'text-red-500';
-                    default: return 'text-red-500';
+                    case 'Messagerie Intégrée': return 'text-blue-500';
+                    case 'Relations Externes': return 'text-purple-500';
+                    case 'Communication Interne': return 'text-green-500';
+                    case 'Intégrations': return 'text-orange-500';
+                    default: return 'text-purple-500';
                   }
                 };
 

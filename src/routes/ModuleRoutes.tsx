@@ -151,11 +151,23 @@ import SettingsUsers from '@/pages/settings/Users';
 
 // Partnerships module pages
 import Partnerships from '@/pages/Partnerships';
-import PartnershipsCrm from '@/pages/partnerships/Crm';
-import PartnershipsInternships from '@/pages/partnerships/Internships';
-import PartnershipsAlumni from '@/pages/partnerships/Alumni';
-import PartnershipsInternational from '@/pages/partnerships/International';
-import PartnershipsEvents from '@/pages/partnerships/Events';
+// Communication module pages
+import Communication from '@/pages/Communication';
+import CommunicationCrm from '@/pages/partnerships/Crm';
+import CommunicationInternships from '@/pages/partnerships/Internships';
+import CommunicationAlumni from '@/pages/partnerships/Alumni';
+import CommunicationInternational from '@/pages/partnerships/International';
+import CommunicationEvents from '@/pages/partnerships/Events';
+
+// Documents module pages
+import Documents from '@/pages/Documents';
+
+// Services health pages
+import ServicesHealthRecords from '@/pages/services/health/Records';
+import ServicesHealthAppointments from '@/pages/services/health/Appointments';
+import ServicesHealthMedications from '@/pages/services/health/Medications';
+import ServicesHealthEmergency from '@/pages/services/health/Emergency';
+import ServicesHealthAccessibility from '@/pages/services/health/Accessibility';
 
 export function ModuleRoutes() {
   return (
@@ -333,13 +345,23 @@ export function ModuleRoutes() {
       <Route path="/settings/monitoring" element={<SettingsMonitoring />} />
       <Route path="/settings/users" element={<SettingsUsers />} />
 
-      {/* Partnerships Module Routes */}
-      <Route path="/partnerships" element={<Partnerships />} />
-      <Route path="/partnerships/crm" element={<PartnershipsCrm />} />
-      <Route path="/partnerships/internships" element={<PartnershipsInternships />} />
-      <Route path="/partnerships/alumni" element={<PartnershipsAlumni />} />
-      <Route path="/partnerships/international" element={<PartnershipsInternational />} />
-      <Route path="/partnerships/events" element={<PartnershipsEvents />} />
+      {/* Communication Module Routes */}
+      <Route path="/communication" element={<Communication />} />
+      <Route path="/communication/external/crm" element={<CommunicationCrm />} />
+      <Route path="/communication/external/internships" element={<CommunicationInternships />} />
+      <Route path="/communication/external/alumni" element={<CommunicationAlumni />} />
+      <Route path="/communication/external/international" element={<CommunicationInternational />} />
+      <Route path="/communication/external/events" element={<CommunicationEvents />} />
+
+      {/* Documents Module Routes */}
+      <Route path="/documents" element={<Documents />} />
+
+      {/* Services Health Routes */}
+      <Route path="/services/health/records" element={<ServicesHealthRecords />} />
+      <Route path="/services/health/appointments" element={<ServicesHealthAppointments />} />
+      <Route path="/services/health/medications" element={<ServicesHealthMedications />} />
+      <Route path="/services/health/emergency" element={<ServicesHealthEmergency />} />
+      <Route path="/services/health/accessibility" element={<ServicesHealthAccessibility />} />
     </Routes>
   );
 }

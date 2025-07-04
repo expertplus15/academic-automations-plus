@@ -13,83 +13,77 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
-  Coffee,
-  Bus,
-  UtensilsCrossed,
-  Home,
-  BookOpen,
-  Heart,
-  MapPin,
+  FileText,
+  FolderOpen,
+  PenTool,
+  Archive,
+  FileSignature,
+  Send,
+  Settings,
+  Shield,
   ArrowLeft,
   User,
   BarChart3,
-  Globe,
-  Shield,
-  Activity,
-  Stethoscope,
-  Pill,
-  AlertTriangle,
-  FileText
+  Layout,
+  Stamp
 } from "lucide-react";
 
-const servicesSections = [
+const documentsSections = [
   {
-    title: "Transport & Mobilité",
-    icon: Bus,
+    title: "Templates & Modèles",
+    icon: Layout,
     defaultOpen: true,
     items: [
-      { title: "Transport scolaire", url: "/services/transport", icon: Bus, description: "Lignes & réservations" }
+      { title: "Modèles de documents", url: "/documents/templates", icon: Layout, description: "Gestion des modèles" },
+      { title: "Générateur de docs", url: "/documents/generator", icon: PenTool, description: "Création automatique" }
     ]
   },
   {
-    title: "Restauration & Hébergement",
-    icon: UtensilsCrossed,
+    title: "Archives & Stockage",
+    icon: Archive,
     items: [
-      { title: "Restauration", url: "/services/catering", icon: UtensilsCrossed, description: "Menus & commandes" },
-      { title: "Hébergement", url: "/services/accommodation", icon: Home, description: "Résidences universitaires" }
+      { title: "Centre d'archives", url: "/documents/archives", icon: Archive, description: "Documents archivés" },
+      { title: "Recherche avancée", url: "/documents/search", icon: FolderOpen, description: "Recherche intelligente" }
     ]
   },
   {
-    title: "Ressources & Activités",
-    icon: BookOpen,
+    title: "Signatures & Validation",
+    icon: FileSignature,
     items: [
-      { title: "Bibliothèque", url: "/services/library", icon: BookOpen, description: "Catalogue & emprunts" },
-      { title: "Activités extra-scolaires", url: "/services/activities", icon: Heart, description: "Sports & associations" }
+      { title: "Signatures électroniques", url: "/documents/signatures", icon: FileSignature, description: "e-Signature" },
+      { title: "Validation officielle", url: "/documents/validation", icon: Stamp, description: "Tampons & cachets" }
     ]
   },
   {
-    title: "Orientation & Carrières",
-    icon: MapPin,
+    title: "Distribution & Envoi",
+    icon: Send,
     items: [
-      { title: "Orientation", url: "/services/orientation", icon: MapPin, description: "Conseils & stages" },
-      { title: "Job board", url: "/services/careers", icon: Globe, description: "Offres d'emploi" }
+      { title: "Envoi automatique", url: "/documents/distribution", icon: Send, description: "Distribution massive" },
+      { title: "Notifications", url: "/documents/notifications", icon: BarChart3, description: "Suivi des envois" }
     ]
   },
   {
-    title: "Santé & Bien-être",
+    title: "Paramètres & Conformité",
     icon: Shield,
     items: [
-      { title: "Dossiers médicaux", url: "/services/health/records", icon: FileText, description: "Gestion des dossiers" },
-      { title: "Suivi santé", url: "/services/health/appointments", icon: Stethoscope, description: "Rendez-vous médecins" },
-      { title: "Médicaments", url: "/services/health/medications", icon: Pill, description: "Gestion des traitements" },
-      { title: "Services d'urgence", url: "/services/health/emergency", icon: AlertTriangle, description: "Protocoles d'urgence" },
-      { title: "Accessibilité", url: "/services/health/accessibility", icon: Activity, description: "Support handicap" }
+      { title: "Paramètres", url: "/documents/settings", icon: Settings, description: "Configuration système" },
+      { title: "Conformité RGPD", url: "/documents/compliance", icon: Shield, description: "Règles & audits" }
     ]
   }
 ];
 
-export function ServicesModuleSidebar() {
+export function DocumentsModuleSidebar() {
   const location = useLocation();
 
   return (
     <Sidebar className="border-r-0">
       <SidebarHeader className="p-6 border-b border-sidebar-border/30">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-[#ef4444] rounded-xl flex items-center justify-center shadow-sm">
-            <Coffee className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 bg-[#4F78FF] rounded-xl flex items-center justify-center shadow-sm">
+            <FileText className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
-            <h1 className="text-lg font-semibold text-sidebar-foreground tracking-tight">Services aux Étudiants</h1>
+            <h1 className="text-lg font-semibold text-sidebar-foreground tracking-tight">Gestion Documentaire</h1>
             <p className="text-sm text-sidebar-foreground/60 mt-0.5">Module actif</p>
           </div>
         </div>
@@ -102,36 +96,35 @@ export function ServicesModuleSidebar() {
             <span className="text-base">Retour au Dashboard</span>
           </Link>
           <Link 
-            to="/services" 
+            to="/documents" 
             className={cn(
               "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors w-full relative",
               "text-sidebar-foreground hover:bg-sidebar-accent",
-              location.pathname === "/services" && "bg-primary/10 hover:bg-primary/15 text-primary font-medium"
+              location.pathname === "/documents" && "bg-primary/10 hover:bg-primary/15 text-primary font-medium"
             )}
           >
-            {location.pathname === "/services" && <div className="absolute left-0 w-1 h-6 bg-red-500 rounded-r" />}
-            <BarChart3 className="w-4 h-4 text-red-500" />
+            {location.pathname === "/documents" && <div className="absolute left-0 w-1 h-6 bg-blue-500 rounded-r" />}
+            <BarChart3 className="w-4 h-4 text-blue-500" />
             <span className="text-base">Tableau de Bord</span>
-            {location.pathname === "/services" && <div className="w-2 h-2 bg-red-500 rounded-full" />}
+            {location.pathname === "/documents" && <div className="w-2 h-2 bg-blue-500 rounded-full" />}
           </Link>
         </div>
         
         <SidebarGroup className="py-4">
           <SidebarGroupContent>
-            <Accordion type="multiple" defaultValue={["transport-mobilite"]} className="w-full space-y-3">
-              {servicesSections.map((section, index) => {
+            <Accordion type="multiple" defaultValue={["templates-modeles"]} className="w-full space-y-3">
+              {documentsSections.map((section, index) => {
                 const SectionIcon = section.icon;
                 const sectionId = section.title.toLowerCase().replace(/\s+/g, '-').replace(/[àâä]/g, 'a').replace(/[éèêë]/g, 'e');
                 
-                // Définir les couleurs thématiques par section
                 const getSectionColor = (title: string) => {
                   switch (title) {
-                    case 'Transport & Mobilité': return 'text-blue-500';
-                    case 'Restauration & Hébergement': return 'text-green-500';
-                    case 'Ressources & Activités': return 'text-orange-500';
-                    case 'Orientation & Carrières': return 'text-purple-500';
-                    case 'Santé & Bien-être': return 'text-red-500';
-                    default: return 'text-red-500';
+                    case 'Templates & Modèles': return 'text-blue-500';
+                    case 'Archives & Stockage': return 'text-green-500';
+                    case 'Signatures & Validation': return 'text-purple-500';
+                    case 'Distribution & Envoi': return 'text-orange-500';
+                    case 'Paramètres & Conformité': return 'text-red-500';
+                    default: return 'text-blue-500';
                   }
                 };
 

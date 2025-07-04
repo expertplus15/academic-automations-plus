@@ -10,10 +10,10 @@ import {
   Calendar,
   Settings,
   Package,
-  Handshake,
+  MessageSquare,
   Heart,
   BarChart3,
-  Shield
+  FileText
 } from 'lucide-react';
 
 export function ModulesGrid() {
@@ -85,12 +85,12 @@ export function ModulesGrid() {
       onClick: () => navigate('/resources')
     },
     {
-      title: "Relations & Partenariats",
-      subtitle: "CRM éducatif, stages, alumni",
-      icon: Handshake,
+      title: "Communication & Relations",
+      subtitle: "Messagerie, partenaires, CRM",
+      icon: MessageSquare,
       color: "bg-[#8B5CF6]",
-      notifications: 5,
-      onClick: () => navigate('/partnerships')
+      notifications: 8,
+      onClick: () => navigate('/communication')
     },
     {
       title: "Paramètres & Config",
@@ -102,19 +102,19 @@ export function ModulesGrid() {
     },
     {
       title: "Services aux Étudiants",
-      subtitle: "Transport, restauration, logement",
+      subtitle: "Transport, restauration, santé",
       icon: Heart,
       color: "bg-[#10B981]",
-      notifications: 2,
+      notifications: 3,
       onClick: () => navigate('/services')
     },
     {
-      title: "Santé & Bien-être",
-      subtitle: "Dossiers médicaux, urgences",
-      icon: Shield,
-      color: "bg-[#EF4444]",
-      notifications: 1,
-      onClick: () => navigate('/health')
+      title: "Gestion Documentaire",
+      subtitle: "Templates, archives, signatures",
+      icon: FileText,
+      color: "bg-[#4F78FF]",
+      notifications: 2,
+      onClick: () => navigate('/documents')
     }
   ];
 
