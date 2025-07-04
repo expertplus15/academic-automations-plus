@@ -98,9 +98,18 @@ export function ResourcesModuleSidebar() {
             <ArrowLeft className="w-4 h-4" />
             <span className="text-base">Retour au Dashboard</span>
           </Link>
-          <Link to="/resources" className="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary/10 hover:bg-primary/15 transition-colors w-full">
-            <Home className="w-4 h-4 text-primary" />
-            <span className="text-base font-medium text-primary">Tableau de Bord</span>
+          <Link 
+            to="/resources" 
+            className={cn(
+              "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors w-full relative",
+              "text-sidebar-foreground hover:bg-sidebar-accent",
+              location.pathname === "/resources" && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+            )}
+          >
+            {location.pathname === "/resources" && <div className="absolute left-0 w-1 h-6 bg-lime-500 rounded-r" />}
+            <Home className="w-4 h-4 text-lime-500" />
+            <span className="text-base font-medium">Tableau de Bord</span>
+            {location.pathname === "/resources" && <div className="w-2 h-2 bg-lime-500 rounded-full" />}
           </Link>
         </div>
         
