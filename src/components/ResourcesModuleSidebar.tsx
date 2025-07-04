@@ -21,6 +21,7 @@ import {
   Building,
   ArrowLeft,
   User,
+  Clock,
 } from "lucide-react";
 
 const resourcesSections = [
@@ -30,6 +31,8 @@ const resourcesSections = [
     defaultOpen: true,
     items: [
       { title: "Inventaire numérique", url: "/resources/inventory", icon: QrCode, description: "QR codes traçabilité" },
+      { title: "Catégories d'équipements", url: "/resources/categories", icon: Package, description: "Classification" },
+      { title: "Historique mouvements", url: "/resources/history", icon: Clock, description: "Traçabilité complète" },
       { title: "Maintenance préventive", url: "/resources/maintenance", icon: Wrench, description: "Automatisée" }
     ]
   },
@@ -52,6 +55,14 @@ const resourcesSections = [
     icon: Building,
     items: [
       { title: "Patrimoine immobilier", url: "/resources/property", icon: Building, description: "Suivi valorisation" }
+    ]
+  },
+  {
+    title: "Administration",
+    icon: User,
+    items: [
+      { title: "Rapports & analyses", url: "/resources/analytics", icon: ArrowLeft, description: "Statistiques KPIs" },
+      { title: "Configuration", url: "/resources/settings", icon: ArrowLeft, description: "Paramètres module" }
     ]
   }
 ];

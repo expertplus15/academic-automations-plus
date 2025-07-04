@@ -1,17 +1,17 @@
 import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { ResourcesPageHeader } from "@/components/ResourcesPageHeader";
-import { InventoryDashboard } from "@/components/resources/InventoryDashboard";
+import { AnalyticsDashboard } from "@/components/resources/AnalyticsDashboard";
 
-export default function Inventory() {
+export default function Analytics() {
   return (
     <ModuleLayout>
       <ResourcesPageHeader 
-        title="Inventaire numérique" 
-        subtitle="QR codes et traçabilité" 
+        title="Rapports & analyses" 
+        subtitle="Statistiques et KPIs" 
       />
       <div className="p-6">
         <div className="max-w-7xl mx-auto">
-          <InventoryDashboard />
+          <AnalyticsDashboard />
         </div>
       </div>
     </ModuleLayout>

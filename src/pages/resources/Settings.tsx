@@ -1,17 +1,17 @@
 import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { ResourcesPageHeader } from "@/components/ResourcesPageHeader";
-import { InventoryDashboard } from "@/components/resources/InventoryDashboard";
+import { SettingsDashboard } from "@/components/resources/SettingsDashboard";
 
-export default function Inventory() {
+export default function Settings() {
   return (
     <ModuleLayout>
       <ResourcesPageHeader 
-        title="Inventaire numérique" 
-        subtitle="QR codes et traçabilité" 
+        title="Configuration" 
+        subtitle="Paramètres du module" 
       />
       <div className="p-6">
         <div className="max-w-7xl mx-auto">
-          <InventoryDashboard />
+          <SettingsDashboard />
         </div>
       </div>
     </ModuleLayout>
