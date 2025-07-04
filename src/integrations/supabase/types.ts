@@ -386,6 +386,301 @@ export type Database = {
           },
         ]
       }
+      asset_bookings: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          asset_id: string | null
+          created_at: string | null
+          end_date: string
+          id: string
+          notes: string | null
+          purpose: string
+          room_id: string | null
+          start_date: string
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          asset_id?: string | null
+          created_at?: string | null
+          end_date: string
+          id?: string
+          notes?: string | null
+          purpose: string
+          room_id?: string | null
+          start_date: string
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          asset_id?: string | null
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          notes?: string | null
+          purpose?: string
+          room_id?: string | null
+          start_date?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asset_bookings_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asset_bookings_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asset_bookings_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asset_bookings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      asset_categories: {
+        Row: {
+          code: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          parent_category_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          parent_category_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          parent_category_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asset_categories_parent_category_id_fkey"
+            columns: ["parent_category_id"]
+            isOneToOne: false
+            referencedRelation: "asset_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      asset_maintenance: {
+        Row: {
+          asset_id: string
+          completed_date: string | null
+          cost: number | null
+          created_at: string | null
+          created_by: string | null
+          description: string
+          id: string
+          maintenance_type: string
+          notes: string | null
+          performed_by: string | null
+          scheduled_date: string
+          status: string | null
+          supplier_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          asset_id: string
+          completed_date?: string | null
+          cost?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          description: string
+          id?: string
+          maintenance_type: string
+          notes?: string | null
+          performed_by?: string | null
+          scheduled_date: string
+          status?: string | null
+          supplier_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          asset_id?: string
+          completed_date?: string | null
+          cost?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string
+          id?: string
+          maintenance_type?: string
+          notes?: string | null
+          performed_by?: string | null
+          scheduled_date?: string
+          status?: string | null
+          supplier_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asset_maintenance_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asset_maintenance_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asset_maintenance_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assets: {
+        Row: {
+          asset_number: string
+          brand: string | null
+          category_id: string | null
+          condition_status: string | null
+          created_at: string | null
+          created_by: string | null
+          current_value: number | null
+          depreciation_rate: number | null
+          description: string | null
+          id: string
+          location: string | null
+          model: string | null
+          name: string
+          purchase_date: string | null
+          purchase_price: number | null
+          qr_code: string | null
+          responsible_person_id: string | null
+          room_id: string | null
+          serial_number: string | null
+          status: string | null
+          updated_at: string | null
+          warranty_end_date: string | null
+        }
+        Insert: {
+          asset_number: string
+          brand?: string | null
+          category_id?: string | null
+          condition_status?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          current_value?: number | null
+          depreciation_rate?: number | null
+          description?: string | null
+          id?: string
+          location?: string | null
+          model?: string | null
+          name: string
+          purchase_date?: string | null
+          purchase_price?: number | null
+          qr_code?: string | null
+          responsible_person_id?: string | null
+          room_id?: string | null
+          serial_number?: string | null
+          status?: string | null
+          updated_at?: string | null
+          warranty_end_date?: string | null
+        }
+        Update: {
+          asset_number?: string
+          brand?: string | null
+          category_id?: string | null
+          condition_status?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          current_value?: number | null
+          depreciation_rate?: number | null
+          description?: string | null
+          id?: string
+          location?: string | null
+          model?: string | null
+          name?: string
+          purchase_date?: string | null
+          purchase_price?: number | null
+          qr_code?: string | null
+          responsible_person_id?: string | null
+          room_id?: string | null
+          serial_number?: string | null
+          status?: string | null
+          updated_at?: string | null
+          warranty_end_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assets_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "asset_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assets_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assets_responsible_person_id_fkey"
+            columns: ["responsible_person_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assets_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attendance_records: {
         Row: {
           academic_year_id: string | null
@@ -2343,6 +2638,156 @@ export type Database = {
           },
         ]
       }
+      procurement_items: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          item_name: string
+          quantity: number
+          request_id: string
+          specifications: string | null
+          total_price: number | null
+          unit_price: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          item_name: string
+          quantity?: number
+          request_id: string
+          specifications?: string | null
+          total_price?: number | null
+          unit_price?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          item_name?: string
+          quantity?: number
+          request_id?: string
+          specifications?: string | null
+          total_price?: number | null
+          unit_price?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "procurement_items_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "procurement_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      procurement_requests: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          budget_category_id: string | null
+          category_id: string | null
+          created_at: string | null
+          delivery_date: string | null
+          department_id: string | null
+          description: string | null
+          estimated_cost: number | null
+          id: string
+          priority: string | null
+          rejection_reason: string | null
+          request_number: string
+          requested_by: string
+          status: string | null
+          supplier_id: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          budget_category_id?: string | null
+          category_id?: string | null
+          created_at?: string | null
+          delivery_date?: string | null
+          department_id?: string | null
+          description?: string | null
+          estimated_cost?: number | null
+          id?: string
+          priority?: string | null
+          rejection_reason?: string | null
+          request_number: string
+          requested_by: string
+          status?: string | null
+          supplier_id?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          budget_category_id?: string | null
+          category_id?: string | null
+          created_at?: string | null
+          delivery_date?: string | null
+          department_id?: string | null
+          description?: string | null
+          estimated_cost?: number | null
+          id?: string
+          priority?: string | null
+          rejection_reason?: string | null
+          request_number?: string
+          requested_by?: string
+          status?: string | null
+          supplier_id?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "procurement_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "procurement_requests_budget_category_id_fkey"
+            columns: ["budget_category_id"]
+            isOneToOne: false
+            referencedRelation: "financial_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "procurement_requests_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "asset_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "procurement_requests_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "procurement_requests_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "procurement_requests_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -2479,6 +2924,80 @@ export type Database = {
             columns: ["level_id"]
             isOneToOne: false
             referencedRelation: "academic_levels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      properties: {
+        Row: {
+          acquisition_cost: number | null
+          acquisition_date: string | null
+          address: string
+          annual_depreciation: number | null
+          created_at: string | null
+          current_valuation: number | null
+          id: string
+          insurance_expiry: string | null
+          insurance_policy: string | null
+          last_valuation_date: string | null
+          name: string
+          notes: string | null
+          property_number: string
+          property_status: string | null
+          property_type: string
+          responsible_person_id: string | null
+          surface_area: number | null
+          updated_at: string | null
+          usage_type: string | null
+        }
+        Insert: {
+          acquisition_cost?: number | null
+          acquisition_date?: string | null
+          address: string
+          annual_depreciation?: number | null
+          created_at?: string | null
+          current_valuation?: number | null
+          id?: string
+          insurance_expiry?: string | null
+          insurance_policy?: string | null
+          last_valuation_date?: string | null
+          name: string
+          notes?: string | null
+          property_number: string
+          property_status?: string | null
+          property_type: string
+          responsible_person_id?: string | null
+          surface_area?: number | null
+          updated_at?: string | null
+          usage_type?: string | null
+        }
+        Update: {
+          acquisition_cost?: number | null
+          acquisition_date?: string | null
+          address?: string
+          annual_depreciation?: number | null
+          created_at?: string | null
+          current_valuation?: number | null
+          id?: string
+          insurance_expiry?: string | null
+          insurance_policy?: string | null
+          last_valuation_date?: string | null
+          name?: string
+          notes?: string | null
+          property_number?: string
+          property_status?: string | null
+          property_type?: string
+          responsible_person_id?: string | null
+          surface_area?: number | null
+          updated_at?: string | null
+          usage_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "properties_responsible_person_id_fkey"
+            columns: ["responsible_person_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -4091,6 +4610,10 @@ export type Database = {
           affected_slots: Json
         }[]
       }
+      generate_asset_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       generate_document_number: {
         Args: { doc_type: string }
         Returns: string
@@ -4104,6 +4627,10 @@ export type Database = {
         Returns: string
       }
       generate_expense_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_procurement_number: {
         Args: Record<PropertyKey, never>
         Returns: string
       }

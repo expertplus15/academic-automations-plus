@@ -128,6 +128,22 @@ import HrPerformance from '@/pages/hr/Performance';
 import HrSync from '@/pages/hr/Sync';
 import HrAnalytics from '@/pages/hr/Analytics';
 
+// Resources module pages
+import Resources from '@/pages/Resources';
+import ResourcesInventory from '@/pages/resources/Inventory';
+import ResourcesBookings from '@/pages/resources/Bookings';
+import ResourcesMaintenance from '@/pages/resources/Maintenance';
+import ResourcesProcurement from '@/pages/resources/Procurement';
+import ResourcesProperty from '@/pages/resources/Property';
+
+// Settings module pages
+import Settings from '@/pages/Settings';
+import SettingsCustomization from '@/pages/settings/Customization';
+import SettingsInstitutions from '@/pages/settings/Institutions';
+import SettingsIntegrations from '@/pages/settings/Integrations';
+import SettingsMonitoring from '@/pages/settings/Monitoring';
+import SettingsUsers from '@/pages/settings/Users';
+
 export function ModuleRoutes() {
   return (
     <Routes>
@@ -282,6 +298,22 @@ export function ModuleRoutes() {
       <Route path="/hr/performance" element={<HrPerformance />} />
       <Route path="/hr/sync" element={<HrSync />} />
       <Route path="/hr/analytics" element={<HrAnalytics />} />
+
+      {/* Resources Module Routes */}
+      <Route path="/resources" element={<Resources />} />
+      <Route path="/resources/inventory" element={<ResourcesInventory />} />
+      <Route path="/resources/bookings" element={<ResourcesBookings />} />
+      <Route path="/resources/maintenance" element={<ResourcesMaintenance />} />
+      <Route path="/resources/procurement" element={<ResourcesProcurement />} />
+      <Route path="/resources/property" element={<ResourcesProperty />} />
+
+      {/* Settings Module Routes */}
+      <Route path="/settings" element={<Settings />} />
+      <Route path="/settings/customization" element={<SettingsCustomization />} />
+      <Route path="/settings/institutions" element={<SettingsInstitutions />} />
+      <Route path="/settings/integrations" element={<SettingsIntegrations />} />
+      <Route path="/settings/monitoring" element={<SettingsMonitoring />} />
+      <Route path="/settings/users" element={<SettingsUsers />} />
     </Routes>
   );
 }
