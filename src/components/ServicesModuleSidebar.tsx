@@ -16,11 +16,14 @@ import {
   Coffee,
   Bus,
   UtensilsCrossed,
-  Bed,
+  Home,
   BookOpen,
-  Zap,
+  Heart,
+  MapPin,
   ArrowLeft,
   User,
+  BarChart3,
+  Globe
 } from "lucide-react";
 
 const servicesSections = [
@@ -36,16 +39,24 @@ const servicesSections = [
     title: "Restauration & Hébergement",
     icon: UtensilsCrossed,
     items: [
-      { title: "Restauration", url: "/services/catering", icon: UtensilsCrossed, description: "Menus & paiements" },
-      { title: "Hébergement", url: "/services/accommodation", icon: Bed, description: "Internat dortoirs" }
+      { title: "Restauration", url: "/services/catering", icon: UtensilsCrossed, description: "Menus & commandes" },
+      { title: "Hébergement", url: "/services/accommodation", icon: Home, description: "Résidences universitaires" }
     ]
   },
   {
     title: "Ressources & Activités",
     icon: BookOpen,
     items: [
-      { title: "Bibliothèque numérique", url: "/services/library", icon: BookOpen, description: "Ressources documentaires" },
-      { title: "Activités extra-scolaires", url: "/services/activities", icon: Zap, description: "Sports clubs associations" }
+      { title: "Bibliothèque", url: "/services/library", icon: BookOpen, description: "Catalogue & emprunts" },
+      { title: "Activités extra-scolaires", url: "/services/activities", icon: Heart, description: "Sports & associations" }
+    ]
+  },
+  {
+    title: "Orientation & Carrières",
+    icon: MapPin,
+    items: [
+      { title: "Orientation", url: "/services/orientation", icon: MapPin, description: "Conseils & stages" },
+      { title: "Job board", url: "/services/careers", icon: Globe, description: "Offres d'emploi" }
     ]
   }
 ];
@@ -55,62 +66,92 @@ export function ServicesModuleSidebar() {
 
   return (
     <Sidebar className="border-r-0">
-      <SidebarHeader className="p-4 border-b border-sidebar-border/30">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-[#ef4444] rounded-xl flex items-center justify-center shadow-sm">
+      <SidebarHeader className="p-6 border-b border-sidebar-border/30">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 bg-[#ef4444] rounded-xl flex items-center justify-center shadow-sm">
             <Coffee className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
-            <h1 className="text-base font-semibold text-sidebar-foreground tracking-tight">Services aux Étudiants</h1>
-            <p className="text-xs text-sidebar-foreground/60 mt-0.5">Module actif</p>
+            <h1 className="text-lg font-semibold text-sidebar-foreground tracking-tight">Services aux Étudiants</h1>
+            <p className="text-sm text-sidebar-foreground/60 mt-0.5">Module actif</p>
           </div>
         </div>
       </SidebarHeader>
 
       <SidebarContent className="px-4">
-        <div className="pt-4 pb-2">
-          <Link to="/services" className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-sidebar-accent transition-colors w-full">
-            <ArrowLeft className="w-4 h-4 text-sidebar-foreground" />
-            <span className="text-sm text-sidebar-foreground">Retour</span>
+        <div className="pt-4 pb-3 space-y-2">
+          <Link to="/" className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-sidebar-accent transition-colors w-full text-sidebar-foreground/70 hover:text-sidebar-foreground">
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-base">Retour au Dashboard</span>
+          </Link>
+          <Link 
+            to="/services" 
+            className={cn(
+              "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors w-full relative",
+              "text-sidebar-foreground hover:bg-sidebar-accent",
+              location.pathname === "/services" && "bg-primary/10 hover:bg-primary/15 text-primary font-medium"
+            )}
+          >
+            {location.pathname === "/services" && <div className="absolute left-0 w-1 h-6 bg-red-500 rounded-r" />}
+            <BarChart3 className="w-4 h-4 text-red-500" />
+            <span className="text-base">Tableau de Bord</span>
+            {location.pathname === "/services" && <div className="w-2 h-2 bg-red-500 rounded-full" />}
           </Link>
         </div>
+        
         <SidebarGroup className="py-4">
           <SidebarGroupContent>
-            <Accordion type="multiple" defaultValue={["transport-mobilite"]} className="w-full space-y-2">
+            <Accordion type="multiple" defaultValue={["transport-mobilite"]} className="w-full space-y-3">
               {servicesSections.map((section, index) => {
                 const SectionIcon = section.icon;
                 const sectionId = section.title.toLowerCase().replace(/\s+/g, '-').replace(/[àâä]/g, 'a').replace(/[éèêë]/g, 'e');
+                
+                // Définir les couleurs thématiques par section
+                const getSectionColor = (title: string) => {
+                  switch (title) {
+                    case 'Transport & Mobilité': return 'text-blue-500';
+                    case 'Restauration & Hébergement': return 'text-green-500';
+                    case 'Ressources & Activités': return 'text-orange-500';
+                    case 'Orientation & Carrières': return 'text-purple-500';
+                    default: return 'text-red-500';
+                  }
+                };
+
+                const sectionColor = getSectionColor(section.title);
+                
                 return (
                   <AccordionItem key={index} value={sectionId} className="border-0">
-                    <AccordionTrigger className="py-2 px-3 hover:bg-sidebar-accent rounded-lg text-sm font-medium text-sidebar-foreground hover:no-underline">
+                    <AccordionTrigger className="py-3 px-3 hover:bg-sidebar-accent rounded-lg text-base font-medium text-sidebar-foreground hover:no-underline">
                       <div className="flex items-center gap-3">
-                        <SectionIcon className="w-4 h-4 text-primary" />
+                        <SectionIcon className={`w-5 h-5 ${sectionColor}`} />
                         <span>{section.title}</span>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="pb-0 pt-1">
-                      <SidebarMenu className="space-y-1 ml-4">
+                    <AccordionContent className="pb-0 pt-2">
+                      <SidebarMenu className="space-y-2 ml-4">
                         {section.items.map(item => {
                           const ItemIcon = item.icon;
                           const isActive = location.pathname === item.url;
+                          const itemColor = getSectionColor(section.title);
+                          
                           return (
                             <SidebarMenuItem key={item.title}>
                               <SidebarMenuButton asChild>
                                 <Link 
                                   to={item.url} 
                                   className={cn(
-                                    "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors relative",
+                                    "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
                                     "text-sidebar-foreground hover:bg-sidebar-accent",
                                     isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                                   )}
                                 >
-                                  {isActive && <div className="absolute left-0 w-1 h-5 bg-primary rounded-r" />}
-                                  <ItemIcon className="w-4 h-4 text-primary" />
+                                  {isActive && <div className={`absolute left-0 w-1 h-6 ${itemColor.replace('text-', 'bg-')} rounded-r`} />}
+                                  <ItemIcon className={`w-3.5 h-3.5 ${itemColor}`} />
                                   <div className="flex-1 min-w-0">
-                                    <span className="text-sm block truncate">{item.title}</span>
-                                    <span className="text-xs text-muted-foreground block truncate">{item.description}</span>
+                                    <span className="text-base block truncate">{item.title}</span>
+                                    <span className="text-sm text-muted-foreground block truncate">{item.description}</span>
                                   </div>
-                                  {isActive && <div className="w-2 h-2 bg-primary rounded-full" />}
+                                  {isActive && <div className={`w-2 h-2 ${itemColor.replace('text-', 'bg-')} rounded-full`} />}
                                 </Link>
                               </SidebarMenuButton>
                             </SidebarMenuItem>
