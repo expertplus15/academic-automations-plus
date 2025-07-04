@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
-  Users,
+  Users as UsersIcon,
   Plus,
   Shield,
   Key,
@@ -106,7 +106,7 @@ export default function Users() {
       id: "student",
       name: "Étudiant",
       description: "Accès aux cours et services",
-      icon: User,
+      icon: UsersIcon,
       permissions: ["read"],
       userCount: 2450,
       color: "bg-gray-100 text-gray-600"
@@ -211,7 +211,7 @@ export default function Users() {
               <div className="grid gap-4">
                 {users.map((user) => {
                   const roleInfo = getRoleInfo(user.role);
-                  const RoleIcon = roleInfo?.icon || User;
+                  const RoleIcon = roleInfo?.icon || UsersIcon;
                   
                   return (
                     <Card key={user.id}>
@@ -576,7 +576,7 @@ export default function Users() {
           <div className="flex justify-end gap-3">
             <Button variant="outline">Annuler</Button>
             <Button>
-              <Users className="h-4 w-4 mr-2" />
+              <UsersIcon className="h-4 w-4 mr-2" />
               Enregistrer les modifications
             </Button>
           </div>
