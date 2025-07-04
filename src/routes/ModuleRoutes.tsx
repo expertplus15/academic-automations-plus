@@ -151,13 +151,13 @@ import SettingsUsers from '@/pages/settings/Users';
 
 // Partnerships module pages
 import Partnerships from '@/pages/Partnerships';
-// Communication module pages
+// Communication module pages (renamed from Partnerships)
 import Communication from '@/pages/Communication';
-import CommunicationCrm from '@/pages/partnerships/Crm';
-import CommunicationInternships from '@/pages/partnerships/Internships';
-import CommunicationAlumni from '@/pages/partnerships/Alumni';
-import CommunicationInternational from '@/pages/partnerships/International';
-import CommunicationEvents from '@/pages/partnerships/Events';
+import PartnershipsCrm from '@/pages/partnerships/Crm';
+import PartnershipsInternships from '@/pages/partnerships/Internships';
+import PartnershipsAlumni from '@/pages/partnerships/Alumni';
+import PartnershipsInternational from '@/pages/partnerships/International';
+import PartnershipsEvents from '@/pages/partnerships/Events';
 
 // Documents module pages
 import Documents from '@/pages/Documents';
@@ -347,11 +347,11 @@ export function ModuleRoutes() {
 
       {/* Communication Module Routes */}
       <Route path="/communication" element={<Communication />} />
-      <Route path="/communication/external/crm" element={<CommunicationCrm />} />
-      <Route path="/communication/external/internships" element={<CommunicationInternships />} />
-      <Route path="/communication/external/alumni" element={<CommunicationAlumni />} />
-      <Route path="/communication/external/international" element={<CommunicationInternational />} />
-      <Route path="/communication/external/events" element={<CommunicationEvents />} />
+      <Route path="/communication/external/crm" element={<PartnershipsCrm />} />
+      <Route path="/communication/external/internships" element={<PartnershipsInternships />} />
+      <Route path="/communication/external/alumni" element={<PartnershipsAlumni />} />
+      <Route path="/communication/external/international" element={<PartnershipsInternational />} />
+      <Route path="/communication/external/events" element={<PartnershipsEvents />} />
 
       {/* Documents Module Routes */}
       <Route path="/documents" element={<Documents />} />
