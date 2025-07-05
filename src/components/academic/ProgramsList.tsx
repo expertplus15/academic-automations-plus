@@ -62,9 +62,6 @@ export function ProgramsList({ programs, loading, onEdit, onRefresh }: ProgramsL
   if (loading) {
     return (
       <Card>
-        <CardHeader>
-          <CardTitle>Programmes d'Études</CardTitle>
-        </CardHeader>
         <CardContent>
           <div className="animate-pulse space-y-4">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -79,15 +76,6 @@ export function ProgramsList({ programs, loading, onEdit, onRefresh }: ProgramsL
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>Programmes d'Études</CardTitle>
-          <Button asChild>
-            <Link to="/academic/programs/new">
-              <Plus className="h-4 w-4 mr-2" />
-              Nouveau Programme
-            </Link>
-          </Button>
-        </div>
         <div className="flex items-center space-x-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
