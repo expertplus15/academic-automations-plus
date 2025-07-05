@@ -52,7 +52,10 @@ export function useModuleTests() {
           { id: 'students-fetch', name: 'Récupération Étudiants', route: '', status: 'pending' },
           { id: 'programs-fetch', name: 'Récupération Programmes', route: '', status: 'pending' },
           { id: 'departments-fetch', name: 'Récupération Départements', route: '', status: 'pending' },
-          { id: 'subjects-fetch', name: 'Récupération Matières', route: '', status: 'pending' }
+          { id: 'subjects-fetch', name: 'Récupération Matières', route: '', status: 'pending' },
+          { id: 'assets-fetch', name: 'Récupération Équipements', route: '', status: 'pending' },
+          { id: 'asset-categories-fetch', name: 'Récupération Catégories', route: '', status: 'pending' },
+          { id: 'rooms-fetch', name: 'Récupération Salles', route: '', status: 'pending' }
         ]
       },
       {
@@ -101,6 +104,15 @@ export function useModuleTests() {
           break;
         case 'subjects-fetch':
           query = supabase.from('subjects').select('id').limit(1);
+          break;
+        case 'assets-fetch':
+          query = supabase.from('assets').select('id').limit(1);
+          break;
+        case 'asset-categories-fetch':
+          query = supabase.from('asset_categories').select('id').limit(1);
+          break;
+        case 'rooms-fetch':
+          query = supabase.from('rooms').select('id').limit(1);
           break;
         default:
           return false;
