@@ -14,7 +14,7 @@ import StudentsCommunication from '@/pages/students/Communication';
 import StudentsRegistrationDashboard from '@/pages/students/registration/Dashboard';
 import StudentsRegistrationAnalytics from '@/pages/students/registration/Analytics';
 import StudentsRegistrationApproval from '@/pages/students/registration/Approval';
-import StudentsRegistrationInterviews from '@/pages/students/registration/Interviews';
+
 import StudentsRegistrationSettings from '@/pages/students/registration/Settings';
 
 // Finance module pages
@@ -259,7 +259,6 @@ export function ModuleRoutes() {
       <Route path="/students/registration/dashboard" element={<StudentsRegistrationDashboard />} />
       <Route path="/students/registration/analytics" element={<StudentsRegistrationAnalytics />} />
       <Route path="/students/registration/approval" element={<StudentsRegistrationApproval />} />
-      <Route path="/students/registration/interviews" element={<StudentsRegistrationInterviews />} />
       <Route path="/students/registration/settings" element={<StudentsRegistrationSettings />} />
 
       {/* Academic Module Routes - All using AcademicModuleLayout */}
