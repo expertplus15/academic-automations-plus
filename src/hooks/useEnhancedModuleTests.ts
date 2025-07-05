@@ -654,6 +654,64 @@ export function useEnhancedModuleTests() {
     });
   }, [createEnhancedTestSuites]);
 
+  // Exécuter une suite spécifique
+  const runSingleSuite = useCallback(async (suiteId: string) => {
+    const allSuites = createEnhancedTestSuites();
+    const suiteToRun = allSuites.find(suite => suite.id === suiteId);
+    
+    if (!suiteToRun) {
+      toast({
+        title: "Suite introuvable",
+        description: "La suite de tests demandée n'existe pas",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const executionId = `exec-${Date.now()}`;
+    executionIdRef.current = executionId;
+    
+    setIsRunning(true);
+    const startTime = new Date();
+    setTestSuites(allSuites);
+
+    toast({
+      title: "Test de module démarré",
+      description: `Exécution de: ${suiteToRun.name}`
+    });
+
+    try {
+      setTestSuites(prev => prev.map(s => 
+        s.id === suiteToRun.id ? { ...s, status: 'running', startTime: new Date() } : s
+      ));
+
+      for (const test of suiteToRun.tests) {
+        await runSingleTest(test, suiteToRun.id);
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+
+      setTestSuites(prev => prev.map(s => 
+        s.id === suiteToRun.id ? { ...s, status: 'completed', endTime: new Date() } : s
+      ));
+
+      const endTime = new Date();
+      const report = generateReport([suiteToRun], executionId, startTime, endTime);
+      setCurrentReport(report);
+      setReportHistory(prev => [report, ...prev.slice(0, 9)]);
+
+      toast({
+        title: "Test de module terminé",
+        description: `${report.passedTests}/${report.totalTests} tests réussis (${report.passRate}%)`,
+        variant: report.passRate >= 80 ? "default" : "destructive"
+      });
+
+    } catch (error) {
+      handleError(error, { context: `Single suite test execution: ${suiteToRun.name}` });
+    } finally {
+      setIsRunning(false);
+    }
+  }, [createEnhancedTestSuites, runSingleTest, generateReport, handleError]);
+
   // Exécuter les tests sélectionnés
   const runSelectedTests = useCallback(async () => {
     const allSuites = createEnhancedTestSuites();
@@ -784,6 +842,7 @@ export function useEnhancedModuleTests() {
     reportHistory,
     runAllTests,
     runSelectedTests,
+    runSingleSuite,
     resetTests,
     getTestSummary,
     getSelectedTestsCount,

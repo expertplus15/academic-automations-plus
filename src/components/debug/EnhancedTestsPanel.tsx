@@ -45,7 +45,8 @@ export function EnhancedTestsPanel() {
     currentReport,
     reportHistory,
     runAllTests,
-    runSelectedTests, 
+    runSelectedTests,
+    runSingleSuite, 
     resetTests, 
     getTestSummary,
     getSelectedTestsCount,
@@ -271,7 +272,7 @@ export function EnhancedTestsPanel() {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 gap-2">
                   {testSuites.length === 0 && 
                     ['critical-tests', 'ui-tests', 'module-tests', 'integration-tests', 'performance-tests'].map((suiteId) => {
                       const suiteNames = {
@@ -289,31 +290,65 @@ export function EnhancedTestsPanel() {
                         'performance-tests': 'performance'
                       };
                       return (
-                        <div key={suiteId} className="flex items-center space-x-2 p-2 rounded border">
-                          <Checkbox
-                            id={suiteId}
-                            checked={selectedSuites.has(suiteId)}
-                            onCheckedChange={() => toggleSuite(suiteId)}
-                          />
-                          <label htmlFor={suiteId} className="text-xs flex items-center gap-1 cursor-pointer">
-                            {getCategoryIcon(categories[suiteId as keyof typeof categories])}
-                            {suiteNames[suiteId as keyof typeof suiteNames]}
-                          </label>
+                        <div key={suiteId} className="flex items-center justify-between p-2 rounded border">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id={suiteId}
+                              checked={selectedSuites.has(suiteId)}
+                              onCheckedChange={() => toggleSuite(suiteId)}
+                            />
+                            <label htmlFor={suiteId} className="text-xs flex items-center gap-1 cursor-pointer">
+                              {getCategoryIcon(categories[suiteId as keyof typeof categories])}
+                              {suiteNames[suiteId as keyof typeof suiteNames]}
+                            </label>
+                          </div>
+                          <Button
+                            onClick={() => runSingleSuite(suiteId)}
+                            disabled={isRunning || !networkStatus.isOnline}
+                            size="sm"
+                            variant="ghost"
+                            className="h-6 px-2 text-xs"
+                          >
+                            <Play className="w-3 h-3 mr-1" />
+                            Lancer
+                          </Button>
                         </div>
                       );
                     })
                   }
                   {testSuites.map((suite) => (
-                    <div key={suite.id} className={`flex items-center space-x-2 p-2 rounded border ${selectedSuites.has(suite.id) ? 'bg-primary/5 border-primary/20' : ''}`}>
-                      <Checkbox
-                        id={suite.id}
-                        checked={selectedSuites.has(suite.id)}
-                        onCheckedChange={() => toggleSuite(suite.id)}
-                      />
-                      <label htmlFor={suite.id} className="text-xs flex items-center gap-1 cursor-pointer">
-                        {getCategoryIcon(suite.category)}
-                        {suite.name}
-                      </label>
+                    <div key={suite.id} className={`flex items-center justify-between p-2 rounded border ${selectedSuites.has(suite.id) ? 'bg-primary/5 border-primary/20' : ''}`}>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id={suite.id}
+                          checked={selectedSuites.has(suite.id)}
+                          onCheckedChange={() => toggleSuite(suite.id)}
+                        />
+                        <label htmlFor={suite.id} className="text-xs flex items-center gap-1 cursor-pointer">
+                          {getCategoryIcon(suite.category)}
+                          {suite.name}
+                        </label>
+                        <Badge 
+                          variant="outline" 
+                          className={`text-xs ${getStatusColor(suite.status)}`}
+                        >
+                          {suite.status}
+                        </Badge>
+                      </div>
+                      <Button
+                        onClick={() => runSingleSuite(suite.id)}
+                        disabled={isRunning || !networkStatus.isOnline}
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 px-2 text-xs"
+                      >
+                        {suite.status === 'running' ? (
+                          <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                        ) : (
+                          <Play className="w-3 h-3 mr-1" />
+                        )}
+                        Lancer
+                      </Button>
                     </div>
                   ))}
                 </div>
