@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StudentsModuleLayout } from "@/components/layouts/StudentsModuleLayout";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,10 +8,21 @@ import {
   Download,
   Printer,
   Settings,
-  Users
+  Users,
+  Activity
 } from 'lucide-react';
+import { useStudentCards } from '@/hooks/students/useStudentCards';
+import { CardGenerationDialog } from '@/components/students/cards/CardGenerationDialog';
+import { PrintBatchDialog } from '@/components/students/cards/PrintBatchDialog';
+import { CardsDataTable } from '@/components/students/cards/CardsDataTable';
 
 export default function StudentCards() {
+  const [showGenerationDialog, setShowGenerationDialog] = useState(false);
+  const [showPrintDialog, setShowPrintDialog] = useState(false);
+  
+  const { cards, templates, printBatches, loading, getCardStats } = useStudentCards();
+  const stats = getCardStats();
+
   return (
     <StudentsModuleLayout 
       title="Cartes Étudiants"
@@ -28,7 +39,7 @@ export default function StudentCards() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Cartes Actives</p>
-                  <p className="text-2xl font-bold">1,247</p>
+                  <p className="text-2xl font-bold">{stats.active}</p>
                 </div>
               </div>
             </CardContent>
@@ -42,7 +53,7 @@ export default function StudentCards() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">En Attente</p>
-                  <p className="text-2xl font-bold">23</p>
+                  <p className="text-2xl font-bold">{stats.pending}</p>
                 </div>
               </div>
             </CardContent>
@@ -56,7 +67,7 @@ export default function StudentCards() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">À Imprimer</p>
-                  <p className="text-2xl font-bold">15</p>
+                  <p className="text-2xl font-bold">{stats.toPrint}</p>
                 </div>
               </div>
             </CardContent>
@@ -70,7 +81,7 @@ export default function StudentCards() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Expirées</p>
-                  <p className="text-2xl font-bold">8</p>
+                  <p className="text-2xl font-bold">{stats.expired}</p>
                 </div>
               </div>
             </CardContent>
@@ -88,13 +99,22 @@ export default function StudentCards() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button className="w-full justify-start" variant="outline">
+              <Button 
+                className="w-full justify-start" 
+                variant="outline"
+                onClick={() => setShowGenerationDialog(true)}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Générer Nouvelles Cartes
               </Button>
-              <Button className="w-full justify-start" variant="outline">
+              <Button 
+                className="w-full justify-start" 
+                variant="outline"
+                onClick={() => setShowPrintDialog(true)}
+                disabled={stats.toPrint === 0}
+              >
                 <Printer className="w-4 h-4 mr-2" />
-                Impression en Lot
+                Impression en Lot ({stats.toPrint})
               </Button>
               <Button className="w-full justify-start" variant="outline">
                 <Download className="w-4 h-4 mr-2" />
@@ -107,60 +127,60 @@ export default function StudentCards() {
             </CardContent>
           </Card>
 
-          {/* Recent Activity */}
+          {/* Recent Print Batches */}
           <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle>Activité Récente</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="w-5 h-5" />
+                Derniers Lots d'Impression
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">15 nouvelles cartes générées automatiquement</p>
-                    <p className="text-xs text-muted-foreground">Suite aux approbations d'aujourd'hui</p>
-                  </div>
-                  <span className="text-xs text-muted-foreground">Il y a 2h</span>
+              {printBatches.length === 0 ? (
+                <div className="text-center py-4 text-muted-foreground">
+                  Aucun lot d'impression créé
                 </div>
-
-                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">Lot d'impression de 50 cartes créé</p>
-                    <p className="text-xs text-muted-foreground">Prêt pour l'impression</p>
-                  </div>
-                  <span className="text-xs text-muted-foreground">Hier 14h30</span>
+              ) : (
+                <div className="space-y-3">
+                  {printBatches.slice(0, 3).map((batch) => (
+                    <div key={batch.id} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                      <div className={`w-2 h-2 rounded-full ${
+                        batch.status === 'completed' ? 'bg-emerald-500' :
+                        batch.status === 'processing' ? 'bg-blue-500' :
+                        batch.status === 'failed' ? 'bg-red-500' : 'bg-yellow-500'
+                      }`}></div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{batch.batch_name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {batch.printed_cards}/{batch.total_cards} cartes - {batch.status}
+                        </p>
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(batch.created_at).toLocaleDateString('fr-FR')}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-
-                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">Template "Nouvelle Charte" mis à jour</p>
-                    <p className="text-xs text-muted-foreground">Nouveau logo appliqué</p>
-                  </div>
-                  <span className="text-xs text-muted-foreground">2 jours</span>
-                </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Coming Soon Notice */}
-        <Card className="border-dashed border-2 border-muted-foreground/20">
-          <CardContent className="p-8 text-center">
-            <CreditCard className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Module en Développement</h3>
-            <p className="text-muted-foreground mb-4">
-              Le système complet de gestion des cartes étudiants sera bientôt disponible.
-            </p>
-            <div className="flex flex-wrap justify-center gap-2 text-sm text-muted-foreground">
-              <span className="px-2 py-1 bg-muted rounded">Génération automatique</span>
-              <span className="px-2 py-1 bg-muted rounded">Templates personnalisables</span>
-              <span className="px-2 py-1 bg-muted rounded">Codes QR</span>
-              <span className="px-2 py-1 bg-muted rounded">Impression optimisée</span>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Cards Table */}
+        <CardsDataTable cards={cards} loading={loading} />
+
+        {/* Dialogs */}
+        <CardGenerationDialog
+          open={showGenerationDialog}
+          onOpenChange={setShowGenerationDialog}
+          templates={templates}
+        />
+
+        <PrintBatchDialog
+          open={showPrintDialog}
+          onOpenChange={setShowPrintDialog}
+          cards={cards}
+        />
       </div>
     </StudentsModuleLayout>
   );

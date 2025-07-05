@@ -3550,6 +3550,144 @@ export type Database = {
           },
         ]
       }
+      student_card_prints: {
+        Row: {
+          batch_name: string
+          card_ids: string[]
+          completed_at: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          printed_cards: number | null
+          status: string
+          total_cards: number
+        }
+        Insert: {
+          batch_name: string
+          card_ids: string[]
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          printed_cards?: number | null
+          status?: string
+          total_cards: number
+        }
+        Update: {
+          batch_name?: string
+          card_ids?: string[]
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          printed_cards?: number | null
+          status?: string
+          total_cards?: number
+        }
+        Relationships: []
+      }
+      student_card_templates: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          name: string
+          template_data: Json
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name: string
+          template_data?: Json
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name?: string
+          template_data?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      student_cards: {
+        Row: {
+          barcode_data: string | null
+          card_number: string
+          created_at: string | null
+          expiry_date: string | null
+          id: string
+          is_printed: boolean | null
+          issue_date: string
+          printed_at: string | null
+          printed_by: string | null
+          qr_code_data: string | null
+          status: string
+          student_id: string
+          template_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          barcode_data?: string | null
+          card_number: string
+          created_at?: string | null
+          expiry_date?: string | null
+          id?: string
+          is_printed?: boolean | null
+          issue_date?: string
+          printed_at?: string | null
+          printed_by?: string | null
+          qr_code_data?: string | null
+          status?: string
+          student_id: string
+          template_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          barcode_data?: string | null
+          card_number?: string
+          created_at?: string | null
+          expiry_date?: string | null
+          id?: string
+          is_printed?: boolean | null
+          issue_date?: string
+          printed_at?: string | null
+          printed_by?: string | null
+          qr_code_data?: string | null
+          status?: string
+          student_id?: string
+          template_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_cards_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_cards_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "student_card_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_grades: {
         Row: {
           academic_year_id: string | null
@@ -4674,6 +4812,10 @@ export type Database = {
         }[]
       }
       generate_asset_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_card_number: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
