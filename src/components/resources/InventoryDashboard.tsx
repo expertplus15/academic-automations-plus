@@ -1,74 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { QrCode, Plus, Search, Package, Scan, Download, Upload, Filter, Eye } from 'lucide-react';
-
-interface Asset {
-  id: string;
-  asset_number: string;
-  name: string;
-  category: string;
-  location: string;
-  status: 'active' | 'maintenance' | 'retired' | 'reserved';
-  condition: 'excellent' | 'good' | 'fair' | 'poor';
-  purchase_date: string;
-  purchase_price: number;
-  current_value: number;
-  qr_code: string;
-}
+import { QrCode, Plus, Search, Package, Scan, Download, Upload, Filter, Eye, Loader2 } from 'lucide-react';
+import { useAssets, Asset } from '@/hooks/resources/useAssets';
 
 export function InventoryDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [categories, setCategories] = useState<string[]>([]);
 
-  // Mock data - à remplacer par les vrais hooks
-  const assets: Asset[] = [
-    {
-      id: '1',
-      asset_number: 'AST240001',
-      name: 'Projecteur Epson EB-2250U',
-      category: 'Audiovisuel',
-      location: 'Salle A1',
-      status: 'active',
-      condition: 'excellent',
-      purchase_date: '2024-01-15',
-      purchase_price: 1200,
-      current_value: 1080,
-      qr_code: 'QR_AST240001'
-    },
-    {
-      id: '2',
-      asset_number: 'AST240002',
-      name: 'Ordinateur portable Dell Latitude',
-      category: 'Informatique',
-      location: 'Lab Info B2',
-      status: 'maintenance',
-      condition: 'good',
-      purchase_date: '2023-09-20',
-      purchase_price: 800,
-      current_value: 600,
-      qr_code: 'QR_AST240002'
-    },
-    {
-      id: '3',
-      asset_number: 'AST240003',
-      name: 'Imprimante laser HP LaserJet',
-      category: 'Bureau',
-      location: 'Administration',
-      status: 'active',
-      condition: 'good',
-      purchase_date: '2023-11-10',
-      purchase_price: 350,
-      current_value: 280,
-      qr_code: 'QR_AST240003'
-    }
-  ];
+  // Utilisation du hook useAssets au lieu des données mock
+  const { assets, loading, error } = useAssets();
 
-  const categories = ['Audiovisuel', 'Informatique', 'Bureau', 'Mobilier', 'Laboratoire'];
+  // Extract unique categories from assets
+  useEffect(() => {
+    const uniqueCategories = Array.from(new Set(
+      assets
+        .filter(asset => asset.category?.name)
+        .map(asset => asset.category!.name)
+    ));
+    setCategories(uniqueCategories);
+  }, [assets]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -103,9 +59,9 @@ export function InventoryDashboard() {
   const filteredAssets = assets.filter(asset => {
     const matchesSearch = asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          asset.asset_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         asset.location.toLowerCase().includes(searchTerm.toLowerCase());
+                         (asset.location || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || asset.status === statusFilter;
-    const matchesCategory = categoryFilter === 'all' || asset.category === categoryFilter;
+    const matchesCategory = categoryFilter === 'all' || asset.category?.name === categoryFilter;
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
@@ -119,7 +75,7 @@ export function InventoryDashboard() {
     },
     {
       label: "Valeur totale",
-      value: `${assets.reduce((sum, a) => sum + a.current_value, 0).toLocaleString()}€`,
+      value: `${assets.reduce((sum, a) => sum + (a.current_value || 0), 0).toLocaleString()}€`,
       icon: Package,
       color: "text-green-600",
       bgColor: "bg-green-100"
@@ -133,12 +89,31 @@ export function InventoryDashboard() {
     },
     {
       label: "QR codes générés",
-      value: assets.length,
+      value: assets.filter(a => a.qr_code).length,
       icon: QrCode,
       color: "text-purple-600",
       bgColor: "bg-purple-100"
     }
   ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <span className="ml-2 text-muted-foreground">Chargement des équipements...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <Package className="w-12 h-12 mx-auto mb-4 text-red-500 opacity-50" />
+        <p className="text-red-600 mb-2">Erreur lors du chargement</p>
+        <p className="text-muted-foreground text-sm">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -244,20 +219,24 @@ export function InventoryDashboard() {
                       <h3 className="font-semibold text-foreground">{asset.name}</h3>
                       <span className="text-sm text-muted-foreground">({asset.asset_number})</span>
                       {getStatusBadge(asset.status)}
-                      {getConditionBadge(asset.condition)}
+                      {getConditionBadge(asset.condition_status)}
                     </div>
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
                       <span>
-                        <span className="font-medium">Catégorie:</span> {asset.category}
+                        <span className="font-medium">Catégorie:</span> {asset.category?.name || 'Non spécifiée'}
                       </span>
                       <span>
-                        <span className="font-medium">Emplacement:</span> {asset.location}
+                        <span className="font-medium">Emplacement:</span> {asset.location || 'Non spécifié'}
                       </span>
                       <span>
-                        <span className="font-medium">Valeur actuelle:</span> {asset.current_value.toLocaleString()}€
+                        <span className="font-medium">Valeur actuelle:</span> {(asset.current_value || 0).toLocaleString()}€
                       </span>
                       <span>
-                        <span className="font-medium">Achat:</span> {new Date(asset.purchase_date).toLocaleDateString('fr-FR')}
+                        <span className="font-medium">Achat:</span> {
+                          asset.purchase_date 
+                            ? new Date(asset.purchase_date).toLocaleDateString('fr-FR')
+                            : 'Non spécifiée'
+                        }
                       </span>
                     </div>
                   </div>

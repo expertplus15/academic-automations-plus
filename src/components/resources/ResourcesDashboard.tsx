@@ -14,12 +14,15 @@ import {
   Clock
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAssets } from '@/hooks/resources/useAssets';
 
 export function ResourcesDashboard() {
+  const { assets, loading } = useAssets();
+
   const stats = [
     {
       label: "Total équipements",
-      value: "1,247",
+      value: loading ? "..." : assets.length.toString(),
       icon: Package,
       color: "text-blue-600",
       bgColor: "bg-blue-100",
@@ -27,7 +30,7 @@ export function ResourcesDashboard() {
     },
     {
       label: "Valeur patrimoine",
-      value: "2.4M€",
+      value: loading ? "..." : `${Math.round(assets.reduce((sum, a) => sum + (a.current_value || 0), 0) / 1000)}K€`,
       icon: Building,
       color: "text-green-600",
       bgColor: "bg-green-100",
@@ -35,16 +38,16 @@ export function ResourcesDashboard() {
     },
     {
       label: "Maintenances dues",
-      value: "23",
+      value: loading ? "..." : assets.filter(a => a.status === 'maintenance').length.toString(),
       icon: Wrench,
       color: "text-orange-600",
       bgColor: "bg-orange-100",
-      urgent: true
+      urgent: !loading && assets.filter(a => a.status === 'maintenance').length > 0
     },
     {
-      label: "Réservations actives",
-      value: "45",
-      icon: Calendar,
+      label: "QR codes générés",
+      value: loading ? "..." : assets.filter(a => a.qr_code).length.toString(),
+      icon: QrCode,
       color: "text-purple-600",
       bgColor: "bg-purple-100",
       change: "+8%"
