@@ -383,18 +383,36 @@ export function useEnhancedModuleTests() {
     }
   }, [runButtonTests]);
 
+  // Fonction pour mettre à jour un test spécifique dans la structure
+  const updateTestInSuite = useCallback((suiteId: string, testId: string, updates: Partial<ModuleTest>) => {
+    setTestSuites(prev => prev.map(suite => 
+      suite.id === suiteId ? {
+        ...suite,
+        tests: suite.tests.map(t => {
+          if (t.id === testId) {
+            return { ...t, ...updates };
+          }
+          // Vérifier aussi les sous-tests
+          if (t.subTests) {
+            return {
+              ...t,
+              subTests: t.subTests.map(st => 
+                st.id === testId ? { ...st, ...updates } : st
+              )
+            };
+          }
+          return t;
+        })
+      } : suite
+    ));
+  }, []);
+
   // Exécuter un test individuel
   const runSingleTest = useCallback(async (test: ModuleTest, suiteId: string): Promise<boolean> => {
     const startTime = Date.now();
     
-    setTestSuites(prev => prev.map(suite => 
-      suite.id === suiteId ? {
-        ...suite,
-        tests: suite.tests.map(t => 
-          t.id === test.id ? { ...t, status: 'running' } : t
-        )
-      } : suite
-    ));
+    // Marquer le test comme en cours
+    updateTestInSuite(suiteId, test.id, { status: 'running' });
 
     let success = false;
     let error: string | undefined;
@@ -406,6 +424,8 @@ export function useEnhancedModuleTests() {
         for (const subTest of test.subTests) {
           const subResult = await runSingleTest(subTest, suiteId);
           subTestsResults.push(subResult);
+          // Petite pause entre les sous-tests
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
         success = subTestsResults.every(result => result);
       } else {
@@ -430,26 +450,20 @@ export function useEnhancedModuleTests() {
     } catch (err) {
       error = err instanceof Error ? err.message : 'Test failed';
       success = false;
+      console.error(`Test failed: ${test.name}`, err);
     }
 
     const duration = Date.now() - startTime;
 
-    setTestSuites(prev => prev.map(suite => 
-      suite.id === suiteId ? {
-        ...suite,
-        tests: suite.tests.map(t => 
-          t.id === test.id ? { 
-            ...t, 
-            status: success ? 'passed' : 'failed',
-            error,
-            duration
-          } : t
-        )
-      } : suite
-    ));
+    // Mettre à jour le statut final du test
+    updateTestInSuite(suiteId, test.id, {
+      status: success ? 'passed' : 'failed',
+      error,
+      duration
+    });
 
     return success;
-  }, [runNavigationTest, runDatabaseTest, runFunctionalityTest]);
+  }, [runNavigationTest, runDatabaseTest, runFunctionalityTest, updateTestInSuite]);
 
   // Générer un rapport détaillé
   const generateReport = useCallback((suites: TestSuite[], executionId: string, startTime: Date, endTime: Date): TestReport => {
