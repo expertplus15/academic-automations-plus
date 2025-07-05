@@ -47,8 +47,7 @@ export function useCardAudit() {
             students!inner(
               profiles!inner(full_name)
             )
-          ),
-          performer:profiles!student_card_audit_performed_by_fkey(full_name)
+          )
         `)
         .order('created_at', { ascending: false })
         .limit(100);
@@ -83,7 +82,7 @@ export function useCardAudit() {
         ...record,
         card_number: record.student_cards?.card_number,
         student_name: record.student_cards?.students?.profiles?.full_name,
-        performer_name: record.performer?.full_name || 'Système'
+        performer_name: 'Système' // Will be enhanced later with proper user lookup
       }));
 
       setAuditRecords(transformedData);

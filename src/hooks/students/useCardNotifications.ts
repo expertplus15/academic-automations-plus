@@ -54,7 +54,10 @@ export function useCardNotifications() {
       if (error) throw error;
       setNotifications((data || []).map(item => ({
         ...item,
-        recipients: Array.isArray(item.recipients) ? item.recipients : []
+        recipients: Array.isArray(item.recipients) ? item.recipients.map(r => String(r)) : [],
+        days_before: item.days_before || 0,
+        is_active: item.is_active || false,
+        message_template: item.message_template || ''
       })));
     } catch (error) {
       console.error('Error fetching notification settings:', error);
