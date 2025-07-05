@@ -74,6 +74,7 @@ import AcademicGroups from '@/pages/academic/Groups';
 import AcademicPathways from '@/pages/academic/Pathways';
 import AcademicTimetables from '@/pages/academic/Timetables';
 import AcademicInfrastructure from '@/pages/academic/Infrastructure';
+import AcademicCalendar from '@/pages/academic/Calendar';
 
 
 // Exams module pages
@@ -271,6 +272,7 @@ export function ModuleRoutes() {
       <Route path="/academic/pathways" element={<AcademicPathways />} />
       <Route path="/academic/timetables" element={<AcademicTimetables />} />
       <Route path="/academic/infrastructure" element={<AcademicInfrastructure />} />
+      <Route path="/academic/calendar" element={<AcademicCalendar />} />
 
       {/* Exams Module Routes - All using ExamsModuleLayout */}
       <Route path="/exams" element={<Exams />} />

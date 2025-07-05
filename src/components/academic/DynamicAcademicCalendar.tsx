@@ -23,7 +23,7 @@ import { DayProps } from 'react-day-picker';
 import { useAcademicEvents } from '@/hooks/useAcademicEvents';
 import { useAcademicYears } from '@/hooks/useAcademicYears';
 import { AcademicEventModal } from './calendar/AcademicEventModal';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 export function DynamicAcademicCalendar() {
@@ -267,7 +267,7 @@ export function DynamicAcademicCalendar() {
                   selected={selectedDate}
                   onSelect={(date) => date && setSelectedDate(date)}
                   locale={fr}
-                  className="w-full"
+                  className="w-full pointer-events-auto"
                   components={{
                     Day: CustomDay
                   }}
