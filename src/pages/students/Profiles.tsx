@@ -1,10 +1,10 @@
 
-import { ModuleLayout } from "@/components/layouts/ModuleLayout";
+import { StudentsModuleLayout } from "@/components/layouts/StudentsModuleLayout";
 import { StudentsProfilesManagement } from "@/components/students/StudentsProfilesManagement";
 
 export default function Profiles() {
   return (
-    <ModuleLayout 
+    <StudentsModuleLayout 
       title="Profils Étudiants" 
       subtitle="Gestion complète des profils et informations des étudiants"
       showHeader={true}
@@ -12,6 +12,6 @@ export default function Profiles() {
       <div className="p-6">
         <StudentsProfilesManagement />
       </div>
-    </ModuleLayout>
+    </StudentsModuleLayout>
   );
 }

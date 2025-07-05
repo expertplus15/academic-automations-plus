@@ -16,7 +16,7 @@ import {
   GraduationCap,
   Users
 } from "lucide-react";
-import { useStudentsData } from "@/hooks/useStudentsData";
+import { useStudentsData } from "@/hooks/students/useStudentsData";
 import { StudentProfileDialog } from "./StudentProfileDialog";
 import { StudentsSearch } from "./StudentsSearch";
 import { StudentsBulkActions } from "./StudentsBulkActions";
@@ -86,12 +86,12 @@ export function StudentsProfilesManagement() {
         <Card className="hover:shadow-lg hover-scale transition-all duration-300">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-students/10 rounded-lg">
-                <Users className="w-5 h-5 text-students" />
+              <div className="p-2 bg-emerald-100 rounded-lg">
+                <Users className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Total Étudiants</p>
-                <p className="text-2xl font-bold text-students">{students.length}</p>
+                <p className="text-2xl font-bold text-emerald-600">{students.length}</p>
               </div>
             </div>
           </CardContent>
@@ -183,7 +183,7 @@ export function StudentsProfilesManagement() {
                 <Checkbox
                   checked={selectedStudents.length === filteredStudents.length}
                   onCheckedChange={handleSelectAll}
-                  className="data-[state=checked]:bg-students data-[state=checked]:border-students"
+                  className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
                 />
                 <span className="text-sm text-muted-foreground">
                   {selectedStudents.length > 0 
@@ -193,7 +193,7 @@ export function StudentsProfilesManagement() {
                 </span>
               </div>
               {selectedStudents.length > 0 && (
-                <Badge variant="secondary" className="bg-students/10 text-students">
+                <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
                   Actions en lot disponibles
                 </Badge>
               )}
@@ -207,11 +207,11 @@ export function StudentsProfilesManagement() {
                 <Checkbox
                   checked={selectedStudents.includes(student.id)}
                   onCheckedChange={(checked) => handleSelectStudent(student.id, checked as boolean)}
-                  className="data-[state=checked]:bg-students data-[state=checked]:border-students"
+                  className="data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
                 />
                 <Avatar className="w-12 h-12">
                   <AvatarImage src="" alt={student.profiles.full_name} />
-                  <AvatarFallback className="bg-students text-white">
+                  <AvatarFallback className="bg-emerald-500 text-white">
                     {student.profiles.full_name?.[0] || 'E'}
                   </AvatarFallback>
                 </Avatar>

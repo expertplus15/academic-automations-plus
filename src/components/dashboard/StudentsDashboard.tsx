@@ -21,7 +21,7 @@ export function StudentsDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-students"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
       </div>
     );
   }
@@ -202,7 +202,7 @@ export function StudentsDashboard() {
       title="Tableau de Bord Étudiants"
       subtitle="Gestion intelligente des inscriptions et suivi en temps réel"
       widgets={widgets}
-      moduleColor="16 185 129" // students color from index.css
+      moduleColor="16 185 129" // emerald-500 color
       quickActions={quickActions}
       alerts={alerts}
     />
