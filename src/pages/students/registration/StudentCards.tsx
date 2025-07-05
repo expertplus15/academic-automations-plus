@@ -14,7 +14,7 @@ import {
 import { useStudentCards } from '@/hooks/students/useStudentCards';
 import { CardGenerationDialog } from '@/components/students/cards/CardGenerationDialog';
 import { PrintBatchDialog } from '@/components/students/cards/PrintBatchDialog';
-import { CardsDataTable } from '@/components/students/cards/CardsDataTable';
+import { EnhancedCardsTable } from '@/components/students/cards/EnhancedCardsTable';
 import { TemplateManagementDialog } from '@/components/students/cards/TemplateManagementDialog';
 
 export default function StudentCards() {
@@ -172,8 +172,13 @@ export default function StudentCards() {
           </Card>
         </div>
 
-        {/* Cards Table */}
-        <CardsDataTable cards={cards} loading={loading} />
+        {/* Enhanced Cards Table */}
+        <EnhancedCardsTable 
+          cards={cards} 
+          loading={loading}
+          onBulkExport={(cardIds) => console.log('Bulk export:', cardIds)}
+          onViewCard={(card) => console.log('View card:', card)}
+        />
 
         {/* Dialogs */}
         <CardGenerationDialog

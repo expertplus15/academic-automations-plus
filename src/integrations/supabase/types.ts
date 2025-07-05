@@ -868,6 +868,48 @@ export type Database = {
           },
         ]
       }
+      bulk_export_jobs: {
+        Row: {
+          card_ids: string[] | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          error_message: string | null
+          id: string
+          job_type: string
+          parameters: Json
+          progress_percentage: number | null
+          result_url: string | null
+          status: string
+        }
+        Insert: {
+          card_ids?: string[] | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          error_message?: string | null
+          id?: string
+          job_type: string
+          parameters?: Json
+          progress_percentage?: number | null
+          result_url?: string | null
+          status?: string
+        }
+        Update: {
+          card_ids?: string[] | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          error_message?: string | null
+          id?: string
+          job_type?: string
+          parameters?: Json
+          progress_percentage?: number | null
+          result_url?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       campuses: {
         Row: {
           address: string | null
@@ -894,6 +936,39 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      card_notification_settings: {
+        Row: {
+          created_at: string
+          days_before: number | null
+          id: string
+          is_active: boolean | null
+          message_template: string | null
+          notification_type: string
+          recipients: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          days_before?: number | null
+          id?: string
+          is_active?: boolean | null
+          message_template?: string | null
+          notification_type: string
+          recipients?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          days_before?: number | null
+          id?: string
+          is_active?: boolean | null
+          message_template?: string | null
+          notification_type?: string
+          recipients?: Json | null
           updated_at?: string
         }
         Relationships: []
@@ -3550,6 +3625,53 @@ export type Database = {
           },
         ]
       }
+      student_card_audit: {
+        Row: {
+          action_details: string | null
+          action_type: string
+          card_id: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          new_values: Json | null
+          old_values: Json | null
+          performed_by: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action_details?: string | null
+          action_type: string
+          card_id: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          performed_by?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action_details?: string | null
+          action_type?: string
+          card_id?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          performed_by?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_card_audit_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "student_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_card_prints: {
         Row: {
           batch_name: string
@@ -4862,6 +4984,17 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["user_role"]
+      }
+      get_expiring_cards: {
+        Args: { days_ahead?: number }
+        Returns: {
+          card_id: string
+          student_name: string
+          student_email: string
+          card_number: string
+          expiry_date: string
+          days_until_expiry: number
+        }[]
       }
       validate_grade_entry: {
         Args: {
