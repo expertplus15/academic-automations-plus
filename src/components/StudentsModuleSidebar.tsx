@@ -23,20 +23,28 @@ import {
   ArrowLeft,
   Zap,
   BarChart3,
-  AlertCircle
+  AlertCircle,
+  CreditCard,
+  Settings
 } from "lucide-react";
 
 const studentsItems = [
+  // PROCESSUS D'INSCRIPTION
   { title: "Inscription automatisée", url: "/students/registration", icon: UserPlus },
-  { title: "Tableau de bord", url: "/students/registration/dashboard", icon: BarChart3 },
+  { title: "Suivi Inscriptions", url: "/students/registration/dashboard", icon: BarChart3 },
   { title: "Analyses", url: "/students/registration/analytics", icon: BarChart3 },
   { title: "Approbations", url: "/students/registration/approval", icon: AlertCircle },
-  { title: "Configuration", url: "/students/registration/settings", icon: AlertCircle },
+  { title: "Cartes étudiants", url: "/students/registration/cards", icon: CreditCard },
+  
+  // GESTION ÉTUDIANTS
   { title: "Profils étudiants", url: "/students/profiles", icon: User },
   { title: "Suivi académique", url: "/students/tracking", icon: Activity },
   { title: "Alertes automatiques", url: "/students/alerts", icon: Bell },
   { title: "Communication intégrée", url: "/students/communication", icon: MessageSquare },
-  { title: "Documents administratifs", url: "/students/documents", icon: FileText }
+  { title: "Documents administratifs", url: "/students/documents", icon: FileText },
+  
+  // ADMINISTRATION
+  { title: "Configuration", url: "/students/registration/settings", icon: Settings }
 ];
 
 export function StudentsModuleSidebar() {

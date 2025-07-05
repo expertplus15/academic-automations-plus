@@ -14,6 +14,7 @@ import StudentsCommunication from '@/pages/students/Communication';
 import StudentsRegistrationDashboard from '@/pages/students/registration/Dashboard';
 import StudentsRegistrationAnalytics from '@/pages/students/registration/Analytics';
 import StudentsRegistrationApproval from '@/pages/students/registration/Approval';
+import StudentsRegistrationCards from '@/pages/students/registration/StudentCards';
 
 import StudentsRegistrationSettings from '@/pages/students/registration/Settings';
 
@@ -259,6 +260,7 @@ export function ModuleRoutes() {
       <Route path="/students/registration/dashboard" element={<StudentsRegistrationDashboard />} />
       <Route path="/students/registration/analytics" element={<StudentsRegistrationAnalytics />} />
       <Route path="/students/registration/approval" element={<StudentsRegistrationApproval />} />
+      <Route path="/students/registration/cards" element={<StudentsRegistrationCards />} />
       <Route path="/students/registration/settings" element={<StudentsRegistrationSettings />} />
 
       {/* Academic Module Routes - All using AcademicModuleLayout */}
