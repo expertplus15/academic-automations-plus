@@ -23,8 +23,7 @@ import {
   ArrowLeft,
   Zap,
   BarChart3,
-  AlertCircle,
-  Mail
+  AlertCircle
 } from "lucide-react";
 
 const studentsItems = [
@@ -32,7 +31,6 @@ const studentsItems = [
   { title: "Tableau de bord", url: "/students/registration/dashboard", icon: BarChart3 },
   { title: "Analyses", url: "/students/registration/analytics", icon: BarChart3 },
   { title: "Approbations", url: "/students/registration/approval", icon: AlertCircle },
-  { title: "Entretiens", url: "/students/registration/interviews", icon: Mail },
   { title: "Configuration", url: "/students/registration/settings", icon: AlertCircle },
   { title: "Profils étudiants", url: "/students/profiles", icon: User },
   { title: "Suivi académique", url: "/students/tracking", icon: Activity },
