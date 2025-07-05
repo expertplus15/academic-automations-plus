@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useDepartments } from '@/hooks/useSupabase';
+import { useDepartments } from '@/hooks/academic/useAcademicData';
 
 const programSchema = z.object({
   name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),

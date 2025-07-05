@@ -15,7 +15,7 @@ interface Program {
   code: string;
   description?: string;
   duration_years: number;
-  department_id: string;
+  department_id?: string; // Changed to optional to match hook
   created_at: string;
 }
 

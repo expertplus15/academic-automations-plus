@@ -4,7 +4,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { usePrograms, useTable } from '@/hooks/useSupabase';
+import { usePrograms } from '@/hooks/academic/useAcademicData';
+import { useTable } from '@/hooks/useSupabase';
 import { useSubjectForm } from './forms/useSubjectForm';
 
 interface SubjectFormProps {

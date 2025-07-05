@@ -3,7 +3,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AcademicModuleLayout } from '@/components/layouts/AcademicModuleLayout';
 import { ProgramsList } from '@/components/academic/ProgramsList';
 import { ProgramForm } from '@/components/academic/ProgramForm';
-import { usePrograms } from '@/hooks/useSupabase';
+import { usePrograms } from '@/hooks/academic/useAcademicData';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
