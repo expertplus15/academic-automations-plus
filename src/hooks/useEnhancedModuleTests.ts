@@ -97,6 +97,7 @@ export interface ErrorAnalysis {
 
 export function useEnhancedModuleTests() {
   const [testSuites, setTestSuites] = useState<TestSuite[]>([]);
+  const [selectedSuites, setSelectedSuites] = useState<Set<string>>(new Set());
   const [isRunning, setIsRunning] = useState(false);
   const [currentReport, setCurrentReport] = useState<TestReport | null>(null);
   const [reportHistory, setReportHistory] = useState<TestReport[]>([]);
@@ -621,30 +622,73 @@ export function useEnhancedModuleTests() {
     }
   };
 
-  // Exécuter tous les tests
-  const runAllTests = useCallback(async () => {
+  // Fonctions de sélection des suites
+  const toggleSuite = useCallback((suiteId: string) => {
+    setSelectedSuites(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(suiteId)) {
+        newSet.delete(suiteId);
+      } else {
+        newSet.add(suiteId);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const selectAllSuites = useCallback(() => {
+    const suites = createEnhancedTestSuites();
+    setSelectedSuites(new Set(suites.map(s => s.id)));
+  }, [createEnhancedTestSuites]);
+
+  const deselectAllSuites = useCallback(() => {
+    setSelectedSuites(new Set());
+  }, []);
+
+  const selectSuitesByCategory = useCallback((category: TestSuite['category']) => {
+    const suites = createEnhancedTestSuites();
+    const categoryIds = suites.filter(s => s.category === category).map(s => s.id);
+    setSelectedSuites(prev => {
+      const newSet = new Set(prev);
+      categoryIds.forEach(id => newSet.add(id));
+      return newSet;
+    });
+  }, [createEnhancedTestSuites]);
+
+  // Exécuter les tests sélectionnés
+  const runSelectedTests = useCallback(async () => {
+    const allSuites = createEnhancedTestSuites();
+    const suitesToRun = allSuites.filter(suite => selectedSuites.has(suite.id));
+    
+    if (suitesToRun.length === 0) {
+      toast({
+        title: "Aucune suite sélectionnée",
+        description: "Veuillez sélectionner au moins une suite de tests",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const executionId = `exec-${Date.now()}`;
     executionIdRef.current = executionId;
     
     setIsRunning(true);
     const startTime = new Date();
-    const suites = createEnhancedTestSuites();
-    setTestSuites(suites);
+    setTestSuites(allSuites);
 
+    const suiteNames = suitesToRun.map(s => s.name).join(', ');
     toast({
-      title: "Tests enrichis démarrés",
-      description: "Exécution complète des tests de modules, UI et intégration..."
+      title: "Tests sélectionnés démarrés",
+      description: `Exécution de: ${suiteNames}`
     });
 
     try {
-      for (const suite of suites) {
+      for (const suite of suitesToRun) {
         setTestSuites(prev => prev.map(s => 
           s.id === suite.id ? { ...s, status: 'running', startTime: new Date() } : s
         ));
 
         for (const test of suite.tests) {
           await runSingleTest(test, suite.id);
-          // Petite pause entre les tests
           await new Promise(resolve => setTimeout(resolve, 200));
         }
 
@@ -654,9 +698,9 @@ export function useEnhancedModuleTests() {
       }
 
       const endTime = new Date();
-      const report = generateReport(suites, executionId, startTime, endTime);
+      const report = generateReport(suitesToRun, executionId, startTime, endTime);
       setCurrentReport(report);
-      setReportHistory(prev => [report, ...prev.slice(0, 9)]); // Garder les 10 derniers rapports
+      setReportHistory(prev => [report, ...prev.slice(0, 9)]);
 
       toast({
         title: "Tests terminés",
@@ -665,11 +709,30 @@ export function useEnhancedModuleTests() {
       });
 
     } catch (error) {
-      handleError(error, { context: 'Enhanced module tests execution' });
+      handleError(error, { context: 'Selected module tests execution' });
     } finally {
       setIsRunning(false);
     }
-  }, [createEnhancedTestSuites, runSingleTest, generateReport, handleError]);
+  }, [selectedSuites, createEnhancedTestSuites, runSingleTest, generateReport, handleError]);
+
+  // Exécuter tous les tests (pour compatibilité)
+  const runAllTests = useCallback(async () => {
+    selectAllSuites();
+    // Attendre que la sélection soit mise à jour
+    setTimeout(runSelectedTests, 100);
+  }, [selectAllSuites, runSelectedTests]);
+
+  // Obtenir le nombre de tests des suites sélectionnées
+  const getSelectedTestsCount = useCallback(() => {
+    const allSuites = createEnhancedTestSuites();
+    const selectedTestSuites = allSuites.filter(suite => selectedSuites.has(suite.id));
+    
+    return selectedTestSuites.reduce((acc, suite) => {
+      return acc + suite.tests.reduce((suiteAcc, test) => {
+        return suiteAcc + 1 + (test.subTests ? test.subTests.length : 0);
+      }, 0);
+    }, 0);
+  }, [selectedSuites, createEnhancedTestSuites]);
 
   // Réinitialiser les tests
   const resetTests = useCallback(() => {
@@ -715,12 +778,19 @@ export function useEnhancedModuleTests() {
 
   return {
     testSuites,
+    selectedSuites,
     isRunning,
     currentReport,
     reportHistory,
     runAllTests,
+    runSelectedTests,
     resetTests,
     getTestSummary,
-    runSingleTest
+    getSelectedTestsCount,
+    runSingleTest,
+    toggleSuite,
+    selectAllSuites,
+    deselectAllSuites,
+    selectSuitesByCategory
   };
 }

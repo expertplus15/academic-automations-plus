@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Play, 
   RotateCcw, 
@@ -24,7 +25,9 @@ import {
   Database,
   MousePointer,
   Link,
-  Activity
+  Activity,
+  CheckSquare,
+  Square
 } from 'lucide-react';
 import { useEnhancedModuleTests } from '@/hooks/useEnhancedModuleTests';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
@@ -37,12 +40,19 @@ export function EnhancedTestsPanel() {
   
   const { 
     testSuites, 
+    selectedSuites,
     isRunning, 
     currentReport,
     reportHistory,
-    runAllTests, 
+    runAllTests,
+    runSelectedTests, 
     resetTests, 
-    getTestSummary 
+    getTestSummary,
+    getSelectedTestsCount,
+    toggleSuite,
+    selectAllSuites,
+    deselectAllSuites,
+    selectSuitesByCategory
   } = useEnhancedModuleTests();
   
   const networkStatus = useNetworkStatus();
@@ -235,11 +245,93 @@ export function EnhancedTestsPanel() {
             </TabsList>
 
             <TabsContent value="tests" className="space-y-4">
+              {/* Sélection des suites */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-medium">Sélection des suites ({selectedSuites.size})</h4>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={selectAllSuites}
+                      className="h-7 px-2 text-xs"
+                    >
+                      <CheckSquare className="w-3 h-3 mr-1" />
+                      Tout
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={deselectAllSuites}
+                      className="h-7 px-2 text-xs"
+                    >
+                      <Square className="w-3 h-3 mr-1" />
+                      Aucun
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2">
+                  {testSuites.length === 0 && 
+                    ['critical-tests', 'ui-tests', 'module-tests', 'integration-tests', 'performance-tests'].map((suiteId) => {
+                      const suiteNames = {
+                        'critical-tests': 'Tests Critiques',
+                        'ui-tests': 'Tests UI',
+                        'module-tests': 'Tests Module',  
+                        'integration-tests': 'Tests Intégration',
+                        'performance-tests': 'Tests Performance'
+                      };
+                      const categories = {
+                        'critical-tests': 'critical',
+                        'ui-tests': 'ui',
+                        'module-tests': 'module',  
+                        'integration-tests': 'integration',
+                        'performance-tests': 'performance'
+                      };
+                      return (
+                        <div key={suiteId} className="flex items-center space-x-2 p-2 rounded border">
+                          <Checkbox
+                            id={suiteId}
+                            checked={selectedSuites.has(suiteId)}
+                            onCheckedChange={() => toggleSuite(suiteId)}
+                          />
+                          <label htmlFor={suiteId} className="text-xs flex items-center gap-1 cursor-pointer">
+                            {getCategoryIcon(categories[suiteId as keyof typeof categories])}
+                            {suiteNames[suiteId as keyof typeof suiteNames]}
+                          </label>
+                        </div>
+                      );
+                    })
+                  }
+                  {testSuites.map((suite) => (
+                    <div key={suite.id} className={`flex items-center space-x-2 p-2 rounded border ${selectedSuites.has(suite.id) ? 'bg-primary/5 border-primary/20' : ''}`}>
+                      <Checkbox
+                        id={suite.id}
+                        checked={selectedSuites.has(suite.id)}
+                        onCheckedChange={() => toggleSuite(suite.id)}
+                      />
+                      <label htmlFor={suite.id} className="text-xs flex items-center gap-1 cursor-pointer">
+                        {getCategoryIcon(suite.category)}
+                        {suite.name}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                
+                {selectedSuites.size > 0 && (
+                  <div className="text-xs text-muted-foreground">
+                    {getSelectedTestsCount()} tests sélectionnés
+                  </div>
+                )}
+              </div>
+
+              <Separator />
+
               {/* Boutons de contrôle */}
               <div className="flex gap-2">
                 <Button
-                  onClick={runAllTests}
-                  disabled={isRunning || !networkStatus.isOnline}
+                  onClick={runSelectedTests}
+                  disabled={isRunning || !networkStatus.isOnline || selectedSuites.size === 0}
                   size="sm"
                   className="flex-1"
                 >
@@ -248,7 +340,16 @@ export function EnhancedTestsPanel() {
                   ) : (
                     <Play className="w-4 h-4 mr-2" />
                   )}
-                  {isRunning ? 'Tests en cours...' : 'Lancer Tests Enrichis'}
+                  {isRunning ? 'Tests en cours...' : `Lancer Tests Sélectionnés (${selectedSuites.size})`}
+                </Button>
+                
+                <Button
+                  onClick={runAllTests}
+                  disabled={isRunning || !networkStatus.isOnline}
+                  variant="outline"
+                  size="sm"
+                >
+                  Tous
                 </Button>
                 
                 <Button
