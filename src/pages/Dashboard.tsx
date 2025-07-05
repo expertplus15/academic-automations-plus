@@ -5,7 +5,7 @@ import { WelcomeHeader } from '@/components/dashboard/WelcomeHeader';
 import { ModulesGrid } from '@/components/dashboard/ModulesGrid';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { RecentActivity } from '@/components/dashboard/RecentActivity';
-import { ModuleTestsPanel } from '@/components/debug/ModuleTestsPanel';
+import { EnhancedTestsPanel } from '@/components/debug/EnhancedTestsPanel';
 
 export default function Dashboard() {
   return (
@@ -30,7 +30,7 @@ export default function Dashboard() {
       </div>
       
       {/* Panneau de tests (développement/debug) */}
-      <ModuleTestsPanel />
+      <EnhancedTestsPanel />
     </MainDashboardLayout>
   );
 }
