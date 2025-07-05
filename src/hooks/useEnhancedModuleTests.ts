@@ -429,6 +429,7 @@ export function useEnhancedModuleTests() {
 
   // Exécuter un test individuel
   const runSingleTest = useCallback(async (test: ModuleTest, suiteId: string): Promise<boolean> => {
+    console.log(`🔍 [DEBUG] Executing test: ${test.name} (ID: ${test.id}, Suite: ${suiteId})`);
     const startTime = Date.now();
     
     // Marquer le test comme en cours
@@ -450,18 +451,22 @@ export function useEnhancedModuleTests() {
         success = subTestsResults.every(result => result);
       } else {
         // Exécuter le test principal
+        console.log(`🔍 [DEBUG] Test type: ${test.moduleType} for ${test.name}`);
         switch (test.moduleType) {
           case 'navigation':
             success = await runNavigationTest(test);
+            console.log(`🔍 [DEBUG] Navigation test result for ${test.name}: ${success}`);
             break;
           case 'database':
             success = await runDatabaseTest(test);
+            console.log(`🔍 [DEBUG] Database test result for ${test.name}: ${success}`);
             break;
           case 'functionality':
           case 'ui':
           case 'integration':
           case 'performance':
             success = await runFunctionalityTest(test);
+            console.log(`🔍 [DEBUG] Functionality test result for ${test.name}: ${success}`);
             break;
           default:
             success = true;
@@ -470,7 +475,7 @@ export function useEnhancedModuleTests() {
     } catch (err) {
       error = err instanceof Error ? err.message : 'Test failed';
       success = false;
-      console.error(`Test failed: ${test.name}`, err);
+      console.error(`❌ [DEBUG] Test failed: ${test.name}`, err);
     }
 
     const duration = Date.now() - startTime;
@@ -482,6 +487,7 @@ export function useEnhancedModuleTests() {
       duration
     });
 
+    console.log(`🔍 [DEBUG] Test ${test.name} completed: ${success ? '✅ PASSED' : '❌ FAILED'} (${duration}ms)`, error ? `Error: ${error}` : '');
     return success;
   }, [runNavigationTest, runDatabaseTest, runFunctionalityTest, updateTestInSuite]);
 
