@@ -15,10 +15,12 @@ import { useStudentCards } from '@/hooks/students/useStudentCards';
 import { CardGenerationDialog } from '@/components/students/cards/CardGenerationDialog';
 import { PrintBatchDialog } from '@/components/students/cards/PrintBatchDialog';
 import { CardsDataTable } from '@/components/students/cards/CardsDataTable';
+import { TemplateManagementDialog } from '@/components/students/cards/TemplateManagementDialog';
 
 export default function StudentCards() {
   const [showGenerationDialog, setShowGenerationDialog] = useState(false);
   const [showPrintDialog, setShowPrintDialog] = useState(false);
+  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   
   const { cards, templates, printBatches, loading, getCardStats } = useStudentCards();
   const stats = getCardStats();
@@ -120,7 +122,11 @@ export default function StudentCards() {
                 <Download className="w-4 h-4 mr-2" />
                 Export PDF
               </Button>
-              <Button className="w-full justify-start" variant="outline">
+              <Button 
+                className="w-full justify-start" 
+                variant="outline"
+                onClick={() => setShowTemplateDialog(true)}
+              >
                 <Settings className="w-4 h-4 mr-2" />
                 Gérer Templates
               </Button>
@@ -180,6 +186,11 @@ export default function StudentCards() {
           open={showPrintDialog}
           onOpenChange={setShowPrintDialog}
           cards={cards}
+        />
+
+        <TemplateManagementDialog
+          open={showTemplateDialog}
+          onOpenChange={setShowTemplateDialog}
         />
       </div>
     </StudentsModuleLayout>

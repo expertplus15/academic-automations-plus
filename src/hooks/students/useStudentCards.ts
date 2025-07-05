@@ -314,6 +314,85 @@ export function useStudentCards() {
     loadData();
   }, []);
 
+  const createTemplate = async (templateData: Partial<CardTemplate>) => {
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase
+        .from('student_card_templates')
+        .insert({
+          name: templateData.name,
+          description: templateData.description,
+          template_data: templateData.template_data,
+          is_default: templateData.is_default,
+          is_active: templateData.is_active
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Template créé",
+        description: `Template "${templateData.name}" créé avec succès`
+      });
+
+      await fetchTemplates();
+      return { success: true, template: data };
+
+    } catch (error) {
+      console.error('Error creating template:', error);
+      toast({
+        title: "Erreur",
+        description: "Erreur lors de la création du template",
+        variant: "destructive"
+      });
+      return { success: false, error };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateTemplate = async (templateId: string, templateData: Partial<CardTemplate>) => {
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase
+        .from('student_card_templates')
+        .update({
+          name: templateData.name,
+          description: templateData.description,
+          template_data: templateData.template_data,
+          is_default: templateData.is_default,
+          is_active: templateData.is_active
+        })
+        .eq('id', templateId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Template mis à jour",
+        description: `Template "${templateData.name}" mis à jour avec succès`
+      });
+
+      await fetchTemplates();
+      return { success: true, template: data };
+
+    } catch (error) {
+      console.error('Error updating template:', error);
+      toast({
+        title: "Erreur",
+        description: "Erreur lors de la mise à jour du template",
+        variant: "destructive"
+      });
+      return { success: false, error };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     cards,
     templates,
@@ -323,6 +402,8 @@ export function useStudentCards() {
     generateCard,
     generateCardsForApprovedStudents,
     createPrintBatch,
+    createTemplate,
+    updateTemplate,
     getCardStats,
     refetch: () => Promise.all([fetchCards(), fetchTemplates(), fetchPrintBatches()])
   };
