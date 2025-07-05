@@ -5,6 +5,7 @@ import { WelcomeHeader } from '@/components/dashboard/WelcomeHeader';
 import { ModulesGrid } from '@/components/dashboard/ModulesGrid';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { RecentActivity } from '@/components/dashboard/RecentActivity';
+import { ModuleTestsPanel } from '@/components/debug/ModuleTestsPanel';
 
 export default function Dashboard() {
   return (
@@ -27,6 +28,9 @@ export default function Dashboard() {
           <RecentActivity />
         </div>
       </div>
+      
+      {/* Panneau de tests (développement/debug) */}
+      <ModuleTestsPanel />
     </MainDashboardLayout>
   );
 }

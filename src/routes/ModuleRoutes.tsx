@@ -347,6 +347,14 @@ export function ModuleRoutes() {
 
       {/* Communication Module Routes */}
       <Route path="/communication" element={<Communication />} />
+      <Route path="/communication/messages" element={<Communication />} />
+      <Route path="/communication/calls" element={<Communication />} />
+      <Route path="/communication/notifications" element={<Communication />} />
+      <Route path="/communication/settings" element={<Communication />} />
+      <Route path="/communication/integrations" element={<Communication />} />
+      <Route path="/communication/internal/announcements" element={<Communication />} />
+      <Route path="/communication/internal/emails" element={<Communication />} />
+      <Route path="/communication/internal/directory" element={<Communication />} />
       <Route path="/communication/external/crm" element={<PartnershipsCrm />} />
       <Route path="/communication/external/internships" element={<PartnershipsInternships />} />
       <Route path="/communication/external/alumni" element={<PartnershipsAlumni />} />
@@ -355,6 +363,16 @@ export function ModuleRoutes() {
 
       {/* Documents Module Routes */}
       <Route path="/documents" element={<Documents />} />
+      <Route path="/documents/templates" element={<Documents />} />
+      <Route path="/documents/generator" element={<Documents />} />
+      <Route path="/documents/archives" element={<Documents />} />
+      <Route path="/documents/search" element={<Documents />} />
+      <Route path="/documents/signatures" element={<Documents />} />
+      <Route path="/documents/validation" element={<Documents />} />
+      <Route path="/documents/distribution" element={<Documents />} />
+      <Route path="/documents/notifications" element={<Documents />} />
+      <Route path="/documents/settings" element={<Documents />} />
+      <Route path="/documents/compliance" element={<Documents />} />
 
       {/* Services Health Routes */}
       <Route path="/services/health/records" element={<ServicesHealthRecords />} />
