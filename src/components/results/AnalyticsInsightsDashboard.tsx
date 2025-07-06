@@ -197,7 +197,7 @@ export function AnalyticsInsightsDashboard() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold">Analytics & Insights</h2>
-          <p className="text-muted-foreground">Tableau de bord unифié avec intelligence artificielle</p>
+          <p className="text-muted-foreground">Tableau de bord unifié avec intelligence artificielle</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm">
