@@ -29,6 +29,7 @@ import { useExamsData } from '@/hooks/useExamsData';
 import { useExamOptimization } from '@/hooks/useExamOptimization';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { ExamForm } from '@/components/exams/ExamForm';
 
 export default function Exams() {
   const navigate = useNavigate();
@@ -173,10 +174,7 @@ export default function Exams() {
                 <Bot className="w-4 h-4 mr-2" />
                 {optimizationLoading ? 'Optimisation...' : 'Planification IA'}
               </Button>
-              <Button variant="outline" onClick={() => navigate('/exams/planning')}>
-                <Calendar className="w-4 h-4 mr-2" />
-                Nouvel examen
-              </Button>
+              <ExamForm onSuccess={refreshStats} />
               <Button variant="outline" onClick={() => navigate('/exams/analytics')}>
                 <BarChart3 className="w-4 h-4 mr-2" />
                 Analytics
