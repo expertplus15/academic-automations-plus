@@ -50,7 +50,7 @@ export function ModulesGrid() {
       icon: BarChart3,
       color: "bg-[#8B5CF6]",
       notifications: 8,
-      onClick: () => navigate('/evaluations')
+      onClick: () => navigate('/results')
     },
     {
       title: "Finance & Comptabilité",
