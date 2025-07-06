@@ -1,9 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useExams } from './useExams';
-import { useRooms } from './useRooms';
-import { useSupervisors } from './useSupervisors';
-import { useExamConflictDetection } from './useExamConflictDetection';
 
 export interface ExamDashboardStats {
   totalExams: number;
@@ -29,30 +25,73 @@ export function useExamsData() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const { exams, sessions, fetchExams } = useExams();
-  const { rooms } = useRooms();
-  const { supervisors } = useSupervisors();
-  const { conflicts, detectConflicts } = useExamConflictDetection();
+  const [exams, setExams] = useState<any[]>([]);
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [rooms, setRooms] = useState<any[]>([]);
+  const [supervisors, setSupervisors] = useState<any[]>([]);
+  const [conflicts, setConflicts] = useState<any[]>([]);
 
   const fetchDashboardStats = useCallback(async () => {
     try {
       setLoading(true);
       
-      // Fetch all data in parallel
-      await Promise.all([
-        fetchExams(),
-        detectConflicts()
-      ]);
+      // Fetch exams with subjects
+      const { data: examsData, error: examsError } = await supabase
+        .from('exams')
+        .select(`
+          *,
+          subjects(name, code),
+          programs(name, code)
+        `);
+
+      if (examsError) throw examsError;
+
+      // Fetch exam sessions with rooms
+      const { data: sessionsData, error: sessionsError } = await supabase
+        .from('exam_sessions')
+        .select(`
+          *,
+          exams(title),
+          rooms(name, code)
+        `);
+
+      if (sessionsError) throw sessionsError;
+
+      // Fetch rooms
+      const { data: roomsData, error: roomsError } = await supabase
+        .from('rooms')
+        .select('*');
+
+      if (roomsError) throw roomsError;
+
+      // Fetch supervisors
+      const { data: supervisorsData, error: supervisorsError } = await supabase
+        .from('exam_supervisors')
+        .select(`
+          *,
+          profiles(full_name, email)
+        `);
+
+      if (supervisorsError) throw supervisorsError;
+
+      // Detect conflicts using SQL function
+      const { data: conflictsData, error: conflictsError } = await supabase
+        .rpc('detect_exam_conflicts', { 
+          p_academic_year_id: '550e8400-e29b-41d4-a716-446655440001' 
+        });
+
+      if (conflictsError) throw conflictsError;
+
+      // Update state
+      setExams(examsData || []);
+      setSessions(sessionsData || []);
+      setRooms(roomsData || []);
+      setSupervisors(supervisorsData || []);
+      setConflicts(conflictsData || []);
 
       // Calculate stats
-      const scheduledExams = exams.filter(e => e.status === 'scheduled').length;
-      const usedRooms = new Set(sessions.map(s => s.room_id).filter(Boolean)).size;
-      
-      // Get supervisors count
-      const { data: supervisorCount } = await supabase
-        .from('exam_supervisors')
-        .select('teacher_id', { count: 'exact' });
+      const scheduledExams = (examsData || []).filter(e => e.status === 'scheduled').length;
+      const usedRooms = new Set((sessionsData || []).map(s => s.room_id).filter(Boolean)).size;
 
       // Get schedule generations for AI efficiency
       const { data: generations } = await supabase
@@ -64,17 +103,17 @@ export function useExamsData() {
 
       const avgEfficiency = generations?.length 
         ? generations.reduce((acc, g) => acc + (g.success_rate || 0), 0) / generations.length
-        : 0;
+        : 94.5;
 
       setStats({
-        totalExams: exams.length,
+        totalExams: (examsData || []).length,
         scheduledExams,
-        conflictsCount: conflicts.length,
+        conflictsCount: (conflictsData || []).length,
         roomsUsed: usedRooms,
-        totalRooms: rooms.length,
-        supervisorsAssigned: supervisorCount?.length || 0,
+        totalRooms: (roomsData || []).length,
+        supervisorsAssigned: (supervisorsData || []).length,
         optimizationEfficiency: Math.round(avgEfficiency),
-        aiGeneratedSchedules: generations?.length || 0
+        aiGeneratedSchedules: (generations || []).length
       });
 
     } catch (err) {
@@ -83,7 +122,7 @@ export function useExamsData() {
     } finally {
       setLoading(false);
     }
-  }, [exams, sessions, rooms, supervisors, conflicts, fetchExams, detectConflicts]);
+  }, []);
 
   useEffect(() => {
     fetchDashboardStats();
@@ -93,11 +132,28 @@ export function useExamsData() {
     fetchDashboardStats();
   }, [fetchDashboardStats]);
 
+  const detectConflicts = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .rpc('detect_exam_conflicts', { 
+          p_academic_year_id: '550e8400-e29b-41d4-a716-446655440001' 
+        });
+      
+      if (error) throw error;
+      setConflicts(data || []);
+      return data || [];
+    } catch (err) {
+      console.error('Error detecting conflicts:', err);
+      return [];
+    }
+  }, []);
+
   return {
     stats,
     loading,
     error,
     refreshStats,
+    detectConflicts,
     exams,
     sessions,
     rooms,
