@@ -257,7 +257,7 @@ export function ResultsDashboard() {
     {
       label: 'Analytics',
       icon: TrendingUp,
-      onClick: () => navigate('/results/analytics'),
+      onClick: () => navigate('/results/analytics-insights'),
       variant: 'outline' as const
     }
   ];

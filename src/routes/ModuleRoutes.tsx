@@ -103,8 +103,7 @@ import ResultsProcessing from '@/pages/results/Processing';
 import ResultsReports from '@/pages/results/Reports';
 import ResultsTranscripts from '@/pages/results/Transcripts';
 import ResultsTemplates from '@/pages/results/Templates';
-import ResultsAnalytics from '@/pages/results/Analytics';
-import ResultsInsights from '@/pages/results/Insights';
+import ResultsAnalyticsInsights from '@/pages/results/AnalyticsInsights';
 import ResultsHistory from '@/pages/results/History';
 import Services from '@/pages/Services';
 
@@ -312,8 +311,7 @@ export function ModuleRoutes() {
       <Route path="/results/reports" element={<ResultsReports />} />
       <Route path="/results/transcripts" element={<ResultsTranscripts />} />
       <Route path="/results/templates" element={<ResultsTemplates />} />
-      <Route path="/results/analytics" element={<ResultsAnalytics />} />
-      <Route path="/results/insights" element={<ResultsInsights />} />
+      <Route path="/results/analytics-insights" element={<ResultsAnalyticsInsights />} />
       <Route path="/results/history" element={<ResultsHistory />} />
       <Route path="/services" element={<Services />} />
 

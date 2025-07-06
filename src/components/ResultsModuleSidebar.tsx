@@ -40,8 +40,7 @@ const resultsItems = [
   { title: "Bulletins personnalisables", url: "/results/reports", icon: FileOutput },
   { title: "Relevés standards", url: "/results/transcripts", icon: Award },
   { title: "Templates & Modèles", url: "/results/templates", icon: Layout },
-  { title: "Analytics performance", url: "/results/analytics", icon: TrendingUp },
-  { title: "Insights pédagogiques", url: "/results/insights", icon: Brain },
+  { title: "Analytics & Insights", url: "/results/analytics-insights", icon: Brain },
   { title: "Historique & Audit", url: "/results/history", icon: Clock }
 ];
 
