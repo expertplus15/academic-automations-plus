@@ -94,6 +94,7 @@ import ExamsMonitoring from '@/pages/exams/Monitoring';
 
 // New ACADEMIC+ modules
 import Results from '@/pages/Results';
+import Evaluations from '@/pages/Evaluations';
 import ResultsMatrix from '@/pages/results/Matrix';
 import ResultsImport from '@/pages/results/Import';
 import ResultsValidation from '@/pages/results/Validation';
@@ -314,6 +315,19 @@ export function ModuleRoutes() {
       <Route path="/results/insights" element={<ResultsInsights />} />
       <Route path="/results/history" element={<ResultsHistory />} />
       <Route path="/services" element={<Services />} />
+
+      {/* Evaluations Module Routes */}
+      <Route path="/evaluations" element={<Evaluations />} />
+      <Route path="/evaluations/matrix" element={<ResultsMatrix />} />
+      <Route path="/evaluations/types" element={<ResultsMatrix />} />
+      <Route path="/evaluations/calculations" element={<ResultsCalculations />} />
+      <Route path="/evaluations/analytics" element={<ResultsAnalytics />} />
+      <Route path="/evaluations/import" element={<ResultsImport />} />
+      <Route path="/evaluations/export" element={<ResultsReports />} />
+      <Route path="/evaluations/validation" element={<ResultsValidation />} />
+      <Route path="/evaluations/reports" element={<ResultsReports />} />
+      <Route path="/evaluations/transcripts" element={<ResultsTranscripts />} />
+      <Route path="/evaluations/history" element={<ResultsHistory />} />
 
       {/* HR Module Routes */}
       <Route path="/hr" element={<Hr />} />
