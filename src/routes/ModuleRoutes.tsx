@@ -80,6 +80,7 @@ import AcademicCalendar from '@/pages/academic/Calendar';
 
 // Exams module pages
 import Exams from '@/pages/Exams';
+import ExamCreation from '@/pages/exams/creation';
 import ExamsAnalytics from '@/pages/exams/Analytics';
 import ExamsOptimization from '@/pages/exams/Optimization';
 import ExamsCalendar from '@/pages/exams/Calendar';
@@ -276,6 +277,7 @@ export function ModuleRoutes() {
 
       {/* Exams Module Routes - All using ExamsModuleLayout */}
       <Route path="/exams" element={<Exams />} />
+      <Route path="/exams/creation" element={<ExamCreation />} />
       <Route path="/exams/planning" element={<ExamsPlanning />} />
       <Route path="/exams/analytics" element={<ExamsAnalytics />} />
       <Route path="/exams/optimization" element={<ExamsOptimization />} />

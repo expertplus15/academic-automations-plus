@@ -29,7 +29,7 @@ import { useExamsData } from '@/hooks/useExamsData';
 import { useExamOptimization } from '@/hooks/useExamOptimization';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { ExamForm } from '@/components/exams/ExamForm';
+
 
 export default function Exams() {
   const navigate = useNavigate();
@@ -167,6 +167,13 @@ export default function Exams() {
             </div>
             <div className="flex gap-3">
               <Button 
+                className="bg-green-600 hover:bg-green-700"
+                onClick={() => navigate('/exams/creation')}
+              >
+                <Calendar className="w-4 h-4 mr-2" />
+                Nouvel examen
+              </Button>
+              <Button 
                 className="bg-violet-600 hover:bg-violet-700"
                 onClick={handleOptimization}
                 disabled={optimizationLoading}
@@ -174,7 +181,6 @@ export default function Exams() {
                 <Bot className="w-4 h-4 mr-2" />
                 {optimizationLoading ? 'Optimisation...' : 'Planification IA'}
               </Button>
-              <ExamForm onSuccess={refreshStats} />
               <Button variant="outline" onClick={() => navigate('/exams/analytics')}>
                 <BarChart3 className="w-4 h-4 mr-2" />
                 Analytics
@@ -367,13 +373,13 @@ export default function Exams() {
               <CardContent className="space-y-3">
                 <button 
                   className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
-                  onClick={() => navigate('/exams/planning')}
+                  onClick={() => navigate('/exams/creation')}
                 >
                   <div className="flex items-center gap-3">
                     <Calendar className="w-5 h-5 text-violet-500" />
                     <div>
-                      <p className="font-medium">Planifier un examen</p>
-                      <p className="text-xs text-muted-foreground">IA optimisée</p>
+                      <p className="font-medium">Créer un examen</p>
+                      <p className="text-xs text-muted-foreground">Assistant intelligent</p>
                     </div>
                   </div>
                 </button>
