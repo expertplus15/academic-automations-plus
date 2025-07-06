@@ -19,8 +19,14 @@ import {
   ArrowDownRight,
   Minus
 } from 'lucide-react';
+import { CrossModuleNavigation } from '@/components/students/registration/CrossModuleNavigation';
+import { QuickInsightsCard } from '@/components/students/registration/QuickInsightsCard';
+import { ContextualBreadcrumbs } from '@/components/students/registration/ContextualBreadcrumbs';
+import { useRegistrationInsights } from '@/hooks/students/useRegistrationInsights';
 
 export default function RegistrationAnalytics() {
+  const { insights, loading } = useRegistrationInsights();
+  
   const kpiData = [
     {
       title: "Taux de conversion",
@@ -96,12 +102,48 @@ export default function RegistrationAnalytics() {
     }
   };
 
+  const dashboardInsights = [
+    {
+      title: "Inscriptions en cours",
+      value: `${insights.currentRegistrations}`,
+      change: "+15",
+      trend: "up" as const,
+      description: "Inscriptions actuellement en traitement",
+      actionText: "Voir détails",
+      targetPath: "/students/registration/dashboard"
+    },
+    {
+      title: "Actions en attente",
+      value: `${insights.pendingValidations}`,
+      change: "+8",
+      trend: "up" as const,
+      description: "Validations nécessitant une intervention",
+      actionText: "Traiter",
+      targetPath: "/students/registration/dashboard"
+    }
+  ];
+
   return (
     <StudentsModuleLayout 
       title="Analytics - Inscriptions"
       subtitle="Analyses approfondies et métriques de performance"
     >
       <div className="p-8 space-y-8">
+        {/* Breadcrumbs contextuels */}
+        <ContextualBreadcrumbs 
+          currentPage="analytics"
+          activeFilters={{ dateRange: "30 derniers jours", status: "Toutes" }}
+        />
+
+        {/* Navigation vers Dashboard */}
+        <CrossModuleNavigation 
+          currentModule="analytics"
+          insights={{
+            pendingActions: insights.pendingValidations,
+            recentActivity: insights.recentActivity.length
+          }}
+        />
+
         {/* Actions header */}
         <div className="flex justify-between items-center">
           <div className="flex gap-3">
@@ -124,28 +166,39 @@ export default function RegistrationAnalytics() {
           </Badge>
         </div>
 
-        {/* KPIs principaux */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {kpiData.map((kpi, index) => (
-            <Card key={index} className="bg-white rounded-2xl shadow-sm border-0 hover:shadow-md transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-sm text-muted-foreground">{kpi.title}</h3>
-                  {getTrendIcon(kpi.trend)}
-                </div>
-                <div className="space-y-2">
-                  <p className="text-3xl font-bold text-foreground">{kpi.value}</p>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-sm font-medium ${getTrendColor(kpi.trend)}`}>
-                      {kpi.change}
-                    </span>
-                    <span className="text-xs text-muted-foreground">vs période précédente</span>
+        {/* KPIs principaux avec Quick Dashboard */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          {/* KPIs Analytics */}
+          <div className="lg:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {kpiData.map((kpi, index) => (
+              <Card key={index} className="bg-white rounded-2xl shadow-sm border-0 hover:shadow-md transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-sm text-muted-foreground">{kpi.title}</h3>
+                    {getTrendIcon(kpi.trend)}
                   </div>
-                  <p className="text-xs text-muted-foreground">{kpi.description}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  <div className="space-y-2">
+                    <p className="text-3xl font-bold text-foreground">{kpi.value}</p>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-sm font-medium ${getTrendColor(kpi.trend)}`}>
+                        {kpi.change}
+                      </span>
+                      <span className="text-xs text-muted-foreground">vs période précédente</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">{kpi.description}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          
+          {/* Quick Dashboard Insights */}
+          <div className="lg:col-span-1">
+            <QuickInsightsCard 
+              sourceModule="analytics"
+              data={dashboardInsights}
+            />
+          </div>
         </div>
 
         {/* Onglets d'analyses */}

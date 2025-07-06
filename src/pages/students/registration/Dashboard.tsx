@@ -24,8 +24,14 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { CrossModuleNavigation } from '@/components/students/registration/CrossModuleNavigation';
+import { QuickInsightsCard } from '@/components/students/registration/QuickInsightsCard';
+import { ContextualBreadcrumbs } from '@/components/students/registration/ContextualBreadcrumbs';
+import { useRegistrationInsights } from '@/hooks/students/useRegistrationInsights';
 
 export default function RegistrationDashboard() {
+  const { insights, loading } = useRegistrationInsights();
+  
   const registrationStats = [
     {
       label: "Inscriptions en cours",
@@ -177,12 +183,47 @@ export default function RegistrationDashboard() {
     );
   };
 
+  const analyticsInsights = [
+    {
+      title: "Taux de conversion",
+      value: `${insights.conversionRate}%`,
+      change: "+2.4%",
+      trend: "up" as const,
+      description: "Candidatures vers inscriptions validées",
+      actionText: "Voir tendances",
+      targetPath: "/students/registration/analytics"
+    },
+    {
+      title: "Temps moyen traitement",
+      value: `${insights.averageProcessingTime}j`,
+      change: "-0.8j",
+      trend: "up" as const,
+      description: "Délai de validation des dossiers",
+      actionText: "Analyser",
+      targetPath: "/students/registration/analytics"
+    }
+  ];
+
   return (
     <StudentsModuleLayout 
       title="Tableau de Bord - Inscriptions"
       subtitle="Vue d'ensemble des inscriptions et validations en temps réel"
     >
       <div className="p-8 space-y-8">
+        {/* Breadcrumbs contextuels */}
+        <ContextualBreadcrumbs 
+          currentPage="dashboard"
+          activeFilters={{ dateRange: "7 derniers jours" }}
+        />
+
+        {/* Navigation vers Analytics */}
+        <CrossModuleNavigation 
+          currentModule="dashboard"
+          insights={{
+            conversionRate: insights.conversionRate,
+            recentActivity: insights.recentActivity.length
+          }}
+        />
         {/* Actions rapides */}
         <div className="flex flex-wrap gap-4 justify-between items-center">
           <div className="flex gap-3">
@@ -235,8 +276,10 @@ export default function RegistrationDashboard() {
           ))}
         </div>
 
-        {/* Stats Cards avec tendances */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Stats Cards avec Quick Analytics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          {/* Stats principaux */}
+          <div className="lg:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {registrationStats.map((stat, index) => (
             <Card key={index} className="bg-white rounded-2xl shadow-sm border-0 hover:shadow-lg transition-all duration-300 group">
               <CardContent className="p-6">
@@ -270,6 +313,15 @@ export default function RegistrationDashboard() {
               </CardContent>
             </Card>
           ))}
+          </div>
+          
+          {/* Quick Analytics Insights */}
+          <div className="lg:col-span-1">
+            <QuickInsightsCard 
+              sourceModule="dashboard"
+              data={analyticsInsights}
+            />
+          </div>
         </div>
 
         {/* Objectifs et Progress */}
