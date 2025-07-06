@@ -319,7 +319,7 @@ export function ModuleRoutes() {
       {/* Evaluations Module Routes */}
       <Route path="/evaluations" element={<Evaluations />} />
       <Route path="/evaluations/matrix" element={<ResultsMatrix />} />
-      <Route path="/evaluations/types" element={<ResultsMatrix />} />
+      <Route path="/evaluations/types" element={<ResultsValidation />} />
       <Route path="/evaluations/calculations" element={<ResultsCalculations />} />
       <Route path="/evaluations/analytics" element={<ResultsAnalytics />} />
       <Route path="/evaluations/import" element={<ResultsImport />} />
