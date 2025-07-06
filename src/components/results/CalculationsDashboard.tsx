@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Calculator, 
   Zap, 
@@ -19,6 +23,7 @@ import {
 } from 'lucide-react';
 
 export function CalculationsDashboard() {
+  const { toast } = useToast();
   const [calculationJobs, setCalculationJobs] = useState([
     {
       id: 1,
@@ -56,36 +61,126 @@ export function CalculationsDashboard() {
     totalCalculations: 48670
   };
 
-  const calculationRules = [
+  const [calculationRules, setCalculationRules] = useState([
     {
       id: 1,
       name: 'Moyenne Arithmétique Simple',
       description: 'Calcul standard pour les évaluations égales',
       isActive: true,
-      usage: 850
+      usage: 850,
+      priority: 1,
+      performance: { accuracy: 99.9, speed: '0.12s' }
     },
     {
       id: 2,
       name: 'Moyenne Pondérée ECTS',
       description: 'Pondération par crédits européens',
       isActive: true,
-      usage: 450
+      usage: 450,
+      priority: 2,
+      performance: { accuracy: 99.8, speed: '0.18s' }
     },
     {
       id: 3,
       name: 'Compensation Inter-Semestre',
       description: 'Règles de compensation académique',
       isActive: true,
-      usage: 230
+      usage: 230,
+      priority: 3,
+      performance: { accuracy: 99.5, speed: '0.25s' }
     },
     {
       id: 4,
       name: 'Bonus Assiduité',
       description: 'Points supplémentaires pour présence',
       isActive: false,
-      usage: 45
+      usage: 45,
+      priority: 4,
+      performance: { accuracy: 98.9, speed: '0.15s' }
+    },
+    {
+      id: 5,
+      name: 'IA - Prédiction Adaptative',
+      description: 'Ajustement intelligent basé sur les tendances',
+      isActive: true,
+      usage: 120,
+      priority: 5,
+      performance: { accuracy: 94.2, speed: '2.3s' }
     }
-  ];
+  ]);
+
+  const [highPerformanceMode, setHighPerformanceMode] = useState(false);
+  const [realTimeSync, setRealTimeSync] = useState(true);
+  const [autoOptimization, setAutoOptimization] = useState(false);
+
+  // Simulation de calculs en temps réel
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCalculationJobs(prev => prev.map(job => {
+        if (job.status === 'running' && job.progress < 100) {
+          const newProgress = Math.min(job.progress + Math.random() * 10, 100);
+          return {
+            ...job,
+            progress: newProgress,
+            status: newProgress >= 100 ? 'completed' : 'running'
+          };
+        }
+        return job;
+      }));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const startCalculation = useCallback((type: string) => {
+    const newJob = {
+      id: Date.now(),
+      name: `Calcul ${type}`,
+      type,
+      status: 'running' as const,
+      progress: 0,
+      students: Math.floor(Math.random() * 300) + 50,
+      estimatedTime: `${Math.floor(Math.random() * 3) + 1} min`
+    };
+
+    setCalculationJobs(prev => [newJob, ...prev]);
+    
+    toast({
+      title: "Calcul démarré",
+      description: `Traitement ${type} en cours...`,
+    });
+  }, [toast]);
+
+  const toggleRule = useCallback((ruleId: number) => {
+    setCalculationRules(prev => prev.map(rule => 
+      rule.id === ruleId ? { ...rule, isActive: !rule.isActive } : rule
+    ));
+    
+    toast({
+      title: "Règle mise à jour",
+      description: "La configuration a été sauvegardée",
+    });
+  }, [toast]);
+
+  const optimizePerformance = useCallback(() => {
+    setHighPerformanceMode(true);
+    
+    // Simuler l'optimisation
+    setTimeout(() => {
+      toast({
+        title: "Optimisation terminée",
+        description: "Performance améliorée de 23%",
+      });
+      
+      // Mettre à jour les stats
+      setCalculationJobs(prev => prev.map(job => ({
+        ...job,
+        estimatedTime: job.status === 'queued' ? 
+          `${Math.max(1, parseInt(job.estimatedTime) - 1)} min` : 
+          job.estimatedTime
+      })));
+    }, 2000);
+  }, [toast]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -188,18 +283,63 @@ export function CalculationsDashboard() {
 
         <TabsContent value="running" className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Moteur de calcul</h3>
+            <h3 className="text-lg font-semibold">Moteur de calcul haute performance</h3>
             <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => startCalculation('Moyennes')}>
+                <Calculator className="w-4 h-4 mr-2" />
+                Calcul rapide
+              </Button>
               <Button variant="outline" size="sm">
                 <Pause className="w-4 h-4 mr-2" />
                 Pause tous
               </Button>
-              <Button size="sm">
+              <Button size="sm" onClick={() => startCalculation('Complet')}>
                 <Play className="w-4 h-4 mr-2" />
                 Nouveau calcul
               </Button>
             </div>
           </div>
+
+          {/* Options de performance */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="high-performance"
+                    checked={highPerformanceMode}
+                    onCheckedChange={setHighPerformanceMode}
+                  />
+                  <Label htmlFor="high-performance">Mode haute performance</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="real-time-sync"
+                    checked={realTimeSync}
+                    onCheckedChange={setRealTimeSync}
+                  />
+                  <Label htmlFor="real-time-sync">Synchronisation temps réel</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="auto-optimization"
+                    checked={autoOptimization}
+                    onCheckedChange={setAutoOptimization}
+                  />
+                  <Label htmlFor="auto-optimization">Optimisation automatique</Label>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {highPerformanceMode && (
+            <Alert>
+              <Zap className="h-4 w-4" />
+              <AlertDescription>
+                Mode haute performance activé - Les calculs sont 3x plus rapides avec optimisation GPU.
+              </AlertDescription>
+            </Alert>
+          )}
           
           <div className="space-y-4">
             {calculationJobs.map(job => (
@@ -258,15 +398,33 @@ export function CalculationsDashboard() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className={`w-3 h-3 rounded-full ${rule.isActive ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                      <div>
-                        <p className="font-medium">{rule.name}</p>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">{rule.name}</p>
+                          <Badge variant="outline" className="text-xs">
+                            Priorité {rule.priority}
+                          </Badge>
+                          {rule.name.includes('IA') && (
+                            <Badge variant="secondary" className="text-xs">
+                              <Brain className="w-3 h-3 mr-1" />
+                              IA
+                            </Badge>
+                          )}
+                        </div>
                         <p className="text-sm text-muted-foreground">{rule.description}</p>
+                        <div className="flex gap-4 mt-2 text-xs">
+                          <span className="text-green-600">Précision: {rule.performance.accuracy}%</span>
+                          <span className="text-blue-600">Vitesse: {rule.performance.speed}</span>
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right">
                         <p className="text-sm font-medium">{rule.usage} utilisations</p>
                         <p className="text-xs text-muted-foreground">Cette année</p>
+                        <div className="text-xs text-green-600 mt-1">
+                          +{Math.floor(rule.usage * 0.12)} ce mois
+                        </div>
                       </div>
                       <div className="flex gap-1">
                         <Button variant="ghost" size="sm">
@@ -275,6 +433,7 @@ export function CalculationsDashboard() {
                         <Button 
                           variant={rule.isActive ? "outline" : "default"} 
                           size="sm"
+                          onClick={() => toggleRule(rule.id)}
                         >
                           {rule.isActive ? "Désactiver" : "Activer"}
                         </Button>
@@ -391,9 +550,33 @@ export function CalculationsDashboard() {
                   <label className="text-sm font-medium">Mode haute performance</label>
                   <p className="text-sm text-muted-foreground">Désactivé</p>
                 </div>
-                <Button variant="outline">
+                <Button variant="outline" onClick={optimizePerformance}>
                   <Settings className="w-4 h-4 mr-2" />
-                  Optimiser
+                  Optimiser maintenant
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Monitoring & Alertes</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium">Seuil d'alerte performance</label>
+                  <p className="text-sm text-muted-foreground">Alerte si calcul {'>'}5s</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Sauvegarde automatique</label>
+                  <p className="text-sm text-muted-foreground">Toutes les 30 secondes</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Cache intelligent</label>
+                  <p className="text-sm text-muted-foreground">Résultats fréquents en mémoire</p>
+                </div>
+                <Button variant="outline">
+                  <Target className="w-4 h-4 mr-2" />
+                  Configurer alertes
                 </Button>
               </CardContent>
             </Card>

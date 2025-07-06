@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 import { 
   FileOutput, 
   Zap, 
@@ -21,6 +25,7 @@ import {
 } from 'lucide-react';
 
 export function ReportsDashboard() {
+  const { toast } = useToast();
   const [generationQueue, setGenerationQueue] = useState([
     {
       id: 1,
@@ -78,12 +83,76 @@ export function ReportsDashboard() {
     }
   ];
 
-  const generationStats = {
+  const [generationStats, setGenerationStats] = useState({
     documentsGenerated: 15670,
     averageGenerationTime: '2.3s',
     successRate: 99.8,
-    totalPrintRequests: 8450
-  };
+    totalPrintRequests: 8450,
+    queueLength: 3,
+    activeGenerators: 4,
+    throughputPerHour: 1250
+  });
+
+  const [ultraFastMode, setUltraFastMode] = useState(false);
+  const [batchMode, setBatchMode] = useState(true);
+  const [parallelGeneration, setParallelGeneration] = useState(true);
+
+  // Simulation de génération en temps réel
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setGenerationQueue(prev => prev.map(job => {
+        if (job.status === 'generating' && job.progress < 100) {
+          const increment = ultraFastMode ? Math.random() * 25 : Math.random() * 10;
+          const newProgress = Math.min(job.progress + increment, 100);
+          return {
+            ...job,
+            progress: newProgress,
+            status: newProgress >= 100 ? 'completed' : 'generating',
+            estimatedTime: newProgress >= 100 ? 'Terminé' : `${Math.max(5, 60 - job.progress)}s`
+          };
+        }
+        return job;
+      }));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [ultraFastMode]);
+
+  const startGeneration = useCallback((type: string, program?: string) => {
+    const newJob = {
+      id: Date.now(),
+      type,
+      program: program || 'Programme sélectionné',
+      students: Math.floor(Math.random() * 200) + 50,
+      status: 'generating' as const,
+      progress: 0,
+      estimatedTime: ultraFastMode ? '10s' : '30s'
+    };
+
+    setGenerationQueue(prev => [newJob, ...prev]);
+    
+    toast({
+      title: "Génération démarrée",
+      description: `Génération ${type} en mode ${ultraFastMode ? 'ultra-rapide' : 'standard'}`,
+    });
+  }, [ultraFastMode, toast]);
+
+  const enableUltraFast = useCallback(() => {
+    setUltraFastMode(true);
+    
+    // Améliorer les stats
+    setGenerationStats(prev => ({
+      ...prev,
+      averageGenerationTime: '0.8s',
+      throughputPerHour: prev.throughputPerHour * 3,
+      activeGenerators: 8
+    }));
+    
+    toast({
+      title: "Mode Ultra-Rapide activé",
+      description: "Génération 5x plus rapide avec optimisation GPU",
+    });
+  }, [toast]);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -115,7 +184,7 @@ export function ReportsDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Statistiques de génération */}
+      {/* Statistiques de génération avancées */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-6">
@@ -174,6 +243,51 @@ export function ReportsDashboard() {
         </Card>
       </div>
 
+      {/* Statistiques supplémentaires */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-cyan-500/10 rounded-lg flex items-center justify-center">
+                <Clock className="w-6 h-6 text-cyan-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{generationStats.queueLength}</p>
+                <p className="text-sm text-muted-foreground">File d'attente</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-orange-500/10 rounded-lg flex items-center justify-center">
+                <Zap className="w-6 h-6 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{generationStats.activeGenerators}</p>
+                <p className="text-sm text-muted-foreground">Générateurs actifs</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-pink-500/10 rounded-lg flex items-center justify-center">
+                <FileOutput className="w-6 h-6 text-pink-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{generationStats.throughputPerHour.toLocaleString()}</p>
+                <p className="text-sm text-muted-foreground">Documents/heure</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <Tabs defaultValue="generate" className="space-y-4">
         <TabsList>
           <TabsTrigger value="generate">Génération rapide</TabsTrigger>
@@ -183,6 +297,55 @@ export function ReportsDashboard() {
         </TabsList>
 
         <TabsContent value="generate" className="space-y-4">
+          {/* Mode Ultra-Rapide */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold">Mode Génération Ultra-Rapide</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Génération 5x plus rapide avec traitement parallèle et optimisation GPU
+                  </p>
+                </div>
+                <div className="flex gap-4">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="ultra-fast"
+                      checked={ultraFastMode}
+                      onCheckedChange={setUltraFastMode}
+                    />
+                    <Label htmlFor="ultra-fast">Ultra-rapide</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="batch-mode"
+                      checked={batchMode}
+                      onCheckedChange={setBatchMode}
+                    />
+                    <Label htmlFor="batch-mode">Mode batch</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="parallel"
+                      checked={parallelGeneration}
+                      onCheckedChange={setParallelGeneration}
+                    />
+                    <Label htmlFor="parallel">Parallèle</Label>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {ultraFastMode && (
+            <Alert>
+              <Zap className="h-4 w-4" />
+              <AlertDescription>
+                Mode Ultra-Rapide activé ! Génération jusqu'à 5x plus rapide avec {generationStats.activeGenerators} générateurs parallèles.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card>
               <CardHeader>
@@ -196,7 +359,10 @@ export function ReportsDashboard() {
                   Génération ultra-rapide de bulletins en moins de 5 secondes
                 </p>
                 <div className="space-y-3">
-                  <Button className="w-full">
+                  <Button 
+                    className="w-full" 
+                    onClick={() => startGeneration('bulletin')}
+                  >
                     <Zap className="w-4 h-4 mr-2" />
                     Générer maintenant
                   </Button>
@@ -219,7 +385,11 @@ export function ReportsDashboard() {
                   Documents officiels avec signatures et cachets automatiques
                 </p>
                 <div className="space-y-3">
-                  <Button variant="outline" className="w-full">
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => startGeneration('transcript')}
+                  >
                     <Settings className="w-4 h-4 mr-2" />
                     Configurer et générer
                   </Button>
@@ -242,7 +412,11 @@ export function ReportsDashboard() {
                   Traitement par lots pour plusieurs programmes simultanément
                 </p>
                 <div className="space-y-3">
-                  <Button variant="outline" className="w-full">
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => startGeneration('batch', 'Tous programmes')}
+                  >
                     <Users className="w-4 h-4 mr-2" />
                     Génération groupée
                   </Button>
