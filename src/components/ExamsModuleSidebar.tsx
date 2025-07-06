@@ -26,10 +26,12 @@ import {
   MessageCircle,
   BarChart3,
   User,
-  LayoutDashboard
+  LayoutDashboard,
+  PenTool
 } from "lucide-react";
 
 const examsItems = [
+  { title: "Création d'examen", url: "/exams/creation", icon: PenTool },
   { title: "Planification examens", url: "/exams/planning", icon: Calendar },
   { title: "Optimisation automatique", url: "/exams/optimization", icon: BarChart3 },
   { title: "Gestion salles", url: "/exams/rooms", icon: Building },
