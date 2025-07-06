@@ -35,7 +35,11 @@ interface CollaborativeUser {
   currentCell?: string;
 }
 
-export function MatriceInterface() {
+interface MatriceInterfaceProps {
+  isNewSession?: boolean;
+}
+
+export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps) {
   const [selectedProgram, setSelectedProgram] = useState<string>('');
   const [selectedSubject, setSelectedSubject] = useState<string>('');
   const [selectedSemester, setSemester] = useState<number>(1);
@@ -58,6 +62,20 @@ export function MatriceInterface() {
   const { academicYears } = useAcademicYears();
 
   const currentAcademicYear = academicYears.find(year => year.is_current);
+
+  // Effet pour nouvelle session
+  useEffect(() => {
+    if (isNewSession) {
+      toast({
+        title: "Nouvelle session collaborative",
+        description: "Session matricielle démarrée avec succès",
+      });
+      // Reset des données pour nouvelle session
+      setMatrixData([]);
+      setPendingChanges(new Map());
+      setSelectedCell(null);
+    }
+  }, [isNewSession, toast]);
 
   // Collaboration temps réel
   useEffect(() => {
@@ -338,6 +356,11 @@ export function MatriceInterface() {
             <CardTitle className="flex items-center gap-2">
               <Edit3 className="w-5 h-5" />
               Interface Matricielle Collaborative
+              {isNewSession && (
+                <Badge variant="default" className="bg-green-500 text-white">
+                  Nouvelle Session
+                </Badge>
+              )}
               <Badge variant="secondary" className="flex items-center gap-1">
                 <Users className="w-3 h-3" />
                 {connectedUsers.length} connecté{connectedUsers.length > 1 ? 's' : ''}

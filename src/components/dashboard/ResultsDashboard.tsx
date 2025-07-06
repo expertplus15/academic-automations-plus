@@ -233,7 +233,7 @@ export function ResultsDashboard() {
       actions: [
         {
           label: 'Valider Maintenant',
-          onClick: () => navigate('/results/pending'),
+          onClick: () => navigate('/results/validation'),
           variant: 'default' as const
         }
       ],
