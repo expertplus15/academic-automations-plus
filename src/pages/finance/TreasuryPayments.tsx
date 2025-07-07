@@ -39,9 +39,8 @@ export default function TreasuryPayments() {
           title="Trésorerie & Hub Paiements"
           subtitle="Position consolidée, paiements et prédictions IA"
           stats={stats}
-          showCreateButton={true}
-          createButtonText="Nouveau Mouvement"
-          showExportButton={true}
+          showCreateButton={false}
+          showExportButton={false}
           showBackButton={true}
           backPath="/finance"
         />

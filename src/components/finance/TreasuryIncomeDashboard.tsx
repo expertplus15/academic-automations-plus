@@ -1,28 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { TreasuryActionHeader } from '@/components/finance/TreasuryActionHeader';
+import { NewPaymentModal } from '@/components/finance/modals/NewPaymentModal';
 import { usePayments } from '@/hooks/finance/usePayments';
 import { useTreasuryPeriod } from '@/hooks/finance/useTreasuryPeriod';
 import { useTreasuryData } from '@/hooks/finance/useTreasuryData';
+import { useToast } from '@/hooks/use-toast';
 import { 
   CreditCard, 
   Banknote, 
   Smartphone, 
   TrendingUp, 
   TrendingDown,
-  Calendar,
   Euro,
   ArrowUpDown,
   CheckCircle,
   Clock,
-  AlertTriangle
+  AlertTriangle,
+  Search
 } from 'lucide-react';
 
 export function TreasuryIncomeDashboard() {
   const { payments, loading } = usePayments();
-  const { selectedPeriod, setSelectedPeriod, getPeriodLabel } = useTreasuryPeriod();
   const { incomeData } = useTreasuryData();
+  const { toast } = useToast();
+  const [showNewPaymentModal, setShowNewPaymentModal] = useState(false);
+  const [searchFilter, setSearchFilter] = useState('');
+  const [methodFilter, setMethodFilter] = useState('all');
 
   // Mock data - en attendant l'intégration complète
   const paymentMethodsData = [
@@ -128,20 +134,60 @@ export function TreasuryIncomeDashboard() {
     }
   };
 
-  const totalDaily = paymentMethodsData.reduce((sum, method) => sum + method.dailyAmount, 0);
+  const handleExport = (format: string) => {
+    toast({
+      title: "Export en cours",
+      description: `Export ${format} des encaissements en cours...`,
+    });
+  };
+
+  const handleNewPayment = () => {
+    setShowNewPaymentModal(true);
+  };
+
+  const filtersComponent = (
+    <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex-1">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher par étudiant, référence..."
+            value={searchFilter}
+            onChange={(e) => setSearchFilter(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+      </div>
+      <div className="w-48">
+        <select 
+          value={methodFilter} 
+          onChange={(e) => setMethodFilter(e.target.value)}
+          className="w-full px-3 py-2 border border-border rounded-md bg-background"
+        >
+          <option value="all">Tous les modes</option>
+          <option value="card">Cartes bancaires</option>
+          <option value="transfer">Virements</option>
+          <option value="debit">Prélèvements</option>
+          <option value="mobile">Paiements mobiles</option>
+          <option value="cash">Espèces</option>
+        </select>
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
-      {/* Info période */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Calendar className="w-5 h-5 text-muted-foreground" />
-          <span className="text-lg font-medium">{getPeriodLabel(selectedPeriod)}</span>
-        </div>
-        <div className="text-right">
-          <div className="text-sm text-muted-foreground">Total encaissé - {getPeriodLabel(selectedPeriod)}</div>
-          <div className="text-2xl font-bold text-green-600">{formatAmount(incomeData.totalIncome)}</div>
-        </div>
+      <TreasuryActionHeader
+        title="Encaissements"
+        onNewAction={handleNewPayment}
+        newActionText="Nouveau Paiement"
+        onExport={handleExport}
+        filters={filtersComponent}
+      />
+
+      <div className="text-right p-4 bg-green-50 rounded-lg border border-green-200">
+        <div className="text-sm text-green-700">Total encaissé</div>
+        <div className="text-2xl font-bold text-green-600">{formatAmount(incomeData.totalIncome)}</div>
       </div>
 
       {/* Vue par modes de paiement */}
@@ -263,6 +309,11 @@ export function TreasuryIncomeDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <NewPaymentModal 
+        open={showNewPaymentModal} 
+        onOpenChange={setShowNewPaymentModal} 
+      />
     </div>
   );
 }

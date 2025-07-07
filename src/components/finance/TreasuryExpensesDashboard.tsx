@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { TreasuryActionHeader } from '@/components/finance/TreasuryActionHeader';
+import { NewExpenseModal } from '@/components/finance/modals/NewExpenseModal';
 import { useExpenses } from '@/hooks/finance/useExpenses';
 import { useFinancialCategories } from '@/hooks/finance/useFinancialCategories';
-import { useTreasuryPeriod } from '@/hooks/finance/useTreasuryPeriod';
 import { useTreasuryData } from '@/hooks/finance/useTreasuryData';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Receipt, 
   TrendingUp, 
   TrendingDown, 
-  Calendar,
   Target,
   AlertTriangle,
   CheckCircle,
@@ -17,14 +19,18 @@ import {
   Building,
   Zap,
   Users,
-  BookOpen
+  BookOpen,
+  Search
 } from 'lucide-react';
 
 export function TreasuryExpensesDashboard() {
   const { expenses, loading } = useExpenses();
   const { categories } = useFinancialCategories();
-  const { selectedPeriod, getPeriodLabel } = useTreasuryPeriod();
   const { expenseData } = useTreasuryData();
+  const { toast } = useToast();
+  const [showNewExpenseModal, setShowNewExpenseModal] = useState(false);
+  const [searchFilter, setSearchFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   // Mock data avec catégories réelles
   const expensesByCategory = [
@@ -146,25 +152,61 @@ export function TreasuryExpensesDashboard() {
     }
   };
 
-  const totalExpenses = expensesByCategory.reduce((sum, cat) => sum + cat.amount, 0);
-  const totalBudget = expensesByCategory.reduce((sum, cat) => sum + cat.budget, 0);
-  const budgetUsagePercentage = (totalExpenses / totalBudget) * 100;
+  const handleExport = (format: string) => {
+    toast({
+      title: "Export en cours",
+      description: `Export ${format} des dépenses en cours...`,
+    });
+  };
+
+  const handleNewExpense = () => {
+    setShowNewExpenseModal(true);
+  };
+
+  const filtersComponent = (
+    <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex-1">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher par fournisseur, description..."
+            value={searchFilter}
+            onChange={(e) => setSearchFilter(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+      </div>
+      <div className="w-48">
+        <select 
+          value={statusFilter} 
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="w-full px-3 py-2 border border-border rounded-md bg-background"
+        >
+          <option value="all">Tous les statuts</option>
+          <option value="pending">En attente</option>
+          <option value="approved">Approuvé</option>
+          <option value="paid">Payé</option>
+          <option value="rejected">Rejeté</option>
+        </select>
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
-      {/* Info période */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Calendar className="w-5 h-5 text-muted-foreground" />
-          <span className="text-lg font-medium">{getPeriodLabel(selectedPeriod)}</span>
-        </div>
-        
-        <div className="text-right">
-          <div className="text-sm text-muted-foreground">Total dépenses - {getPeriodLabel(selectedPeriod)}</div>
-          <div className="text-2xl font-bold text-red-600">{formatAmount(expenseData.totalExpenses)}</div>
-          <div className="text-sm text-muted-foreground">
-            Budget utilisé: {expenseData.budgetUsagePercentage.toFixed(1)}% / {formatAmount(expenseData.totalBudget)}
-          </div>
+      <TreasuryActionHeader
+        title="Dépenses"
+        onNewAction={handleNewExpense}
+        newActionText="Nouvelle Dépense"
+        onExport={handleExport}
+        filters={filtersComponent}
+      />
+
+      <div className="text-right p-4 bg-red-50 rounded-lg border border-red-200">
+        <div className="text-sm text-red-700">Total dépenses</div>
+        <div className="text-2xl font-bold text-red-600">{formatAmount(expenseData.totalExpenses)}</div>
+        <div className="text-sm text-red-700">
+          Budget utilisé: {expenseData.budgetUsagePercentage.toFixed(1)}% / {formatAmount(expenseData.totalBudget)}
         </div>
       </div>
 
@@ -311,6 +353,11 @@ export function TreasuryExpensesDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <NewExpenseModal 
+        open={showNewExpenseModal} 
+        onOpenChange={setShowNewExpenseModal} 
+      />
     </div>
   );
 }
