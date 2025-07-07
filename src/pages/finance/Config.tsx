@@ -1,14 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ModuleLayout } from '@/components/layouts/ModuleLayout';
 import { FinanceModuleSidebar } from '@/components/FinanceModuleSidebar';
 import { FinancePageHeader } from '@/components/FinancePageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Settings, Database, FileText, Users } from 'lucide-react';
+import { FeeTypesManager } from '@/components/finance/FeeTypesManager';
+import { ServiceTypesManager } from '@/components/finance/ServiceTypesManager';
+import { AcademicYearSelector } from '@/components/finance/AcademicYearSelector';
+import { Settings, Database, FileText, Users, Euro, Receipt, Calendar } from 'lucide-react';
 
 export default function Config() {
   const { toast } = useToast();
+  const [showFeeTypesManager, setShowFeeTypesManager] = useState(false);
+  const [showServiceTypesManager, setShowServiceTypesManager] = useState(false);
 
   const handleGererPlan = () => {
     toast({
@@ -123,6 +129,68 @@ export default function Config() {
                 <Settings className="w-4 h-4" />
                 Modifier
               </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Euro className="w-5 h-5 text-orange-500" />
+                Gestion des Frais
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                Types de frais, prestations et tarification
+              </p>
+              <div className="space-y-2">
+                <Dialog open={showFeeTypesManager} onOpenChange={setShowFeeTypesManager}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="w-full gap-2">
+                      <Euro className="w-4 h-4" />
+                      Types de Frais
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Gestion des Types de Frais</DialogTitle>
+                    </DialogHeader>
+                    <FeeTypesManager />
+                  </DialogContent>
+                </Dialog>
+                
+                <Dialog open={showServiceTypesManager} onOpenChange={setShowServiceTypesManager}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="w-full gap-2">
+                      <Receipt className="w-4 h-4" />
+                      Prestations
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Gestion des Prestations de Services</DialogTitle>
+                    </DialogHeader>
+                    <ServiceTypesManager />
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-indigo-500" />
+                Année Académique
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                Sélection de l'année académique active
+              </p>
+              <div className="space-y-2">
+                <AcademicYearSelector />
+              </div>
             </CardContent>
           </Card>
         </div>
