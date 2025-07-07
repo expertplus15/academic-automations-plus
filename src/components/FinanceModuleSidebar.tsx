@@ -36,7 +36,8 @@ import {
   Zap,
   AlertTriangle,
   CheckCircle,
-  Building
+  Building,
+  Brain
 } from "lucide-react";
 
 const financeItems = [
@@ -50,15 +51,12 @@ const financeItems = [
   { title: "Postes de Dépenses", url: "/finance/expense-categories", icon: Target },
   { title: "Fournisseurs", url: "/finance/suppliers", icon: Building },
   { title: "Écritures Auto", url: "/finance/accounting", icon: Calculator },
-  { title: "Analytique Multi-axes", url: "/finance/analytics-accounting", icon: BarChart3 },
   { title: "États Financiers", url: "/finance/statements", icon: FileText },
-  { title: "Intelligence Financière", url: "/finance/admin-ia", icon: Bot },
+  { title: "Pilotage & Intelligence", url: "/finance/management-intelligence", icon: Brain },
   { title: "Gestionnaire Budgétaire", url: "/finance/budget-manager", icon: Calculator },
-  { title: "Contrôle de Gestion", url: "/finance/management-control", icon: Target },
   { title: "Clôtures Rapides", url: "/finance/closing", icon: CheckCircle },
   { title: "Configuration Système", url: "/finance/config", icon: Settings },
   { title: "Paramètres Fiscaux", url: "/finance/tax-settings", icon: Calculator },
-  { title: "Gestion des Utilisateurs", url: "/finance/users", icon: User },
   { title: "Sauvegardes", url: "/finance/backups", icon: RefreshCw }
 ];
 

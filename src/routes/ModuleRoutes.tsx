@@ -48,7 +48,7 @@ import FinanceBalanceSheet from '@/pages/finance/BalanceSheet';
 import FinanceIncomeStatement from '@/pages/finance/IncomeStatement';
 
 // New Finance sub-modules (SM1-SM6)
-import FinanceAdminIA from '@/pages/finance/AdminIA';
+
 import FinanceBudgetManager from '@/pages/finance/BudgetManager';
 import FinanceCommercial from '@/pages/finance/Commercial';
 import FinanceCredits from '@/pages/finance/Credits';
@@ -56,13 +56,10 @@ import FinanceTreasury from '@/pages/finance/Treasury';
 import FinanceReceivables from '@/pages/finance/Receivables';
 import FinanceCollection from '@/pages/finance/Collection';
 import FinanceRiskScoring from '@/pages/finance/RiskScoring';
-import FinanceAnalyticsAccounting from '@/pages/finance/AnalyticsAccounting';
-import FinanceStatements from '@/pages/finance/Statements';
-import FinanceAccounting from '@/pages/finance/Accounting';
-import FinanceManagementControl from '@/pages/finance/ManagementControl';
+import FinanceManagementIntelligence from '@/pages/finance/ManagementIntelligence';
 import FinanceClosing from '@/pages/finance/Closing';
 import FinanceConfig from '@/pages/finance/Config';
-import FinanceUsers from '@/pages/finance/Users';
+
 import FinanceBackups from '@/pages/finance/Backups';
 
 // Academic module pages
@@ -217,7 +214,7 @@ export function ModuleRoutes() {
       
       {/* New Finance Sub-Modules (SM1-SM6) */}
       {/* SM1: Administration & IA */}
-      <Route path="/finance/admin-ia" element={<FinanceAdminIA />} />
+      
       
       {/* SM2: Facturation & Avoirs */}
       <Route path="/finance/commercial" element={<FinanceCommercial />} />
@@ -232,18 +229,15 @@ export function ModuleRoutes() {
       <Route path="/finance/risk-scoring" element={<FinanceRiskScoring />} />
       
       {/* SM5: Comptabilité Générale */}
-      <Route path="/finance/accounting" element={<FinanceAccounting />} />
-      <Route path="/finance/analytics-accounting" element={<FinanceAnalyticsAccounting />} />
-      <Route path="/finance/statements" element={<FinanceStatements />} />
       
       {/* SM6: Pilotage & Reporting */}
       <Route path="/finance/budget-manager" element={<FinanceBudgetManager />} />
-      <Route path="/finance/management-control" element={<FinanceManagementControl />} />
+      <Route path="/finance/management-intelligence" element={<FinanceManagementIntelligence />} />
       <Route path="/finance/closing" element={<FinanceClosing />} />
       
       {/* Paramètres */}
       <Route path="/finance/config" element={<FinanceConfig />} />
-      <Route path="/finance/users" element={<FinanceUsers />} />
+      
       <Route path="/finance/backups" element={<FinanceBackups />} />
 
       {/* Students Module Routes - All using StudentsModuleLayout */}
