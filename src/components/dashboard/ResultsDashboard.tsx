@@ -20,14 +20,14 @@ export function ResultsDashboard() {
 
   // Real-time data with enhanced statistics
   const stats = {
-    totalGrades: 2847,
-    generatedReports: 156,
-    averageGenerationTime: 2.8, // Improved performance
-    matrixSessions: 15, // Active collaborative sessions
-    autoCalculations: 99.2, // Enhanced accuracy
-    pendingGrades: 18, // Reduced pending items
-    realTimeUsers: 8, // Currently active users
-    averageAccuracy: 98.7 // Grade validation accuracy
+    totalGrades: 0,
+    generatedReports: 0,
+    averageGenerationTime: 0, // Improved performance
+    matrixSessions: 0, // Active collaborative sessions
+    autoCalculations: 0, // Enhanced accuracy
+    pendingGrades: 0, // Reduced pending items
+    realTimeUsers: 0, // Currently active users
+    averageAccuracy: 0 // Grade validation accuracy
   };
 
   const widgets: DashboardWidget[] = [
@@ -38,8 +38,8 @@ export function ResultsDashboard() {
       title: 'Notes Saisies',
       value: stats.totalGrades,
       icon: BarChart3,
-      change: '+247 cette semaine',
-      changeType: 'positive',
+      change: 'Aucune note saisie',
+      changeType: 'neutral',
       description: 'Interface matricielle',
       priority: 1
     },
@@ -49,8 +49,8 @@ export function ResultsDashboard() {
       title: 'Bulletins Générés',
       value: stats.generatedReports,
       icon: FileText,
-      change: `< ${stats.averageGenerationTime}s en moyenne`,
-      changeType: 'positive',
+      change: 'Aucun bulletin généré',
+      changeType: 'neutral',
       description: 'Génération ultra-rapide',
       priority: 2
     },
@@ -60,8 +60,8 @@ export function ResultsDashboard() {
       title: 'Calculs Automatiques',
       value: `${stats.autoCalculations}%`,
       icon: Calculator,
-      change: '100% fiabilité',
-      changeType: 'positive',
+      change: 'Système prêt',
+      changeType: 'neutral',
       description: 'ECTS, moyennes, compensations',
       priority: 3
     },
@@ -71,8 +71,8 @@ export function ResultsDashboard() {
       title: 'Sessions Matricielles',
       value: stats.matrixSessions,
       icon: Grid,
-      change: '+3 actives maintenant',
-      changeType: 'positive',
+      change: 'Aucune session active',
+      changeType: 'neutral',
       description: 'Édition collaborative',
       priority: 4
     },
@@ -126,29 +126,14 @@ export function ResultsDashboard() {
       id: 'recent-activities',
       type: 'list',
       title: 'Activités Récentes',
-      value: 8,
-      description: 'Dernières actions dans le module',
+      value: 0,
+      description: 'Aucune activité récente',
       icon: Clock,
       data: [
         {
-          title: 'Session matricielle "Math L1"',
-          subtitle: '3 utilisateurs connectés - Il y a 5 min',
-          badge: 'Active'
-        },
-        {
-          title: 'Bulletins L2 Informatique',
-          subtitle: '42 bulletins générés en 2.1s',
-          badge: 'Terminé'
-        },
-        {
-          title: 'Calculs ECTS automatiques',
-          subtitle: 'Moyennes recalculées pour 156 étudiants',
-          badge: 'Mis à jour'
-        },
-        {
-          title: 'Import notes Excel',
-          subtitle: 'Math L3 - 89 notes importées',
-          badge: 'Importé'
+          title: 'Système initialisé',
+          subtitle: 'Prêt pour la saisie de notes',
+          badge: 'Nouveau'
         }
       ],
       actions: [
@@ -177,17 +162,17 @@ export function ResultsDashboard() {
         {
           title: 'Utilisateurs simultanés',
           subtitle: 'Interface matricielle',
-          badge: '∞'
+          badge: `${stats.realTimeUsers}`
         },
         {
           title: 'Fiabilité des calculs',
           subtitle: 'Moyennes et ECTS',
-          badge: '100%'
+          badge: 'Prêt'
         },
         {
-          title: 'Taux de satisfaction',
-          subtitle: 'Enseignants utilisant l\'interface',
-          badge: '97%'
+          title: 'Sessions actives',
+          subtitle: 'Interface collaborative',
+          badge: `${stats.matrixSessions}`
         }
       ],
       priority: 8
@@ -262,11 +247,11 @@ export function ResultsDashboard() {
     }
   ];
 
-  const alerts = stats.averageGenerationTime < 5 ? [
+  const alerts = stats.pendingGrades > 0 ? [
     {
-      type: 'success' as const,
-      title: 'Performance Exceptionnelle',
-      message: `Génération de bulletins en ${stats.averageGenerationTime}s - Objectif < 5s atteint!`,
+      type: 'warning' as const,
+      title: 'Notes en attente',
+      message: `${stats.pendingGrades} notes en attente de validation`,
     }
   ] : [];
 
