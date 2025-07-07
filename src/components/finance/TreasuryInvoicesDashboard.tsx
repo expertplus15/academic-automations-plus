@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useInvoices } from '@/hooks/finance/useInvoices';
+import { useTreasuryPeriod } from '@/hooks/finance/useTreasuryPeriod';
+import { useTreasuryData } from '@/hooks/finance/useTreasuryData';
 import { 
   FileText, 
   Users, 
@@ -22,9 +24,10 @@ import {
 
 export function TreasuryInvoicesDashboard() {
   const { invoices, loading } = useInvoices();
+  const { selectedPeriod, getPeriodLabel } = useTreasuryPeriod();
+  const { invoiceData } = useTreasuryData();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [typeFilter, setTypeFilter] = useState('all');
 
   // Mock data pour les factures étudiants
   const studentInvoices = [

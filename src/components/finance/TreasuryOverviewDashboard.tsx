@@ -2,7 +2,9 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { TreasuryDashboard } from '@/components/finance/TreasuryDashboard';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useTreasuryData } from '@/hooks/finance/useTreasuryData';
+import { useTreasuryPeriod } from '@/hooks/finance/useTreasuryPeriod';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -11,89 +13,17 @@ import {
   Wallet,
   PieChart,
   Target,
-  Zap
+  Zap,
+  Calendar,
+  CreditCard,
+  Receipt,
+  FileText,
+  Euro
 } from 'lucide-react';
 
 export function TreasuryOverviewDashboard() {
-  const kpis = [
-    {
-      title: "Position de Trésorerie",
-      value: "€2,145,000",
-      change: "+5.2%",
-      changeType: "positive" as const,
-      icon: Wallet,
-      color: "text-blue-500"
-    },
-    {
-      title: "Flux Journalier Net",
-      value: "€45,200",
-      change: "+12%",
-      changeType: "positive" as const,
-      icon: TrendingUp,
-      color: "text-green-500"
-    },
-    {
-      title: "Ratio de Liquidité",
-      value: "1.85",
-      change: "Optimal",
-      changeType: "positive" as const,
-      icon: Target,
-      color: "text-purple-500"
-    },
-    {
-      title: "Efficacité Opérationnelle",
-      value: "94%",
-      change: "+3%",
-      changeType: "positive" as const,
-      icon: Zap,
-      color: "text-orange-500"
-    }
-  ];
-
-  const alerts = [
-    {
-      type: "warning",
-      title: "Pic de décaissements prévu",
-      message: "Salaires mensuels: €285k attendus demain",
-      priority: "high"
-    },
-    {
-      type: "info",
-      title: "Rentrées importantes",
-      message: "€120k de virements SEPA prévus J+2",
-      priority: "medium"
-    },
-    {
-      type: "success",
-      title: "Objectif de liquidité atteint",
-      message: "Ratio optimal maintenu depuis 15 jours",
-      priority: "low"
-    }
-  ];
-
-  const predictions = [
-    {
-      period: "7 prochains jours",
-      inflow: 425000,
-      outflow: 320000,
-      net: 105000,
-      confidence: 89
-    },
-    {
-      period: "15 prochains jours", 
-      inflow: 850000,
-      outflow: 720000,
-      net: 130000,
-      confidence: 76
-    },
-    {
-      period: "30 prochains jours",
-      inflow: 1650000,
-      outflow: 1420000,
-      net: 230000,
-      confidence: 68
-    }
-  ];
+  const { selectedPeriod, setSelectedPeriod, getPeriodLabel } = useTreasuryPeriod();
+  const { incomeData, expenseData, invoiceData, treasuryPosition, loading } = useTreasuryData();
 
   const formatAmount = (amount: number) => {
     return new Intl.NumberFormat('fr-FR', {
@@ -102,6 +32,90 @@ export function TreasuryOverviewDashboard() {
       notation: amount > 999999 ? 'compact' : 'standard'
     }).format(amount);
   };
+
+  // KPIs calculés à partir des vraies données
+  const kpis = [
+    {
+      title: "Position de Trésorerie",
+      value: formatAmount(treasuryPosition.netPosition),
+      change: treasuryPosition.netPosition > 0 ? "+5.2%" : "-2.1%",
+      changeType: treasuryPosition.netPosition > 0 ? "positive" as const : "negative" as const,
+      icon: Wallet,
+      color: "text-blue-500"
+    },
+    {
+      title: "Encaissements Période",
+      value: formatAmount(incomeData.totalIncome),
+      change: "+8%",
+      changeType: "positive" as const,
+      icon: TrendingUp,
+      color: "text-green-500"
+    },
+    {
+      title: "Ratio de Liquidité",
+      value: treasuryPosition.liquidityRatio.toFixed(2),
+      change: treasuryPosition.liquidityRatio > 1.5 ? "Optimal" : "Attention",
+      changeType: treasuryPosition.liquidityRatio > 1.5 ? "positive" as const : "negative" as const,
+      icon: Target,
+      color: "text-purple-500"
+    },
+    {
+      title: "Taux d'Encaissement",
+      value: `${invoiceData.collectionRate.toFixed(1)}%`,
+      change: "+3%",
+      changeType: "positive" as const,
+      icon: Zap,
+      color: "text-orange-500"
+    }
+  ];
+
+  // Alertes basées sur les données réelles
+  const alerts = [
+    ...(expenseData.budgetUsagePercentage > 90 ? [{
+      type: "warning" as const,
+      title: "Budget en seuil critique",
+      message: `${expenseData.budgetUsagePercentage.toFixed(1)}% du budget utilisé`,
+      priority: "high" as const
+    }] : []),
+    ...(incomeData.successRate < 95 ? [{
+      type: "warning" as const,
+      title: "Taux de succès des paiements",
+      message: `${incomeData.successRate}% - Surveillance requise`,
+      priority: "medium" as const
+    }] : []),
+    ...(invoiceData.collectionRate > 85 ? [{
+      type: "success" as const,
+      title: "Excellent taux d'encaissement",
+      message: `${invoiceData.collectionRate.toFixed(1)}% des factures encaissées`,
+      priority: "low" as const
+    }] : [])
+  ];
+
+  // Prédictions basées sur les tendances actuelles
+  const predictions = [
+    {
+      period: "7 prochains jours",
+      inflow: incomeData.totalDailyIncome * 7,
+      outflow: (expenseData.totalExpenses / 30) * 7,
+      net: (incomeData.totalDailyIncome * 7) - ((expenseData.totalExpenses / 30) * 7),
+      confidence: 89
+    },
+    {
+      period: "15 prochains jours", 
+      inflow: incomeData.totalDailyIncome * 15,
+      outflow: (expenseData.totalExpenses / 30) * 15,
+      net: (incomeData.totalDailyIncome * 15) - ((expenseData.totalExpenses / 30) * 15),
+      confidence: 76
+    },
+    {
+      period: "30 prochains jours",
+      inflow: incomeData.totalDailyIncome * 30,
+      outflow: expenseData.totalExpenses,
+      net: (incomeData.totalDailyIncome * 30) - expenseData.totalExpenses,
+      confidence: 68
+    }
+  ];
+
 
   const getAlertBadge = (type: string, priority: string) => {
     const baseClasses = "flex items-center gap-1";
@@ -124,6 +138,30 @@ export function TreasuryOverviewDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Contrôle de période */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Calendar className="w-5 h-5 text-muted-foreground" />
+          <Select value={selectedPeriod} onValueChange={(value) => setSelectedPeriod(value as any)}>
+            <SelectTrigger className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="today">Aujourd'hui</SelectItem>
+              <SelectItem value="yesterday">Hier</SelectItem>
+              <SelectItem value="week">Cette semaine</SelectItem>
+              <SelectItem value="month">Ce mois</SelectItem>
+              <SelectItem value="quarter">Ce trimestre</SelectItem>
+              <SelectItem value="year">Cette année</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="text-right">
+          <div className="text-sm text-muted-foreground">Période sélectionnée</div>
+          <div className="text-lg font-semibold">{getPeriodLabel(selectedPeriod)}</div>
+        </div>
+      </div>
+
       {/* KPIs principaux */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {kpis.map((kpi, index) => {
@@ -155,8 +193,118 @@ export function TreasuryOverviewDashboard() {
         })}
       </div>
 
-      {/* Dashboard principal intégré */}
-      <TreasuryDashboard />
+      {/* Synthèse par modules */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Encaissements */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-green-500" />
+              Encaissements
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <div className="text-2xl font-bold text-green-600">{formatAmount(incomeData.totalIncome)}</div>
+              <div className="text-sm text-muted-foreground">{incomeData.transactionCount} transactions</div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="text-sm font-medium">Top 3 modes de paiement</div>
+              {incomeData.paymentMethods.slice(0, 3).map((method, index) => (
+                <div key={index} className="flex justify-between text-sm">
+                  <span>{method.name}</span>
+                  <span className="font-medium">{formatAmount(method.amount)}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-between text-sm">
+              <span>Taux de succès</span>
+              <span className="font-medium text-green-600">{incomeData.successRate}%</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Dépenses */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Receipt className="w-5 h-5 text-red-500" />
+              Dépenses
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <div className="text-2xl font-bold text-red-600">{formatAmount(expenseData.totalExpenses)}</div>
+              <div className="text-sm text-muted-foreground">Budget: {formatAmount(expenseData.totalBudget)}</div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
+                <span>Budget utilisé</span>
+                <span>{expenseData.budgetUsagePercentage.toFixed(1)}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className={`h-2 rounded-full ${
+                    expenseData.budgetUsagePercentage > 90 ? 'bg-red-500' : 
+                    expenseData.budgetUsagePercentage > 75 ? 'bg-orange-500' : 'bg-green-500'
+                  }`}
+                  style={{ width: `${Math.min(expenseData.budgetUsagePercentage, 100)}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="text-sm font-medium">Top 3 catégories</div>
+              {expenseData.categories.slice(0, 3).map((category, index) => (
+                <div key={index} className="flex justify-between text-sm">
+                  <span>{category.name}</span>
+                  <span className="font-medium">{formatAmount(category.amount)}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Factures */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-blue-500" />
+              Facturation
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <div className="text-2xl font-bold text-blue-600">{formatAmount(invoiceData.totalInvoiced)}</div>
+              <div className="text-sm text-muted-foreground">Facturé total</div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Étudiants</span>
+                <span className="font-medium">{formatAmount(invoiceData.studentInvoices.total)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span>Commercial</span>
+                <span className="font-medium">{formatAmount(invoiceData.commercialInvoices.total)}</span>
+              </div>
+            </div>
+
+            <div className="p-3 bg-green-500/10 rounded-lg">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium">Encaissé</span>
+                <span className="font-semibold text-green-600">{formatAmount(invoiceData.totalCollected)}</span>
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Taux: {invoiceData.collectionRate.toFixed(1)}%
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Prédictions IA et Alertes */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

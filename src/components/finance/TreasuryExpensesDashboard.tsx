@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useExpenses } from '@/hooks/finance/useExpenses';
 import { useFinancialCategories } from '@/hooks/finance/useFinancialCategories';
+import { useTreasuryPeriod } from '@/hooks/finance/useTreasuryPeriod';
+import { useTreasuryData } from '@/hooks/finance/useTreasuryData';
 import { 
   Receipt, 
   TrendingUp, 
@@ -22,8 +23,8 @@ import {
 export function TreasuryExpensesDashboard() {
   const { expenses, loading } = useExpenses();
   const { categories } = useFinancialCategories();
-  const [selectedPeriod, setSelectedPeriod] = useState('month');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const { selectedPeriod, getPeriodLabel } = useTreasuryPeriod();
+  const { expenseData } = useTreasuryData();
 
   // Mock data avec catégories réelles
   const expensesByCategory = [
@@ -151,41 +152,18 @@ export function TreasuryExpensesDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Contrôles et vue d'ensemble */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Info période */}
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Calendar className="w-5 h-5 text-muted-foreground" />
-          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-            <SelectTrigger className="w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="today">Aujourd'hui</SelectItem>
-              <SelectItem value="week">Cette semaine</SelectItem>
-              <SelectItem value="month">Ce mois</SelectItem>
-              <SelectItem value="quarter">Ce trimestre</SelectItem>
-              <SelectItem value="year">Cette année</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Toutes catégories" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Toutes catégories</SelectItem>
-              <SelectItem value="personnel">Personnel</SelectItem>
-              <SelectItem value="equipment">Équipements</SelectItem>
-              <SelectItem value="supplies">Fournitures</SelectItem>
-              <SelectItem value="services">Services</SelectItem>
-            </SelectContent>
-          </Select>
+          <span className="text-lg font-medium">{getPeriodLabel(selectedPeriod)}</span>
         </div>
         
         <div className="text-right">
-          <div className="text-sm text-muted-foreground">Total dépenses - Ce mois</div>
-          <div className="text-2xl font-bold text-red-600">{formatAmount(totalExpenses)}</div>
+          <div className="text-sm text-muted-foreground">Total dépenses - {getPeriodLabel(selectedPeriod)}</div>
+          <div className="text-2xl font-bold text-red-600">{formatAmount(expenseData.totalExpenses)}</div>
           <div className="text-sm text-muted-foreground">
-            Budget utilisé: {budgetUsagePercentage.toFixed(1)}% / {formatAmount(totalBudget)}
+            Budget utilisé: {expenseData.budgetUsagePercentage.toFixed(1)}% / {formatAmount(expenseData.totalBudget)}
           </div>
         </div>
       </div>

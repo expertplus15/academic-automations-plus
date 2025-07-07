@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePayments } from '@/hooks/finance/usePayments';
+import { useTreasuryPeriod } from '@/hooks/finance/useTreasuryPeriod';
+import { useTreasuryData } from '@/hooks/finance/useTreasuryData';
 import { 
   CreditCard, 
   Banknote, 
@@ -20,7 +21,8 @@ import {
 
 export function TreasuryIncomeDashboard() {
   const { payments, loading } = usePayments();
-  const [selectedPeriod, setSelectedPeriod] = useState('today');
+  const { selectedPeriod, setSelectedPeriod, getPeriodLabel } = useTreasuryPeriod();
+  const { incomeData } = useTreasuryData();
 
   // Mock data - en attendant l'intégration complète
   const paymentMethodsData = [
@@ -130,26 +132,15 @@ export function TreasuryIncomeDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Contrôles de période */}
+      {/* Info période */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Calendar className="w-5 h-5 text-muted-foreground" />
-          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-            <SelectTrigger className="w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="today">Aujourd'hui</SelectItem>
-              <SelectItem value="yesterday">Hier</SelectItem>
-              <SelectItem value="week">Cette semaine</SelectItem>
-              <SelectItem value="month">Ce mois</SelectItem>
-              <SelectItem value="quarter">Ce trimestre</SelectItem>
-            </SelectContent>
-          </Select>
+          <span className="text-lg font-medium">{getPeriodLabel(selectedPeriod)}</span>
         </div>
         <div className="text-right">
-          <div className="text-sm text-muted-foreground">Total encaissé aujourd'hui</div>
-          <div className="text-2xl font-bold text-green-600">{formatAmount(totalDaily)}</div>
+          <div className="text-sm text-muted-foreground">Total encaissé - {getPeriodLabel(selectedPeriod)}</div>
+          <div className="text-2xl font-bold text-green-600">{formatAmount(incomeData.totalIncome)}</div>
         </div>
       </div>
 
