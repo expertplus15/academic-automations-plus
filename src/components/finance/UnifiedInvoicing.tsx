@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useFinanceData } from '@/hooks/useFinanceData';
 import { EnhancedInvoiceForm } from '@/components/finance/EnhancedInvoiceForm';
 import { FreeInvoiceForm } from '@/components/finance/FreeInvoiceForm';
+import { ValidateInvoiceModal } from '@/components/finance/ValidateInvoiceModal';
+import { RecordPaymentModal } from '@/components/finance/RecordPaymentModal';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Search, 
@@ -29,6 +31,9 @@ export function UnifiedInvoicing() {
   const [showStudentInvoiceForm, setShowStudentInvoiceForm] = useState(false);
   const [showCommercialInvoiceForm, setShowCommercialInvoiceForm] = useState(false);
   const [showQuoteForm, setShowQuoteForm] = useState(false);
+  const [showValidateModal, setShowValidateModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('all');
   const { invoices, loading, fetchInvoices } = useFinanceData();
   const { toast } = useToast();
@@ -39,6 +44,16 @@ export function UnifiedInvoicing() {
       description: "Formulaire de création de devis ouvert",
     });
     setShowQuoteForm(true);
+  };
+
+  const handleValidateInvoice = (invoice: any) => {
+    setSelectedInvoice(invoice);
+    setShowValidateModal(true);
+  };
+
+  const handleRecordPayment = (invoice: any) => {
+    setSelectedInvoice(invoice);
+    setShowPaymentModal(true);
   };
 
   const getStatusBadge = (status: string) => {
@@ -146,17 +161,41 @@ export function UnifiedInvoicing() {
               <Edit className="w-3 h-3" />
               Éditer
             </Button>
-            <Button size="sm" className="gap-1">
+            <Button 
+              size="sm" 
+              className="gap-1"
+              onClick={() => handleValidateInvoice(invoice)}
+            >
               <Send className="w-3 h-3" />
-              Envoyer
+              Valider & Envoyer
             </Button>
           </>
         )}
-        {invoice.status === 'overdue' && (
-          <Button size="sm" variant="destructive" className="gap-1">
-            <AlertTriangle className="w-3 h-3" />
-            Relancer
+        {(invoice.status === 'sent' || invoice.status === 'pending' || invoice.status === 'partial') && (
+          <Button 
+            size="sm" 
+            className="gap-1 bg-green-600 hover:bg-green-700"
+            onClick={() => handleRecordPayment(invoice)}
+          >
+            <DollarSign className="w-3 h-3" />
+            Enregistrer Paiement
           </Button>
+        )}
+        {invoice.status === 'overdue' && (
+          <>
+            <Button 
+              size="sm" 
+              className="gap-1 bg-green-600 hover:bg-green-700"
+              onClick={() => handleRecordPayment(invoice)}
+            >
+              <DollarSign className="w-3 h-3" />
+              Enregistrer Paiement
+            </Button>
+            <Button size="sm" variant="destructive" className="gap-1">
+              <AlertTriangle className="w-3 h-3" />
+              Relancer
+            </Button>
+          </>
         )}
       </div>
     </div>
@@ -177,6 +216,20 @@ export function UnifiedInvoicing() {
       <FreeInvoiceForm 
         open={showCommercialInvoiceForm} 
         onOpenChange={setShowCommercialInvoiceForm}
+        onSuccess={fetchInvoices}
+      />
+
+      <ValidateInvoiceModal
+        open={showValidateModal}
+        onOpenChange={setShowValidateModal}
+        invoice={selectedInvoice}
+        onSuccess={fetchInvoices}
+      />
+
+      <RecordPaymentModal
+        open={showPaymentModal}
+        onOpenChange={setShowPaymentModal}
+        invoice={selectedInvoice}
         onSuccess={fetchInvoices}
       />
 
