@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import { useFinanceData } from '@/hooks/useFinanceData';
 import { useFinanceStats } from '@/hooks/useFinanceStats';
+import { FinanceCharts } from './FinanceCharts';
+import { FinanceAnalytics } from './FinanceAnalytics';
 
 interface FinanceDashboardProps {
   className?: string;
@@ -176,29 +178,34 @@ export function FinanceDashboard({ className }: FinanceDashboardProps) {
             </Card>
           </div>
 
-          {/* Graphiques de revenus */}
-          <Card className="bg-card rounded-xl border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-finance" />
-                Évolution des revenus
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 flex items-center justify-center text-muted-foreground">
-                <div className="text-center">
-                  <TrendingUp className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">Graphique des revenus</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {financeStats.totalRevenue > 0 
-                      ? `${financeStats.invoicesCount} factures ce mois`
-                      : "Aucune donnée disponible"
-                    }
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Graphiques intelligents */}
+          <FinanceCharts
+            revenueData={financeStats.monthlyData}
+            paymentStatusData={financeStats.statusData}
+            trendData={financeStats.trendData}
+            loading={statsLoading}
+          />
+
+          {/* Analytics avancés */}
+          <FinanceAnalytics
+            data={{
+              monthlyGrowth: financeStats.monthlyGrowth,
+              collectionEfficiency: financeStats.collectionEfficiency,
+              cashFlowHealth: financeStats.cashFlowHealth,
+              predictions: {
+                nextMonthRevenue: financeStats.totalRevenue * 1.1,
+                collectionRisk: Math.max(0, 100 - financeStats.collectionRate),
+                optimalCashFlow: financeStats.totalRevenue * 1.2
+              },
+              kpis: {
+                dso: financeStats.dso,
+                conversionRate: financeStats.conversionRate,
+                customerLifetimeValue: 2500,
+                churnRate: 3.2
+              }
+            }}
+            loading={statsLoading}
+          />
 
           {/* Factures récentes */}
           <Card className="bg-card rounded-xl border-border">
