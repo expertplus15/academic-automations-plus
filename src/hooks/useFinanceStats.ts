@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export interface FinanceStats {
   totalRevenue: number;
@@ -23,76 +24,110 @@ export function useFinanceStats() {
     averagePaymentTime: 0,
     collectionRate: 0,
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
 
-      // Récupérer les statistiques des factures
-      const { data: invoiceStats } = await supabase
+      // Récupérer les statistiques des factures avec gestion d'erreur améliorée
+      const { data: invoiceStats, error: invoiceError } = await supabase
         .from('invoices')
         .select('total_amount, paid_amount, status, issue_date, due_date')
         .gte('issue_date', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString());
 
-      // Récupérer les statistiques des paiements
-      const { data: paymentStats } = await supabase
+      if (invoiceError) {
+        console.error('Erreur factures:', invoiceError);
+        throw new Error('Impossible de charger les factures');
+      }
+
+      // Récupérer les statistiques des paiements avec gestion d'erreur améliorée
+      const { data: paymentStats, error: paymentError } = await supabase
         .from('payments')
         .select('amount, status, payment_date')
         .gte('payment_date', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString());
 
-      if (invoiceStats && paymentStats) {
-        const totalRevenue = invoiceStats.reduce((sum, invoice) => sum + invoice.total_amount, 0);
-        const totalPaid = invoiceStats.reduce((sum, invoice) => sum + (invoice.paid_amount || 0), 0);
-        const totalPending = invoiceStats
-          .filter(inv => inv.status === 'pending')
-          .reduce((sum, invoice) => sum + (invoice.total_amount - (invoice.paid_amount || 0)), 0);
-        const totalOverdue = invoiceStats
-          .filter(inv => inv.status === 'overdue')
-          .reduce((sum, invoice) => sum + (invoice.total_amount - (invoice.paid_amount || 0)), 0);
+      if (paymentError) {
+        console.error('Erreur paiements:', paymentError);
+        throw new Error('Impossible de charger les paiements');
+      }
 
-        const invoicesCount = invoiceStats.length;
-        const paymentsCount = paymentStats.filter(p => p.status === 'completed').length;
-        
-        // Calcul du taux de recouvrement
-        const collectionRate = totalRevenue > 0 ? (totalPaid / totalRevenue) * 100 : 0;
+      // Calculs sécurisés avec données par défaut
+      const safeInvoiceStats = invoiceStats || [];
+      const safePaymentStats = paymentStats || [];
 
-        // Calcul du délai moyen de paiement (simplifié)
-        const paidInvoices = invoiceStats.filter(inv => inv.paid_amount >= inv.total_amount);
-        const averagePaymentTime = paidInvoices.length > 0 
-          ? paidInvoices.reduce((sum, inv) => {
+      const totalRevenue = safeInvoiceStats.reduce((sum, invoice) => sum + (invoice.total_amount || 0), 0);
+      const totalPaid = safeInvoiceStats.reduce((sum, invoice) => sum + (invoice.paid_amount || 0), 0);
+      
+      const totalPending = safeInvoiceStats
+        .filter(inv => inv.status === 'pending')
+        .reduce((sum, invoice) => sum + ((invoice.total_amount || 0) - (invoice.paid_amount || 0)), 0);
+      
+      const totalOverdue = safeInvoiceStats
+        .filter(inv => inv.status === 'overdue')
+        .reduce((sum, invoice) => sum + ((invoice.total_amount || 0) - (invoice.paid_amount || 0)), 0);
+
+      const invoicesCount = safeInvoiceStats.length;
+      const paymentsCount = safePaymentStats.filter(p => p.status === 'completed').length;
+      
+      // Calcul sécurisé du taux de recouvrement
+      const collectionRate = totalRevenue > 0 ? (totalPaid / totalRevenue) * 100 : 0;
+
+      // Calcul sécurisé du délai moyen de paiement
+      const paidInvoices = safeInvoiceStats.filter(inv => (inv.paid_amount || 0) >= (inv.total_amount || 0));
+      const averagePaymentTime = paidInvoices.length > 0 
+        ? paidInvoices.reduce((sum, inv) => {
+            try {
               const daysDiff = Math.floor(
                 (new Date(inv.due_date).getTime() - new Date(inv.issue_date).getTime()) / (1000 * 60 * 60 * 24)
               );
-              return sum + daysDiff;
-            }, 0) / paidInvoices.length
-          : 0;
+              return sum + (isNaN(daysDiff) ? 0 : daysDiff);
+            } catch {
+              return sum;
+            }
+          }, 0) / paidInvoices.length
+        : 0;
 
-        setStats({
-          totalRevenue,
-          totalPaid,
-          totalPending,
-          totalOverdue,
-          invoicesCount,
-          paymentsCount,
-          averagePaymentTime,
-          collectionRate,
+      setStats({
+        totalRevenue: Math.max(0, totalRevenue),
+        totalPaid: Math.max(0, totalPaid),
+        totalPending: Math.max(0, totalPending),
+        totalOverdue: Math.max(0, totalOverdue),
+        invoicesCount: Math.max(0, invoicesCount),
+        paymentsCount: Math.max(0, paymentsCount),
+        averagePaymentTime: Math.max(0, averagePaymentTime),
+        collectionRate: Math.min(100, Math.max(0, collectionRate)),
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Erreur lors du chargement des statistiques';
+      console.error('Erreur lors du chargement des statistiques:', error);
+      setError(errorMessage);
+      
+      // Toast d'erreur seulement si ce n'est pas un problème de données vides
+      if (!errorMessage.includes('Impossible de charger')) {
+        toast({
+          title: "Erreur de chargement",
+          description: errorMessage,
+          variant: "destructive",
         });
       }
-    } catch (error) {
-      console.error('Erreur lors du chargement des statistiques:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchStats();
-  }, []);
+  }, [fetchStats]);
 
   return {
     stats,
     loading,
+    error,
     fetchStats,
+    refetch: fetchStats, // Alias pour compatibilité
   };
 }

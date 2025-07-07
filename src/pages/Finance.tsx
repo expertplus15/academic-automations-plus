@@ -5,6 +5,8 @@ import { FinancePageHeader } from '@/components/FinancePageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useFinanceData } from '@/hooks/useFinanceData';
+import { useFinanceStats } from '@/hooks/useFinanceStats';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -13,11 +15,14 @@ import {
   CreditCard,
   AlertTriangle,
   CheckCircle,
-  Clock
+  Clock,
+  Loader2
 } from 'lucide-react';
 
 export default function Finance() {
   const { toast } = useToast();
+  const { invoices, loading: dataLoading } = useFinanceData();
+  const { stats: financeStats, loading: statsLoading } = useFinanceStats();
 
   const handleCreateInvoice = () => {
     toast({
@@ -40,56 +45,51 @@ export default function Finance() {
     });
   };
 
-  const stats = [
+  // Transform real data for the header component
+  const headerStats = [
     {
       label: "Revenus du mois",
-      value: "€125,340",
-      change: "+12.5%",
-      changeType: "positive" as const
+      value: new Intl.NumberFormat('fr-FR', { 
+        style: 'currency', 
+        currency: 'EUR' 
+      }).format(financeStats.totalRevenue),
+      change: financeStats.totalRevenue > 0 ? "Données réelles" : "Aucun revenu",
+      changeType: financeStats.totalRevenue > 0 ? "positive" as const : "neutral" as const
     },
     {
       label: "Factures en attente",
-      value: "23",
-      change: "-5%",
-      changeType: "positive" as const
+      value: financeStats.invoicesCount.toString(),
+      change: financeStats.invoicesCount > 0 ? `${financeStats.invoicesCount} factures` : "Aucune facture",
+      changeType: financeStats.invoicesCount > 0 ? "neutral" as const : "positive" as const
     },
     {
       label: "Taux de recouvrement",
-      value: "94.2%",
-      change: "+2.1%",
-      changeType: "positive" as const
+      value: `${financeStats.collectionRate.toFixed(1)}%`,
+      change: financeStats.collectionRate > 80 ? "Bon taux" : "À améliorer",
+      changeType: financeStats.collectionRate > 80 ? "positive" as const : "negative" as const
     },
     {
-      label: "Bourses attribuées",
-      value: "€45,600",
-      change: "+8.3%",
-      changeType: "positive" as const
+      label: "Total payé",
+      value: new Intl.NumberFormat('fr-FR', { 
+        style: 'currency', 
+        currency: 'EUR' 
+      }).format(financeStats.totalPaid),
+      change: financeStats.totalPaid > 0 ? "Paiements reçus" : "Aucun paiement",
+      changeType: financeStats.totalPaid > 0 ? "positive" as const : "neutral" as const
     }
   ];
 
-  const recentInvoices = [
-    {
-      id: "FAC-2024-001",
-      student: "Marie Dubois",
-      amount: "€2,500",
-      status: "paid",
-      dueDate: "2024-01-15"
-    },
-    {
-      id: "FAC-2024-002",
-      student: "Jean Martin",
-      amount: "€2,800",
-      status: "pending",
-      dueDate: "2024-01-20"
-    },
-    {
-      id: "FAC-2024-003",
-      student: "Sophie Laurent",
-      amount: "€2,300",
-      status: "overdue",
-      dueDate: "2024-01-10"
-    }
-  ];
+  // Transform real invoices data
+  const recentInvoices = invoices.slice(0, 3).map(invoice => ({
+    id: invoice.invoice_number,
+    student: invoice.student?.profile?.full_name || invoice.recipient_name || 'N/A',
+    amount: new Intl.NumberFormat('fr-FR', { 
+      style: 'currency', 
+      currency: 'EUR' 
+    }).format(invoice.total_amount),
+    status: invoice.status,
+    dueDate: new Date(invoice.due_date).toLocaleDateString('fr-FR')
+  }));
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -107,151 +107,192 @@ export default function Finance() {
   return (
     <ModuleLayout sidebar={<FinanceModuleSidebar />}>
       <div className="p-8 space-y-8">
-        <FinancePageHeader
-          title="Finance"
-          subtitle="Gestion financière et comptabilité"
-          stats={stats}
-          showCreateButton={false}
-          showExportButton={true}
-        />
+        {statsLoading || dataLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <span className="ml-2 text-muted-foreground">Chargement des données financières...</span>
+          </div>
+        ) : (
+          <>
+            <FinancePageHeader
+              title="Finance"
+              subtitle="Gestion financière et comptabilité"
+              stats={headerStats}
+              showCreateButton={false}
+              showExportButton={true}
+            />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Colonne principale */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Graphiques de revenus */}
-            <Card className="bg-white rounded-2xl shadow-sm border-0">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-[rgb(245,158,11)]" />
-                  Évolution des revenus
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64 flex items-center justify-center text-muted-foreground">
-                  <div className="text-center">
-                    <TrendingUp className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                    <p>Graphique des revenus à venir</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Colonne principale */}
+              <div className="lg:col-span-2 space-y-6">
+                {/* Graphiques de revenus */}
+                <Card className="bg-white rounded-2xl shadow-sm border-0">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5 text-finance" />
+                      Évolution des revenus
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-64 flex items-center justify-center text-muted-foreground">
+                      <div className="text-center">
+                        <TrendingUp className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                        <p>Graphique des revenus à venir</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
 
-            {/* Factures récentes */}
-            <Card className="bg-white rounded-2xl shadow-sm border-0">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-[rgb(245,158,11)]" />
-                  Factures récentes
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentInvoices.map((invoice, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-4 rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
+                {/* Factures récentes */}
+                <Card className="bg-white rounded-2xl shadow-sm border-0">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-finance" />
+                      Factures récentes
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {recentInvoices.length > 0 ? (
+                      <div className="space-y-4">
+                        {recentInvoices.map((invoice, index) => (
+                          <div
+                            key={invoice.id || index}
+                            className="flex items-center justify-between p-4 rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="p-2 bg-finance/10 rounded-lg">
+                                <FileText className="w-4 h-4 text-finance" />
+                              </div>
+                              <div>
+                                <p className="font-semibold text-foreground">{invoice.id}</p>
+                                <p className="text-sm text-muted-foreground">{invoice.student}</p>
+                              </div>
+                            </div>
+                            <div className="text-right space-y-1">
+                              <p className="font-semibold text-foreground">{invoice.amount}</p>
+                              <div className="flex items-center gap-2">
+                                {getStatusBadge(invoice.status)}
+                                <span className="text-xs text-muted-foreground">
+                                  Échéance: {invoice.dueDate}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <FileText className="w-12 h-12 mx-auto mb-2 opacity-50 text-muted-foreground" />
+                        <p className="text-muted-foreground">Aucune facture récente</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Colonne latérale */}
+              <div className="space-y-6">
+                {/* Actions rapides */}
+                <Card className="bg-white rounded-2xl shadow-sm border-0">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Actions rapides</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <button 
+                      className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
+                      onClick={handleCreateInvoice}
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="p-2 bg-[rgb(245,158,11)]/10 rounded-lg">
-                          <FileText className="w-4 h-4 text-[rgb(245,158,11)]" />
-                        </div>
+                      <div className="flex items-center gap-3">
+                        <FileText className="w-5 h-5 text-finance" />
                         <div>
-                          <p className="font-semibold text-foreground">{invoice.id}</p>
-                          <p className="text-sm text-muted-foreground">{invoice.student}</p>
+                          <p className="font-medium">Créer une facture</p>
+                          <p className="text-xs text-muted-foreground">Facturer un étudiant</p>
                         </div>
                       </div>
-                      <div className="text-right space-y-1">
-                        <p className="font-semibold text-foreground">{invoice.amount}</p>
-                        <div className="flex items-center gap-2">
-                          {getStatusBadge(invoice.status)}
-                          <span className="text-xs text-muted-foreground">
-                            Échéance: {invoice.dueDate}
-                          </span>
+                    </button>
+                    
+                    <button 
+                      className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
+                      onClick={handleRecordPayment}
+                    >
+                      <div className="flex items-center gap-3">
+                        <CreditCard className="w-5 h-5 text-finance" />
+                        <div>
+                          <p className="font-medium">Enregistrer un paiement</p>
+                          <p className="text-xs text-muted-foreground">Saisie manuelle</p>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                    </button>
 
-          {/* Colonne latérale */}
-          <div className="space-y-6">
-            {/* Actions rapides */}
-            <Card className="bg-white rounded-2xl shadow-sm border-0">
-              <CardHeader>
-                <CardTitle className="text-lg">Actions rapides</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <button 
-                  className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
-                  onClick={handleCreateInvoice}
-                >
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-5 h-5 text-[rgb(245,158,11)]" />
-                    <div>
-                      <p className="font-medium">Créer une facture</p>
-                      <p className="text-xs text-muted-foreground">Facturer un étudiant</p>
-                    </div>
-                  </div>
-                </button>
-                
-                <button 
-                  className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
-                  onClick={handleRecordPayment}
-                >
-                  <div className="flex items-center gap-3">
-                    <CreditCard className="w-5 h-5 text-[rgb(245,158,11)]" />
-                    <div>
-                      <p className="font-medium">Enregistrer un paiement</p>
-                      <p className="text-xs text-muted-foreground">Saisie manuelle</p>
-                    </div>
-                  </div>
-                </button>
+                    <button 
+                      className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
+                      onClick={handleManageScholarships}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Users className="w-5 h-5 text-finance" />
+                        <div>
+                          <p className="font-medium">Gestion des bourses</p>
+                          <p className="text-xs text-muted-foreground">Attribuer une bourse</p>
+                        </div>
+                      </div>
+                    </button>
+                  </CardContent>
+                </Card>
 
-                <button 
-                  className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
-                  onClick={handleManageScholarships}
-                >
-                  <div className="flex items-center gap-3">
-                    <Users className="w-5 h-5 text-[rgb(245,158,11)]" />
-                    <div>
-                      <p className="font-medium">Gestion des bourses</p>
-                      <p className="text-xs text-muted-foreground">Attribuer une bourse</p>
-                    </div>
-                  </div>
-                </button>
-              </CardContent>
-            </Card>
+                {/* Alertes dynamiques */}
+                <Card className="bg-white rounded-2xl shadow-sm border-0">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5 text-destructive" />
+                      Alertes
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {financeStats.totalOverdue > 0 && (
+                      <div className="p-3 bg-destructive/10 rounded-xl border border-destructive/20">
+                        <p className="text-sm font-medium text-destructive">
+                          {new Intl.NumberFormat('fr-FR', { 
+                            style: 'currency', 
+                            currency: 'EUR' 
+                          }).format(financeStats.totalOverdue)} en retard
+                        </p>
+                        <p className="text-xs text-destructive/80">Relances à envoyer</p>
+                      </div>
+                    )}
+                    
+                    {financeStats.totalPending > 0 && (
+                      <div className="p-3 bg-yellow-50 rounded-xl border border-yellow-200">
+                        <p className="text-sm font-medium text-yellow-700">
+                          {new Intl.NumberFormat('fr-FR', { 
+                            style: 'currency', 
+                            currency: 'EUR' 
+                          }).format(financeStats.totalPending)} en attente
+                        </p>
+                        <p className="text-xs text-yellow-600">Paiements attendus</p>
+                      </div>
+                    )}
 
-            {/* Alertes */}
-            <Card className="bg-white rounded-2xl shadow-sm border-0">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-red-500" />
-                  Alertes
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="p-3 bg-red-50 rounded-xl border border-red-200">
-                  <p className="text-sm font-medium text-red-700">8 factures en retard</p>
-                  <p className="text-xs text-red-600">Relances à envoyer</p>
-                </div>
-                
-                <div className="p-3 bg-yellow-50 rounded-xl border border-yellow-200">
-                  <p className="text-sm font-medium text-yellow-700">Rapprochement bancaire</p>
-                  <p className="text-xs text-yellow-600">En attente depuis 3 jours</p>
-                </div>
+                    {financeStats.collectionRate < 80 && financeStats.totalRevenue > 0 && (
+                      <div className="p-3 bg-orange-50 rounded-xl border border-orange-200">
+                        <p className="text-sm font-medium text-orange-700">
+                          Taux de recouvrement bas: {financeStats.collectionRate.toFixed(1)}%
+                        </p>
+                        <p className="text-xs text-orange-600">Actions de recouvrement nécessaires</p>
+                      </div>
+                    )}
 
-                <div className="p-3 bg-blue-50 rounded-xl border border-blue-200">
-                  <p className="text-sm font-medium text-blue-700">23 demandes de bourse</p>
-                  <p className="text-xs text-blue-600">À examiner</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+                    {financeStats.totalRevenue === 0 && (
+                      <div className="p-3 bg-blue-50 rounded-xl border border-blue-200">
+                        <p className="text-sm font-medium text-blue-700">Système initialisé</p>
+                        <p className="text-xs text-blue-600">Prêt pour la gestion financière</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </ModuleLayout>
   );
