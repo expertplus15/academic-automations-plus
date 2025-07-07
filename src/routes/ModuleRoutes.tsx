@@ -51,11 +51,9 @@ import FinanceIncomeStatement from '@/pages/finance/IncomeStatement';
 
 import FinanceBudgetManager from '@/pages/finance/BudgetManager';
 import FinanceCommercial from '@/pages/finance/Commercial';
-import FinanceCredits from '@/pages/finance/Credits';
 import FinanceTreasury from '@/pages/finance/Treasury';
 import FinanceTreasuryPayments from '@/pages/finance/TreasuryPayments';
-import FinanceReceivables from '@/pages/finance/Receivables';
-import FinanceCollection from '@/pages/finance/Collection';
+import FinanceReceivablesCredits from '@/pages/finance/ReceivablesCredits';
 import FinanceManagementIntelligence from '@/pages/finance/ManagementIntelligence';
 import FinanceClosing from '@/pages/finance/Closing';
 import FinanceConfig from '@/pages/finance/Config';
@@ -218,15 +216,15 @@ export function ModuleRoutes() {
       
       {/* SM2: Facturation & Avoirs */}
       <Route path="/finance/commercial" element={<FinanceCommercial />} />
-      <Route path="/finance/credits" element={<FinanceCredits />} />
       
       {/* SM3: Gestion Encaissements */}
       <Route path="/finance/treasury" element={<FinanceTreasury />} />
       <Route path="/finance/treasury-payments" element={<FinanceTreasuryPayments />} />
       
-      {/* SM4: Suivi des Créances */}
-      <Route path="/finance/receivables" element={<FinanceReceivables />} />
-      <Route path="/finance/collection" element={<FinanceCollection />} />
+      {/* SM4: Suivi des Créances & Avoirs */}
+      <Route path="/finance/receivables" element={<FinanceReceivablesCredits />} />
+      <Route path="/finance/credits" element={<FinanceReceivablesCredits />} />
+      <Route path="/finance/collection" element={<FinanceReceivablesCredits />} />
       
       {/* SM5: Comptabilité Générale */}
       

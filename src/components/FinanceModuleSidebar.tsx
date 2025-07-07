@@ -42,9 +42,8 @@ import {
 
 const financeItems = [
   { title: "Facturation Unifiée", url: "/finance/invoices", icon: FileText },
-  { title: "Avoirs & Corrections", url: "/finance/credits", icon: RefreshCw },
   { title: "Trésorerie & Hub Paiements", url: "/finance/treasury-payments", icon: Wallet },
-  { title: "Suivi des Créances", url: "/finance/receivables", icon: PieChart },
+  { title: "Créances & Avoirs", url: "/finance/receivables", icon: PieChart },
   { title: "Réconciliation Auto", url: "/finance/reconciliation", icon: Zap },
   { title: "Gestion des Dépenses", url: "/finance/expenses", icon: Receipt },
   { title: "Postes de Dépenses", url: "/finance/expense-categories", icon: Target },
