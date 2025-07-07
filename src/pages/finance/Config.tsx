@@ -9,12 +9,14 @@ import { useToast } from '@/hooks/use-toast';
 import { FeeTypesManager } from '@/components/finance/FeeTypesManager';
 import { ServiceTypesManager } from '@/components/finance/ServiceTypesManager';
 import { AcademicYearSelector } from '@/components/finance/AcademicYearSelector';
-import { Settings, Database, FileText, Users, Euro, Receipt, Calendar } from 'lucide-react';
+import { TaxSettingsManager } from '@/components/finance/TaxSettingsManager';
+import { Settings, Database, FileText, Users, Euro, Receipt, Calendar, Calculator } from 'lucide-react';
 
 export default function Config() {
   const { toast } = useToast();
   const [showFeeTypesManager, setShowFeeTypesManager] = useState(false);
   const [showServiceTypesManager, setShowServiceTypesManager] = useState(false);
+  const [showTaxSettingsManager, setShowTaxSettingsManager] = useState(false);
 
   const handleGererPlan = () => {
     toast({
@@ -174,6 +176,34 @@ export default function Config() {
                   </DialogContent>
                 </Dialog>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calculator className="w-5 h-5 text-red-500" />
+                Paramètres Fiscaux
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                Configuration des taux de taxes et TVA
+              </p>
+              <Dialog open={showTaxSettingsManager} onOpenChange={setShowTaxSettingsManager}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="w-full gap-2">
+                    <Calculator className="w-4 h-4" />
+                    Gérer Fiscalité
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Paramètres Fiscaux</DialogTitle>
+                  </DialogHeader>
+                  <TaxSettingsManager />
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
 

@@ -55,7 +55,7 @@ const financeItems = [
   { title: "Gestionnaire Budgétaire", url: "/finance/budget-manager", icon: Calculator },
   { title: "Clôtures Rapides", url: "/finance/closing", icon: CheckCircle },
   { title: "Configuration Système", url: "/finance/config", icon: Settings },
-  { title: "Paramètres Fiscaux", url: "/finance/tax-settings", icon: Calculator },
+  
   { title: "Sauvegardes", url: "/finance/backups", icon: RefreshCw }
 ];
 
