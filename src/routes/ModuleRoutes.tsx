@@ -53,6 +53,7 @@ import FinanceBudgetManager from '@/pages/finance/BudgetManager';
 import FinanceCommercial from '@/pages/finance/Commercial';
 import FinanceCredits from '@/pages/finance/Credits';
 import FinanceTreasury from '@/pages/finance/Treasury';
+import FinanceTreasuryPayments from '@/pages/finance/TreasuryPayments';
 import FinanceReceivables from '@/pages/finance/Receivables';
 import FinanceCollection from '@/pages/finance/Collection';
 import FinanceManagementIntelligence from '@/pages/finance/ManagementIntelligence';
@@ -221,6 +222,7 @@ export function ModuleRoutes() {
       
       {/* SM3: Gestion Encaissements */}
       <Route path="/finance/treasury" element={<FinanceTreasury />} />
+      <Route path="/finance/treasury-payments" element={<FinanceTreasuryPayments />} />
       
       {/* SM4: Suivi des Créances */}
       <Route path="/finance/receivables" element={<FinanceReceivables />} />
