@@ -46,7 +46,6 @@ const financeItems = [
   { title: "Trésorerie & Hub Paiements", url: "/finance/treasury-payments", icon: Wallet },
   { title: "Suivi des Créances", url: "/finance/receivables", icon: PieChart },
   { title: "Réconciliation Auto", url: "/finance/reconciliation", icon: Zap },
-  { title: "Scoring Risques", url: "/finance/risk-scoring", icon: AlertTriangle },
   { title: "Gestion des Dépenses", url: "/finance/expenses", icon: Receipt },
   { title: "Postes de Dépenses", url: "/finance/expense-categories", icon: Target },
   { title: "Fournisseurs", url: "/finance/suppliers", icon: Building },

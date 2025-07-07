@@ -154,10 +154,11 @@ export function ManagementIntelligence() {
       </div>
 
       <Tabs defaultValue="controle" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="controle">Contrôle de Gestion</TabsTrigger>
           <TabsTrigger value="intelligence">Intelligence IA</TabsTrigger>
           <TabsTrigger value="analytics">Analytique Multi-axes</TabsTrigger>
+          <TabsTrigger value="scoring">Scoring & Risques</TabsTrigger>
         </TabsList>
 
         {/* CONTRÔLE DE GESTION */}
@@ -497,6 +498,259 @@ export function ManagementIntelligence() {
                   <p className="text-sm text-success/80">
                     Le taux de recouvrement s'améliore. Objectif 95% atteignable ce trimestre.
                   </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* SCORING & RISQUES */}
+        <TabsContent value="scoring" className="space-y-6">
+          {/* Dashboard risques principal */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-2 bg-purple-500/10 rounded-lg">
+                    <Shield className="w-5 h-5 text-purple-500" />
+                  </div>
+                  <div className="flex items-center gap-1 text-sm text-success">
+                    <TrendingUp className="w-3 h-3" />
+                    +3%
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-sm text-muted-foreground">Précision Prédictions</h3>
+                  <p className="text-2xl font-bold">91%</p>
+                  <p className="text-xs text-muted-foreground">Algorithmes ML optimisés</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-2 bg-warning/10 rounded-lg">
+                    <AlertTriangle className="w-5 h-5 text-warning" />
+                  </div>
+                  <div className="flex items-center gap-1 text-sm text-success">
+                    <TrendingDown className="w-3 h-3" />
+                    -5
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-sm text-muted-foreground">Clients à Risque</h3>
+                  <p className="text-2xl font-bold">23</p>
+                  <p className="text-xs text-muted-foreground">Surveillance active</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-2 bg-success/10 rounded-lg">
+                    <DollarSign className="w-5 h-5 text-success" />
+                  </div>
+                  <div className="flex items-center gap-1 text-sm text-success">
+                    <TrendingUp className="w-3 h-3" />
+                    +25%
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-sm text-muted-foreground">Prévention Impayés</h3>
+                  <p className="text-2xl font-bold">€89K</p>
+                  <p className="text-xs text-muted-foreground">Économies réalisées</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-2 bg-finance/10 rounded-lg">
+                    <Target className="w-5 h-5 text-finance" />
+                  </div>
+                  <div className="flex items-center gap-1 text-sm text-success">
+                    <TrendingUp className="w-3 h-3" />
+                    +0.3
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-sm text-muted-foreground">Score Moyen</h3>
+                  <p className="text-2xl font-bold">7.2/10</p>
+                  <p className="text-xs text-muted-foreground">Amélioration continue</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Modules de scoring */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Brain className="w-5 h-5 text-purple-500" />
+                  Modèles Prédictifs
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">
+                  Algorithmes ML pour prédire les risques d'impayés
+                </p>
+                <div className="space-y-3 mb-4">
+                  <div className="flex justify-between text-sm">
+                    <span>Modèle Random Forest</span>
+                    <span className="font-medium text-success">Active</span>
+                  </div>
+                  <Progress value={91} className="h-2" />
+                  <div className="flex justify-between text-sm">
+                    <span>Dernière MAJ</span>
+                    <span className="text-muted-foreground">Il y a 2h</span>
+                  </div>
+                </div>
+                <Button className="w-full gap-2">
+                  <Brain className="w-4 h-4" />
+                  Entraîner Modèle
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-blue-500" />
+                  Indicateurs Avancés
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">
+                  Variables comportementales et financières en temps réel
+                </p>
+                <div className="space-y-3 mb-4">
+                  <div className="text-sm">
+                    <div className="flex justify-between mb-1">
+                      <span>Historique paiements</span>
+                      <span className="font-medium">85%</span>
+                    </div>
+                    <Progress value={85} className="h-2" />
+                  </div>
+                  <div className="text-sm">
+                    <div className="flex justify-between mb-1">
+                      <span>Comportement financier</span>
+                      <span className="font-medium">72%</span>
+                    </div>
+                    <Progress value={72} className="h-2" />
+                  </div>
+                </div>
+                <Button variant="outline" className="w-full gap-2">
+                  <Shield className="w-4 h-4" />
+                  Configurer Indicateurs
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5 text-success" />
+                  Actions Préventives
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground mb-4">
+                  Recommandations automatiques basées sur les scores
+                </p>
+                <div className="space-y-2 mb-4">
+                  <div className="text-xs bg-warning/10 text-warning p-2 rounded">
+                    3 clients nécessitent un suivi rapproché
+                  </div>
+                  <div className="text-xs bg-destructive/10 text-destructive p-2 rounded">
+                    1 client en situation critique
+                  </div>
+                  <div className="text-xs bg-success/10 text-success p-2 rounded">
+                    12 actions préventives en cours
+                  </div>
+                </div>
+                <Button variant="outline" className="w-full gap-2">
+                  <Target className="w-4 h-4" />
+                  Voir Actions
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Analyse des risques détaillée */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5 text-finance" />
+                Analyse des Risques par Segments
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h4 className="font-semibold">Répartition par niveau de risque</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-success"></div>
+                        <span className="text-sm">Risque faible</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-semibold">847</span>
+                        <span className="text-xs text-muted-foreground ml-2">(78%)</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-warning"></div>
+                        <span className="text-sm">Risque modéré</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-semibold">185</span>
+                        <span className="text-xs text-muted-foreground ml-2">(17%)</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-destructive"></div>
+                        <span className="text-sm">Risque élevé</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-semibold">23</span>
+                        <span className="text-xs text-muted-foreground ml-2">(2%)</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-destructive/70"></div>
+                        <span className="text-sm">Risque critique</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-semibold">8</span>
+                        <span className="text-xs text-muted-foreground ml-2">(1%)</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <h4 className="font-semibold">Impact financier estimé</h4>
+                  <div className="space-y-3">
+                    <div className="p-3 bg-success/5 rounded-lg border-l-4 border-success">
+                      <div className="font-medium text-success">Prévention réussie</div>
+                      <div className="text-sm text-success/80">€89,400 d'impayés évités ce mois</div>
+                    </div>
+                    <div className="p-3 bg-warning/5 rounded-lg border-l-4 border-warning">
+                      <div className="font-medium text-warning">Sous surveillance</div>
+                      <div className="text-sm text-warning/80">€125,600 en cours de traitement</div>
+                    </div>
+                    <div className="p-3 bg-destructive/5 rounded-lg border-l-4 border-destructive">
+                      <div className="font-medium text-destructive">Action urgente</div>
+                      <div className="text-sm text-destructive/80">€34,200 nécessitent intervention</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>

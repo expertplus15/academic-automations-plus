@@ -55,7 +55,6 @@ import FinanceCredits from '@/pages/finance/Credits';
 import FinanceTreasury from '@/pages/finance/Treasury';
 import FinanceReceivables from '@/pages/finance/Receivables';
 import FinanceCollection from '@/pages/finance/Collection';
-import FinanceRiskScoring from '@/pages/finance/RiskScoring';
 import FinanceManagementIntelligence from '@/pages/finance/ManagementIntelligence';
 import FinanceClosing from '@/pages/finance/Closing';
 import FinanceConfig from '@/pages/finance/Config';
@@ -226,7 +225,6 @@ export function ModuleRoutes() {
       {/* SM4: Suivi des Créances */}
       <Route path="/finance/receivables" element={<FinanceReceivables />} />
       <Route path="/finance/collection" element={<FinanceCollection />} />
-      <Route path="/finance/risk-scoring" element={<FinanceRiskScoring />} />
       
       {/* SM5: Comptabilité Générale */}
       
