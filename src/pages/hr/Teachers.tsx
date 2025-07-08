@@ -14,17 +14,21 @@ import {
   Phone,
   Mail,
   Calendar,
-  MapPin
+  MapPin,
+  CheckSquare
 } from 'lucide-react';
 import { useTeacherProfiles } from '@/hooks/hr/useTeacherProfiles';
 import { TeacherFormModal } from '@/components/hr/TeacherFormModal';
+import { BulkTeacherActions } from '@/components/hr/BulkTeacherActions';
 
 export default function Teachers() {
-  const { teacherProfiles, loading, error } = useTeacherProfiles();
+  const { teacherProfiles, loading, error, refreshTeacherProfiles } = useTeacherProfiles();
   const [searchTerm, setSearchTerm] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedTeacher, setSelectedTeacher] = useState(null);
   const [modalMode, setModalMode] = useState<'create' | 'edit' | 'view'>('create');
+  const [selectedTeachers, setSelectedTeachers] = useState<string[]>([]);
+  const [showBulkActions, setShowBulkActions] = useState(false);
 
   const filteredTeachers = teacherProfiles.filter(teacher =>
     teacher.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -117,13 +121,23 @@ export default function Teachers() {
             <h1 className="text-3xl font-bold text-foreground">Gestion des Enseignants</h1>
             <p className="text-muted-foreground mt-1">Gérer les profils et informations des enseignants</p>
           </div>
-          <Button 
-            className="bg-amber-500 hover:bg-amber-600 text-white"
-            onClick={handleCreateTeacher}
-          >
-            <UserPlus className="w-4 h-4 mr-2" />
-            Ajouter un enseignant
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="outline"
+              onClick={() => setShowBulkActions(!showBulkActions)}
+              className={showBulkActions ? 'bg-primary text-primary-foreground' : ''}
+            >
+              <CheckSquare className="w-4 h-4 mr-2" />
+              Actions groupées
+            </Button>
+            <Button 
+              className="bg-amber-500 hover:bg-amber-600 text-white"
+              onClick={handleCreateTeacher}
+            >
+              <UserPlus className="w-4 h-4 mr-2" />
+              Ajouter un enseignant
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -164,6 +178,16 @@ export default function Teachers() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Bulk Actions Panel */}
+        {showBulkActions && (
+          <BulkTeacherActions
+            teachers={filteredTeachers}
+            selectedTeachers={selectedTeachers}
+            onSelectionChange={setSelectedTeachers}
+            onRefresh={refreshTeacherProfiles}
+          />
+        )}
 
         {/* Teachers List */}
         <Card className="bg-white rounded-2xl shadow-sm border-0">
