@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { FileText, Download, Calendar as CalendarIcon, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
-import { format, subMonths } from 'date-fns';
+import { format as formatDate, subMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -227,7 +227,7 @@ export function ReportGenerator() {
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {dateRange.from ? (
-                      format(dateRange.from, "PPP", { locale: fr })
+                      formatDate(dateRange.from, "PPP", { locale: fr })
                     ) : (
                       <span>Date de début</span>
                     )}
@@ -255,7 +255,7 @@ export function ReportGenerator() {
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {dateRange.to ? (
-                      format(dateRange.to, "PPP", { locale: fr })
+                      formatDate(dateRange.to, "PPP", { locale: fr })
                     ) : (
                       <span>Date de fin</span>
                     )}
