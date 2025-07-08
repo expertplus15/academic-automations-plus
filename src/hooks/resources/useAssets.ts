@@ -45,15 +45,38 @@ export function useAssets() {
   const fetchAssets = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      setError(null);
+      
+      // First try with relations - if it fails, try without
+      let { data, error } = await supabase
         .from('assets')
         .select(`
           *,
           category:asset_categories(id, name, code),
           room:rooms(id, name),
-          responsible_person:profiles(id, full_name)
+          responsible_person:profiles!responsible_person_id(id, full_name)
         `)
         .order('created_at', { ascending: false });
+
+      // If the relation fails, try a simpler query
+      if (error) {
+        console.warn('Complex query failed, trying simple query:', error.message);
+        const simpleQuery = await supabase
+          .from('assets')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        // Map simple data to match Asset interface with optional relations
+        const mappedData = simpleQuery.data?.map((asset: any) => ({
+          ...asset,
+          category: null,
+          room: null,
+          responsible_person: null
+        }));
+        
+        data = mappedData;
+        error = simpleQuery.error;
+      }
 
       if (error) throw error;
       setAssets((data as any) || []);

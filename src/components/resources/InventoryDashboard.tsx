@@ -163,7 +163,13 @@ export function InventoryDashboard() {
       <div className="text-center py-12">
         <Package className="w-12 h-12 mx-auto mb-4 text-red-500 opacity-50" />
         <p className="text-red-600 mb-2">Erreur lors du chargement</p>
-        <p className="text-muted-foreground text-sm">{error}</p>
+        <p className="text-muted-foreground text-sm mb-4">{error}</p>
+        <Button 
+          onClick={() => window.location.reload()} 
+          variant="outline"
+        >
+          Recharger la page
+        </Button>
       </div>
     );
   }
