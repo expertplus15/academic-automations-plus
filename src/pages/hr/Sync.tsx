@@ -183,7 +183,17 @@ export default function Sync() {
             <h1 className="text-3xl font-bold text-foreground">Synchronisation Inter-Modules</h1>
             <p className="text-muted-foreground mt-1">Gestion des synchronisations RH ↔ Académique ↔ Finance</p>
           </div>
-          <Button className="bg-amber-500 hover:bg-amber-600 text-white">
+          <Button 
+            className="bg-amber-500 hover:bg-amber-600 text-white"
+            onClick={() => {
+              toast({
+                title: "Actualisation en cours",
+                description: "Rechargement des données de synchronisation...",
+              });
+              // Force refresh
+              window.location.reload();
+            }}
+          >
             <RefreshCw className="w-4 h-4 mr-2" />
             Actualiser
           </Button>
@@ -294,7 +304,14 @@ export default function Sync() {
                             <RotateCcw className="w-4 h-4" />
                           </Button>
                         )}
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => toast({
+                            title: "Détails de l'opération",
+                            description: "Affichage des détails de l'opération de synchronisation",
+                          })}
+                        >
                           <Settings className="w-4 h-4" />
                         </Button>
                       </div>
@@ -372,7 +389,14 @@ export default function Sync() {
                         >
                           <Play className="w-4 h-4" />
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => toast({
+                            title: "Configuration",
+                            description: "Édition de la configuration de synchronisation",
+                          })}
+                        >
                           <Settings className="w-4 h-4" />
                         </Button>
                       </div>

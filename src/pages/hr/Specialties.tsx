@@ -20,11 +20,31 @@ import {
 } from 'lucide-react';
 import { useTeacherSpecialties } from '@/hooks/hr/useTeacherSpecialties';
 import { useToast } from '@/hooks/use-toast';
+import { SpecialtyFormModal } from '@/components/hr/SpecialtyFormModal';
+import { TeacherAssignmentModal } from '@/components/hr/TeacherAssignmentModal';
 
 export default function Specialties() {
   const { specialties, assignments, loading, error } = useTeacherSpecialties();
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
+  const [specialtyModalState, setSpecialtyModalState] = useState<{
+    isOpen: boolean;
+    mode: 'create' | 'edit' | 'view';
+    specialty?: any;
+  }>({
+    isOpen: false,
+    mode: 'create',
+    specialty: undefined
+  });
+  const [assignmentModalState, setAssignmentModalState] = useState<{
+    isOpen: boolean;
+    mode: 'create' | 'edit' | 'view';
+    assignment?: any;
+  }>({
+    isOpen: false,
+    mode: 'create',
+    assignment: undefined
+  });
 
   const filteredSpecialties = specialties.filter(specialty =>
     specialty.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -127,9 +147,10 @@ export default function Specialties() {
           </div>
           <Button 
             className="bg-amber-500 hover:bg-amber-600 text-white"
-            onClick={() => toast({
-              title: "Nouvelle spécialité",
-              description: "Fonctionnalité de création de spécialité en développement",
+            onClick={() => setSpecialtyModalState({
+              isOpen: true,
+              mode: 'create',
+              specialty: undefined
             })}
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -222,9 +243,10 @@ export default function Specialties() {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => toast({
-                            title: "Voir spécialité",
-                            description: "Affichage des détails de spécialité en développement",
+                          onClick={() => setSpecialtyModalState({
+                            isOpen: true,
+                            mode: 'view',
+                            specialty: specialty
                           })}
                         >
                           <Eye className="w-4 h-4" />
@@ -232,9 +254,10 @@ export default function Specialties() {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => toast({
-                            title: "Modifier spécialité",
-                            description: "Modification de spécialité en développement",
+                          onClick={() => setSpecialtyModalState({
+                            isOpen: true,
+                            mode: 'edit',
+                            specialty: specialty
                           })}
                         >
                           <Edit className="w-4 h-4" />
@@ -257,11 +280,22 @@ export default function Specialties() {
           {/* Assignments Tab */}
           <TabsContent value="assignments">
             <Card className="bg-white rounded-2xl shadow-sm border-0">
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
                   <Users className="w-5 h-5 text-amber-500" />
                   Affectations ({filteredAssignments.length})
                 </CardTitle>
+                <Button 
+                  className="bg-amber-500 hover:bg-amber-600 text-white"
+                  onClick={() => setAssignmentModalState({
+                    isOpen: true,
+                    mode: 'create',
+                    assignment: undefined
+                  })}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nouvelle affectation
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -311,9 +345,10 @@ export default function Specialties() {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => toast({
-                            title: "Voir affectation",
-                            description: "Affichage des détails d'affectation en développement",
+                          onClick={() => setAssignmentModalState({
+                            isOpen: true,
+                            mode: 'view',
+                            assignment: assignment
                           })}
                         >
                           <Eye className="w-4 h-4" />
@@ -321,9 +356,10 @@ export default function Specialties() {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => toast({
-                            title: "Modifier affectation",
-                            description: "Modification d'affectation en développement",
+                          onClick={() => setAssignmentModalState({
+                            isOpen: true,
+                            mode: 'edit',
+                            assignment: assignment
                           })}
                         >
                           <Edit className="w-4 h-4" />
@@ -343,6 +379,21 @@ export default function Specialties() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Modals */}
+        <SpecialtyFormModal
+          isOpen={specialtyModalState.isOpen}
+          onClose={() => setSpecialtyModalState({ isOpen: false, mode: 'create', specialty: undefined })}
+          specialty={specialtyModalState.specialty}
+          mode={specialtyModalState.mode}
+        />
+
+        <TeacherAssignmentModal
+          isOpen={assignmentModalState.isOpen}
+          onClose={() => setAssignmentModalState({ isOpen: false, mode: 'create', assignment: undefined })}
+          assignment={assignmentModalState.assignment}
+          mode={assignmentModalState.mode}
+        />
       </div>
     </ModuleLayout>
   );

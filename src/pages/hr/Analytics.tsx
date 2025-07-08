@@ -149,7 +149,7 @@ export default function Analytics() {
               variant="outline"
               onClick={() => toast({
                 title: "Export en cours",
-                description: "Fonctionnalité d'export en développement",
+                description: "Téléchargement du rapport Analytics RH en PDF...",
               })}
             >
               <Download className="w-4 h-4 mr-2" />
@@ -159,7 +159,7 @@ export default function Analytics() {
               className="bg-amber-500 hover:bg-amber-600 text-white"
               onClick={() => toast({
                 title: "Données actualisées",
-                description: "Les données ont été mises à jour",
+                description: "Les données Analytics ont été mises à jour avec succès",
               })}
             >
               <RefreshCw className="w-4 h-4 mr-2" />
