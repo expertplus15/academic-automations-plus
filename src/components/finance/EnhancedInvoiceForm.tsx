@@ -5,9 +5,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useFinanceData } from '@/hooks/useFinanceData';
 import { useStudents } from '@/hooks/useStudents';
-import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { invoiceFormSchema, type InvoiceFormData } from '@/lib/validations';
 import { Calendar, Plus, Trash2 } from 'lucide-react';
 
 interface InvoiceServiceLine {
@@ -29,13 +34,6 @@ interface EnhancedInvoiceFormProps {
 }
 
 export function EnhancedInvoiceForm({ open, onOpenChange, onSuccess }: EnhancedInvoiceFormProps) {
-  const [formData, setFormData] = useState({
-    student_id: '',
-    fiscal_year_id: '',
-    due_date: '',
-    notes: ''
-  });
-  
   const [serviceLines, setServiceLines] = useState<InvoiceServiceLine[]>([
     {
       id: '1',
@@ -53,6 +51,30 @@ export function EnhancedInvoiceForm({ open, onOpenChange, onSuccess }: EnhancedI
   const [loading, setLoading] = useState(false);
   const { createInvoice, fiscalYears, serviceTypes, feeTypes } = useFinanceData();
   const { students } = useStudents();
+  const { hasRole } = useAuth();
+  const { toast } = useToast();
+
+  const form = useForm<InvoiceFormData>({
+    resolver: zodResolver(invoiceFormSchema),
+    defaultValues: {
+      student_id: '',
+      fiscal_year_id: '',
+      due_date: '',
+      invoice_type: 'student',
+      notes: '',
+      services: [{
+        description: '',
+        quantity: 1,
+        unit_price: 0,
+        tax_rate: 0
+      }]
+    }
+  });
+
+  // Check permissions
+  if (!hasRole(['admin', 'finance', 'hr'])) {
+    return null;
+  }
 
   const generateInvoiceNumber = () => {
     const year = new Date().getFullYear().toString().slice(-2);
@@ -129,32 +151,46 @@ export function EnhancedInvoiceForm({ open, onOpenChange, onSuccess }: EnhancedI
     return { subtotal, tax_amount, total_amount };
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (data: InvoiceFormData) => {
+    // Double-check permissions
+    if (!hasRole(['admin', 'finance', 'hr'])) {
+      toast({
+        title: "Accès refusé",
+        description: "Vous n'avez pas les permissions pour créer une facture",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
       const { subtotal, tax_amount, total_amount } = calculateTotals();
       
       const invoiceData = {
-        ...formData,
+        student_id: data.student_id,
+        fiscal_year_id: data.fiscal_year_id,
+        due_date: data.due_date,
+        recipient_name: data.recipient_name,
+        recipient_email: data.recipient_email,
+        recipient_address: data.recipient_address,
+        invoice_type: data.invoice_type,
+        notes: data.notes,
         invoice_number: generateInvoiceNumber(),
         subtotal,
         tax_amount,
-        total_amount,
-        invoice_type: 'student'
+        total_amount
       };
 
       await createInvoice(invoiceData);
       
-      // Reset form
-      setFormData({
-        student_id: '',
-        fiscal_year_id: '',
-        due_date: '',
-        notes: ''
+      toast({
+        title: "Succès",
+        description: "Facture créée avec succès"
       });
       
+      // Reset form
+      form.reset();
       setServiceLines([{
         id: '1',
         service_type_id: '',
@@ -170,7 +206,11 @@ export function EnhancedInvoiceForm({ open, onOpenChange, onSuccess }: EnhancedI
       onOpenChange(false);
       onSuccess?.();
     } catch (error) {
-      console.error('Error creating invoice:', error);
+      toast({
+        title: "Erreur",
+        description: "Erreur lors de la création de la facture",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -188,52 +228,77 @@ export function EnhancedInvoiceForm({ open, onOpenChange, onSuccess }: EnhancedI
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Informations générales */}
-          <div className="grid grid-cols-3 gap-4 p-4 bg-muted/50 rounded-lg">
-            <div className="space-y-2">
-              <Label htmlFor="student_id">Étudiant</Label>
-              <Select value={formData.student_id} onValueChange={(value) => setFormData(prev => ({ ...prev, student_id: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un étudiant" />
-                </SelectTrigger>
-                <SelectContent>
-                  {students.map((student) => (
-                    <SelectItem key={student.id} value={student.id}>
-                      {student.profile.full_name} - {student.student_number}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            {/* Informations générales */}
+            <div className="grid grid-cols-3 gap-4 p-4 bg-muted/50 rounded-lg">
+              <FormField
+                control={form.control}
+                name="student_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Étudiant</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner un étudiant" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {students.map((student) => (
+                          <SelectItem key={student.id} value={student.id}>
+                            {student.profile.full_name} - {student.student_number}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="space-y-2">
-              <Label htmlFor="fiscal_year_id">Année fiscale</Label>
-              <Select value={formData.fiscal_year_id} onValueChange={(value) => setFormData(prev => ({ ...prev, fiscal_year_id: value }))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner l'année fiscale" />
-                </SelectTrigger>
-                <SelectContent>
-                  {fiscalYears.map((year) => (
-                    <SelectItem key={year.id} value={year.id}>
-                      {year.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+              <FormField
+                control={form.control}
+                name="fiscal_year_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Année fiscale</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner l'année fiscale" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {fiscalYears.map((year) => (
+                          <SelectItem key={year.id} value={year.id}>
+                            {year.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="space-y-2">
-              <Label htmlFor="due_date">Date d'échéance</Label>
-              <Input
-                id="due_date"
-                type="date"
-                value={formData.due_date}
-                onChange={(e) => setFormData(prev => ({ ...prev, due_date: e.target.value }))}
-                required
+              <FormField
+                control={form.control}
+                name="due_date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Date d'échéance</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="date"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-          </div>
 
           {/* Lignes de services */}
           <div className="space-y-4">
@@ -371,36 +436,44 @@ export function EnhancedInvoiceForm({ open, onOpenChange, onSuccess }: EnhancedI
             </div>
           </div>
 
-          {/* Notes */}
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
-            <Textarea
-              id="notes"
-              value={formData.notes}
-              onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-              placeholder="Notes facultatives..."
-              rows={3}
+            {/* Notes */}
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notes</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Notes facultatives..."
+                      rows={3}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              className="flex-1"
-            >
-              Annuler
-            </Button>
-            <Button
-              type="submit"
-              disabled={loading}
-              className="flex-1 bg-[rgb(245,158,11)] hover:bg-[rgb(245,158,11)]/90"
-            >
-              {loading ? 'Création...' : 'Créer la facture'}
-            </Button>
-          </div>
-        </form>
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                className="flex-1"
+              >
+                Annuler
+              </Button>
+              <Button
+                type="submit"
+                disabled={loading}
+                className="flex-1 bg-[rgb(245,158,11)] hover:bg-[rgb(245,158,11)]/90"
+              >
+                {loading ? 'Création...' : 'Créer la facture'}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

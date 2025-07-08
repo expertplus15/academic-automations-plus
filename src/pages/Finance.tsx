@@ -1,9 +1,11 @@
 import React from 'react';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ModuleLayout } from '@/components/layouts/ModuleLayout';
 import { FinanceModuleSidebar } from '@/components/FinanceModuleSidebar';
 import { FinancePageHeader } from '@/components/FinancePageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useFinanceData } from '@/hooks/useFinanceData';
 import { useFinanceStats } from '@/hooks/useFinanceStats';
@@ -21,10 +23,24 @@ import {
 
 export default function Finance() {
   const { toast } = useToast();
+  const { hasRole } = useAuth();
   const { invoices, loading: dataLoading } = useFinanceData();
   const { stats: financeStats, loading: statsLoading } = useFinanceStats();
 
+  // Check permissions for different actions
+  const canCreateInvoices = hasRole(['admin', 'finance', 'hr']);
+  const canRecordPayments = hasRole(['admin', 'finance']);
+  const canManageScholarships = hasRole(['admin', 'finance']);
+
   const handleCreateInvoice = () => {
+    if (!canCreateInvoices) {
+      toast({
+        title: "Accès refusé",
+        description: "Vous n'avez pas les permissions pour créer une facture",
+        variant: "destructive"
+      });
+      return;
+    }
     toast({
       title: "Créer une facture",
       description: "Interface de création de facture ouverte",
@@ -32,6 +48,14 @@ export default function Finance() {
   };
 
   const handleRecordPayment = () => {
+    if (!canRecordPayments) {
+      toast({
+        title: "Accès refusé",
+        description: "Vous n'avez pas les permissions pour enregistrer un paiement",
+        variant: "destructive"
+      });
+      return;
+    }
     toast({
       title: "Enregistrer un paiement",
       description: "Interface de saisie de paiement ouverte",
@@ -39,6 +63,14 @@ export default function Finance() {
   };
 
   const handleManageScholarships = () => {
+    if (!canManageScholarships) {
+      toast({
+        title: "Accès refusé",
+        description: "Vous n'avez pas les permissions pour gérer les bourses",
+        variant: "destructive"
+      });
+      return;
+    }
     toast({
       title: "Gestion des bourses",
       description: "Interface de gestion des bourses ouverte",
@@ -105,7 +137,8 @@ export default function Finance() {
   };
 
   return (
-    <ModuleLayout sidebar={<FinanceModuleSidebar />}>
+    <ProtectedRoute allowedRoles={['admin', 'finance', 'hr']}>
+      <ModuleLayout sidebar={<FinanceModuleSidebar />}>
       <div className="p-8 space-y-8">
         {statsLoading || dataLoading ? (
           <div className="flex items-center justify-center py-12">
@@ -198,44 +231,50 @@ export default function Finance() {
                     <CardTitle className="text-lg">Actions rapides</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <button 
-                      className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
-                      onClick={handleCreateInvoice}
-                    >
-                      <div className="flex items-center gap-3">
-                        <FileText className="w-5 h-5 text-finance" />
-                        <div>
-                          <p className="font-medium">Créer une facture</p>
-                          <p className="text-xs text-muted-foreground">Facturer un étudiant</p>
+                    {canCreateInvoices && (
+                      <button 
+                        className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
+                        onClick={handleCreateInvoice}
+                      >
+                        <div className="flex items-center gap-3">
+                          <FileText className="w-5 h-5 text-finance" />
+                          <div>
+                            <p className="font-medium">Créer une facture</p>
+                            <p className="text-xs text-muted-foreground">Facturer un étudiant</p>
+                          </div>
                         </div>
-                      </div>
-                    </button>
+                      </button>
+                    )}
                     
-                    <button 
-                      className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
-                      onClick={handleRecordPayment}
-                    >
-                      <div className="flex items-center gap-3">
-                        <CreditCard className="w-5 h-5 text-finance" />
-                        <div>
-                          <p className="font-medium">Enregistrer un paiement</p>
-                          <p className="text-xs text-muted-foreground">Saisie manuelle</p>
+                    {canRecordPayments && (
+                      <button 
+                        className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
+                        onClick={handleRecordPayment}
+                      >
+                        <div className="flex items-center gap-3">
+                          <CreditCard className="w-5 h-5 text-finance" />
+                          <div>
+                            <p className="font-medium">Enregistrer un paiement</p>
+                            <p className="text-xs text-muted-foreground">Saisie manuelle</p>
+                          </div>
                         </div>
-                      </div>
-                    </button>
+                      </button>
+                    )}
 
-                    <button 
-                      className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
-                      onClick={handleManageScholarships}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Users className="w-5 h-5 text-finance" />
-                        <div>
-                          <p className="font-medium">Gestion des bourses</p>
-                          <p className="text-xs text-muted-foreground">Attribuer une bourse</p>
+                    {canManageScholarships && (
+                      <button 
+                        className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
+                        onClick={handleManageScholarships}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Users className="w-5 h-5 text-finance" />
+                          <div>
+                            <p className="font-medium">Gestion des bourses</p>
+                            <p className="text-xs text-muted-foreground">Attribuer une bourse</p>
+                          </div>
                         </div>
-                      </div>
-                    </button>
+                      </button>
+                    )}
                   </CardContent>
                 </Card>
 
@@ -294,6 +333,7 @@ export default function Finance() {
           </>
         )}
       </div>
-    </ModuleLayout>
+      </ModuleLayout>
+    </ProtectedRoute>
   );
 }

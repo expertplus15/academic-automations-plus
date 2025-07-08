@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ModuleLayout } from '@/components/layouts/ModuleLayout';
 import { ExamsModuleSidebar } from '@/components/ExamsModuleSidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,6 +28,7 @@ import {
 } from 'lucide-react';
 import { useExamsData } from '@/hooks/useExamsData';
 import { useExamOptimization } from '@/hooks/useExamOptimization';
+import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
@@ -34,8 +36,14 @@ import { useToast } from '@/hooks/use-toast';
 export default function Exams() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { hasRole } = useAuth();
   const { stats, loading, error, refreshStats, conflicts, exams, sessions } = useExamsData();
   const { runOptimization, loading: optimizationLoading } = useExamOptimization();
+
+  // Check permissions for different actions
+  const canCreateExams = hasRole(['admin', 'teacher']);
+  const canOptimizeSchedule = hasRole(['admin']);
+  const canViewAnalytics = hasRole(['admin', 'teacher']);
 
   const handleOptimization = async () => {
     try {
@@ -156,7 +164,8 @@ export default function Exams() {
   }
 
   return (
-    <ModuleLayout sidebar={<ExamsModuleSidebar />}>
+    <ProtectedRoute allowedRoles={['admin', 'teacher']}>
+      <ModuleLayout sidebar={<ExamsModuleSidebar />}>
       <div className="p-8 space-y-8">
         {/* Header avec actions rapides */}
         <div className="space-y-6">
@@ -166,25 +175,31 @@ export default function Exams() {
               <p className="text-muted-foreground text-lg mt-1">Tableau de bord intelligent avec optimisation temps réel</p>
             </div>
             <div className="flex gap-3">
-              <Button 
-                className="bg-green-600 hover:bg-green-700"
-                onClick={() => navigate('/exams/creation')}
-              >
-                <Calendar className="w-4 h-4 mr-2" />
-                Nouvel examen
-              </Button>
-              <Button 
-                className="bg-violet-600 hover:bg-violet-700"
-                onClick={handleOptimization}
-                disabled={optimizationLoading}
-              >
-                <Bot className="w-4 h-4 mr-2" />
-                {optimizationLoading ? 'Optimisation...' : 'Planification IA'}
-              </Button>
-              <Button variant="outline" onClick={() => navigate('/exams/analytics')}>
-                <BarChart3 className="w-4 h-4 mr-2" />
-                Analytics
-              </Button>
+              {canCreateExams && (
+                <Button 
+                  className="bg-green-600 hover:bg-green-700"
+                  onClick={() => navigate('/exams/creation')}
+                >
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Nouvel examen
+                </Button>
+              )}
+              {canOptimizeSchedule && (
+                <Button 
+                  className="bg-violet-600 hover:bg-violet-700"
+                  onClick={handleOptimization}
+                  disabled={optimizationLoading}
+                >
+                  <Bot className="w-4 h-4 mr-2" />
+                  {optimizationLoading ? 'Optimisation...' : 'Planification IA'}
+                </Button>
+              )}
+              {canViewAnalytics && (
+                <Button variant="outline" onClick={() => navigate('/exams/analytics')}>
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  Analytics
+                </Button>
+              )}
               <Button variant="outline" onClick={refreshStats} disabled={loading}>
                 <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 {loading ? 'Actualisation...' : 'Actualiser'}
@@ -460,6 +475,7 @@ export default function Exams() {
           </div>
         </div>
       </div>
-    </ModuleLayout>
+      </ModuleLayout>
+    </ProtectedRoute>
   );
 }
