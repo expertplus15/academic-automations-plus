@@ -5,12 +5,20 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ShoppingCart, Plus, Search, Package, Clock, CheckCircle, AlertTriangle, FileText } from 'lucide-react';
-import { useProcurement } from '@/hooks/resources/useProcurement';
+import { useProcurementRequests } from '@/hooks/resources/useProcurementRequests';
+import { ProcurementApprovalWorkflow } from './ProcurementApprovalWorkflow';
+import { ProcurementFormModal } from './ProcurementFormModal';
 
 export function ProcurementDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const { requests, loading } = useProcurement();
+  const [approvalModal, setApprovalModal] = useState<{ isOpen: boolean; request: any }>({
+    isOpen: false,
+    request: null
+  });
+  const [createModal, setCreateModal] = useState(false);
+  
+  const { requests, loading, fetchRequests } = useProcurementRequests();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -95,7 +103,7 @@ export function ProcurementDashboard() {
     },
     {
       label: "Budget estimé",
-      value: `${requests.reduce((sum, r) => sum + (r.estimated_cost || 0), 0).toLocaleString()}€`,
+      value: `${requests.reduce((sum, r) => sum + (r.total_amount || 0), 0).toLocaleString()}€`,
       icon: ShoppingCart,
       color: "text-orange-600",
       bgColor: "bg-orange-100"
@@ -138,7 +146,7 @@ export function ProcurementDashboard() {
               <ShoppingCart className="w-5 h-5 text-primary" />
               Achats & Approvisionnements
             </CardTitle>
-            <Button className="bg-primary text-primary-foreground" onClick={() => console.log('Nouvelle demande')}>
+            <Button className="bg-primary text-primary-foreground" onClick={() => setCreateModal(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Nouvelle demande
             </Button>
@@ -194,21 +202,19 @@ export function ProcurementDashboard() {
                       <span>
                         <span className="font-medium">Demandeur:</span> {request.requester?.full_name || 'N/A'}
                       </span>
-                      {request.estimated_cost && (
+                      {request.total_amount && (
                         <span>
-                          <span className="font-medium">Coût estimé:</span> {request.estimated_cost.toLocaleString()}€
+                          <span className="font-medium">Montant:</span> {request.total_amount.toLocaleString()}€
                         </span>
                       )}
-                      {request.delivery_date && (
+                      {request.expected_delivery_date && (
                         <span>
-                          <span className="font-medium">Livraison:</span> {new Date(request.delivery_date).toLocaleDateString('fr-FR')}
+                          <span className="font-medium">Livraison:</span> {new Date(request.expected_delivery_date).toLocaleDateString('fr-FR')}
                         </span>
                       )}
-                      {request.items && (
-                        <span>
-                          <span className="font-medium">Articles:</span> {request.items.length}
-                        </span>
-                      )}
+                      <span>
+                        <span className="font-medium">Quantité:</span> {request.quantity}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -216,11 +222,15 @@ export function ProcurementDashboard() {
                   <Button variant="outline" size="sm" onClick={() => console.log('Modifier', request.id)}>
                     Modifier
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => console.log('Détails', request.id)}>
+                  <Button variant="outline" size="sm" onClick={() => setApprovalModal({ isOpen: true, request })}>
                     Détails
                   </Button>
                   {request.status === 'submitted' && (
-                    <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => console.log('Approuver', request.id)}>
+                    <Button 
+                      size="sm" 
+                      className="bg-green-600 hover:bg-green-700 text-white" 
+                      onClick={() => setApprovalModal({ isOpen: true, request })}
+                    >
                       Approuver
                     </Button>
                   )}
@@ -237,6 +247,20 @@ export function ProcurementDashboard() {
           )}
         </CardContent>
       </Card>
+
+      {/* Modals */}
+      <ProcurementFormModal
+        isOpen={createModal}
+        onClose={() => setCreateModal(false)}
+        onSuccess={() => fetchRequests()}
+      />
+
+      <ProcurementApprovalWorkflow
+        isOpen={approvalModal.isOpen}
+        onClose={() => setApprovalModal({ isOpen: false, request: null })}
+        request={approvalModal.request}
+        onApproved={() => fetchRequests()}
+      />
     </div>
   );
 }

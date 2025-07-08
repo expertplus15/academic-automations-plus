@@ -6,18 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar, Plus, Search, Wrench, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
 import { MaintenanceFormModal } from './MaintenanceFormModal';
-
-interface MaintenanceTask {
-  id: string;
-  asset_name: string;
-  asset_number: string;
-  maintenance_type: 'preventive' | 'corrective' | 'inspection';
-  scheduled_date: string;
-  status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
-  description: string;
-  cost?: number;
-  performed_by?: string;
-}
+import { useAssetMaintenance } from '@/hooks/resources/useAssetMaintenance';
 
 export function MaintenanceDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -26,48 +15,15 @@ export function MaintenanceDashboard() {
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     mode: 'create' | 'edit' | 'view';
-    task?: MaintenanceTask;
+    task?: any;
   }>({
     isOpen: false,
     mode: 'create',
     task: undefined
   });
 
-  // Mock data - à remplacer par les vrais hooks
-  const maintenanceTasks: MaintenanceTask[] = [
-    {
-      id: '1',
-      asset_name: 'Projecteur Salle A1',
-      asset_number: 'AST240001',
-      maintenance_type: 'preventive',
-      scheduled_date: '2024-01-20',
-      status: 'scheduled',
-      description: 'Nettoyage optique et vérification lampe',
-      cost: 120
-    },
-    {
-      id: '2',
-      asset_name: 'Ordinateur Lab Info',
-      asset_number: 'AST240002',
-      maintenance_type: 'corrective',
-      scheduled_date: '2024-01-18',
-      status: 'in_progress',
-      description: 'Réparation carte mère défectueuse',
-      cost: 350,
-      performed_by: 'TechService Plus'
-    },
-    {
-      id: '3',
-      asset_name: 'Imprimante Administration',
-      asset_number: 'AST240003',
-      maintenance_type: 'inspection',
-      scheduled_date: '2024-01-15',
-      status: 'completed',
-      description: 'Contrôle qualité impression et nettoyage',
-      cost: 80,
-      performed_by: 'Maintenance interne'
-    }
-  ];
+  // Use real hooks instead of mock data
+  const { maintenances, loading, fetchMaintenances } = useAssetMaintenance();
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -109,43 +65,47 @@ export function MaintenanceDashboard() {
     }
   };
 
-  const filteredTasks = maintenanceTasks.filter(task => {
-    const matchesSearch = task.asset_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         task.asset_number.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
+  const filteredTasks = maintenances.filter(maintenance => {
+    const matchesSearch = (maintenance.asset?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (maintenance.asset?.asset_number || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || maintenance.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   const stats = [
     {
       label: "Maintenances planifiées",
-      value: maintenanceTasks.filter(t => t.status === 'scheduled').length,
+      value: maintenances.filter(t => t.status === 'scheduled').length,
       icon: Clock,
       color: "text-blue-600",
       bgColor: "bg-blue-100"
     },
     {
       label: "En cours",
-      value: maintenanceTasks.filter(t => t.status === 'in_progress').length,
+      value: maintenances.filter(t => t.status === 'in_progress').length,
       icon: Wrench,
       color: "text-yellow-600",
       bgColor: "bg-yellow-100"
     },
     {
       label: "Terminées ce mois",
-      value: maintenanceTasks.filter(t => t.status === 'completed').length,
+      value: maintenances.filter(t => t.status === 'completed').length,
       icon: CheckCircle,
       color: "text-green-600",
       bgColor: "bg-green-100"
     },
     {
       label: "Coût total",
-      value: `${maintenanceTasks.reduce((sum, t) => sum + (t.cost || 0), 0)}€`,
+      value: `${maintenances.reduce((sum, t) => sum + (t.cost || 0), 0)}€`,
       icon: Calendar,
       color: "text-purple-600",
       bgColor: "bg-purple-100"
     }
   ];
+
+  if (loading) {
+    return <div className="p-6">Chargement des maintenances...</div>;
+  }
 
   return (
     <div className="space-y-8">
@@ -219,9 +179,9 @@ export function MaintenanceDashboard() {
 
           {/* Tasks List */}
           <div className="space-y-4">
-            {filteredTasks.map((task) => (
+            {filteredTasks.map((maintenance) => (
               <div
-                key={task.id}
+                key={maintenance.id}
                 className="flex items-center justify-between p-4 rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
               >
                 <div className="flex items-center gap-4 flex-1">
@@ -230,24 +190,24 @@ export function MaintenanceDashboard() {
                   </div>
                   <div className="space-y-2 flex-1">
                     <div className="flex items-center gap-3">
-                      <h3 className="font-semibold text-foreground">{task.asset_name}</h3>
-                      <span className="text-sm text-muted-foreground">({task.asset_number})</span>
-                      {getTypeBadge(task.maintenance_type)}
-                      {getStatusBadge(task.status)}
+                      <h3 className="font-semibold text-foreground">{maintenance.asset?.name || 'Équipement'}</h3>
+                      <span className="text-sm text-muted-foreground">({maintenance.asset?.asset_number || 'N/A'})</span>
+                      {getTypeBadge(maintenance.maintenance_type)}
+                      {getStatusBadge(maintenance.status)}
                     </div>
-                    <p className="text-sm text-muted-foreground">{task.description}</p>
+                    <p className="text-sm text-muted-foreground">{maintenance.description}</p>
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
                       <span>
-                        <span className="font-medium">Date:</span> {new Date(task.scheduled_date).toLocaleDateString('fr-FR')}
+                        <span className="font-medium">Date:</span> {new Date(maintenance.scheduled_date).toLocaleDateString('fr-FR')}
                       </span>
-                      {task.cost && (
+                      {maintenance.cost && (
                         <span>
-                          <span className="font-medium">Coût:</span> {task.cost}€
+                          <span className="font-medium">Coût:</span> {maintenance.cost}€
                         </span>
                       )}
-                      {task.performed_by && (
+                      {maintenance.performed_by && (
                         <span>
-                          <span className="font-medium">Exécutée par:</span> {task.performed_by}
+                          <span className="font-medium">Exécutée par:</span> {maintenance.performed_by}
                         </span>
                       )}
                     </div>
@@ -260,7 +220,7 @@ export function MaintenanceDashboard() {
                     onClick={() => setModalState({
                       isOpen: true,
                       mode: 'edit',
-                      task: task
+                      task: maintenance
                     })}
                   >
                     Modifier
@@ -271,7 +231,7 @@ export function MaintenanceDashboard() {
                     onClick={() => setModalState({
                       isOpen: true,
                       mode: 'view',
-                      task: task
+                      task: maintenance
                     })}
                   >
                     Détails
@@ -290,8 +250,7 @@ export function MaintenanceDashboard() {
         task={modalState.task}
         mode={modalState.mode}
         onSave={async (data) => {
-          console.log('Sauvegarde maintenance:', data);
-          // Ici on pourrait intégrer avec une API ou hook
+          await fetchMaintenances(); // Refresh data after save
         }}
       />
     </div>
