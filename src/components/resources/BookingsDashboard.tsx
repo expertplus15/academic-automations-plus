@@ -3,68 +3,89 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Plus, Search, Clock, CheckCircle, AlertTriangle, Users, MapPin } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Calendar, Plus, Search, Clock, CheckCircle, AlertTriangle, Users, MapPin, Trash2, CalendarIcon } from 'lucide-react';
+import { useBookings } from '@/hooks/resources/useBookings';
+import { useAssets } from '@/hooks/resources/useAssets';
+import { useRooms } from '@/hooks/useRooms';
+import { useToast } from '@/hooks/use-toast';
 
-interface Booking {
-  id: string;
-  resource_name: string;
-  resource_type: 'room' | 'equipment';
-  user_name: string;
-  start_date: string;
-  end_date: string;
-  status: 'pending' | 'approved' | 'rejected' | 'active' | 'completed';
-  purpose: string;
-  location: string;
-  capacity?: number;
-  participants?: number;
-}
+// Interface is imported from useBookings hook
 
 export function BookingsDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    resource_type: 'room' as 'room' | 'equipment',
+    asset_id: '',
+    room_id: '',
+    start_date: '',
+    end_date: '',
+    purpose: '',
+    notes: ''
+  });
 
-  // Mock data - à remplacer par les vrais hooks
-  const bookings: Booking[] = [
-    {
-      id: '1',
-      resource_name: 'Salle de conférence A1',
-      resource_type: 'room',
-      user_name: 'Marie Dubois',
-      start_date: '2024-01-20T14:00',
-      end_date: '2024-01-20T16:00',
-      status: 'approved',
-      purpose: 'Réunion équipe pédagogique',
-      location: 'Bâtiment A - 1er étage',
-      capacity: 20,
-      participants: 12
-    },
-    {
-      id: '2',
-      resource_name: 'Projecteur Epson Pro',
-      resource_type: 'equipment',
-      user_name: 'Jean Martin',
-      start_date: '2024-01-22T09:00',
-      end_date: '2024-01-22T12:00',
-      status: 'pending',
-      purpose: 'Cours magistral',
-      location: 'Amphithéâtre B'
-    },
-    {
-      id: '3',
-      resource_name: 'Laboratoire Informatique',
-      resource_type: 'room',
-      user_name: 'Sophie Laurent',
-      start_date: '2024-01-25T10:00',
-      end_date: '2024-01-25T12:00',
-      status: 'active',
-      purpose: 'TP Programmation',
-      location: 'Bâtiment C - RDC',
-      capacity: 30,
-      participants: 25
+  const { toast } = useToast();
+  const { bookings, loading, createBooking, cancelBooking, approveBooking } = useBookings();
+  const { assets } = useAssets();
+  const { rooms } = useRooms();
+
+  const handleCreateBooking = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await createBooking({
+        asset_id: formData.resource_type === 'equipment' ? formData.asset_id : null,
+        room_id: formData.resource_type === 'room' ? formData.room_id : null,
+        start_date: formData.start_date,
+        end_date: formData.end_date,
+        purpose: formData.purpose,
+        notes: formData.notes
+      });
+      setIsFormOpen(false);
+      setFormData({
+        resource_type: 'room',
+        asset_id: '',
+        room_id: '',
+        start_date: '',
+        end_date: '',
+        purpose: '',
+        notes: ''
+      });
+    } catch (error) {
+      console.error('Error creating booking:', error);
     }
-  ];
+  };
+
+  const handleDeleteBooking = async (id: string) => {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette réservation ?')) {
+      try {
+        await cancelBooking(id);
+      } catch (error) {
+        console.error('Error deleting booking:', error);
+      }
+    }
+  };
+
+  const handleApproveBooking = async (id: string) => {
+    try {
+      await approveBooking(id, true);
+    } catch (error) {
+      console.error('Error approving booking:', error);
+    }
+  };
+
+  const handleRejectBooking = async (id: string) => {
+    try {
+      await approveBooking(id, false);
+    } catch (error) {
+      console.error('Error rejecting booking:', error);
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -110,11 +131,15 @@ export function BookingsDashboard() {
   };
 
   const filteredBookings = bookings.filter(booking => {
-    const matchesSearch = booking.resource_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         booking.user_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const resourceName = booking.asset?.name || booking.room?.name || '';
+    const userName = booking.user?.full_name || '';
+    const resourceType = booking.asset_id ? 'equipment' : 'room';
+    
+    const matchesSearch = resourceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          booking.purpose.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || booking.status === statusFilter;
-    const matchesType = typeFilter === 'all' || booking.resource_type === typeFilter;
+    const matchesType = typeFilter === 'all' || resourceType === typeFilter;
     return matchesSearch && matchesStatus && matchesType;
   });
 
@@ -148,6 +173,17 @@ export function BookingsDashboard() {
       bgColor: "bg-purple-100"
     }
   ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Calendar className="w-8 h-8 mx-auto mb-4 text-muted-foreground opacity-50 animate-spin" />
+          <p className="text-muted-foreground">Chargement des réservations...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -186,10 +222,123 @@ export function BookingsDashboard() {
                 <Calendar className="w-4 h-4 mr-2" />
                 Vue calendrier
               </Button>
-              <Button className="bg-primary text-primary-foreground">
-                <Plus className="w-4 h-4 mr-2" />
-                Nouvelle réservation
-              </Button>
+              <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-primary text-primary-foreground">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Nouvelle réservation
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Nouvelle réservation</DialogTitle>
+                  </DialogHeader>
+                  <form onSubmit={handleCreateBooking} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Type de ressource</Label>
+                        <Select
+                          value={formData.resource_type}
+                          onValueChange={(value: 'room' | 'equipment') =>
+                            setFormData(prev => ({ ...prev, resource_type: value, asset_id: '', room_id: '' }))
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="room">Salle</SelectItem>
+                            <SelectItem value="equipment">Équipement</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>
+                          {formData.resource_type === 'room' ? 'Salle' : 'Équipement'}
+                        </Label>
+                        <Select
+                          value={formData.resource_type === 'room' ? formData.room_id : formData.asset_id}
+                          onValueChange={(value) =>
+                            setFormData(prev => ({
+                              ...prev,
+                              [formData.resource_type === 'room' ? 'room_id' : 'asset_id']: value
+                            }))
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={`Sélectionner ${formData.resource_type === 'room' ? 'une salle' : 'un équipement'}`} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {formData.resource_type === 'room'
+                              ? rooms.map((room) => (
+                                  <SelectItem key={room.id} value={room.id}>
+                                    {room.name}
+                                  </SelectItem>
+                                ))
+                              : assets.filter(asset => asset.status === 'active').map((asset) => (
+                                  <SelectItem key={asset.id} value={asset.id}>
+                                    {asset.name}
+                                  </SelectItem>
+                                ))
+                            }
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Date et heure de début</Label>
+                        <Input
+                          type="datetime-local"
+                          value={formData.start_date}
+                          onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Date et heure de fin</Label>
+                        <Input
+                          type="datetime-local"
+                          value={formData.end_date}
+                          onChange={(e) => setFormData(prev => ({ ...prev, end_date: e.target.value }))}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Motif de la réservation</Label>
+                      <Input
+                        value={formData.purpose}
+                        onChange={(e) => setFormData(prev => ({ ...prev, purpose: e.target.value }))}
+                        placeholder="Ex: Réunion équipe, Cours magistral..."
+                        required
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Notes complémentaires</Label>
+                      <Textarea
+                        value={formData.notes}
+                        onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                        placeholder="Informations supplémentaires..."
+                        rows={3}
+                      />
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-4">
+                      <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)}>
+                        Annuler
+                      </Button>
+                      <Button type="submit">
+                        Créer la réservation
+                      </Button>
+                    </div>
+                  </form>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </CardHeader>
@@ -231,63 +380,73 @@ export function BookingsDashboard() {
 
           {/* Bookings List */}
           <div className="space-y-4">
-            {filteredBookings.map((booking) => (
-              <div
-                key={booking.id}
-                className="flex items-center justify-between p-4 rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
-              >
-                <div className="flex items-center gap-4 flex-1">
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                    <Calendar className="w-6 h-6 text-primary" />
-                  </div>
-                  <div className="space-y-2 flex-1">
-                    <div className="flex items-center gap-3">
-                      <h3 className="font-semibold text-foreground">{booking.resource_name}</h3>
-                      {getTypeBadge(booking.resource_type)}
-                      {getStatusBadge(booking.status)}
+            {filteredBookings.map((booking) => {
+              const resourceName = booking.asset?.name || booking.room?.name || 'Ressource inconnue';
+              const resourceType = booking.asset_id ? 'equipment' : 'room';
+              const userName = booking.user?.full_name || 'Utilisateur inconnu';
+              
+              return (
+                <div
+                  key={booking.id}
+                  className="flex items-center justify-between p-4 rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
+                >
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                      <Calendar className="w-6 h-6 text-primary" />
                     </div>
-                    <p className="text-sm text-muted-foreground">{booking.purpose}</p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span>
-                        <span className="font-medium">Demandeur:</span> {booking.user_name}
-                      </span>
-                      <span>
-                        <span className="font-medium">Date:</span> {new Date(booking.start_date).toLocaleDateString('fr-FR')}
-                      </span>
-                      <span>
-                        <span className="font-medium">Horaire:</span> {new Date(booking.start_date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} - {new Date(booking.end_date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                      <span>
-                        <span className="font-medium">Lieu:</span> {booking.location}
-                      </span>
-                      {booking.capacity && booking.participants && (
+                    <div className="space-y-2 flex-1">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-semibold text-foreground">{resourceName}</h3>
+                        {getTypeBadge(resourceType)}
+                        {getStatusBadge(booking.status)}
+                      </div>
+                      <p className="text-sm text-muted-foreground">{booking.purpose}</p>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span>
-                          <span className="font-medium">Participants:</span> {booking.participants}/{booking.capacity}
+                          <span className="font-medium">Demandeur:</span> {userName}
                         </span>
-                      )}
+                        <span>
+                          <span className="font-medium">Date:</span> {new Date(booking.start_date).toLocaleDateString('fr-FR')}
+                        </span>
+                        <span>
+                          <span className="font-medium">Horaire:</span> {new Date(booking.start_date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} - {new Date(booking.end_date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                        {booking.notes && (
+                          <span>
+                            <span className="font-medium">Notes:</span> {booking.notes}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={() => console.log('Modifier', booking.id)}>
+                      Modifier
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => console.log('Détails', booking.id)}>
+                      Détails
+                    </Button>
+                    {booking.status === 'pending' && (
+                      <>
+                        <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => handleApproveBooking(booking.id)}>
+                          Approuver
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleRejectBooking(booking.id)}>
+                          Rejeter
+                        </Button>
+                      </>
+                    )}
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      onClick={() => handleDeleteBooking(booking.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={() => console.log('Modifier', booking.id)}>
-                    Modifier
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => console.log('Détails', booking.id)}>
-                    Détails
-                  </Button>
-                  {booking.status === 'pending' && (
-                    <>
-                      <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => console.log('Approuver', booking.id)}>
-                        Approuver
-                      </Button>
-                      <Button size="sm" variant="destructive" onClick={() => console.log('Rejeter', booking.id)}>
-                        Rejeter
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {filteredBookings.length === 0 && (
