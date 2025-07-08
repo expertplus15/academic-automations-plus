@@ -67,13 +67,13 @@ export function useTreasuryData(period?: TreasuryPeriod) {
 
   // Données d'encaissements calculées
   const incomeData: TreasuryIncomeData = useMemo(() => {
-    // Mock data pour les modes de paiement - à remplacer par les vraies données
+    // Mock data pour les modes de paiement - montants cohérents pour établissement d'enseignement
     const paymentMethodsData = [
-      { name: "Cartes Bancaires", amount: 45200, count: 127, growth: 8, dailyAmount: 1250, icon: 'CreditCard', color: "text-blue-500" },
-      { name: "Virements SEPA", amount: 89400, count: 89, growth: 12, dailyAmount: 2840, icon: 'ArrowUpDown', color: "text-green-500" },
-      { name: "Prélèvements", amount: 156800, count: 234, growth: 5, dailyAmount: 5200, icon: 'Banknote', color: "text-purple-500" },
-      { name: "Paiement Mobile", amount: 23400, count: 78, growth: 25, dailyAmount: 780, icon: 'Smartphone', color: "text-orange-500" },
-      { name: "Espèces", amount: 8900, count: 45, growth: -2, dailyAmount: 290, icon: 'Euro', color: "text-gray-500" }
+      { name: "Cartes Bancaires", amount: 125000, count: 156, growth: 8, dailyAmount: 4200, icon: 'CreditCard', color: "text-blue-500" },
+      { name: "Virements SEPA", amount: 280000, count: 89, growth: 12, dailyAmount: 9300, icon: 'ArrowUpDown', color: "text-green-500" },
+      { name: "Prélèvements", amount: 450000, count: 320, growth: 5, dailyAmount: 15000, icon: 'Banknote', color: "text-purple-500" },
+      { name: "Paiement Mobile", amount: 35000, count: 78, growth: 25, dailyAmount: 1200, icon: 'Smartphone', color: "text-orange-500" },
+      { name: "Espèces", amount: 12000, count: 32, growth: -2, dailyAmount: 400, icon: 'Euro', color: "text-gray-500" }
     ];
 
     const totalIncome = paymentMethodsData.reduce((sum, method) => sum + method.amount, 0);
@@ -91,13 +91,13 @@ export function useTreasuryData(period?: TreasuryPeriod) {
 
   // Données de dépenses calculées
   const expenseData: TreasuryExpenseData = useMemo(() => {
-    // Mock data pour les catégories - à remplacer par les vraies données
+    // Mock data pour les catégories - budgets réalistes pour établissement d'enseignement
     const categoriesData = [
-      { name: "Personnel & Salaires", amount: 125000, count: 45, growth: 2, budget: 130000, percentage: 78, icon: 'Users', color: "text-blue-500" },
-      { name: "Équipements & Infrastructure", amount: 45000, count: 23, growth: -8, budget: 50000, percentage: 90, icon: 'Building', color: "text-purple-500" },
-      { name: "Fournitures Pédagogiques", amount: 18500, count: 67, growth: 15, budget: 25000, percentage: 74, icon: 'BookOpen', color: "text-green-500" },
-      { name: "Services & Maintenance", amount: 12300, count: 34, growth: 5, budget: 15000, percentage: 82, icon: 'Zap', color: "text-orange-500" },
-      { name: "Frais Généraux", amount: 8900, count: 56, growth: -3, budget: 12000, percentage: 74, icon: 'Receipt', color: "text-gray-500" }
+      { name: "Personnel & Salaires", amount: 520000, count: 45, growth: 2, budget: 600000, percentage: 87, icon: 'Users', color: "text-blue-500" },
+      { name: "Équipements & Infrastructure", amount: 85000, count: 23, growth: -8, budget: 120000, percentage: 71, icon: 'Building', color: "text-purple-500" },
+      { name: "Fournitures Pédagogiques", amount: 45000, count: 67, growth: 15, budget: 60000, percentage: 75, icon: 'BookOpen', color: "text-green-500" },
+      { name: "Services & Maintenance", amount: 32000, count: 34, growth: 5, budget: 40000, percentage: 80, icon: 'Zap', color: "text-orange-500" },
+      { name: "Frais Généraux", amount: 28000, count: 56, growth: -3, budget: 35000, percentage: 80, icon: 'Receipt', color: "text-gray-500" }
     ];
 
     const totalExpenses = categoriesData.reduce((sum, cat) => sum + cat.amount, 0);
@@ -114,21 +114,21 @@ export function useTreasuryData(period?: TreasuryPeriod) {
 
   // Données de facturation calculées
   const invoiceData: TreasuryInvoiceData = useMemo(() => {
-    // Mock data pour les factures - à remplacer par les vraies données
+    // Mock data pour les factures - montants cohérents avec les encaissements
     const studentStats = {
-      total: 8500,
-      paid: 6200,
-      pending: 1,
-      partial: 1,
-      count: 3
+      total: 780000,
+      paid: 650000,
+      pending: 95000,
+      partial: 35000,
+      count: 425
     };
 
     const commercialStats = {
-      total: 27700,
-      paid: 15000,
-      pending: 1,
-      partial: 1,
-      count: 3
+      total: 165000,
+      paid: 125000,
+      pending: 25000,
+      partial: 15000,
+      count: 12
     };
 
     const totalInvoiced = studentStats.total + commercialStats.total;
