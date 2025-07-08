@@ -221,41 +221,62 @@ export default function Hr() {
                 <CardTitle className="text-lg">Actions rapides</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Link to="/hr/teachers" className="block">
-                  <div className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <UserCheck className="w-5 h-5 text-amber-500" />
-                      <div>
-                        <p className="font-medium">Ajouter un enseignant</p>
-                        <p className="text-xs text-muted-foreground">Nouveau profil</p>
-                      </div>
+                <button 
+                  onClick={() => {
+                    if (canManageTeachers) {
+                      window.location.href = '/hr/teachers';
+                    } else {
+                      handleRestrictedAction('ajouter un enseignant');
+                    }
+                  }}
+                  className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <UserCheck className="w-5 h-5 text-amber-500" />
+                    <div>
+                      <p className="font-medium">Ajouter un enseignant</p>
+                      <p className="text-xs text-muted-foreground">Nouveau profil</p>
                     </div>
                   </div>
-                </Link>
+                </button>
                 
-                <Link to="/hr/contracts" className="block">
-                  <div className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <FileText className="w-5 h-5 text-amber-500" />
-                      <div>
-                        <p className="font-medium">Gérer les contrats</p>
-                        <p className="text-xs text-muted-foreground">Renouvellements</p>
-                      </div>
+                <button 
+                  onClick={() => {
+                    if (canManageTeachers) {
+                      window.location.href = '/hr/contracts';
+                    } else {
+                      handleRestrictedAction('gérer les contrats');
+                    }
+                  }}
+                  className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <FileText className="w-5 h-5 text-amber-500" />
+                    <div>
+                      <p className="font-medium">Gérer les contrats</p>
+                      <p className="text-xs text-muted-foreground">Renouvellements</p>
                     </div>
                   </div>
-                </Link>
+                </button>
 
-                <Link to="/hr/availability" className="block">
-                  <div className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <Calendar className="w-5 h-5 text-amber-500" />
-                      <div>
-                        <p className="font-medium">Disponibilités</p>
-                        <p className="text-xs text-muted-foreground">Planification</p>
-                      </div>
+                <button 
+                  onClick={() => {
+                    if (canManageTeachers) {
+                      window.location.href = '/hr/availability';
+                    } else {
+                      handleRestrictedAction('gérer les disponibilités');
+                    }
+                  }}
+                  className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center gap-3">
+                    <Calendar className="w-5 h-5 text-amber-500" />
+                    <div>
+                      <p className="font-medium">Disponibilités</p>
+                      <p className="text-xs text-muted-foreground">Planification</p>
                     </div>
                   </div>
-                </Link>
+                </button>
               </CardContent>
             </Card>
 
