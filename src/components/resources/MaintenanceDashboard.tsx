@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar, Plus, Search, Wrench, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
+import { MaintenanceFormModal } from './MaintenanceFormModal';
 
 interface MaintenanceTask {
   id: string;
@@ -21,6 +22,16 @@ interface MaintenanceTask {
 export function MaintenanceDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    mode: 'create' | 'edit' | 'view';
+    task?: MaintenanceTask;
+  }>({
+    isOpen: false,
+    mode: 'create',
+    task: undefined
+  });
 
   // Mock data - à remplacer par les vrais hooks
   const maintenanceTasks: MaintenanceTask[] = [
@@ -168,7 +179,14 @@ export function MaintenanceDashboard() {
               <Wrench className="w-5 h-5 text-primary" />
               Maintenance Préventive
             </CardTitle>
-            <Button className="bg-primary text-primary-foreground" onClick={() => console.log('Planifier maintenance')}>
+            <Button 
+              className="bg-primary text-primary-foreground" 
+              onClick={() => setModalState({
+                isOpen: true,
+                mode: 'create',
+                task: undefined
+              })}
+            >
               <Plus className="w-4 h-4 mr-2" />
               Planifier maintenance
             </Button>
@@ -236,10 +254,26 @@ export function MaintenanceDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={() => console.log('Modifier', task.id)}>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setModalState({
+                      isOpen: true,
+                      mode: 'edit',
+                      task: task
+                    })}
+                  >
                     Modifier
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => console.log('Détails', task.id)}>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setModalState({
+                      isOpen: true,
+                      mode: 'view',
+                      task: task
+                    })}
+                  >
                     Détails
                   </Button>
                 </div>
@@ -248,6 +282,18 @@ export function MaintenanceDashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal de planification */}
+      <MaintenanceFormModal
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState({ isOpen: false, mode: 'create', task: undefined })}
+        task={modalState.task}
+        mode={modalState.mode}
+        onSave={async (data) => {
+          console.log('Sauvegarde maintenance:', data);
+          // Ici on pourrait intégrer avec une API ou hook
+        }}
+      />
     </div>
   );
 }
