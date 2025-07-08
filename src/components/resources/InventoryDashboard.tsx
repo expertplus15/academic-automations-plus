@@ -4,17 +4,30 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { QrCode, Plus, Search, Package, Scan, Download, Upload, Filter, Eye, Loader2 } from 'lucide-react';
+import { QrCode, Plus, Search, Package, Scan, Download, Upload, Filter, Eye, Loader2, Edit } from 'lucide-react';
 import { useAssets, Asset } from '@/hooks/resources/useAssets';
+import { AssetForm } from './AssetForm';
+import { useToast } from '@/hooks/use-toast';
 
 export function InventoryDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [categories, setCategories] = useState<string[]>([]);
+  const { toast } = useToast();
 
   // Utilisation du hook useAssets au lieu des données mock
-  const { assets, loading, error } = useAssets();
+  const { assets, loading, error, createAsset, updateAsset } = useAssets();
+
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    mode: 'create' | 'edit' | 'view';
+    asset?: Asset;
+  }>({
+    isOpen: false,
+    mode: 'create',
+    asset: undefined
+  });
 
   // Extract unique categories from assets
   useEffect(() => {
@@ -96,6 +109,46 @@ export function InventoryDashboard() {
     }
   ];
 
+  const handleSaveAsset = async (data: Partial<Asset>) => {
+    try {
+      if (modalState.mode === 'create') {
+        await createAsset(data);
+      } else if (modalState.mode === 'edit' && modalState.asset) {
+        await updateAsset(modalState.asset.id, data);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+    }
+  };
+
+  const handleGenerateQR = (asset: Asset) => {
+    toast({
+      title: "QR Code généré",
+      description: `QR Code généré pour ${asset.name}`,
+    });
+  };
+
+  const handleScanQR = () => {
+    toast({
+      title: "Scanner QR",
+      description: "Fonctionnalité de scan QR à implémenter",
+    });
+  };
+
+  const handleExport = () => {
+    toast({
+      title: "Export en cours",
+      description: "Export de l'inventaire en cours...",
+    });
+  };
+
+  const handleImport = () => {
+    toast({
+      title: "Import",
+      description: "Fonctionnalité d'import à implémenter",
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -148,19 +201,26 @@ export function InventoryDashboard() {
               Inventaire numérique
             </CardTitle>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={handleImport}>
                 <Upload className="w-4 h-4 mr-2" />
                 Importer
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={handleExport}>
                 <Download className="w-4 h-4 mr-2" />
                 Exporter
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={handleScanQR}>
                 <Scan className="w-4 h-4 mr-2" />
                 Scanner QR
               </Button>
-              <Button className="bg-primary text-primary-foreground">
+              <Button 
+                className="bg-primary text-primary-foreground"
+                onClick={() => setModalState({
+                  isOpen: true,
+                  mode: 'create',
+                  asset: undefined
+                })}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Ajouter équipement
               </Button>
@@ -242,15 +302,36 @@ export function InventoryDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleGenerateQR(asset)}
+                  >
                     <QrCode className="w-4 h-4 mr-1" />
                     QR Code
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setModalState({
+                      isOpen: true,
+                      mode: 'view',
+                      asset: asset
+                    })}
+                  >
                     <Eye className="w-4 h-4 mr-1" />
                     Voir
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setModalState({
+                      isOpen: true,
+                      mode: 'edit',
+                      asset: asset
+                    })}
+                  >
+                    <Edit className="w-4 h-4 mr-1" />
                     Modifier
                   </Button>
                 </div>
@@ -266,6 +347,15 @@ export function InventoryDashboard() {
           )}
         </CardContent>
       </Card>
+
+      {/* Asset Form Modal */}
+      <AssetForm
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState({ isOpen: false, mode: 'create', asset: undefined })}
+        asset={modalState.asset}
+        mode={modalState.mode}
+        onSave={handleSaveAsset}
+      />
     </div>
   );
 }

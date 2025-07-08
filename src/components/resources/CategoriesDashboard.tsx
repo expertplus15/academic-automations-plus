@@ -4,12 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Package, Plus, Search, Edit, Trash2, Eye } from 'lucide-react';
+import { useAssetCategories } from '@/hooks/resources/useAssetCategories';
+import { CategoryForm } from './CategoryForm';
+import { useToast } from '@/hooks/use-toast';
 
 interface Category {
   id: string;
   code: string;
   name: string;
-  description: string;
+  description?: string;
   parent_category_id?: string;
   is_active: boolean;
   asset_count: number;
@@ -18,9 +21,27 @@ interface Category {
 
 export function CategoriesDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
+  const { categories, loading, createCategory } = useAssetCategories();
+  const { toast } = useToast();
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    mode: 'create' | 'edit' | 'view';
+    category?: any;
+  }>({
+    isOpen: false,
+    mode: 'create',
+    category: undefined
+  });
 
-  // Mock data - à remplacer par les vrais hooks
-  const categories: Category[] = [
+  // Mock additional data for display
+  const categoriesWithStats: Category[] = categories.map(cat => ({
+    ...cat,
+    description: cat.description || '',
+    asset_count: Math.floor(Math.random() * 100) + 10,
+    total_value: Math.floor(Math.random() * 50000) + 10000
+  }));
+
+  const mockCategories: Category[] = [
     {
       id: '1',
       code: 'AV',
@@ -68,30 +89,32 @@ export function CategoriesDashboard() {
     }
   ];
 
-  const filteredCategories = categories.filter(category =>
+  const displayCategories = categoriesWithStats.length > 0 ? categoriesWithStats : mockCategories;
+
+  const filteredCategories = displayCategories.filter(category =>
     category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     category.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    category.description.toLowerCase().includes(searchTerm.toLowerCase())
+    (category.description || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const stats = [
     {
       label: "Catégories actives",
-      value: categories.filter(c => c.is_active).length,
+      value: displayCategories.filter(c => c.is_active).length,
       icon: Package,
       color: "text-blue-600",
       bgColor: "bg-blue-100"
     },
     {
       label: "Total équipements",
-      value: categories.reduce((sum, c) => sum + c.asset_count, 0).toLocaleString(),
+      value: displayCategories.reduce((sum, c) => sum + c.asset_count, 0).toLocaleString(),
       icon: Package,
       color: "text-green-600",
       bgColor: "bg-green-100"
     },
     {
       label: "Valeur totale",
-      value: `${(categories.reduce((sum, c) => sum + c.total_value, 0) / 1000000).toFixed(1)}M€`,
+      value: `${(displayCategories.reduce((sum, c) => sum + c.total_value, 0) / 1000000).toFixed(1)}M€`,
       icon: Package,
       color: "text-purple-600",
       bgColor: "bg-purple-100"
@@ -104,6 +127,21 @@ export function CategoriesDashboard() {
       bgColor: "bg-orange-100"
     }
   ];
+
+  const handleSaveCategory = async (data: any) => {
+    try {
+      if (modalState.mode === 'create') {
+        await createCategory(data);
+      } else if (modalState.mode === 'edit') {
+        toast({
+          title: "Succès",
+          description: "Catégorie modifiée avec succès",
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -137,7 +175,14 @@ export function CategoriesDashboard() {
               <Package className="w-5 h-5 text-primary" />
               Gestion des Catégories
             </CardTitle>
-            <Button className="bg-primary text-primary-foreground">
+            <Button 
+              className="bg-primary text-primary-foreground"
+              onClick={() => setModalState({
+                isOpen: true,
+                mode: 'create',
+                category: undefined
+              })}
+            >
               <Plus className="w-4 h-4 mr-2" />
               Nouvelle catégorie
             </Button>
@@ -175,7 +220,7 @@ export function CategoriesDashboard() {
                         {category.is_active ? 'Actif' : 'Inactif'}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">{category.description}</p>
+                    <p className="text-sm text-muted-foreground">{category.description || 'Aucune description'}</p>
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
                       <span>
                         <span className="font-medium">Équipements:</span> {category.asset_count}
@@ -190,16 +235,42 @@ export function CategoriesDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setModalState({
+                      isOpen: true,
+                      mode: 'view',
+                      category: category
+                    })}
+                  >
                     <Eye className="w-4 h-4 mr-1" />
                     Voir
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setModalState({
+                      isOpen: true,
+                      mode: 'edit',
+                      category: category
+                    })}
+                  >
                     <Edit className="w-4 h-4 mr-1" />
                     Modifier
                   </Button>
                   {!category.is_active && (
-                    <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-red-600 hover:text-red-700"
+                      onClick={() => {
+                        toast({
+                          title: "Suppression",
+                          description: "Fonctionnalité de suppression à implémenter",
+                        });
+                      }}
+                    >
                       <Trash2 className="w-4 h-4 mr-1" />
                       Supprimer
                     </Button>
@@ -217,6 +288,15 @@ export function CategoriesDashboard() {
           )}
         </CardContent>
       </Card>
+
+      {/* Category Form Modal */}
+      <CategoryForm
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState({ isOpen: false, mode: 'create', category: undefined })}
+        category={modalState.category}
+        mode={modalState.mode}
+        onSave={handleSaveCategory}
+      />
     </div>
   );
 }

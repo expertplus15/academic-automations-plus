@@ -269,18 +269,18 @@ export function BookingsDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => console.log('Modifier', booking.id)}>
                     Modifier
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => console.log('Détails', booking.id)}>
                     Détails
                   </Button>
                   {booking.status === 'pending' && (
                     <>
-                      <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                      <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => console.log('Approuver', booking.id)}>
                         Approuver
                       </Button>
-                      <Button size="sm" variant="destructive">
+                      <Button size="sm" variant="destructive" onClick={() => console.log('Rejeter', booking.id)}>
                         Rejeter
                       </Button>
                     </>

@@ -7,45 +7,24 @@ export interface ProcurementRequest {
   request_number: string;
   title: string;
   description?: string;
-  category_id?: string;
-  requested_by: string;
-  department_id?: string;
-  priority: string;
+  status: 'draft' | 'submitted' | 'approved' | 'ordered' | 'delivered' | 'rejected';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
   estimated_cost?: number;
-  budget_category_id?: string;
-  supplier_id?: string;
+  actual_cost?: number;
   delivery_date?: string;
-  status: string;
-  approved_by?: string;
-  approved_at?: string;
-  rejection_reason?: string;
-  created_at: string;
-  category?: {
-    name: string;
-    code: string;
-  };
+  requested_date?: string;
+  approved_date?: string;
+  items?: any[];
   requester?: {
+    id: string;
     full_name: string;
-    email: string;
   };
-  department?: {
-    name: string;
+  approved_by?: {
+    id: string;
+    full_name: string;
   };
-  supplier?: {
-    name: string;
-  };
-  items?: ProcurementItem[];
-}
-
-export interface ProcurementItem {
-  id: string;
-  request_id: string;
-  item_name: string;
-  description?: string;
-  quantity: number;
-  unit_price?: number;
-  total_price?: number;
-  specifications?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export function useProcurement() {
@@ -57,20 +36,59 @@ export function useProcurement() {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('procurement_requests')
-        .select(`
-          *,
-          category:asset_categories(name, code),
-          requester:profiles!requested_by(full_name, email),
-          department:departments(name),
-          supplier:suppliers(name),
-          items:procurement_items(*)
-        `)
-        .order('created_at', { ascending: false });
+      
+      // Mock data for now since procurement_requests table doesn't exist yet
+      const mockData: ProcurementRequest[] = [
+        {
+          id: '1',
+          request_number: 'PR240001',
+          title: 'Ordinateurs portables pour laboratoire',
+          description: 'Commande de 10 ordinateurs portables pour le nouveau laboratoire informatique',
+          status: 'submitted',
+          priority: 'high',
+          estimated_cost: 15000,
+          delivery_date: '2024-02-15',
+          requested_date: '2024-01-15',
+          items: [
+            { name: 'Ordinateur portable HP', quantity: 10, unit_price: 1500 }
+          ],
+          requester: {
+            id: '1',
+            full_name: 'Jean Dupont'
+          },
+          created_at: '2024-01-15T10:00:00Z',
+          updated_at: '2024-01-15T10:00:00Z'
+        },
+        {
+          id: '2',
+          request_number: 'PR240002',
+          title: 'Mobilier de bureau',
+          description: 'Bureaux et chaises pour le nouveau bureau administratif',
+          status: 'approved',
+          priority: 'medium',
+          estimated_cost: 5000,
+          actual_cost: 4800,
+          delivery_date: '2024-01-30',
+          requested_date: '2024-01-10',
+          approved_date: '2024-01-12',
+          items: [
+            { name: 'Bureau', quantity: 5, unit_price: 800 },
+            { name: 'Chaise ergonomique', quantity: 5, unit_price: 200 }
+          ],
+          requester: {
+            id: '2',
+            full_name: 'Marie Martin'
+          },
+          approved_by: {
+            id: '3',
+            full_name: 'Pierre Admin'
+          },
+          created_at: '2024-01-10T14:00:00Z',
+          updated_at: '2024-01-12T09:00:00Z'
+        }
+      ];
 
-      if (error) throw error;
-      setRequests(data || []);
+      setRequests(mockData);
     } catch (err: any) {
       setError(err.message);
       toast({
@@ -83,36 +101,38 @@ export function useProcurement() {
     }
   };
 
-  const createRequest = async (requestData: any, items: any[]) => {
+  const createRequest = async (requestData: Partial<ProcurementRequest>) => {
     try {
-      const { data: requestNumber } = await supabase.rpc('generate_procurement_number');
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      const { data: request, error: requestError } = await supabase
-        .from('procurement_requests')
-        .insert({
-          ...requestData,
-          request_number: requestNumber
-        })
-        .select()
-        .single();
+      const newRequest: ProcurementRequest = {
+        id: Date.now().toString(),
+        request_number: `PR24${(requests.length + 1).toString().padStart(4, '0')}`,
+        title: requestData.title || '',
+        description: requestData.description,
+        status: 'draft',
+        priority: requestData.priority || 'medium',
+        estimated_cost: requestData.estimated_cost,
+        delivery_date: requestData.delivery_date,
+        requested_date: new Date().toISOString(),
+        items: requestData.items || [],
+        requester: {
+          id: 'current-user',
+          full_name: 'Utilisateur Actuel'
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
 
-      if (requestError) throw requestError;
-
-      if (items.length > 0) {
-        const { error: itemsError } = await supabase
-          .from('procurement_items')
-          .insert(items.map(item => ({ ...item, request_id: request.id })));
-
-        if (itemsError) throw itemsError;
-      }
+      setRequests(prev => [newRequest, ...prev]);
       
-      await fetchRequests();
       toast({
         title: "Succès",
         description: "Demande d'approvisionnement créée avec succès",
       });
       
-      return request;
+      return newRequest;
     } catch (err: any) {
       toast({
         title: "Erreur",
@@ -123,34 +143,52 @@ export function useProcurement() {
     }
   };
 
-  const updateRequestStatus = async (id: string, status: ProcurementRequest['status'], rejection_reason?: string) => {
+  const updateRequest = async (id: string, updates: Partial<ProcurementRequest>) => {
     try {
-      const { data, error } = await supabase
-        .from('procurement_requests')
-        .update({
-          status,
-          rejection_reason,
-          approved_at: status === 'approved' ? new Date().toISOString() : null
-        })
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      await fetchRequests();
+      setRequests(prev => prev.map(req => 
+        req.id === id 
+          ? { ...req, ...updates, updated_at: new Date().toISOString() }
+          : req
+      ));
+      
       toast({
         title: "Succès",
-        description: "Statut mis à jour avec succès",
+        description: "Demande mise à jour avec succès",
       });
-      
-      return data;
     } catch (err: any) {
       toast({
         title: "Erreur",
         description: err.message,
         variant: "destructive",
       });
+      throw err;
+    }
+  };
+
+  const approveRequest = async (id: string) => {
+    try {
+      await updateRequest(id, { 
+        status: 'approved', 
+        approved_date: new Date().toISOString(),
+        approved_by: {
+          id: 'current-user',
+          full_name: 'Utilisateur Actuel'
+        }
+      });
+    } catch (err: any) {
+      throw err;
+    }
+  };
+
+  const rejectRequest = async (id: string, reason?: string) => {
+    try {
+      await updateRequest(id, { 
+        status: 'rejected'
+      });
+    } catch (err: any) {
       throw err;
     }
   };
@@ -165,6 +203,8 @@ export function useProcurement() {
     error,
     fetchRequests,
     createRequest,
-    updateRequestStatus
+    updateRequest,
+    approveRequest,
+    rejectRequest
   };
 }

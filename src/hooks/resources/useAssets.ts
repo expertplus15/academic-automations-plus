@@ -7,31 +7,33 @@ export interface Asset {
   asset_number: string;
   name: string;
   description?: string;
-  category_id?: string;
   brand?: string;
   model?: string;
   serial_number?: string;
+  status: 'active' | 'maintenance' | 'retired' | 'reserved';
+  condition_status: 'excellent' | 'good' | 'fair' | 'poor';
+  location?: string;
   purchase_date?: string;
   purchase_price?: number;
   current_value?: number;
-  location?: string;
-  room_id?: string;
-  qr_code?: string;
+  depreciation_rate?: number;
   warranty_end_date?: string;
-  status: string;
-  condition_status: string;
-  responsible_person_id?: string;
-  created_at: string;
+  qr_code?: string;
   category?: {
+    id: string;
     name: string;
     code: string;
   };
   room?: {
+    id: string;
     name: string;
   };
   responsible_person?: {
+    id: string;
     full_name: string;
   };
+  created_at: string;
+  updated_at: string;
 }
 
 export function useAssets() {
@@ -47,19 +49,19 @@ export function useAssets() {
         .from('assets')
         .select(`
           *,
-          category:asset_categories(name, code),
-          room:rooms(name),
-          responsible_person:profiles!responsible_person_id(full_name)
+          category:asset_categories(id, name, code),
+          room:rooms(id, name),
+          responsible_person:profiles(id, full_name)
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setAssets(data || []);
+      setAssets((data as any) || []);
     } catch (err: any) {
       setError(err.message);
       toast({
         title: "Erreur",
-        description: "Impossible de charger les actifs",
+        description: "Impossible de charger les équipements",
         variant: "destructive",
       });
     } finally {
@@ -67,16 +69,11 @@ export function useAssets() {
     }
   };
 
-  const createAsset = async (assetData: any) => {
+  const createAsset = async (assetData: Partial<Asset>) => {
     try {
-      const { data: assetNumber } = await supabase.rpc('generate_asset_number');
-      
       const { data, error } = await supabase
         .from('assets')
-        .insert({
-          ...assetData,
-          asset_number: assetNumber
-        })
+        .insert(assetData as any)
         .select()
         .single();
 
@@ -85,7 +82,7 @@ export function useAssets() {
       await fetchAssets();
       toast({
         title: "Succès",
-        description: "Actif créé avec succès",
+        description: "Équipement créé avec succès",
       });
       
       return data;
@@ -103,7 +100,7 @@ export function useAssets() {
     try {
       const { data, error } = await supabase
         .from('assets')
-        .update(updates)
+        .update(updates as any)
         .eq('id', id)
         .select()
         .single();
@@ -113,7 +110,7 @@ export function useAssets() {
       await fetchAssets();
       toast({
         title: "Succès",
-        description: "Actif modifié avec succès",
+        description: "Équipement mis à jour avec succès",
       });
       
       return data;
@@ -139,7 +136,7 @@ export function useAssets() {
       await fetchAssets();
       toast({
         title: "Succès",
-        description: "Actif supprimé avec succès",
+        description: "Équipement supprimé avec succès",
       });
     } catch (err: any) {
       toast({

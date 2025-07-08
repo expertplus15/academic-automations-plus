@@ -168,7 +168,7 @@ export function MaintenanceDashboard() {
               <Wrench className="w-5 h-5 text-primary" />
               Maintenance Préventive
             </CardTitle>
-            <Button className="bg-primary text-primary-foreground">
+            <Button className="bg-primary text-primary-foreground" onClick={() => console.log('Planifier maintenance')}>
               <Plus className="w-4 h-4 mr-2" />
               Planifier maintenance
             </Button>
@@ -236,10 +236,10 @@ export function MaintenanceDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => console.log('Modifier', task.id)}>
                     Modifier
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => console.log('Détails', task.id)}>
                     Détails
                   </Button>
                 </div>

@@ -138,7 +138,7 @@ export function ProcurementDashboard() {
               <ShoppingCart className="w-5 h-5 text-primary" />
               Achats & Approvisionnements
             </CardTitle>
-            <Button className="bg-primary text-primary-foreground">
+            <Button className="bg-primary text-primary-foreground" onClick={() => console.log('Nouvelle demande')}>
               <Plus className="w-4 h-4 mr-2" />
               Nouvelle demande
             </Button>
@@ -213,14 +213,14 @@ export function ProcurementDashboard() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => console.log('Modifier', request.id)}>
                     Modifier
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => console.log('Détails', request.id)}>
                     Détails
                   </Button>
                   {request.status === 'submitted' && (
-                    <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                    <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => console.log('Approuver', request.id)}>
                       Approuver
                     </Button>
                   )}
