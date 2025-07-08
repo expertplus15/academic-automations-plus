@@ -57,12 +57,27 @@ export function CourseAnalytics() {
       enrollmentCount: courseEnrollments.length,
       completionRate: courseEnrollments.length > 0 ? (completedEnrollments.length / courseEnrollments.length) * 100 : 0,
       averageProgress: avgProgress,
-      rating: 4.2 + Math.random() * 0.8 // Mock rating
+      rating: (course as any).average_rating || calculateCourseRating(courseEnrollments)
     };
   }).sort((a, b) => b.enrollmentCount - a.enrollmentCount);
 
   const topPerformingCourses = courseStats.slice(0, 5);
   const lowPerformingCourses = courseStats.filter(c => c.completionRate < 50).slice(0, 5);
+
+  // Helper function to calculate course rating based on enrollments
+  function calculateCourseRating(enrollments: any[]) {
+    if (enrollments.length === 0) return 4.0;
+    const completedEnrollments = enrollments.filter(e => e.status === 'completed');
+    const avgProgress = enrollments.reduce((acc, e) => acc + (e.progress_percentage || 0), 0) / enrollments.length;
+    const completionRate = completedEnrollments.length / enrollments.length;
+    
+    // Calculate rating based on completion rate and average progress
+    let rating = 3.0; // Base rating
+    rating += (completionRate * 1.5); // Add up to 1.5 for completion rate
+    rating += (avgProgress / 100 * 0.5); // Add up to 0.5 for progress
+    
+    return Math.min(5.0, Math.max(1.0, rating));
+  }
 
   return (
     <div className="space-y-6">

@@ -79,9 +79,14 @@ export function StudentProgressTracker() {
   };
 
   const getTimeSpent = (enrollment: any) => {
-    // Mock calculation - in real app this would come from actual tracking
-    const hours = Math.floor(Math.random() * 50) + 1;
-    const minutes = Math.floor(Math.random() * 60);
+    // Calculate actual time spent based on lesson progress
+    const progressPercentage = enrollment.progress_percentage || 0;
+    const estimatedDuration = 40; // Average course duration in hours
+    const timeSpent = (progressPercentage / 100) * estimatedDuration;
+    
+    const hours = Math.floor(timeSpent);
+    const minutes = Math.floor((timeSpent - hours) * 60);
+    
     return `${hours}h ${minutes}m`;
   };
 

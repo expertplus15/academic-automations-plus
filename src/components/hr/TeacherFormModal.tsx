@@ -10,6 +10,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTeacherProfiles } from '@/hooks/hr/useTeacherProfiles';
 import { useToast } from '@/hooks/use-toast';
+import { teacherFormSchema, type TeacherFormData } from '@/lib/validations';
+import { z } from 'zod';
 import { 
   Save, 
   X, 
@@ -33,6 +35,7 @@ export function TeacherFormModal({ open, onOpenChange, teacher, onSuccess }: Tea
   const { createTeacherProfile, updateTeacherProfile } = useTeacherProfiles();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Partial<TeacherFormData>>({});
   
   // Form state
   const [formData, setFormData] = useState({
@@ -118,16 +121,20 @@ export function TeacherFormModal({ open, onOpenChange, teacher, onSuccess }: Tea
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrors({});
 
     try {
+      // Validate form data
+      const validatedData = teacherFormSchema.parse(formData);
+      
       if (teacher) {
-        await updateTeacherProfile(teacher.id, formData);
+        await updateTeacherProfile(teacher.id, validatedData as any);
         toast({
           title: "Succès",
           description: "Profil enseignant mis à jour avec succès"
         });
       } else {
-        await createTeacherProfile(formData);
+        await createTeacherProfile(validatedData as any);
         toast({
           title: "Succès", 
           description: "Profil enseignant créé avec succès"
@@ -137,11 +144,26 @@ export function TeacherFormModal({ open, onOpenChange, teacher, onSuccess }: Tea
       onSuccess?.();
       onOpenChange(false);
     } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue",
-        variant: "destructive"
-      });
+      if (error instanceof z.ZodError) {
+        const fieldErrors: Partial<TeacherFormData> = {};
+        error.errors.forEach((err) => {
+          const path = err.path.join('.');
+          fieldErrors[path as keyof TeacherFormData] = err.message as any;
+        });
+        setErrors(fieldErrors);
+        
+        toast({
+          title: "Erreur de validation",
+          description: "Veuillez corriger les erreurs dans le formulaire",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Erreur",
+          description: "Une erreur est survenue lors de l'enregistrement",
+          variant: "destructive"
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -212,7 +234,11 @@ export function TeacherFormModal({ open, onOpenChange, teacher, onSuccess }: Tea
                       profile: { ...prev.profile, full_name: e.target.value }
                     }))}
                     required
+                    className={errors['profile.full_name'] ? 'border-destructive' : ''}
                   />
+                  {errors['profile.full_name'] && (
+                    <p className="text-sm text-destructive mt-1">{errors['profile.full_name'] as string}</p>
+                  )}
                 </div>
 
                 <div>
@@ -226,7 +252,11 @@ export function TeacherFormModal({ open, onOpenChange, teacher, onSuccess }: Tea
                       profile: { ...prev.profile, email: e.target.value }
                     }))}
                     required
+                    className={errors['profile.email'] ? 'border-destructive' : ''}
                   />
+                  {errors['profile.email'] && (
+                    <p className="text-sm text-destructive mt-1">{errors['profile.email'] as string}</p>
+                  )}
                 </div>
               </div>
 

@@ -12,6 +12,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCourses } from '@/hooks/useCourses';
 import { useCourseCategories } from '@/hooks/useCourseCategories';
 import { useToast } from '@/hooks/use-toast';
+import { courseFormSchema, type CourseFormData } from '@/lib/validations';
+import { z } from 'zod';
 import { 
   Save, 
   X, 
@@ -36,6 +38,7 @@ export function CourseFormModal({ open, onOpenChange, course, onSuccess }: Cours
   const { categories: courseCategories } = useCourseCategories();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Partial<CourseFormData>>({});
   
   // Form state
   const [formData, setFormData] = useState({
@@ -112,16 +115,20 @@ export function CourseFormModal({ open, onOpenChange, course, onSuccess }: Cours
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrors({});
 
     try {
+      // Validate form data
+      const validatedData = courseFormSchema.parse(formData);
+      
       if (course) {
-        await updateCourse(course.id, formData);
+        await updateCourse(course.id, validatedData as any);
         toast({
           title: "Succès",
           description: "Cours mis à jour avec succès"
         });
       } else {
-        await createCourse(formData);
+        await createCourse(validatedData as any);
         toast({
           title: "Succès", 
           description: "Cours créé avec succès"
@@ -131,11 +138,26 @@ export function CourseFormModal({ open, onOpenChange, course, onSuccess }: Cours
       onSuccess?.();
       onOpenChange(false);
     } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue",
-        variant: "destructive"
-      });
+      if (error instanceof z.ZodError) {
+        const fieldErrors: Partial<CourseFormData> = {};
+        error.errors.forEach((err) => {
+          const path = err.path.join('.');
+          (fieldErrors as any)[path] = err.message;
+        });
+        setErrors(fieldErrors);
+        
+        toast({
+          title: "Erreur de validation",
+          description: "Veuillez corriger les erreurs dans le formulaire",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Erreur",
+          description: "Une erreur est survenue lors de l'enregistrement",
+          variant: "destructive"
+        });
+      }
     } finally {
       setLoading(false);
     }
