@@ -133,6 +133,9 @@ import ResourcesBookings from '@/pages/resources/Bookings';
 import ResourcesMaintenance from '@/pages/resources/Maintenance';
 import ResourcesProcurement from '@/pages/resources/Procurement';
 import ResourcesProperty from '@/pages/resources/Property';
+import ResourcesReports from '@/pages/resources/Reports';
+import ResourcesNotifications from '@/pages/resources/Notifications';
+import ResourcesBookingCalendarPage from '@/pages/resources/BookingCalendarPage';
 import ResourcesAnalytics from '@/pages/resources/Analytics';
 import ResourcesSettings from '@/pages/resources/Settings';
 
@@ -341,6 +344,9 @@ export function ModuleRoutes() {
       <Route path="/resources/maintenance" element={<ResourcesMaintenance />} />
       <Route path="/resources/procurement" element={<ResourcesProcurement />} />
       <Route path="/resources/property" element={<ResourcesProperty />} />
+      <Route path="/resources/reports" element={<ResourcesReports />} />
+      <Route path="/resources/notifications" element={<ResourcesNotifications />} />
+      <Route path="/resources/booking-calendar" element={<ResourcesBookingCalendarPage />} />
       <Route path="/resources/analytics" element={<ResourcesAnalytics />} />
       <Route path="/resources/settings" element={<ResourcesSettings />} />
 

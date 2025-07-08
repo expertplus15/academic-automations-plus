@@ -7,7 +7,7 @@ export default function Property() {
     <ModuleLayout>
       <ResourcesPageHeader 
         title="Patrimoine immobilier" 
-        subtitle="Suivi et valorisation" 
+        subtitle="Gestion complète des biens immobiliers" 
       />
       <div className="p-6">
         <div className="max-w-7xl mx-auto">

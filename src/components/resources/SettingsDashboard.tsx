@@ -1,347 +1,531 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Settings, Save, RotateCcw, Bell, Shield, Database, Users, Clock } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import { Settings, Bell, Calendar, FileText, Lock, Database, Mail, Users } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+interface ResourceSettings {
+  // Général
+  auto_asset_numbering: boolean;
+  asset_number_prefix: string;
+  depreciation_method: 'linear' | 'declining' | 'units';
+  default_depreciation_rate: number;
+  
+  // Notifications
+  maintenance_alerts: boolean;
+  expiry_alerts: boolean;
+  low_stock_alerts: boolean;
+  alert_advance_days: number;
+  
+  // Réservations
+  booking_approval_required: boolean;
+  max_booking_duration: number;
+  advance_booking_limit: number;
+  auto_cancel_unconfirmed: boolean;
+  
+  // Rapports
+  auto_report_generation: boolean;
+  report_schedule: 'daily' | 'weekly' | 'monthly';
+  report_recipients: string[];
+  
+  // Workflow
+  procurement_approval_limit: number;
+  multi_level_approval: boolean;
+  budget_integration: boolean;
+  
+  // Sécurité
+  asset_location_tracking: boolean;
+  qr_code_required: boolean;
+  audit_trail_enabled: boolean;
+}
+
+const defaultSettings: ResourceSettings = {
+  auto_asset_numbering: true,
+  asset_number_prefix: 'AST',
+  depreciation_method: 'linear',
+  default_depreciation_rate: 10,
+  
+  maintenance_alerts: true,
+  expiry_alerts: true,
+  low_stock_alerts: true,
+  alert_advance_days: 30,
+  
+  booking_approval_required: false,
+  max_booking_duration: 8,
+  advance_booking_limit: 90,
+  auto_cancel_unconfirmed: true,
+  
+  auto_report_generation: false,
+  report_schedule: 'monthly',
+  report_recipients: [],
+  
+  procurement_approval_limit: 5000,
+  multi_level_approval: true,
+  budget_integration: false,
+  
+  asset_location_tracking: true,
+  qr_code_required: false,
+  audit_trail_enabled: true
+};
 
 export function SettingsDashboard() {
-  const [notifications, setNotifications] = useState({
-    maintenance: true,
-    inventory: false,
-    bookings: true,
-    alerts: true
-  });
+  const [settings, setSettings] = useState<ResourceSettings>(defaultSettings);
+  const [emailInput, setEmailInput] = useState('');
+  const { toast } = useToast();
 
-  const [preferences, setPreferences] = useState({
-    language: 'fr',
-    timezone: 'Europe/Paris',
-    dateFormat: 'dd/MM/yyyy',
-    currency: 'EUR'
-  });
-
-  const settingsCategories = [
-    {
-      title: "Notifications",
-      icon: Bell,
-      description: "Configuration des alertes et notifications",
-      settings: [
-        {
-          id: 'maintenance',
-          label: 'Alertes de maintenance',
-          description: 'Notifications pour les maintenances dues',
-          type: 'switch',
-          value: notifications.maintenance
-        },
-        {
-          id: 'inventory',
-          label: 'Mouvements d\'inventaire',
-          description: 'Alertes lors des ajouts/retraits d\'équipements',
-          type: 'switch',
-          value: notifications.inventory
-        },
-        {
-          id: 'bookings',
-          label: 'Réservations',
-          description: 'Notifications de nouvelles réservations',
-          type: 'switch',
-          value: notifications.bookings
-        },
-        {
-          id: 'alerts',
-          label: 'Alertes système',
-          description: 'Notifications d\'erreurs et conflits',
-          type: 'switch',
-          value: notifications.alerts
-        }
-      ]
-    },
-    {
-      title: "Sécurité & Accès",
-      icon: Shield,
-      description: "Gestion des permissions et sécurité",
-      settings: [
-        {
-          id: 'two_factor',
-          label: 'Authentification à deux facteurs',
-          description: 'Sécurité renforcée pour l\'accès au module',
-          type: 'switch',
-          value: false
-        },
-        {
-          id: 'audit_logs',
-          label: 'Logs d\'audit',
-          description: 'Enregistrement de toutes les actions',
-          type: 'switch',
-          value: true
-        },
-        {
-          id: 'backup_frequency',
-          label: 'Fréquence des sauvegardes',
-          description: 'Automatisation des sauvegardes',
-          type: 'select',
-          value: 'daily',
-          options: [
-            { value: 'hourly', label: 'Toutes les heures' },
-            { value: 'daily', label: 'Quotidienne' },
-            { value: 'weekly', label: 'Hebdomadaire' }
-          ]
-        }
-      ]
-    },
-    {
-      title: "Base de données",
-      icon: Database,
-      description: "Configuration de la base de données",
-      settings: [
-        {
-          id: 'sync_interval',
-          label: 'Intervalle de synchronisation',
-          description: 'Fréquence de mise à jour des données',
-          type: 'select',
-          value: '5min',
-          options: [
-            { value: '1min', label: '1 minute' },
-            { value: '5min', label: '5 minutes' },
-            { value: '15min', label: '15 minutes' },
-            { value: '30min', label: '30 minutes' }
-          ]
-        },
-        {
-          id: 'data_retention',
-          label: 'Rétention des données',
-          description: 'Durée de conservation des historiques',
-          type: 'select',
-          value: '2years',
-          options: [
-            { value: '1year', label: '1 an' },
-            { value: '2years', label: '2 ans' },
-            { value: '5years', label: '5 ans' },
-            { value: 'unlimited', label: 'Illimitée' }
-          ]
-        }
-      ]
-    }
-  ];
-
-  const handleNotificationChange = (key: string, value: boolean) => {
-    setNotifications(prev => ({ ...prev, [key]: value }));
-  };
-
-  const handleSaveSettings = () => {
-    // Logique de sauvegarde
-    console.log('Settings saved:', { notifications, preferences });
-  };
-
-  const handleResetSettings = () => {
-    // Logique de reset
-    setNotifications({
-      maintenance: true,
-      inventory: false,
-      bookings: true,
-      alerts: true
+  const handleSave = () => {
+    toast({
+      title: "Paramètres sauvegardés",
+      description: "La configuration a été mise à jour avec succès",
     });
   };
 
+  const addRecipient = () => {
+    if (emailInput && !settings.report_recipients.includes(emailInput)) {
+      setSettings(prev => ({
+        ...prev,
+        report_recipients: [...prev.report_recipients, emailInput]
+      }));
+      setEmailInput('');
+    }
+  };
+
+  const removeRecipient = (email: string) => {
+    setSettings(prev => ({
+      ...prev,
+      report_recipients: prev.report_recipients.filter(r => r !== email)
+    }));
+  };
+
   return (
-    <div className="space-y-8">
-      {/* Settings Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="bg-white rounded-2xl shadow-sm border-0">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Utilisateurs actifs</p>
-                <p className="text-2xl font-bold text-foreground">24</p>
-              </div>
-              <div className="p-3 bg-blue-100 rounded-xl">
-                <Users className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white rounded-2xl shadow-sm border-0">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Dernière sauvegarde</p>
-                <p className="text-2xl font-bold text-foreground">2h</p>
-              </div>
-              <div className="p-3 bg-green-100 rounded-xl">
-                <Database className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white rounded-2xl shadow-sm border-0">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Uptime système</p>
-                <p className="text-2xl font-bold text-foreground">99.9%</p>
-              </div>
-              <div className="p-3 bg-purple-100 rounded-xl">
-                <Clock className="w-6 h-6 text-purple-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white rounded-2xl shadow-sm border-0">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Sécurité</p>
-                <p className="text-2xl font-bold text-foreground">Élevée</p>
-              </div>
-              <div className="p-3 bg-orange-100 rounded-xl">
-                <Shield className="w-6 h-6 text-orange-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Settings Categories */}
-      <div className="space-y-6">
-        {settingsCategories.map((category, categoryIndex) => {
-          const CategoryIcon = category.icon;
-          return (
-            <Card key={categoryIndex} className="bg-white rounded-2xl shadow-sm border-0">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CategoryIcon className="w-5 h-5 text-primary" />
-                  {category.title}
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">{category.description}</p>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {category.settings.map((setting, settingIndex) => (
-                    <div key={settingIndex} className="flex items-center justify-between p-4 rounded-lg border border-border/50">
-                      <div className="flex-1">
-                        <h3 className="font-medium text-foreground">{setting.label}</h3>
-                        <p className="text-sm text-muted-foreground">{setting.description}</p>
-                      </div>
-                      <div className="ml-4">
-                        {setting.type === 'switch' && (
-                          <Switch
-                            checked={setting.value as boolean}
-                            onCheckedChange={(value) => {
-                              if (category.title === "Notifications") {
-                                handleNotificationChange(setting.id, value);
-                              }
-                            }}
-                          />
-                        )}
-                        {setting.type === 'select' && setting.options && (
-                          <Select value={setting.value as string}>
-                            <SelectTrigger className="w-48">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {setting.options.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Preferences */}
-      <Card className="bg-white rounded-2xl shadow-sm border-0">
+    <div className="space-y-6">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Settings className="w-5 h-5 text-primary" />
-            Préférences générales
+            <Settings className="w-5 h-5" />
+            Configuration du Module Ressources
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Langue</label>
-              <Select value={preferences.language}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="fr">Français</SelectItem>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="es">Español</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <Tabs defaultValue="general" className="w-full">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="general">Général</TabsTrigger>
+              <TabsTrigger value="notifications">Notifications</TabsTrigger>
+              <TabsTrigger value="bookings">Réservations</TabsTrigger>
+              <TabsTrigger value="reports">Rapports</TabsTrigger>
+              <TabsTrigger value="security">Sécurité</TabsTrigger>
+            </TabsList>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Fuseau horaire</label>
-              <Select value={preferences.timezone}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Europe/Paris">Europe/Paris</SelectItem>
-                  <SelectItem value="Europe/London">Europe/London</SelectItem>
-                  <SelectItem value="America/New_York">America/New_York</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <TabsContent value="general" className="space-y-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Paramètres Généraux</h3>
+                
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Numérotation automatique des actifs</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Génère automatiquement les numéros d'actifs
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.auto_asset_numbering}
+                        onCheckedChange={(checked) =>
+                          setSettings(prev => ({ ...prev, auto_asset_numbering: checked }))
+                        }
+                      />
+                    </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Format de date</label>
-              <Select value={preferences.dateFormat}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="dd/MM/yyyy">dd/MM/yyyy</SelectItem>
-                  <SelectItem value="MM/dd/yyyy">MM/dd/yyyy</SelectItem>
-                  <SelectItem value="yyyy-MM-dd">yyyy-MM-dd</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+                    <div className="space-y-2">
+                      <Label>Préfixe des numéros d'actifs</Label>
+                      <Input
+                        value={settings.asset_number_prefix}
+                        onChange={(e) =>
+                          setSettings(prev => ({ ...prev, asset_number_prefix: e.target.value }))
+                        }
+                        placeholder="AST"
+                      />
+                    </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Devise</label>
-              <Select value={preferences.currency}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="EUR">EUR (€)</SelectItem>
-                  <SelectItem value="USD">USD ($)</SelectItem>
-                  <SelectItem value="GBP">GBP (£)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+                    <div className="space-y-2">
+                      <Label>Méthode de dépréciation par défaut</Label>
+                      <Select
+                        value={settings.depreciation_method}
+                        onValueChange={(value: any) =>
+                          setSettings(prev => ({ ...prev, depreciation_method: value }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="linear">Linéaire</SelectItem>
+                          <SelectItem value="declining">Dégressive</SelectItem>
+                          <SelectItem value="units">Unités de production</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Taux de dépréciation par défaut (%)</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.1"
+                        value={settings.default_depreciation_rate}
+                        onChange={(e) =>
+                          setSettings(prev => ({ 
+                            ...prev, 
+                            default_depreciation_rate: parseFloat(e.target.value) || 0 
+                          }))
+                        }
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Limite d'approbation pour achats (€)</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={settings.procurement_approval_limit}
+                        onChange={(e) =>
+                          setSettings(prev => ({ 
+                            ...prev, 
+                            procurement_approval_limit: parseFloat(e.target.value) || 0 
+                          }))
+                        }
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Approbation multi-niveaux</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Workflow d'approbation en cascade
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.multi_level_approval}
+                        onCheckedChange={(checked) =>
+                          setSettings(prev => ({ ...prev, multi_level_approval: checked }))
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="notifications" className="space-y-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Bell className="w-5 h-5" />
+                  Notifications et Alertes
+                </h3>
+                
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Alertes de maintenance</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Notifications pour la maintenance préventive
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.maintenance_alerts}
+                        onCheckedChange={(checked) =>
+                          setSettings(prev => ({ ...prev, maintenance_alerts: checked }))
+                        }
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Alertes d'expiration</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Notifications pour garanties et assurances
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.expiry_alerts}
+                        onCheckedChange={(checked) =>
+                          setSettings(prev => ({ ...prev, expiry_alerts: checked }))
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Anticipation des alertes (jours)</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        max="365"
+                        value={settings.alert_advance_days}
+                        onChange={(e) =>
+                          setSettings(prev => ({ 
+                            ...prev, 
+                            alert_advance_days: parseInt(e.target.value) || 30 
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="bookings" className="space-y-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Calendar className="w-5 h-5" />
+                  Gestion des Réservations
+                </h3>
+                
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Approbation requise</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Les réservations nécessitent une validation
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.booking_approval_required}
+                        onCheckedChange={(checked) =>
+                          setSettings(prev => ({ ...prev, booking_approval_required: checked }))
+                        }
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Durée maximale de réservation (heures)</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        max="24"
+                        value={settings.max_booking_duration}
+                        onChange={(e) =>
+                          setSettings(prev => ({ 
+                            ...prev, 
+                            max_booking_duration: parseInt(e.target.value) || 8 
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Limite de réservation anticipée (jours)</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        max="365"
+                        value={settings.advance_booking_limit}
+                        onChange={(e) =>
+                          setSettings(prev => ({ 
+                            ...prev, 
+                            advance_booking_limit: parseInt(e.target.value) || 90 
+                          }))
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="reports" className="space-y-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  Rapports Automatiques
+                </h3>
+                
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Génération automatique</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Génère automatiquement les rapports
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.auto_report_generation}
+                        onCheckedChange={(checked) =>
+                          setSettings(prev => ({ ...prev, auto_report_generation: checked }))
+                        }
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Fréquence de génération</Label>
+                      <Select
+                        value={settings.report_schedule}
+                        onValueChange={(value: any) =>
+                          setSettings(prev => ({ ...prev, report_schedule: value }))
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="daily">Quotidien</SelectItem>
+                          <SelectItem value="weekly">Hebdomadaire</SelectItem>
+                          <SelectItem value="monthly">Mensuel</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Destinataires des rapports</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          type="email"
+                          value={emailInput}
+                          onChange={(e) => setEmailInput(e.target.value)}
+                          placeholder="email@exemple.com"
+                        />
+                        <Button onClick={addRecipient} size="sm">
+                          Ajouter
+                        </Button>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {settings.report_recipients.map((email) => (
+                          <Badge key={email} variant="secondary" className="flex items-center gap-1">
+                            <Mail className="w-3 h-3" />
+                            {email}
+                            <button
+                              onClick={() => removeRecipient(email)}
+                              className="ml-1 text-xs hover:text-red-600"
+                            >
+                              ×
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="security" className="space-y-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Lock className="w-5 h-5" />
+                  Sécurité et Audit
+                </h3>
+                
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Traçabilité des emplacements</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Suit les mouvements d'actifs en temps réel
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.asset_location_tracking}
+                        onCheckedChange={(checked) =>
+                          setSettings(prev => ({ ...prev, asset_location_tracking: checked }))
+                        }
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>QR Code obligatoire</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Tous les actifs doivent avoir un QR code
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.qr_code_required}
+                        onCheckedChange={(checked) =>
+                          setSettings(prev => ({ ...prev, qr_code_required: checked }))
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Journal d'audit</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Enregistre toutes les actions sur les actifs
+                        </p>
+                      </div>
+                      <Switch
+                        checked={settings.audit_trail_enabled}
+                        onCheckedChange={(checked) =>
+                          setSettings(prev => ({ ...prev, audit_trail_enabled: checked }))
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-4">
+                  <h4 className="font-semibold">Informations Système</h4>
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <Database className="w-4 h-4 text-blue-600" />
+                      <div>
+                        <p className="font-medium">Version Base</p>
+                        <p className="text-muted-foreground">PostgreSQL 15.3</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Settings className="w-4 h-4 text-green-600" />
+                      <div>
+                        <p className="font-medium">API Version</p>
+                        <p className="text-muted-foreground">v2.1.0</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-purple-600" />
+                      <div>
+                        <p className="font-medium">Utilisateurs Actifs</p>
+                        <p className="text-muted-foreground">147 connectés</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+
+          <Separator className="my-6" />
+
+          <div className="flex justify-end gap-3">
+            <Button variant="outline">Réinitialiser</Button>
+            <Button onClick={handleSave}>Sauvegarder la Configuration</Button>
           </div>
         </CardContent>
       </Card>
-
-      {/* Action Buttons */}
-      <div className="flex items-center gap-4">
-        <Button onClick={handleSaveSettings} className="bg-primary text-primary-foreground">
-          <Save className="w-4 h-4 mr-2" />
-          Sauvegarder
-        </Button>
-        <Button variant="outline" onClick={handleResetSettings}>
-          <RotateCcw className="w-4 h-4 mr-2" />
-          Réinitialiser
-        </Button>
-      </div>
     </div>
   );
 }

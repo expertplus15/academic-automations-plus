@@ -7,7 +7,7 @@ export default function Settings() {
     <ModuleLayout>
       <ResourcesPageHeader 
         title="Configuration" 
-        subtitle="Paramètres du module" 
+        subtitle="Paramètres et configuration du module" 
       />
       <div className="p-6">
         <div className="max-w-7xl mx-auto">
