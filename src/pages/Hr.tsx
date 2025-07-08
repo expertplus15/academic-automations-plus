@@ -16,10 +16,28 @@ import {
 } from 'lucide-react';
 import { useTeacherProfiles } from '@/hooks/hr/useTeacherProfiles';
 import { useTeacherContracts } from '@/hooks/hr/useTeacherContracts';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { Link } from 'react-router-dom';
 
 export default function Hr() {
   const { teacherProfiles, loading: profilesLoading } = useTeacherProfiles();
   const { contracts, loading: contractsLoading } = useTeacherContracts();
+  const { hasRole } = useAuth();
+  const { toast } = useToast();
+
+  const canManageTeachers = hasRole(['admin', 'hr']);
+
+  const handleRestrictedAction = (action: string) => {
+    if (!canManageTeachers) {
+      toast({
+        title: "Accès refusé",
+        description: `Vous n'avez pas les permissions pour ${action}`,
+        variant: "destructive"
+      });
+      return;
+    }
+  };
 
   const activeTeachers = teacherProfiles.filter(t => t.status === 'active').length;
   const activeContracts = contracts.filter(c => c.status === 'active').length;
@@ -203,35 +221,41 @@ export default function Hr() {
                 <CardTitle className="text-lg">Actions rapides</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <button className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <UserCheck className="w-5 h-5 text-amber-500" />
-                    <div>
-                      <p className="font-medium">Ajouter un enseignant</p>
-                      <p className="text-xs text-muted-foreground">Nouveau profil</p>
+                <Link to="/hr/teachers" className="block">
+                  <div className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <UserCheck className="w-5 h-5 text-amber-500" />
+                      <div>
+                        <p className="font-medium">Ajouter un enseignant</p>
+                        <p className="text-xs text-muted-foreground">Nouveau profil</p>
+                      </div>
                     </div>
                   </div>
-                </button>
+                </Link>
                 
-                <button className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-5 h-5 text-amber-500" />
-                    <div>
-                      <p className="font-medium">Gérer les contrats</p>
-                      <p className="text-xs text-muted-foreground">Renouvellements</p>
+                <Link to="/hr/contracts" className="block">
+                  <div className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <FileText className="w-5 h-5 text-amber-500" />
+                      <div>
+                        <p className="font-medium">Gérer les contrats</p>
+                        <p className="text-xs text-muted-foreground">Renouvellements</p>
+                      </div>
                     </div>
                   </div>
-                </button>
+                </Link>
 
-                <button className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-amber-500" />
-                    <div>
-                      <p className="font-medium">Disponibilités</p>
-                      <p className="text-xs text-muted-foreground">Planification</p>
+                <Link to="/hr/availability" className="block">
+                  <div className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <Calendar className="w-5 h-5 text-amber-500" />
+                      <div>
+                        <p className="font-medium">Disponibilités</p>
+                        <p className="text-xs text-muted-foreground">Planification</p>
+                      </div>
                     </div>
                   </div>
-                </button>
+                </Link>
               </CardContent>
             </Card>
 
