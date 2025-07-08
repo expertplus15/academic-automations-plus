@@ -30,54 +30,8 @@ export function TreasuryIncomeDashboard() {
   const [searchFilter, setSearchFilter] = useState('');
   const [methodFilter, setMethodFilter] = useState('all');
 
-  // Mock data - en attendant l'intégration complète
-  const paymentMethodsData = [
-    { 
-      name: "Cartes Bancaires", 
-      icon: CreditCard,
-      amount: 45200, 
-      count: 127, 
-      growth: 8,
-      dailyAmount: 1250,
-      color: "text-blue-500"
-    },
-    { 
-      name: "Virements SEPA", 
-      icon: ArrowUpDown,
-      amount: 89400, 
-      count: 89, 
-      growth: 12,
-      dailyAmount: 2840,
-      color: "text-green-500"
-    },
-    { 
-      name: "Prélèvements", 
-      icon: Banknote,
-      amount: 156800, 
-      count: 234, 
-      growth: 5,
-      dailyAmount: 5200,
-      color: "text-purple-500"
-    },
-    { 
-      name: "Paiement Mobile", 
-      icon: Smartphone,
-      amount: 23400, 
-      count: 78, 
-      growth: 25,
-      dailyAmount: 780,
-      color: "text-orange-500"
-    },
-    { 
-      name: "Espèces", 
-      icon: Euro,
-      amount: 8900, 
-      count: 45, 
-      growth: -2,
-      dailyAmount: 290,
-      color: "text-gray-500"
-    }
-  ];
+  // Utilisation des données depuis useTreasuryData
+  const paymentMethodsData = incomeData.paymentMethods;
 
   const recentTransactions = [
     {
@@ -190,10 +144,19 @@ export function TreasuryIncomeDashboard() {
         <div className="text-2xl font-bold text-green-600">{formatAmount(incomeData.totalIncome)}</div>
       </div>
 
-      {/* Vue par modes de paiement */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {paymentMethodsData.map((method, index) => {
-          const IconComponent = method.icon;
+          const getIcon = (iconName: string) => {
+            switch(iconName) {
+              case 'CreditCard': return CreditCard;
+              case 'ArrowUpDown': return ArrowUpDown;
+              case 'Banknote': return Banknote;
+              case 'Smartphone': return Smartphone;
+              case 'Euro': return Euro;
+              default: return CreditCard;
+            }
+          };
+          const IconComponent = getIcon(method.icon);
           return (
             <Card key={index} className="hover:shadow-md transition-shadow">
               <CardHeader className="pb-3">

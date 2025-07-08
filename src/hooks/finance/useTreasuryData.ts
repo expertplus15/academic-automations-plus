@@ -11,7 +11,7 @@ export interface TreasuryIncomeData {
     count: number;
     growth: number;
     dailyAmount: number;
-    icon: any;
+    icon: string;
     color: string;
   }[];
   totalIncome: number;
@@ -28,7 +28,7 @@ export interface TreasuryExpenseData {
     growth: number;
     budget: number;
     percentage: number;
-    icon: any;
+    icon: string;
     color: string;
   }[];
   totalExpenses: number;

@@ -32,64 +32,8 @@ export function TreasuryExpensesDashboard() {
   const [searchFilter, setSearchFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  // Mock data avec catégories réelles
-  const expensesByCategory = [
-    {
-      name: "Personnel & Salaires",
-      icon: Users,
-      amount: 125000,
-      count: 45,
-      growth: 2,
-      dailyAmount: 4200,
-      color: "text-blue-500",
-      budget: 130000,
-      percentage: 78
-    },
-    {
-      name: "Équipements & Infrastructure",
-      icon: Building,
-      amount: 45000,
-      count: 23,
-      growth: -8,
-      dailyAmount: 1500,
-      color: "text-purple-500",
-      budget: 50000,
-      percentage: 90
-    },
-    {
-      name: "Fournitures Pédagogiques",
-      icon: BookOpen,
-      amount: 18500,
-      count: 67,
-      growth: 15,
-      dailyAmount: 620,
-      color: "text-green-500",
-      budget: 25000,
-      percentage: 74
-    },
-    {
-      name: "Services & Maintenance",
-      icon: Zap,
-      amount: 12300,
-      count: 34,
-      growth: 5,
-      dailyAmount: 410,
-      color: "text-orange-500",
-      budget: 15000,
-      percentage: 82
-    },
-    {
-      name: "Frais Généraux",
-      icon: Receipt,
-      amount: 8900,
-      count: 56,
-      growth: -3,
-      dailyAmount: 300,
-      color: "text-gray-500",
-      budget: 12000,
-      percentage: 74
-    }
-  ];
+  // Utilisation des données depuis useTreasuryData
+  const expensesByCategory = expenseData.categories;
 
   const recentExpenses = [
     {
@@ -213,7 +157,17 @@ export function TreasuryExpensesDashboard() {
       {/* Dépenses par catégorie */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {expensesByCategory.map((category, index) => {
-          const IconComponent = category.icon;
+          const getIcon = (iconName: string) => {
+            switch(iconName) {
+              case 'Users': return Users;
+              case 'Building': return Building;
+              case 'BookOpen': return BookOpen;
+              case 'Zap': return Zap;
+              case 'Receipt': return Receipt;
+              default: return Receipt;
+            }
+          };
+          const IconComponent = getIcon(category.icon);
           const budgetPercentage = (category.amount / category.budget) * 100;
           
           return (
