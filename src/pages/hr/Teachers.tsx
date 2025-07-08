@@ -253,11 +253,13 @@ export default function Teachers() {
 
         {/* Modal */}
         <TeacherFormModal
-          isOpen={modalOpen}
-          onClose={() => setModalOpen(false)}
-          onSave={handleSaveTeacher}
+          open={modalOpen}
+          onOpenChange={setModalOpen}
           teacher={selectedTeacher}
-          mode={modalMode}
+          onSuccess={() => {
+            // Refresh data after successful save
+            setModalOpen(false);
+          }}
         />
       </div>
     </ModuleLayout>

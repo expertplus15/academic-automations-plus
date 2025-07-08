@@ -25,8 +25,8 @@ export default function Contracts() {
 
   const filteredContracts = contracts.filter(contract =>
     contract.teacher_profile?.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    contract.contract_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (contract.contract_type && typeof contract.contract_type === 'string' ? contract.contract_type.toLowerCase().includes(searchTerm.toLowerCase()) : false)
+    contract.teacher_profile?.employee_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    contract.contract_type.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusBadge = (status: string) => {
@@ -166,19 +166,20 @@ export default function Contracts() {
                       </div>
                       <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
-                          <span className="font-medium">N°:</span> {contract.contract_number}
+                          <span className="font-medium">N°:</span> {contract.teacher_profile?.employee_number}
                         </span>
                         <span className="flex items-center gap-1">
                           <FileText className="w-3 h-3" />
-                          {typeof contract.contract_type === 'string' ? contract.contract_type : 'Type non défini'}
+                          {contract.contract_type}
                         </span>
                         <span className="flex items-center gap-1">
                           <DollarSign className="w-3 h-3" />
-                          {contract.salary_amount.toLocaleString('fr-FR')} €
+                          {contract.monthly_salary ? `${contract.monthly_salary.toLocaleString('fr-FR')} €/mois` : 
+                           contract.hourly_rate ? `${contract.hourly_rate.toLocaleString('fr-FR')} €/h` : 'Non défini'}
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          {contract.working_hours_per_week}h/semaine
+                          {contract.weekly_hours}h/semaine
                         </span>
                       </div>
                       <div className="flex items-center gap-4 text-sm">
@@ -187,9 +188,9 @@ export default function Contracts() {
                           Du {new Date(contract.start_date).toLocaleDateString('fr-FR')}
                           {contract.end_date && ` au ${new Date(contract.end_date).toLocaleDateString('fr-FR')}`}
                         </span>
-                        {contract.renewal_date && (
-                          <span className="text-yellow-600">
-                            Renouvellement: {new Date(contract.renewal_date).toLocaleDateString('fr-FR')}
+                        {contract.signed_date && (
+                          <span className="text-green-600">
+                            Signé le: {new Date(contract.signed_date).toLocaleDateString('fr-FR')}
                           </span>
                         )}
                       </div>
