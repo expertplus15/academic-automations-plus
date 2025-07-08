@@ -91,7 +91,23 @@ export const performanceEvaluationSchema = z.object({
   path: ["evaluation_period_end"]
 });
 
+// Student validation schema
+export const studentFormSchema = z.object({
+  full_name: z.string().min(2, "Le nom complet doit contenir au moins 2 caractères"),
+  email: z.string().email("Email invalide"),
+  phone: z.string().optional().or(z.literal("")),
+  program_id: z.string().uuid("Veuillez sélectionner un programme"),
+  year_level: z.number().min(1, "Le niveau doit être au moins 1").max(5, "Le niveau ne peut pas dépasser 5"),
+  status: z.enum(['active', 'suspended', 'graduated', 'dropped']).optional()
+}).refine((data) => {
+  // Custom validation for email uniqueness could be added here
+  return true;
+}, {
+  message: "Validation personnalisée échouée"
+});
+
 export type TeacherFormData = z.infer<typeof teacherFormSchema>;
 export type CourseFormData = z.infer<typeof courseFormSchema>;
 export type EnrollmentData = z.infer<typeof enrollmentSchema>;
 export type PerformanceEvaluationData = z.infer<typeof performanceEvaluationSchema>;
+export type StudentFormData = z.infer<typeof studentFormSchema>;

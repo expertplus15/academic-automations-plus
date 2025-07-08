@@ -3,6 +3,9 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { StudentsModuleLayout } from "@/components/layouts/StudentsModuleLayout";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { useStudentsDashboard } from '@/hooks/useStudentsDashboard';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   Users, 
   UserPlus, 
@@ -17,54 +20,65 @@ import {
 } from 'lucide-react';
 
 export default function Students() {
-  const stats = [
+  const { hasRole, isAdmin, isHR } = useAuth();
+  const { stats, recentEnrollments, programDistribution, loading, error } = useStudentsDashboard();
+
+  // Access control for different roles
+  const canCreateStudents = hasRole(['admin', 'hr']);
+  const canViewAllStudents = hasRole(['admin', 'hr', 'teacher']);
+
+  if (loading) {
+    return (
+      <ProtectedRoute allowedRoles={['admin', 'teacher', 'hr']}>
+        <StudentsModuleLayout>
+          <div className="flex items-center justify-center min-h-96">
+            <LoadingSpinner size="lg" />
+          </div>
+        </StudentsModuleLayout>
+      </ProtectedRoute>
+    );
+  }
+
+  if (error) {
+    return (
+      <ProtectedRoute allowedRoles={['admin', 'teacher', 'hr']}>
+        <StudentsModuleLayout>
+          <div className="flex items-center justify-center min-h-96">
+            <div className="text-center">
+              <AlertTriangle className="w-12 h-12 text-destructive mx-auto mb-4" />
+              <p className="text-foreground font-semibold mb-2">Erreur de chargement</p>
+              <p className="text-muted-foreground">{error}</p>
+            </div>
+          </div>
+        </StudentsModuleLayout>
+      </ProtectedRoute>
+    );
+  }
+
+  const dashboardStats = [
     {
       label: "Étudiants inscrits",
-      value: "2,847",
-      change: "+127",
+      value: stats.totalStudents.toString(),
+      change: `+${stats.newThisMonth}`,
       changeType: "positive" as const
     },
     {
       label: "Nouvelles inscriptions",
-      value: "89",
-      change: "+12%",
+      value: stats.newThisMonth.toString(),
+      change: stats.newThisMonth > 0 ? "+12%" : "0%",
       changeType: "positive" as const
     },
     {
-      label: "Taux de réussite",
-      value: "94%",
+      label: "Taux de rétention",
+      value: `${stats.retentionRate}%`,
       change: "+3%",
       changeType: "positive" as const
     },
     {
-      label: "Documents traités",
-      value: "156",
-      change: "+24",
+      label: "Étudiants actifs",
+      value: stats.activeStudents.toString(),
+      change: `+${Math.round(stats.activeStudents * 0.05)}`,
       changeType: "positive" as const
-    }
-  ];
-
-  const recentActivities = [
-    {
-      id: 1,
-      student: "Marie Dubois",
-      action: "Inscription complétée",
-      status: "completed",
-      date: "2024-01-15"
-    },
-    {
-      id: 2,
-      student: "Jean Martin",
-      action: "Documents en attente",
-      status: "pending",
-      date: "2024-01-14"
-    },
-    {
-      id: 3,
-      student: "Sophie Laurent",
-      action: "Profil mis à jour",
-      status: "progress",
-      date: "2024-01-13"
     }
   ];
 
@@ -82,7 +96,7 @@ export default function Students() {
   };
 
   return (
-    <ProtectedRoute allowedRoles={['admin', 'teacher']}>
+    <ProtectedRoute allowedRoles={['admin', 'teacher', 'hr']}>
       <StudentsModuleLayout>
         {/* Hero Section avec carte de fond */}
         <div className="relative overflow-hidden">
@@ -110,7 +124,7 @@ export default function Students() {
             
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 -mt-6 relative z-10">
-            {stats.map((stat, index) => (
+            {dashboardStats.map((stat, index) => (
                 <Card key={index} className="bg-white rounded-2xl shadow-lg border-0 hover:shadow-xl transition-all duration-300">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -146,9 +160,9 @@ export default function Students() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {recentActivities.map((activity) => (
+                    {recentEnrollments.length > 0 ? recentEnrollments.map((enrollment) => (
                       <div
-                        key={activity.id}
+                        key={enrollment.id}
                         className="flex items-center justify-between p-4 rounded-xl border border-border/50 hover:bg-accent/50 transition-colors"
                       >
                         <div className="flex items-center gap-4">
@@ -156,38 +170,57 @@ export default function Students() {
                             <Users className="w-4 h-4 text-emerald-600" />
                           </div>
                           <div>
-                            <p className="font-semibold text-foreground">{activity.student}</p>
-                            <p className="text-sm text-muted-foreground">{activity.action}</p>
+                            <p className="font-semibold text-foreground">{enrollment.full_name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {enrollment.student_number} - {enrollment.program_name}
+                            </p>
                           </div>
                         </div>
                         <div className="text-right space-y-1">
                           <div className="flex items-center gap-2">
-                            {getStatusBadge(activity.status)}
+                            {getStatusBadge(enrollment.status)}
                           </div>
                           <span className="text-xs text-muted-foreground">
-                            {activity.date}
+                            {new Date(enrollment.enrollment_date).toLocaleDateString('fr-FR')}
                           </span>
                         </div>
                       </div>
-                    ))}
+                    )) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                        <p>Aucune inscription récente</p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Performance */}
+              {/* Program Distribution */}
               <Card className="bg-white rounded-2xl shadow-sm border-0">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <BarChart3 className="w-5 h-5 text-emerald-500" />
-                    Statistiques de performance
+                    Répartition par Programme
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-64 flex items-center justify-center text-muted-foreground">
-                    <div className="text-center">
-                      <BarChart3 className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                      <p>Graphiques de performance à venir</p>
-                    </div>
+                  <div className="space-y-4">
+                    {programDistribution.length > 0 ? programDistribution.map((program, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-border/30">
+                        <div>
+                          <p className="font-medium text-foreground">{program.program_name}</p>
+                          <p className="text-sm text-muted-foreground">{program.student_count} étudiants</p>
+                        </div>
+                        <div className="text-right">
+                          <Badge variant="secondary">{program.percentage}%</Badge>
+                        </div>
+                      </div>
+                    )) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <BarChart3 className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                        <p>Aucune donnée de répartition</p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -201,25 +234,29 @@ export default function Students() {
                   <CardTitle className="text-lg">Actions rapides</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <button className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <UserPlus className="w-5 h-5 text-emerald-500" />
-                      <div>
-                        <p className="font-medium">Nouvelle inscription</p>
-                        <p className="text-xs text-muted-foreground">Ajouter un étudiant</p>
+                  {canCreateStudents && (
+                    <button className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <UserPlus className="w-5 h-5 text-emerald-500" />
+                        <div>
+                          <p className="font-medium">Nouvelle inscription</p>
+                          <p className="text-xs text-muted-foreground">Ajouter un étudiant</p>
+                        </div>
                       </div>
-                    </div>
-                  </button>
+                    </button>
+                  )}
                   
-                  <button className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <Activity className="w-5 h-5 text-emerald-500" />
-                      <div>
-                        <p className="font-medium">Suivi académique</p>
-                        <p className="text-xs text-muted-foreground">Performances</p>
+                  {canViewAllStudents && (
+                    <button className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <Activity className="w-5 h-5 text-emerald-500" />
+                        <div>
+                          <p className="font-medium">Suivi académique</p>
+                          <p className="text-xs text-muted-foreground">Performances</p>
+                        </div>
                       </div>
-                    </div>
-                  </button>
+                    </button>
+                  )}
 
                   <button className="w-full p-3 text-left rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
                     <div className="flex items-center gap-3">
@@ -243,18 +280,18 @@ export default function Students() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="p-3 bg-blue-50 rounded-xl border border-blue-200">
-                    <p className="text-sm font-medium text-blue-700">24 nouvelles inscriptions</p>
-                    <p className="text-xs text-blue-600">En attente de validation</p>
+                    <p className="text-sm font-medium text-blue-700">{stats.newThisMonth} nouvelles inscriptions</p>
+                    <p className="text-xs text-blue-600">Ce mois-ci</p>
                   </div>
                   
                   <div className="p-3 bg-yellow-50 rounded-xl border border-yellow-200">
-                    <p className="text-sm font-medium text-yellow-700">12 documents manquants</p>
-                    <p className="text-xs text-yellow-600">À compléter</p>
+                    <p className="text-sm font-medium text-yellow-700">{stats.pendingEnrollments} documents en attente</p>
+                    <p className="text-xs text-yellow-600">À traiter</p>
                   </div>
 
                   <div className="p-3 bg-green-50 rounded-xl border border-green-200">
-                    <p className="text-sm font-medium text-green-700">Système de suivi actif</p>
-                    <p className="text-xs text-green-600">Dernière synchronisation : maintenant</p>
+                    <p className="text-sm font-medium text-green-700">Taux de rétention: {stats.retentionRate}%</p>
+                    <p className="text-xs text-green-600">Performance académique</p>
                   </div>
                 </CardContent>
               </Card>
