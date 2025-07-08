@@ -161,6 +161,14 @@ import CommunicationInternships from '@/pages/communication/external/Internships
 import CommunicationAlumni from '@/pages/communication/external/Alumni';
 import CommunicationInternational from '@/pages/communication/external/International';
 import CommunicationEvents from '@/pages/communication/external/Events';
+import CommunicationMessages from '@/pages/communication/Messages';
+import CommunicationCalls from '@/pages/communication/Calls';
+import CommunicationNotifications from '@/pages/communication/Notifications';
+import CommunicationSettings from '@/pages/communication/Settings';
+import CommunicationIntegrations from '@/pages/communication/Integrations';
+import CommunicationAnnouncements from '@/pages/communication/internal/Announcements';
+import CommunicationEmails from '@/pages/communication/internal/Emails';
+import CommunicationDirectory from '@/pages/communication/internal/Directory';
 
 // Documents module pages
 import Documents from '@/pages/Documents';
@@ -347,6 +355,14 @@ export function ModuleRoutes() {
 
       {/* Communication Module Routes */}
       <Route path="/communication" element={<Communication />} />
+      <Route path="/communication/messages" element={<CommunicationMessages />} />
+      <Route path="/communication/calls" element={<CommunicationCalls />} />
+      <Route path="/communication/notifications" element={<CommunicationNotifications />} />
+      <Route path="/communication/settings" element={<CommunicationSettings />} />
+      <Route path="/communication/integrations" element={<CommunicationIntegrations />} />
+      <Route path="/communication/internal/announcements" element={<CommunicationAnnouncements />} />
+      <Route path="/communication/internal/emails" element={<CommunicationEmails />} />
+      <Route path="/communication/internal/directory" element={<CommunicationDirectory />} />
       <Route path="/communication/messages" element={<Communication />} />
       <Route path="/communication/calls" element={<Communication />} />
       <Route path="/communication/notifications" element={<Communication />} />
