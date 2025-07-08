@@ -232,6 +232,75 @@ export const bulkGradeEntrySchema = z.object({
   })).min(1, "Au moins une note est requise")
 });
 
+// Resource management validation
+export const assetFormSchema = z.object({
+  name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
+  asset_number: z.string().min(1, "Le numéro d'asset est requis"),
+  category_id: z.string().uuid("Catégorie invalide").optional(),
+  description: z.string().optional(),
+  brand: z.string().optional(),
+  model: z.string().optional(),
+  serial_number: z.string().optional(),
+  purchase_date: z.string().optional(),
+  purchase_price: z.number().min(0, "Le prix d'achat ne peut pas être négatif").optional(),
+  current_value: z.number().min(0, "La valeur actuelle ne peut pas être négative").optional(),
+  condition_status: z.enum(['excellent', 'good', 'fair', 'poor']).default('good'),
+  status: z.enum(['active', 'inactive', 'maintenance', 'retired']).default('active'),
+  location: z.string().optional(),
+  room_id: z.string().uuid("Salle invalide").optional(),
+  responsible_person_id: z.string().uuid("Responsable invalide").optional(),
+  warranty_end_date: z.string().optional()
+});
+
+// Communication validation
+export const messageFormSchema = z.object({
+  recipient_ids: z.array(z.string().uuid("ID destinataire invalide")).min(1, "Au moins un destinataire requis"),
+  subject: z.string().min(1, "Le sujet est requis"),
+  content: z.string().min(1, "Le contenu est requis"),
+  message_type: z.enum(['direct', 'announcement', 'notification']).default('direct'),
+  priority: z.enum(['low', 'normal', 'high', 'urgent']).default('normal'),
+  scheduled_send_at: z.string().optional(),
+  attachments: z.array(z.string()).default([])
+});
+
+// Service validation
+export const serviceRequestSchema = z.object({
+  service_type: z.enum(['transport', 'catering', 'accommodation', 'library', 'health']),
+  title: z.string().min(2, "Le titre doit contenir au moins 2 caractères"),
+  description: z.string().min(10, "La description doit contenir au moins 10 caractères"),
+  priority: z.enum(['low', 'normal', 'high', 'urgent']).default('normal'),
+  requested_date: z.string().min(1, "La date demandée est requise"),
+  student_id: z.string().uuid("ID étudiant invalide").optional(),
+  additional_details: z.record(z.any()).default({})
+});
+
+// Document template validation
+export const documentTemplateSchema = z.object({
+  name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
+  code: z.string().min(1, "Le code est requis"),
+  description: z.string().optional(),
+  template_type: z.enum(['certificate', 'transcript', 'letter', 'report', 'form']),
+  template_content: z.record(z.any()),
+  is_active: z.boolean().default(true),
+  requires_approval: z.boolean().default(false)
+});
+
+// System settings validation
+export const systemSettingsSchema = z.object({
+  institution_name: z.string().min(2, "Le nom de l'institution est requis"),
+  institution_email: z.string().email("Email invalide").optional(),
+  institution_phone: z.string().optional(),
+  institution_address: z.string().optional(),
+  default_language: z.string().default('fr'),
+  default_currency: z.string().default('EUR'),
+  default_timezone: z.string().default('Europe/Paris'),
+  date_format: z.string().default('DD/MM/YYYY'),
+  grade_scale_max: z.number().min(1, "L'échelle de notation maximum doit être au moins 1").default(20),
+  passing_grade_min: z.number().min(0, "La note de passage minimum ne peut pas être négative").default(10),
+  attendance_required_percentage: z.number().min(0).max(100, "Le pourcentage requis doit être entre 0 et 100").default(75),
+  academic_year_auto_init: z.boolean().default(false)
+});
+
 export type TeacherFormData = z.infer<typeof teacherFormSchema>;
 export type CourseFormData = z.infer<typeof courseFormSchema>;
 export type EnrollmentData = z.infer<typeof enrollmentSchema>;
@@ -242,3 +311,8 @@ export type InvoiceFormData = z.infer<typeof invoiceFormSchema>;
 export type PaymentFormData = z.infer<typeof paymentFormSchema>;
 export type GradeEntryData = z.infer<typeof gradeEntrySchema>;
 export type BulkGradeEntryData = z.infer<typeof bulkGradeEntrySchema>;
+export type AssetFormData = z.infer<typeof assetFormSchema>;
+export type MessageFormData = z.infer<typeof messageFormSchema>;
+export type ServiceRequestData = z.infer<typeof serviceRequestSchema>;
+export type DocumentTemplateData = z.infer<typeof documentTemplateSchema>;
+export type SystemSettingsData = z.infer<typeof systemSettingsSchema>;

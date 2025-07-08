@@ -16,8 +16,28 @@ import {
   Bell,
   Globe
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 export function CommunicationDashboard() {
+  const { hasRole } = useAuth();
+  const { toast } = useToast();
+
+  // Check permissions for different actions
+  const canManageServices = hasRole(['admin', 'hr']);
+  const canSendMessages = hasRole(['admin', 'hr', 'teacher']);
+  const canAccessReports = hasRole(['admin', 'hr']);
+
+  const handleRestrictedAction = (action: string) => {
+    if (!canManageServices) {
+      toast({
+        title: "Accès refusé",
+        description: `Vous n'avez pas les permissions pour ${action}`,
+        variant: "destructive"
+      });
+      return;
+    }
+  };
   const communicationServices = [
     {
       title: "Messagerie Instantanée",

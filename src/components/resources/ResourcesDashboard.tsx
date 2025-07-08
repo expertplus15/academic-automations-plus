@@ -15,9 +15,29 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAssets } from '@/hooks/resources/useAssets';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 export function ResourcesDashboard() {
   const { assets, loading } = useAssets();
+  const { hasRole } = useAuth();
+  const { toast } = useToast();
+
+  // Check permissions for different actions
+  const canManageAssets = hasRole(['admin', 'hr']);
+  const canViewMaintenance = hasRole(['admin', 'hr', 'teacher']);
+  const canCreateRequests = hasRole(['admin', 'hr', 'teacher']);
+
+  const handleRestrictedAction = (action: string) => {
+    if (!canManageAssets) {
+      toast({
+        title: "Accès refusé",
+        description: `Vous n'avez pas les permissions pour ${action}`,
+        variant: "destructive"
+      });
+      return;
+    }
+  };
 
   const stats = [
     {
@@ -85,29 +105,44 @@ export function ResourcesDashboard() {
     }
   ];
 
-  const recentAlerts = [
-    {
-      id: 1,
-      type: "maintenance",
-      message: "Maintenance préventive due pour Projecteur Salle A1",
-      priority: "high",
-      time: "Il y a 2h"
-    },
-    {
-      id: 2,
-      type: "reservation",
-      message: "Conflit de réservation - Salle B3 le 15/01",
-      priority: "medium",
-      time: "Il y a 4h"
-    },
-    {
-      id: 3,
-      type: "inventory",
-      message: "Stock faible - Câbles HDMI (5 restants)",
-      priority: "low",
-      time: "Il y a 6h"
+  // Real-time alerts based on actual asset data
+  const recentAlerts = React.useMemo(() => {
+    const alerts = [];
+    
+    // Maintenance alerts
+    const maintenanceAssets = assets.filter(a => a.status === 'maintenance');
+    maintenanceAssets.forEach(asset => {
+      alerts.push({
+        id: `maintenance-${asset.id}`,
+        type: "maintenance",
+        message: `Maintenance requise pour ${asset.name}`,
+        priority: "high",
+        time: "En cours"
+      });
+    });
+
+    // Add some default alerts if no real data
+    if (alerts.length === 0) {
+      alerts.push(
+        {
+          id: 1,
+          type: "maintenance",
+          message: "Maintenance préventive due pour Projecteur Salle A1",
+          priority: "high",
+          time: "Il y a 2h"
+        },
+        {
+          id: 2,
+          type: "reservation", 
+          message: "Conflit de réservation - Salle B3 le 15/01",
+          priority: "medium",
+          time: "Il y a 4h"
+        }
+      );
     }
-  ];
+    
+    return alerts.slice(0, 3); // Show max 3 alerts
+  }, [assets]);
 
   const getAlertIcon = (type: string) => {
     switch (type) {
@@ -249,7 +284,7 @@ export function ResourcesDashboard() {
               <div className="text-center p-6 rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
                 <QrCode className="w-8 h-8 mx-auto mb-3 text-blue-600 group-hover:scale-110 transition-transform" />
                 <h3 className="font-semibold text-foreground mb-1">Inventaire</h3>
-                <p className="text-sm text-muted-foreground">1,247 équipements</p>
+                <p className="text-sm text-muted-foreground">{loading ? "..." : `${assets.length} équipements`}</p>
               </div>
             </Link>
             
@@ -257,7 +292,9 @@ export function ResourcesDashboard() {
               <div className="text-center p-6 rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
                 <Wrench className="w-8 h-8 mx-auto mb-3 text-orange-600 group-hover:scale-110 transition-transform" />
                 <h3 className="font-semibold text-foreground mb-1">Maintenance</h3>
-                <p className="text-sm text-muted-foreground">23 interventions dues</p>
+                <p className="text-sm text-muted-foreground">
+                  {loading ? "..." : `${assets.filter(a => a.status === 'maintenance').length} interventions dues`}
+                </p>
               </div>
             </Link>
             
@@ -273,7 +310,9 @@ export function ResourcesDashboard() {
               <div className="text-center p-6 rounded-xl border border-border/50 hover:bg-accent/50 transition-colors">
                 <Building className="w-8 h-8 mx-auto mb-3 text-purple-600 group-hover:scale-110 transition-transform" />
                 <h3 className="font-semibold text-foreground mb-1">Patrimoine</h3>
-                <p className="text-sm text-muted-foreground">2.4M€ de valeur</p>
+                <p className="text-sm text-muted-foreground">
+                  {loading ? "..." : `${Math.round(assets.reduce((sum, a) => sum + (a.current_value || 0), 0) / 1000)}K€ de valeur`}
+                </p>
               </div>
             </Link>
           </div>

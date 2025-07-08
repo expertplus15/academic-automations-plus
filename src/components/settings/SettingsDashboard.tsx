@@ -17,6 +17,8 @@ import {
   FileText
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 const systemStats = [
   {
@@ -76,6 +78,22 @@ const recentActivities = [
 ];
 
 export function SettingsDashboard() {
+  const { hasRole } = useAuth();
+  const { toast } = useToast();
+
+  // Admin-only access already enforced at page level
+  const canManageSystem = hasRole(['admin']);
+
+  const handleRestrictedAction = (action: string) => {
+    if (!canManageSystem) {
+      toast({
+        title: "Accès refusé",
+        description: `Seuls les administrateurs peuvent ${action}`,
+        variant: "destructive"
+      });
+      return;
+    }
+  };
   return (
     <div className="space-y-6">
       {/* System Stats */}

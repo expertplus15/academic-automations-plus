@@ -17,8 +17,28 @@ import {
   CheckCircle,
   Plus
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 export function ServicesDashboard() {
+  const { hasRole } = useAuth();
+  const { toast } = useToast();
+
+  // Check permissions for different actions
+  const canManageServices = hasRole(['admin', 'hr']);
+  const canCreateRequests = hasRole(['admin', 'hr', 'teacher', 'student']);
+  const canAccessReports = hasRole(['admin', 'hr']);
+
+  const handleRestrictedAction = (action: string, requiredRoles: string[]) => {
+    if (!hasRole(requiredRoles)) {
+      toast({
+        title: "Accès refusé",
+        description: `Vous n'avez pas les permissions pour ${action}`,
+        variant: "destructive"
+      });
+      return;
+    }
+  };
   const services = [
     {
       title: "Transport Scolaire",
