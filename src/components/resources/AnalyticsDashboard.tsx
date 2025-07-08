@@ -1,9 +1,11 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BarChart, TrendingUp, Package, Calendar, Building, Download, Filter, Eye } from 'lucide-react';
+import { BarChart, TrendingUp, Package, Calendar, Building, Download, Filter, Eye, CalendarIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export function AnalyticsDashboard() {
+  const navigate = useNavigate();
   const kpis = [
     {
       label: "ROI Équipements",
@@ -93,6 +95,22 @@ export function AnalyticsDashboard() {
 
   return (
     <div className="space-y-8">
+      {/* Quick Actions */}
+      <div className="flex gap-4 mb-6">
+        <Button onClick={() => navigate('/resources/bookings')} className="bg-primary text-primary-foreground">
+          <CalendarIcon className="w-4 h-4 mr-2" />
+          Réservation salles
+        </Button>
+        <Button onClick={() => navigate('/resources/property')} variant="outline">
+          <Building className="w-4 h-4 mr-2" />
+          Nouveau bien
+        </Button>
+        <Button onClick={() => navigate('/resources/reports')} variant="outline">
+          <Download className="w-4 h-4 mr-2" />
+          Générer rapport
+        </Button>
+      </div>
+
       {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {kpis.map((kpi, index) => {
@@ -166,7 +184,7 @@ export function AnalyticsDashboard() {
                 <Download className="w-5 h-5 text-primary" />
                 Rapports automatisés
               </CardTitle>
-              <Button className="bg-primary text-primary-foreground" size="sm">
+              <Button onClick={() => navigate('/resources/reports')} className="bg-primary text-primary-foreground" size="sm">
                 Générer rapport
               </Button>
             </div>
