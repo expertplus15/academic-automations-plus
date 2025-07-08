@@ -316,3 +316,38 @@ export type MessageFormData = z.infer<typeof messageFormSchema>;
 export type ServiceRequestData = z.infer<typeof serviceRequestSchema>;
 export type DocumentTemplateData = z.infer<typeof documentTemplateSchema>;
 export type SystemSettingsData = z.infer<typeof systemSettingsSchema>;
+
+// Communication schemas
+export const communicationPartnerSchema = z.object({
+  name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
+  contact_person: z.string().min(2, "Le nom du contact doit contenir au moins 2 caractères"),
+  email: z.string().email("Email invalide"),
+  phone: z.string().optional(),
+  company: z.string().min(2, "Le nom de l'entreprise doit contenir au moins 2 caractères"),
+  sector: z.string().optional(),
+  relation_type: z.enum(['internships', 'jobs', 'research', 'projects']),
+  status: z.enum(['active', 'inactive', 'negotiation']).default('active'),
+  notes: z.string().optional()
+});
+
+export const notificationSettingsSchema = z.object({
+  email_notifications: z.boolean().default(true),
+  sms_notifications: z.boolean().default(false),
+  push_notifications: z.boolean().default(true),
+  notification_frequency: z.enum(['immediate', 'daily', 'weekly']).default('immediate'),
+  notification_types: z.array(z.string()).default([])
+});
+
+export const announcementSchema = z.object({
+  title: z.string().min(5, "Le titre doit contenir au moins 5 caractères"),
+  content: z.string().min(20, "Le contenu doit contenir au moins 20 caractères"),
+  target_audience: z.enum(['all', 'students', 'teachers', 'staff', 'alumni']),
+  priority: z.enum(['low', 'normal', 'high', 'urgent']).default('normal'),
+  publish_date: z.string().optional(),
+  expiry_date: z.string().optional(),
+  is_published: z.boolean().default(false)
+});
+
+export type CommunicationPartnerFormData = z.infer<typeof communicationPartnerSchema>;
+export type NotificationSettingsFormData = z.infer<typeof notificationSettingsSchema>;
+export type AnnouncementFormData = z.infer<typeof announcementSchema>;
