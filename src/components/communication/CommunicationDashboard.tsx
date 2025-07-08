@@ -1,6 +1,5 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
   MessageSquare, 
@@ -18,25 +17,38 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
+import { RestrictedButton } from './RestrictedButton';
+import { AsyncButton } from './AsyncButton';
+import { CallButton } from './CallButton';
 
 export function CommunicationDashboard() {
   const { hasRole } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Check permissions for different actions
   const canManageServices = hasRole(['admin', 'hr']);
   const canSendMessages = hasRole(['admin', 'hr', 'teacher']);
   const canAccessReports = hasRole(['admin', 'hr']);
 
-  const handleRestrictedAction = (action: string) => {
-    if (!canManageServices) {
-      toast({
-        title: "Accès refusé",
-        description: `Vous n'avez pas les permissions pour ${action}`,
-        variant: "destructive"
-      });
-      return;
-    }
+  // Navigation handlers for quick actions
+  const handleNewMessage = async () => {
+    navigate('/communication/internal/emails');
+  };
+
+  const handleVideoCall = async () => {
+    navigate('/communication/calls');
+  };
+
+  const handleViewStats = async () => {
+    // Simulate async stats generation
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    navigate('/communication/analytics');
+  };
+
+  const handleManageContacts = async () => {
+    navigate('/communication/external/crm');
   };
   const communicationServices = [
     {
@@ -82,10 +94,34 @@ export function CommunicationDashboard() {
   ];
 
   const quickActions = [
-    { label: "Nouveau message", icon: Plus, action: () => {} },
-    { label: "Lancer visio", icon: Video, action: () => {} },
-    { label: "Voir statistiques", icon: TrendingUp, action: () => {} },
-    { label: "Gestion contacts", icon: Users, action: () => {} }
+    { 
+      label: "Nouveau message", 
+      icon: Plus, 
+      action: handleNewMessage,
+      allowedRoles: ['admin', 'hr', 'teacher'],
+      restrictedMessage: "Vous devez être enseignant ou administrateur pour envoyer des messages"
+    },
+    { 
+      label: "Lancer visio", 
+      icon: Video, 
+      action: handleVideoCall,
+      allowedRoles: ['admin', 'hr', 'teacher'],
+      restrictedMessage: "Vous n'avez pas accès aux appels vidéo"
+    },
+    { 
+      label: "Voir statistiques", 
+      icon: TrendingUp, 
+      action: handleViewStats,
+      allowedRoles: ['admin', 'hr'],
+      restrictedMessage: "Seuls les administrateurs peuvent voir les statistiques"
+    },
+    { 
+      label: "Gestion contacts", 
+      icon: Users, 
+      action: handleManageContacts,
+      allowedRoles: ['admin', 'hr'],
+      restrictedMessage: "Vous n'avez pas accès à la gestion des contacts"
+    }
   ];
 
   const recentActivities = [
@@ -132,10 +168,14 @@ export function CommunicationDashboard() {
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-foreground">Services de Communication</h2>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
+            <RestrictedButton
+              allowedRoles={['admin']}
+              action={() => toast({ title: "Configuration", description: "Module de configuration des services" })}
+              restrictedMessage="Seuls les administrateurs peuvent configurer les services"
+              icon={Plus}
+            >
               Nouveau Service
-            </Button>
+            </RestrictedButton>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -192,15 +232,45 @@ export function CommunicationDashboard() {
             </CardHeader>
             <CardContent className="space-y-2">
               {quickActions.map((action, index) => (
-                <Button
-                  key={index}
-                  variant="ghost"
-                  className="w-full justify-start"
-                  onClick={action.action}
-                >
-                  <action.icon className="w-4 h-4 mr-3" />
-                  {action.label}
-                </Button>
+                action.label === "Voir statistiques" ? (
+                  <AsyncButton
+                    key={index}
+                    onAsyncClick={action.action}
+                    successMessage="Statistiques générées avec succès"
+                    variant="ghost"
+                    className="w-full justify-start"
+                    icon={action.icon}
+                  >
+                    {action.label}
+                  </AsyncButton>
+                ) : action.label === "Lancer visio" ? (
+                  <div key={index} className="w-full">
+                    <CallButton
+                      type="video"
+                      recipientName="Sélectionner un contact"
+                      variant="ghost"
+                      className="w-full justify-start"
+                      onCallStart={(callId) => {
+                        toast({
+                          title: "Appel démarré",
+                          description: `ID de l'appel: ${callId}`
+                        });
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <RestrictedButton
+                    key={index}
+                    allowedRoles={action.allowedRoles}
+                    action={action.action}
+                    restrictedMessage={action.restrictedMessage}
+                    variant="ghost"
+                    className="w-full justify-start"
+                    icon={action.icon}
+                  >
+                    {action.label}
+                  </RestrictedButton>
+                )
               ))}
             </CardContent>
           </Card>

@@ -18,12 +18,44 @@ import {
   Mail,
   Calendar,
   Users,
-  Settings
+  Settings,
+  Paperclip
 } from "lucide-react";
+import { useToast } from '@/hooks/use-toast';
+import { AsyncButton } from './AsyncButton';
+import { CallButton } from './CallButton';
+import { FileUploadButton } from './FileUploadButton';
+import { RestrictedButton } from './RestrictedButton';
 
 export function CommunicationHub() {
   const [message, setMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const { toast } = useToast();
+
+  // Handler functions
+  const handleSendMessage = async () => {
+    if (!message.trim()) return;
+    
+    // Simulate message sending
+    await new Promise(resolve => setTimeout(resolve, 800));
+    setMessage("");
+  };
+
+  const handleFileUpload = async (files: FileList) => {
+    // Simulate file upload
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    console.log('Files uploaded:', files);
+  };
+
+  const handleSendBroadcast = async () => {
+    // Simulate broadcast sending
+    await new Promise(resolve => setTimeout(resolve, 1500));
+  };
+
+  const handleScheduleBroadcast = async () => {
+    // Simulate broadcast scheduling
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  };
 
   // Mock data for conversations
   const conversations = [
@@ -230,15 +262,42 @@ export function CommunicationHub() {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="ghost" size="sm">
-                          <Phone className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Video className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Settings className="w-4 h-4" />
-                        </Button>
+                        <CallButton
+                          type="audio"
+                          recipientName="Marie Dubois"
+                          recipientId="marie_dubois"
+                          size="sm"
+                          variant="ghost"
+                          onCallStart={(callId) => {
+                            toast({
+                              title: "Appel audio",
+                              description: `Appel démarré avec Marie Dubois (${callId})`
+                            });
+                          }}
+                        />
+                        <CallButton
+                          type="video"
+                          recipientName="Marie Dubois"
+                          recipientId="marie_dubois"
+                          size="sm"
+                          variant="ghost"
+                          onCallStart={(callId) => {
+                            toast({
+                              title: "Appel vidéo",
+                              description: `Appel vidéo démarré avec Marie Dubois (${callId})`
+                            });
+                          }}
+                        />
+                        <RestrictedButton
+                          allowedRoles={['admin', 'teacher']}
+                          variant="ghost"
+                          size="sm"
+                          icon={Settings}
+                          restrictedMessage="Seuls les enseignants peuvent accéder aux paramètres de conversation"
+                          action={() => toast({ title: "Paramètres", description: "Configuration de la conversation" })}
+                        >
+                          Paramètres
+                        </RestrictedButton>
                       </div>
                     </div>
                   </div>
@@ -259,16 +318,42 @@ export function CommunicationHub() {
                   </div>
                   
                   <div className="p-4 border-t border-border/50">
-                    <div className="flex gap-2">
-                      <Textarea
-                        placeholder="Tapez votre message..."
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        className="flex-1 min-h-[40px] max-h-[120px]"
-                      />
-                      <Button>
-                        <Send className="w-4 h-4" />
-                      </Button>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex gap-2">
+                        <Textarea
+                          placeholder="Tapez votre message..."
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
+                          className="flex-1 min-h-[40px] max-h-[120px]"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              handleSendMessage();
+                            }
+                          }}
+                        />
+                        <div className="flex flex-col gap-2">
+                          <FileUploadButton
+                            onFileSelect={handleFileUpload}
+                            accept="image/*,application/pdf,.doc,.docx"
+                            multiple
+                            variant="ghost"
+                            size="sm"
+                          >
+                            <Paperclip className="w-4 h-4" />
+                          </FileUploadButton>
+                          <AsyncButton
+                            onAsyncClick={handleSendMessage}
+                            successMessage="Message envoyé"
+                            variant="default"
+                            size="sm"
+                            icon={Send}
+                            disabled={!message.trim()}
+                          >
+                            Envoyer
+                          </AsyncButton>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -342,14 +427,22 @@ export function CommunicationHub() {
                 </div>
                 
                 <div className="flex gap-2">
-                  <Button>
-                    <Send className="w-4 h-4 mr-2" />
+                  <RestrictedButton
+                    allowedRoles={['admin', 'hr', 'teacher']}
+                    action={handleSendBroadcast}
+                    restrictedMessage="Vous n'avez pas les permissions pour envoyer des annonces"
+                    icon={Send}
+                  >
                     Envoyer Maintenant
-                  </Button>
-                  <Button variant="outline">
-                    <Calendar className="w-4 h-4 mr-2" />
+                  </RestrictedButton>
+                  <AsyncButton
+                    onAsyncClick={handleScheduleBroadcast}
+                    successMessage="Annonce programmée avec succès"
+                    variant="outline"
+                    icon={Calendar}
+                  >
                     Programmer
-                  </Button>
+                  </AsyncButton>
                 </div>
               </div>
             </TabsContent>
