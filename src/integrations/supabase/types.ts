@@ -1176,13 +1176,20 @@ export type Database = {
           created_at: string | null
           description: string | null
           difficulty_level: string | null
+          duration_hours: number | null
           enrollment_end_date: string | null
           enrollment_limit: number | null
           enrollment_start_date: string | null
           estimated_duration: number | null
           id: string
           instructor_id: string | null
+          is_featured: boolean | null
           is_published: boolean | null
+          language: string | null
+          learning_objectives: Json | null
+          max_students: number | null
+          prerequisites: Json | null
+          price: number | null
           status: string
           thumbnail_url: string | null
           title: string
@@ -1196,13 +1203,20 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           difficulty_level?: string | null
+          duration_hours?: number | null
           enrollment_end_date?: string | null
           enrollment_limit?: number | null
           enrollment_start_date?: string | null
           estimated_duration?: number | null
           id?: string
           instructor_id?: string | null
+          is_featured?: boolean | null
           is_published?: boolean | null
+          language?: string | null
+          learning_objectives?: Json | null
+          max_students?: number | null
+          prerequisites?: Json | null
+          price?: number | null
           status?: string
           thumbnail_url?: string | null
           title: string
@@ -1216,13 +1230,20 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           difficulty_level?: string | null
+          duration_hours?: number | null
           enrollment_end_date?: string | null
           enrollment_limit?: number | null
           enrollment_start_date?: string | null
           estimated_duration?: number | null
           id?: string
           instructor_id?: string | null
+          is_featured?: boolean | null
           is_published?: boolean | null
+          language?: string | null
+          learning_objectives?: Json | null
+          max_students?: number | null
+          prerequisites?: Json | null
+          price?: number | null
           status?: string
           thumbnail_url?: string | null
           title?: string
@@ -2714,6 +2735,85 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      performance_evaluations: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          areas_for_improvement: string | null
+          created_at: string
+          criteria_scores: Json
+          evaluation_period_end: string
+          evaluation_period_start: string
+          evaluator_id: string
+          goals_next_period: string | null
+          id: string
+          overall_score: number | null
+          status: string
+          strengths: string | null
+          submitted_at: string | null
+          teacher_profile_id: string
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          areas_for_improvement?: string | null
+          created_at?: string
+          criteria_scores?: Json
+          evaluation_period_end: string
+          evaluation_period_start: string
+          evaluator_id: string
+          goals_next_period?: string | null
+          id?: string
+          overall_score?: number | null
+          status?: string
+          strengths?: string | null
+          submitted_at?: string | null
+          teacher_profile_id: string
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          areas_for_improvement?: string | null
+          created_at?: string
+          criteria_scores?: Json
+          evaluation_period_end?: string
+          evaluation_period_start?: string
+          evaluator_id?: string
+          goals_next_period?: string | null
+          id?: string
+          overall_score?: number | null
+          status?: string
+          strengths?: string | null
+          submitted_at?: string | null
+          teacher_profile_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "performance_evaluations_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "performance_evaluations_evaluator_id_fkey"
+            columns: ["evaluator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "performance_evaluations_teacher_profile_id_fkey"
+            columns: ["teacher_profile_id"]
+            isOneToOne: false
+            referencedRelation: "teacher_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -4402,6 +4502,147 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      teacher_contracts: {
+        Row: {
+          contract_terms: Json | null
+          contract_type: string
+          created_at: string
+          created_by: string | null
+          end_date: string | null
+          hourly_rate: number | null
+          id: string
+          monthly_salary: number | null
+          signed_date: string | null
+          start_date: string
+          status: string
+          teacher_profile_id: string
+          updated_at: string
+          weekly_hours: number
+        }
+        Insert: {
+          contract_terms?: Json | null
+          contract_type?: string
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          hourly_rate?: number | null
+          id?: string
+          monthly_salary?: number | null
+          signed_date?: string | null
+          start_date: string
+          status?: string
+          teacher_profile_id: string
+          updated_at?: string
+          weekly_hours?: number
+        }
+        Update: {
+          contract_terms?: Json | null
+          contract_type?: string
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          hourly_rate?: number | null
+          id?: string
+          monthly_salary?: number | null
+          signed_date?: string | null
+          start_date?: string
+          status?: string
+          teacher_profile_id?: string
+          updated_at?: string
+          weekly_hours?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_contracts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_contracts_teacher_profile_id_fkey"
+            columns: ["teacher_profile_id"]
+            isOneToOne: false
+            referencedRelation: "teacher_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teacher_profiles: {
+        Row: {
+          bio: string | null
+          created_at: string
+          cv_url: string | null
+          department_id: string | null
+          emergency_contact: Json | null
+          employee_number: string
+          hire_date: string
+          id: string
+          office_location: string | null
+          phone: string | null
+          photo_url: string | null
+          profile_id: string
+          qualifications: Json | null
+          salary_grade: string | null
+          specialties: Json | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          cv_url?: string | null
+          department_id?: string | null
+          emergency_contact?: Json | null
+          employee_number?: string
+          hire_date?: string
+          id?: string
+          office_location?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          profile_id: string
+          qualifications?: Json | null
+          salary_grade?: string | null
+          specialties?: Json | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          cv_url?: string | null
+          department_id?: string | null
+          emergency_contact?: Json | null
+          employee_number?: string
+          hire_date?: string
+          id?: string
+          office_location?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          profile_id?: string
+          qualifications?: Json | null
+          salary_grade?: string | null
+          specialties?: Json | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_profiles_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_profiles_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       timetables: {
         Row: {

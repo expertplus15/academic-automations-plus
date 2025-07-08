@@ -26,7 +26,7 @@ export default function Contracts() {
   const filteredContracts = contracts.filter(contract =>
     contract.teacher_profile?.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     contract.contract_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    contract.contract_type?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    (contract.contract_type && typeof contract.contract_type === 'string' ? contract.contract_type.toLowerCase().includes(searchTerm.toLowerCase()) : false)
   );
 
   const getStatusBadge = (status: string) => {
@@ -170,7 +170,7 @@ export default function Contracts() {
                         </span>
                         <span className="flex items-center gap-1">
                           <FileText className="w-3 h-3" />
-                          {contract.contract_type?.name || 'Type non défini'}
+                          {typeof contract.contract_type === 'string' ? contract.contract_type : 'Type non défini'}
                         </span>
                         <span className="flex items-center gap-1">
                           <DollarSign className="w-3 h-3" />

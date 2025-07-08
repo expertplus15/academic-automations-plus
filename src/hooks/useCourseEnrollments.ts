@@ -1,17 +1,32 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 type CourseEnrollment = {
   id: string;
   course_id: string;
   student_id: string;
-  enrollment_date: string | null;
+  enrollment_date: string;
   completion_date?: string | null;
-  progress_percentage: number | null;
-  status: string;
+  progress_percentage: number;
   final_grade?: number | null;
-  certificate_url?: string | null;
+  status: string;
+  payment_status: string;
+  created_at: string;
+  updated_at: string;
+  // Relations
+  course?: {
+    title: string;
+    code: string;
+    instructor_id: string;
+  };
+  student?: {
+    student_number: string;
+    profile: {
+      full_name?: string | null;
+      email: string;
+    } | null;
+  };
 }
 
 export function useCourseEnrollments(courseId?: string) {
@@ -21,24 +36,32 @@ export function useCourseEnrollments(courseId?: string) {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (courseId) {
-      fetchEnrollments();
-    }
+    fetchEnrollments();
   }, [courseId]);
 
   const fetchEnrollments = async () => {
-    if (!courseId) return;
-    
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      let query = supabase
         .from('course_enrollments')
-        .select('*')
-        .eq('course_id', courseId)
+        .select(`
+          *,
+          course:courses(title, code, instructor_id),
+          student:students(
+            student_number,
+            profile:profiles(full_name, email)
+          )
+        `)
         .order('enrollment_date', { ascending: false });
 
+      if (courseId) {
+        query = query.eq('course_id', courseId);
+      }
+
+      const { data, error } = await query;
+
       if (error) throw error;
-      setEnrollments(data || []);
+      setEnrollments(data as any || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors du chargement des inscriptions');
       toast({
@@ -51,21 +74,29 @@ export function useCourseEnrollments(courseId?: string) {
     }
   };
 
-  const enrollStudent = async (studentId: string, courseId: string) => {
+  const enrollStudent = async (courseId: string, studentId: string) => {
     try {
       const { data, error } = await supabase
         .from('course_enrollments')
         .insert([{
           course_id: courseId,
           student_id: studentId,
-          status: 'enrolled'
+          status: 'enrolled',
+          payment_status: 'pending'
         }])
-        .select()
+        .select(`
+          *,
+          course:courses(title, code, instructor_id),
+          student:students(
+            student_number,
+            profile:profiles(full_name, email)
+          )
+        `)
         .single();
 
       if (error) throw error;
 
-      setEnrollments(prev => [data, ...prev]);
+      setEnrollments(prev => [data as any, ...prev]);
       toast({
         title: "Succès",
         description: "Étudiant inscrit avec succès",
@@ -82,33 +113,62 @@ export function useCourseEnrollments(courseId?: string) {
     }
   };
 
-  const updateProgress = async (enrollmentId: string, progressPercentage: number) => {
+  const updateEnrollment = async (id: string, updates: Partial<CourseEnrollment>) => {
     try {
-      const status = progressPercentage >= 100 ? 'completed' : 'in_progress';
-      const completion_date = progressPercentage >= 100 ? new Date().toISOString() : null;
-
       const { data, error } = await supabase
         .from('course_enrollments')
-        .update({ 
-          progress_percentage: progressPercentage,
-          status,
-          completion_date
-        })
-        .eq('id', enrollmentId)
-        .select()
+        .update(updates)
+        .eq('id', id)
+        .select(`
+          *,
+          course:courses(title, code, instructor_id),
+          student:students(
+            student_number,
+            profile:profiles(full_name, email)
+          )
+        `)
         .single();
 
       if (error) throw error;
 
       setEnrollments(prev => prev.map(enrollment => 
-        enrollment.id === enrollmentId ? { ...enrollment, ...data } : enrollment
+        enrollment.id === id ? { ...enrollment, ...data } : enrollment
       ));
+      
+      toast({
+        title: "Succès",
+        description: "Inscription mise à jour avec succès",
+      });
       
       return data;
     } catch (err) {
       toast({
         title: "Erreur",
-        description: "Impossible de mettre à jour la progression",
+        description: "Impossible de mettre à jour l'inscription",
+        variant: "destructive",
+      });
+      throw err;
+    }
+  };
+
+  const deleteEnrollment = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('course_enrollments')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setEnrollments(prev => prev.filter(enrollment => enrollment.id !== id));
+      toast({
+        title: "Succès",
+        description: "Inscription supprimée avec succès",
+      });
+    } catch (err) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer l'inscription",
         variant: "destructive",
       });
       throw err;
@@ -121,6 +181,7 @@ export function useCourseEnrollments(courseId?: string) {
     error,
     fetchEnrollments,
     enrollStudent,
-    updateProgress,
+    updateEnrollment,
+    deleteEnrollment,
   };
 }
