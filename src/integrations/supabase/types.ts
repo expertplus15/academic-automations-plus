@@ -582,6 +582,59 @@ export type Database = {
           },
         ]
       }
+      asset_movements: {
+        Row: {
+          asset_id: string
+          created_at: string | null
+          document_url: string | null
+          from_location: string | null
+          from_user_id: string | null
+          id: string
+          movement_date: string
+          movement_type: string
+          performed_by: string | null
+          reason: string | null
+          to_location: string | null
+          to_user_id: string | null
+        }
+        Insert: {
+          asset_id: string
+          created_at?: string | null
+          document_url?: string | null
+          from_location?: string | null
+          from_user_id?: string | null
+          id?: string
+          movement_date?: string
+          movement_type: string
+          performed_by?: string | null
+          reason?: string | null
+          to_location?: string | null
+          to_user_id?: string | null
+        }
+        Update: {
+          asset_id?: string
+          created_at?: string | null
+          document_url?: string | null
+          from_location?: string | null
+          from_user_id?: string | null
+          id?: string
+          movement_date?: string
+          movement_type?: string
+          performed_by?: string | null
+          reason?: string | null
+          to_location?: string | null
+          to_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asset_movements_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assets: {
         Row: {
           asset_number: string

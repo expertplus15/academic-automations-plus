@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { QrCode, Plus, Search, Package, Scan, Download, Upload, Filter, Eye, Loader2, Edit } from 'lucide-react';
 import { useAssets, Asset } from '@/hooks/resources/useAssets';
-import { AssetForm } from './AssetForm';
+import { EnhancedAssetForm } from './EnhancedAssetForm';
+import { QRScanner } from './QRScanner';
 import { useToast } from '@/hooks/use-toast';
 
 export function InventoryDashboard() {
@@ -109,7 +110,7 @@ export function InventoryDashboard() {
     }
   ];
 
-  const handleSaveAsset = async (data: Partial<Asset>) => {
+  const handleSaveAsset = async (data: any) => {
     try {
       if (modalState.mode === 'create') {
         await createAsset(data);
@@ -128,11 +129,37 @@ export function InventoryDashboard() {
     });
   };
 
+  const [scannerOpen, setScannerOpen] = useState(false);
+
   const handleScanQR = () => {
-    toast({
-      title: "Scanner QR",
-      description: "Fonctionnalité de scan QR à implémenter",
-    });
+    setScannerOpen(true);
+  };
+
+  const handleQRScanSuccess = async (qrCode: string) => {
+    // Search for existing asset with this QR code
+    const existingAsset = assets.find(asset => asset.qr_code === qrCode);
+    
+    if (existingAsset) {
+      setModalState({
+        isOpen: true,
+        mode: 'view',
+        asset: existingAsset
+      });
+      toast({
+        title: "Équipement trouvé",
+        description: `${existingAsset.name} (${existingAsset.asset_number})`,
+      });
+    } else {
+      setModalState({
+        isOpen: true,
+        mode: 'create',
+        asset: undefined
+      });
+      toast({
+        title: "Nouvel équipement",
+        description: "Créer un équipement avec ce QR code",
+      });
+    }
   };
 
   const handleExport = () => {
@@ -354,13 +381,20 @@ export function InventoryDashboard() {
         </CardContent>
       </Card>
 
-      {/* Asset Form Modal */}
-      <AssetForm
+      {/* Enhanced Asset Form Modal */}
+      <EnhancedAssetForm
         isOpen={modalState.isOpen}
         onClose={() => setModalState({ isOpen: false, mode: 'create', asset: undefined })}
         asset={modalState.asset}
         mode={modalState.mode}
         onSave={handleSaveAsset}
+      />
+
+      {/* QR Scanner Modal */}
+      <QRScanner
+        isOpen={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onScanSuccess={handleQRScanSuccess}
       />
     </div>
   );
