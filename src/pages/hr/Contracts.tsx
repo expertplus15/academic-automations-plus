@@ -18,12 +18,22 @@ import {
 import { useTeacherContracts } from '@/hooks/hr/useTeacherContracts';
 import { useContractTypes } from '@/hooks/hr/useContractTypes';
 import { useToast } from '@/hooks/use-toast';
+import { ContractFormModal } from '@/components/hr/ContractFormModal';
 
 export default function Contracts() {
   const { contracts, loading: contractsLoading, error: contractsError } = useTeacherContracts();
   const { contractTypes, loading: typesLoading } = useContractTypes();
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    mode: 'create' | 'edit' | 'view';
+    contract?: any;
+  }>({
+    isOpen: false,
+    mode: 'create',
+    contract: undefined
+  });
 
   const filteredContracts = contracts.filter(contract =>
     contract.teacher_profile?.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -99,9 +109,10 @@ export default function Contracts() {
           </div>
           <Button 
             className="bg-amber-500 hover:bg-amber-600 text-white"
-            onClick={() => toast({
-              title: "Nouveau contrat",
-              description: "Fonctionnalité de création de contrat en développement",
+            onClick={() => setModalState({
+              isOpen: true,
+              mode: 'create',
+              contract: undefined
             })}
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -208,9 +219,10 @@ export default function Contracts() {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => toast({
-                        title: "Voir contrat",
-                        description: "Affichage des détails du contrat en développement",
+                      onClick={() => setModalState({
+                        isOpen: true,
+                        mode: 'view',
+                        contract: contract
                       })}
                     >
                       <Eye className="w-4 h-4" />
@@ -218,9 +230,10 @@ export default function Contracts() {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => toast({
-                        title: "Modifier contrat",
-                        description: "Modification du contrat en développement",
+                      onClick={() => setModalState({
+                        isOpen: true,
+                        mode: 'edit',
+                        contract: contract
                       })}
                     >
                       <Edit className="w-4 h-4" />
@@ -238,6 +251,14 @@ export default function Contracts() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Modal */}
+        <ContractFormModal
+          isOpen={modalState.isOpen}
+          onClose={() => setModalState({ isOpen: false, mode: 'create', contract: undefined })}
+          contract={modalState.contract}
+          mode={modalState.mode}
+        />
       </div>
     </ModuleLayout>
   );

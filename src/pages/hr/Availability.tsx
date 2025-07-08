@@ -19,11 +19,21 @@ import {
 } from 'lucide-react';
 import { useTeacherAvailability } from '@/hooks/hr/useTeacherAvailability';
 import { useToast } from '@/hooks/use-toast';
+import { AvailabilityFormModal } from '@/components/hr/AvailabilityFormModal';
 
 export default function Availability() {
   const { availabilities, loading, error } = useTeacherAvailability();
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    mode: 'create' | 'edit' | 'view';
+    availability?: any;
+  }>({
+    isOpen: false,
+    mode: 'create',
+    availability: undefined
+  });
 
   const filteredAvailabilities = availabilities.filter(availability =>
     availability.teacher_profile?.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -104,9 +114,10 @@ export default function Availability() {
           </div>
           <Button 
             className="bg-amber-500 hover:bg-amber-600 text-white"
-            onClick={() => toast({
-              title: "Nouvelle disponibilité",
-              description: "Fonctionnalité de création de disponibilité en développement",
+            onClick={() => setModalState({
+              isOpen: true,
+              mode: 'create',
+              availability: undefined
             })}
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -212,9 +223,10 @@ export default function Availability() {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => toast({
-                        title: "Voir disponibilité",
-                        description: "Affichage des détails de disponibilité en développement",
+                      onClick={() => setModalState({
+                        isOpen: true,
+                        mode: 'view',
+                        availability: availability
                       })}
                     >
                       <Eye className="w-4 h-4" />
@@ -222,9 +234,10 @@ export default function Availability() {
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => toast({
-                        title: "Modifier disponibilité",
-                        description: "Modification de disponibilité en développement",
+                      onClick={() => setModalState({
+                        isOpen: true,
+                        mode: 'edit',
+                        availability: availability
                       })}
                     >
                       <Edit className="w-4 h-4" />
@@ -242,6 +255,14 @@ export default function Availability() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Modal */}
+        <AvailabilityFormModal
+          isOpen={modalState.isOpen}
+          onClose={() => setModalState({ isOpen: false, mode: 'create', availability: undefined })}
+          availability={modalState.availability}
+          mode={modalState.mode}
+        />
       </div>
     </ModuleLayout>
   );
