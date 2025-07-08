@@ -21,7 +21,8 @@ import {
   Pause,
   Filter,
   Download,
-  Eye
+  Eye,
+  Calendar
 } from 'lucide-react';
 import { useCourseEnrollments } from '@/hooks/useCourseEnrollments';
 import { useCourses } from '@/hooks/useCourses';
@@ -51,7 +52,7 @@ export function StudentProgressTracker() {
     atRiskStudents: enrollments.filter(e => 
       e.status === 'active' && 
       (e.progress_percentage || 0) < 30 && 
-      new Date(e.last_accessed_at || e.enrolled_at).getTime() < Date.now() - 7 * 24 * 60 * 60 * 1000
+      new Date(e.enrollment_date || new Date()).getTime() < Date.now() - 7 * 24 * 60 * 60 * 1000
     ).length
   };
 
@@ -85,9 +86,8 @@ export function StudentProgressTracker() {
   };
 
   const getDaysActive = (enrollment: any) => {
-    const enrolledDate = new Date(enrollment.enrolled_at);
-    const lastAccessed = new Date(enrollment.last_accessed_at || enrollment.enrolled_at);
-    const daysDiff = Math.floor((lastAccessed.getTime() - enrolledDate.getTime()) / (1000 * 60 * 60 * 24));
+    const enrolledDate = new Date(enrollment.enrollment_date || new Date());
+    const daysDiff = Math.floor((new Date().getTime() - enrolledDate.getTime()) / (1000 * 60 * 60 * 24));
     return Math.max(1, daysDiff);
   };
 
@@ -277,11 +277,11 @@ export function StudentProgressTracker() {
                   <div className="flex items-center gap-2">
                     <div className="text-right">
                       <p className="text-sm font-medium">
-                        Inscrit le {new Date(enrollment.enrolled_at).toLocaleDateString('fr-FR')}
+                        Inscrit le {new Date(enrollment.enrollment_date || new Date()).toLocaleDateString('fr-FR')}
                       </p>
-                      {enrollment.last_accessed_at && (
+                      {enrollment.completion_date && (
                         <p className="text-xs text-muted-foreground">
-                          Dernière connexion: {new Date(enrollment.last_accessed_at).toLocaleDateString('fr-FR')}
+                          Terminé le: {new Date(enrollment.completion_date).toLocaleDateString('fr-FR')}
                         </p>
                       )}
                     </div>

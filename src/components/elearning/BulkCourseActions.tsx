@@ -88,7 +88,7 @@ export function BulkCourseActions({
           <Checkbox
             checked={allSelected}
             ref={(el) => {
-              if (el) el.indeterminate = someSelected;
+              if (el) (el as HTMLInputElement).indeterminate = someSelected;
             }}
             onCheckedChange={handleSelectAll}
           />

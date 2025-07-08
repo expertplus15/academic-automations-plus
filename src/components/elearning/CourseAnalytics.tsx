@@ -287,7 +287,7 @@ export function CourseAnalytics() {
                         </span>
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          {course.duration_hours || 0}h
+                          {(course as any).duration_hours || 0}h
                         </span>
                       </div>
                       <div className="mt-2">
