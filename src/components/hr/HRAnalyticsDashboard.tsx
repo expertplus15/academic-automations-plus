@@ -89,7 +89,17 @@ export function HRAnalyticsDashboard() {
             <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
             Actualiser
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => {
+            // Simulate export functionality
+            const csvData = "data:text/csv;charset=utf-8,Nom,Département,Performance\n";
+            const encodedUri = encodeURI(csvData);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "analytics_rh.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }}>
             <Download className="w-4 h-4 mr-2" />
             Exporter
           </Button>

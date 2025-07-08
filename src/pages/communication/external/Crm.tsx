@@ -56,12 +56,26 @@ export default function CommunicationCrm() {
                 <p className="text-muted-foreground">Gérez vos communications avec les entreprises partenaires</p>
               </div>
               <div className="flex gap-3">
-                <Button variant="outline">
+                <Button variant="outline" onClick={() => {
+                  toast({
+                    title: "Message groupé",
+                    description: "Fonctionnalité de messagerie en développement",
+                  });
+                }}>
                   <MessageSquare className="w-4 h-4 mr-2" />
                   Message Groupé
                 </Button>
                 <Button 
-                  onClick={() => canManagePartners ? null : handleRestrictedAction("ajouter des partenaires")}
+                  onClick={() => {
+                    if (canManagePartners) {
+                      toast({
+                        title: "Nouveau contact",
+                        description: "Formulaire de création de contact en développement",
+                      });
+                    } else {
+                      handleRestrictedAction("ajouter des partenaires");
+                    }
+                  }}
                   disabled={!canManagePartners}
                 >
                   <Plus className="w-4 h-4 mr-2" />
@@ -215,10 +229,20 @@ export default function CommunicationCrm() {
                           {partner.status}
                         </Badge>
                         <div className="flex gap-2">
-                          <Button size="sm" variant="outline">
+                          <Button size="sm" variant="outline" onClick={() => {
+                            toast({
+                              title: "Message envoyé",
+                              description: `Message envoyé à ${partner.name}`,
+                            });
+                          }}>
                             <MessageSquare className="h-4 w-4" />
                           </Button>
-                          <Button size="sm" variant="outline">
+                          <Button size="sm" variant="outline" onClick={() => {
+                            toast({
+                              title: "Appel initié",
+                              description: `Appel vers ${partner.phone}`,
+                            });
+                          }}>
                             <Phone className="h-4 w-4" />
                           </Button>
                         </div>
@@ -229,11 +253,36 @@ export default function CommunicationCrm() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>Voir historique</DropdownMenuItem>
-                            <DropdownMenuItem>Programmer appel</DropdownMenuItem>
-                            <DropdownMenuItem>Modifier contact</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => {
+                              toast({
+                                title: "Historique",
+                                description: `Consultation de l'historique de ${partner.name}`,
+                              });
+                            }}>Voir historique</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => {
+                              toast({
+                                title: "Appel programmé",
+                                description: `Appel programmé avec ${partner.name}`,
+                              });
+                            }}>Programmer appel</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => {
+                              toast({
+                                title: "Modification",
+                                description: `Ouverture du formulaire de modification de ${partner.name}`,
+                              });
+                            }}>Modifier contact</DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-red-600">Suspendre</DropdownMenuItem>
+                            <DropdownMenuItem className="text-red-600" onClick={() => {
+                              if (!canManagePartners) {
+                                handleRestrictedAction("suspendre des partenaires");
+                              } else {
+                                toast({
+                                  title: "Contact suspendu",
+                                  description: `${partner.name} a été suspendu`,
+                                  variant: "destructive"
+                                });
+                              }
+                            }}>Suspendre</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>

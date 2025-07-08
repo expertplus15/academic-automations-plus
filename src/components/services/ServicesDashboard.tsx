@@ -82,11 +82,55 @@ export function ServicesDashboard() {
     }
   ];
 
+  const handleCreateService = () => {
+    if (canManageServices) {
+      toast({
+        title: "Nouveau service",
+        description: "Fonctionnalité en développement",
+      });
+    } else {
+      handleRestrictedAction("créer un service", ['admin', 'hr']);
+    }
+  };
+
+  const handleManageSchedules = () => {
+    if (canManageServices) {
+      toast({
+        title: "Gestion des horaires",
+        description: "Redirection vers la gestion des horaires",
+      });
+    } else {
+      handleRestrictedAction("gérer les horaires", ['admin', 'hr']);
+    }
+  };
+
+  const handleViewReports = () => {
+    if (canAccessReports) {
+      toast({
+        title: "Rapports",
+        description: "Redirection vers les rapports",
+      });
+    } else {
+      handleRestrictedAction("consulter les rapports", ['admin', 'hr']);
+    }
+  };
+
+  const handleManageUsers = () => {
+    if (canManageServices) {
+      toast({
+        title: "Gestion utilisateurs",
+        description: "Redirection vers la gestion des utilisateurs",
+      });
+    } else {
+      handleRestrictedAction("gérer les utilisateurs", ['admin', 'hr']);
+    }
+  };
+
   const quickActions = [
-    { label: "Nouveau service", icon: Plus, action: () => {} },
-    { label: "Gérer horaires", icon: Clock, action: () => {} },
-    { label: "Voir rapports", icon: TrendingUp, action: () => {} },
-    { label: "Gestion utilisateurs", icon: Users, action: () => {} }
+    { label: "Nouveau service", icon: Plus, action: handleCreateService },
+    { label: "Gérer horaires", icon: Clock, action: handleManageSchedules },
+    { label: "Voir rapports", icon: TrendingUp, action: handleViewReports },
+    { label: "Gestion utilisateurs", icon: Users, action: handleManageUsers }
   ];
 
   const recentActivities = [
@@ -133,7 +177,7 @@ export function ServicesDashboard() {
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-foreground">Services Disponibles</h2>
-            <Button>
+            <Button onClick={handleCreateService} disabled={!canManageServices}>
               <Plus className="w-4 h-4 mr-2" />
               Nouveau Service
             </Button>
