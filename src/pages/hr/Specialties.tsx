@@ -19,10 +19,12 @@ import {
   Users
 } from 'lucide-react';
 import { useTeacherSpecialties } from '@/hooks/hr/useTeacherSpecialties';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Specialties() {
   const { specialties, assignments, loading, error } = useTeacherSpecialties();
   const [searchTerm, setSearchTerm] = useState('');
+  const { toast } = useToast();
 
   const filteredSpecialties = specialties.filter(specialty =>
     specialty.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -123,7 +125,13 @@ export default function Specialties() {
             <h1 className="text-3xl font-bold text-foreground">Spécialités & Compétences</h1>
             <p className="text-muted-foreground mt-1">Gérer les compétences et spécialités des enseignants</p>
           </div>
-          <Button className="bg-amber-500 hover:bg-amber-600 text-white">
+          <Button 
+            className="bg-amber-500 hover:bg-amber-600 text-white"
+            onClick={() => toast({
+              title: "Nouvelle spécialité",
+              description: "Fonctionnalité de création de spécialité en développement",
+            })}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Nouvelle spécialité
           </Button>
@@ -211,10 +219,24 @@ export default function Specialties() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => toast({
+                            title: "Voir spécialité",
+                            description: "Affichage des détails de spécialité en développement",
+                          })}
+                        >
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => toast({
+                            title: "Modifier spécialité",
+                            description: "Modification de spécialité en développement",
+                          })}
+                        >
                           <Edit className="w-4 h-4" />
                         </Button>
                       </div>
@@ -286,10 +308,24 @@ export default function Specialties() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => toast({
+                            title: "Voir affectation",
+                            description: "Affichage des détails d'affectation en développement",
+                          })}
+                        >
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => toast({
+                            title: "Modifier affectation",
+                            description: "Modification d'affectation en développement",
+                          })}
+                        >
                           <Edit className="w-4 h-4" />
                         </Button>
                       </div>

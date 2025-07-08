@@ -18,10 +18,12 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useTeacherAvailability } from '@/hooks/hr/useTeacherAvailability';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Availability() {
   const { availabilities, loading, error } = useTeacherAvailability();
   const [searchTerm, setSearchTerm] = useState('');
+  const { toast } = useToast();
 
   const filteredAvailabilities = availabilities.filter(availability =>
     availability.teacher_profile?.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -100,7 +102,13 @@ export default function Availability() {
             <h1 className="text-3xl font-bold text-foreground">Disponibilités</h1>
             <p className="text-muted-foreground mt-1">Gérer les disponibilités et contraintes des enseignants</p>
           </div>
-          <Button className="bg-amber-500 hover:bg-amber-600 text-white">
+          <Button 
+            className="bg-amber-500 hover:bg-amber-600 text-white"
+            onClick={() => toast({
+              title: "Nouvelle disponibilité",
+              description: "Fonctionnalité de création de disponibilité en développement",
+            })}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Nouvelle disponibilité
           </Button>
@@ -201,10 +209,24 @@ export default function Availability() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => toast({
+                        title: "Voir disponibilité",
+                        description: "Affichage des détails de disponibilité en développement",
+                      })}
+                    >
                       <Eye className="w-4 h-4" />
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => toast({
+                        title: "Modifier disponibilité",
+                        description: "Modification de disponibilité en développement",
+                      })}
+                    >
                       <Edit className="w-4 h-4" />
                     </Button>
                   </div>

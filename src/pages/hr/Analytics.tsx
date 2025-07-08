@@ -39,12 +39,14 @@ import {
 } from 'lucide-react';
 import { useTeacherProfiles } from '@/hooks/hr/useTeacherProfiles';
 import { useTeacherContracts } from '@/hooks/hr/useTeacherContracts';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Analytics() {
   const { teacherProfiles } = useTeacherProfiles();
   const { contracts } = useTeacherContracts();
   const [selectedPeriod, setSelectedPeriod] = useState('2024');
   const [selectedDepartment, setSelectedDepartment] = useState('all');
+  const { toast } = useToast();
 
   // Données factices pour les performances
   const performanceData = [
@@ -143,11 +145,23 @@ export default function Analytics() {
                 <SelectItem value="2022">2022</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline">
+            <Button 
+              variant="outline"
+              onClick={() => toast({
+                title: "Export en cours",
+                description: "Fonctionnalité d'export en développement",
+              })}
+            >
               <Download className="w-4 h-4 mr-2" />
               Exporter
             </Button>
-            <Button className="bg-amber-500 hover:bg-amber-600 text-white">
+            <Button 
+              className="bg-amber-500 hover:bg-amber-600 text-white"
+              onClick={() => toast({
+                title: "Données actualisées",
+                description: "Les données ont été mises à jour",
+              })}
+            >
               <RefreshCw className="w-4 h-4 mr-2" />
               Actualiser
             </Button>

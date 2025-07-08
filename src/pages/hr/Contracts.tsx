@@ -17,11 +17,13 @@ import {
 } from 'lucide-react';
 import { useTeacherContracts } from '@/hooks/hr/useTeacherContracts';
 import { useContractTypes } from '@/hooks/hr/useContractTypes';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Contracts() {
   const { contracts, loading: contractsLoading, error: contractsError } = useTeacherContracts();
   const { contractTypes, loading: typesLoading } = useContractTypes();
   const [searchTerm, setSearchTerm] = useState('');
+  const { toast } = useToast();
 
   const filteredContracts = contracts.filter(contract =>
     contract.teacher_profile?.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -95,7 +97,13 @@ export default function Contracts() {
             <h1 className="text-3xl font-bold text-foreground">Gestion des Contrats</h1>
             <p className="text-muted-foreground mt-1">Gérer les contrats des enseignants</p>
           </div>
-          <Button className="bg-amber-500 hover:bg-amber-600 text-white">
+          <Button 
+            className="bg-amber-500 hover:bg-amber-600 text-white"
+            onClick={() => toast({
+              title: "Nouveau contrat",
+              description: "Fonctionnalité de création de contrat en développement",
+            })}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Nouveau contrat
           </Button>
@@ -197,10 +205,24 @@ export default function Contracts() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => toast({
+                        title: "Voir contrat",
+                        description: "Affichage des détails du contrat en développement",
+                      })}
+                    >
                       <Eye className="w-4 h-4" />
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => toast({
+                        title: "Modifier contrat",
+                        description: "Modification du contrat en développement",
+                      })}
+                    >
                       <Edit className="w-4 h-4" />
                     </Button>
                   </div>
