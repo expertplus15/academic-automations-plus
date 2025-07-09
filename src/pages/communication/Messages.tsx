@@ -13,8 +13,6 @@ import {
   MessageSquare, 
   Search, 
   Plus, 
-  Phone, 
-  Video, 
   Settings,
   Pin,
   Archive,
@@ -121,19 +119,6 @@ export default function CommunicationMessages() {
     setShowNewConversationDialog(true);
   };
 
-  const handleCall = () => {
-    toast({
-      title: "Appel",
-      description: "Fonctionnalité d'appel en développement",
-    });
-  };
-
-  const handleVideoCall = () => {
-    toast({
-      title: "Appel vidéo", 
-      description: "Fonctionnalité de visioconférence en développement",
-    });
-  };
 
   const handleSendMessage = async () => {
     if (!messageInput.trim() || !selectedConversation) return;
@@ -296,17 +281,14 @@ export default function CommunicationMessages() {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="ghost" size="icon" onClick={handleCall}>
-                        <Phone className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={handleVideoCall}>
-                        <Video className="h-4 w-4" />
-                      </Button>
                       <Button variant="ghost" size="icon">
                         <Pin className="h-4 w-4" />
                       </Button>
                       <Button variant="ghost" size="icon">
                         <Archive className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon">
+                        <Settings className="h-4 w-4" />
                       </Button>
                       <Button variant="ghost" size="icon">
                         <MoreVertical className="h-4 w-4" />

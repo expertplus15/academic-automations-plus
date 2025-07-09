@@ -367,13 +367,6 @@ export function ModuleRoutes() {
       <Route path="/communication/internal/announcements" element={<CommunicationAnnouncements />} />
       <Route path="/communication/internal/emails" element={<CommunicationEmails />} />
       <Route path="/communication/internal/directory" element={<CommunicationDirectory />} />
-      <Route path="/communication/messages" element={<Communication />} />
-      <Route path="/communication/notifications" element={<Communication />} />
-      <Route path="/communication/settings" element={<Communication />} />
-      <Route path="/communication/integrations" element={<Communication />} />
-      <Route path="/communication/internal/announcements" element={<Communication />} />
-      <Route path="/communication/internal/emails" element={<Communication />} />
-      <Route path="/communication/internal/directory" element={<Communication />} />
       <Route path="/communication/external/crm" element={<CommunicationCrm />} />
       <Route path="/communication/external/internships" element={<CommunicationInternships />} />
       <Route path="/communication/external/alumni" element={<CommunicationAlumni />} />
