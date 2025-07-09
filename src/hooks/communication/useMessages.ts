@@ -58,7 +58,7 @@ export function useMessages() {
     console.log('Sending message:', data);
   }, []);
 
-  const createConversation = useCallback(async (type: any, participants: string[], title?: string) => {
+  const createConversation = useCallback(async (data: { type: string; title?: string; participants: string[]; metadata?: any }) => {
     // Mock implementation
     return 'new-conversation-id';
   }, []);

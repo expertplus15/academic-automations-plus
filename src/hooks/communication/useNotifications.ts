@@ -5,6 +5,7 @@ interface Notification {
   title: string;
   message: string;
   type: 'INFO' | 'WARNING' | 'ERROR' | 'SUCCESS';
+  notification_type: 'INFO' | 'WARNING' | 'ERROR' | 'SUCCESS';
   priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
   is_read: boolean;
   created_at: string;
@@ -24,6 +25,7 @@ export function useNotifications() {
         title: 'Nouveau message',
         message: 'Vous avez reçu un nouveau message',
         type: 'INFO',
+        notification_type: 'INFO',
         priority: 'MEDIUM',
         is_read: false,
         created_at: new Date().toISOString()
