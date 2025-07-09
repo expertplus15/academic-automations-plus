@@ -20,11 +20,9 @@ import {
   Calendar,
   Search,
   Filter,
-  Video,
-  Phone,
   MessageSquare
 } from "lucide-react";
-import { CallButton } from "@/components/communication/CallButton";
+
 import { AsyncButton } from "@/components/communication/AsyncButton";
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -157,16 +155,6 @@ export default function CommunicationAnnouncements() {
                 <p className="text-muted-foreground">Gestion des annonces officielles et communications en temps réel</p>
               </div>
               <div className="flex gap-3">
-                <CallButton 
-                  type="video" 
-                  variant="outline"
-                  className="flex items-center gap-2"
-                />
-                <CallButton 
-                  type="audio" 
-                  variant="outline"
-                  className="flex items-center gap-2"
-                />
                 <Button variant="outline">
                   <Filter className="w-4 h-4 mr-2" />
                   Filtrer
@@ -180,51 +168,6 @@ export default function CommunicationAnnouncements() {
               </div>
             </div>
 
-            {/* Communications rapides */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5" />
-                  Communications Rapides
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <AsyncButton
-                    icon={Video}
-                    onAsyncClick={async () => {
-                      await new Promise(resolve => setTimeout(resolve, 1000));
-                    }}
-                    successMessage="Visioconférence démarrée"
-                    className="w-full"
-                  >
-                    Démarrer Visio
-                  </AsyncButton>
-                  <AsyncButton
-                    icon={Phone}
-                    onAsyncClick={async () => {
-                      await new Promise(resolve => setTimeout(resolve, 1000));
-                    }}
-                    successMessage="Appel de groupe initié"
-                    className="w-full"
-                    variant="outline"
-                  >
-                    Appel Groupe
-                  </AsyncButton>
-                  <AsyncButton
-                    icon={Megaphone}
-                    onAsyncClick={async () => {
-                      await new Promise(resolve => setTimeout(resolve, 2000));
-                    }}
-                    successMessage="Annonce diffusée"
-                    className="w-full"
-                    variant="outline"
-                  >
-                    Diffusion Urgente
-                  </AsyncButton>
-                </div>
-              </CardContent>
-            </Card>
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

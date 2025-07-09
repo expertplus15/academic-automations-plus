@@ -13,8 +13,6 @@ import {
   Bell, 
   Search,
   Filter,
-  Phone,
-  Video,
   Mail,
   Calendar,
   Users,
@@ -23,7 +21,6 @@ import {
 } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 import { AsyncButton } from './AsyncButton';
-import { CallButton } from './CallButton';
 import { FileUploadButton } from './FileUploadButton';
 import { RestrictedButton } from './RestrictedButton';
 
@@ -262,32 +259,6 @@ export function CommunicationHub() {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <CallButton
-                          type="audio"
-                          recipientName="Marie Dubois"
-                          recipientId="marie_dubois"
-                          size="sm"
-                          variant="ghost"
-                          onCallStart={(callId) => {
-                            toast({
-                              title: "Appel audio",
-                              description: `Appel démarré avec Marie Dubois (${callId})`
-                            });
-                          }}
-                        />
-                        <CallButton
-                          type="video"
-                          recipientName="Marie Dubois"
-                          recipientId="marie_dubois"
-                          size="sm"
-                          variant="ghost"
-                          onCallStart={(callId) => {
-                            toast({
-                              title: "Appel vidéo",
-                              description: `Appel vidéo démarré avec Marie Dubois (${callId})`
-                            });
-                          }}
-                        />
                         <RestrictedButton
                           allowedRoles={['admin', 'teacher']}
                           variant="ghost"

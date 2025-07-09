@@ -1,7 +1,7 @@
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter } from "@/components/ui/sidebar";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { MessageSquare, Users, Building, Globe, Bell, Settings, ArrowLeft, User, BarChart3, Phone, Mail, Video, Handshake, GraduationCap, Briefcase } from "lucide-react";
+import { MessageSquare, Users, Globe, Bell, Settings, ArrowLeft, User, BarChart3, Mail, Handshake, GraduationCap, Briefcase } from "lucide-react";
 const communicationItems = [{
   title: "Messages instantanés",
   url: "/communication/messages",
@@ -10,6 +10,14 @@ const communicationItems = [{
   title: "Notifications",
   url: "/communication/notifications",
   icon: Bell
+}, {
+  title: "Annonces & Communications",
+  url: "/communication/internal/announcements",
+  icon: MessageSquare
+}, {
+  title: "Emails automatiques",
+  url: "/communication/internal/emails",
+  icon: Mail
 }, {
   title: "Partenaires CRM",
   url: "/communication/external/crm",
@@ -31,25 +39,9 @@ const communicationItems = [{
   url: "/communication/external/events",
   icon: Users
 }, {
-  title: "Annonces & Communications",
-  url: "/communication/internal/announcements",
-  icon: Video
-}, {
-  title: "Emails automatiques",
-  url: "/communication/internal/emails",
-  icon: Mail
-}, {
-  title: "Répertoire interne",
-  url: "/communication/internal/directory",
-  icon: Phone
-}, {
   title: "Paramètres",
   url: "/communication/settings",
   icon: Settings
-}, {
-  title: "APIs externes",
-  url: "/communication/integrations",
-  icon: Globe
 }];
 export function CommunicationModuleSidebar() {
   const location = useLocation();

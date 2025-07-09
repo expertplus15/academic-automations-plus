@@ -3,12 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   MessageSquare, 
-  Video, 
   Handshake, 
   Users, 
   Mail,
   TrendingUp,
-  Clock,
   AlertCircle,
   CheckCircle,
   Plus,
@@ -20,7 +18,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { RestrictedButton } from './RestrictedButton';
 import { AsyncButton } from './AsyncButton';
-import { CallButton } from './CallButton';
 
 export function CommunicationDashboard() {
   const { hasRole } = useAuth();
@@ -37,10 +34,6 @@ export function CommunicationDashboard() {
     navigate('/communication/internal/emails');
   };
 
-  const handleVideoCall = async () => {
-    navigate('/communication/calls');
-  };
-
   const handleViewStats = async () => {
     // Simulate async stats generation
     await new Promise(resolve => setTimeout(resolve, 1500));
@@ -50,10 +43,11 @@ export function CommunicationDashboard() {
   const handleManageContacts = async () => {
     navigate('/communication/external/crm');
   };
+
   const communicationServices = [
     {
       title: "Messagerie Instantanée",
-      description: "Chat en temps réel, appels vidéo intégrés",
+      description: "Chat en temps réel et notifications",
       icon: MessageSquare,
       color: "text-blue-500",
       bgColor: "bg-blue-500",
@@ -63,7 +57,7 @@ export function CommunicationDashboard() {
     },
     {
       title: "Relations Externes",
-      description: "CRM partenaires, stages, alumni, international",
+      description: "Gestion des partenaires et contacts",
       icon: Handshake,
       color: "text-purple-500",
       bgColor: "bg-purple-500",
@@ -102,13 +96,6 @@ export function CommunicationDashboard() {
       restrictedMessage: "Vous devez être enseignant ou administrateur pour envoyer des messages"
     },
     { 
-      label: "Lancer visio", 
-      icon: Video, 
-      action: handleVideoCall,
-      allowedRoles: ['admin', 'hr', 'teacher'],
-      restrictedMessage: "Vous n'avez pas accès aux appels vidéo"
-    },
-    { 
       label: "Voir statistiques", 
       icon: TrendingUp, 
       action: handleViewStats,
@@ -126,7 +113,7 @@ export function CommunicationDashboard() {
 
   const recentActivities = [
     { time: "15:30", action: "Nouveau partenaire ajouté", user: "Relations externes", status: "success" },
-    { time: "15:15", action: "Visioconférence démarrée", user: "Direction", status: "info" },
+    { time: "15:15", action: "Annonce diffusée", user: "Direction", status: "info" },
     { time: "14:45", action: "Email automatique envoyé", user: "Système", status: "success" },
     { time: "14:30", action: "Nouvelle annonce publiée", user: "Communication", status: "warning" }
   ];
@@ -243,21 +230,6 @@ export function CommunicationDashboard() {
                   >
                     {action.label}
                   </AsyncButton>
-                ) : action.label === "Lancer visio" ? (
-                  <div key={index} className="w-full">
-                    <CallButton
-                      type="video"
-                      recipientName="Sélectionner un contact"
-                      variant="ghost"
-                      className="w-full justify-start"
-                      onCallStart={(callId) => {
-                        toast({
-                          title: "Appel démarré",
-                          description: `ID de l'appel: ${callId}`
-                        });
-                      }}
-                    />
-                  </div>
                 ) : (
                   <RestrictedButton
                     key={index}
@@ -315,8 +287,8 @@ export function CommunicationDashboard() {
                 <span className="font-medium text-blue-500">23</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Appels en cours</span>
-                <span className="font-medium text-green-500">3</span>
+                <span className="text-sm text-muted-foreground">Annonces actives</span>
+                <span className="font-medium text-green-500">12</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Notifications en attente</span>
