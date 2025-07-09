@@ -8,7 +8,7 @@ import StudentsProfiles from '@/pages/students/Profiles';
 import StudentsTracking from '@/pages/students/Tracking';
 import StudentsAlerts from '@/pages/students/Alerts';
 import StudentsDocuments from '@/pages/students/Documents';
-import StudentsCommunication from '@/pages/students/Communication';
+
 
 // Students registration sub-module pages
 import StudentsRegistrationDashboard from '@/pages/students/registration/Dashboard';
@@ -151,27 +151,11 @@ import SettingsUsers from '@/pages/settings/Users';
 
 // Partnerships module pages
 import Partnerships from '@/pages/Partnerships';
-// Communication module pages
-import Communication from '@/pages/Communication';
 import PartnershipsCrm from '@/pages/partnerships/Crm';
 import PartnershipsInternships from '@/pages/partnerships/Internships';
 import PartnershipsAlumni from '@/pages/partnerships/Alumni';
 import PartnershipsInternational from '@/pages/partnerships/International';
 import PartnershipsEvents from '@/pages/partnerships/Events';
-
-// Communication external pages
-import CommunicationCrm from '@/pages/communication/external/Crm';
-import CommunicationInternships from '@/pages/communication/external/Internships';
-import CommunicationAlumni from '@/pages/communication/external/Alumni';
-import CommunicationInternational from '@/pages/communication/external/International';
-import CommunicationEvents from '@/pages/communication/external/Events';
-import CommunicationMessages from '@/pages/communication/Messages';
-import CommunicationNotifications from '@/pages/communication/Notifications';
-import CommunicationSettings from '@/pages/communication/Settings';
-import CommunicationIntegrations from '@/pages/communication/Integrations';
-import CommunicationAnnouncements from '@/pages/communication/internal/Announcements';
-import CommunicationEmails from '@/pages/communication/internal/Emails';
-import CommunicationDirectory from '@/pages/communication/internal/Directory';
 
 // Documents module pages
 import Documents from '@/pages/Documents';
@@ -264,7 +248,7 @@ export function ModuleRoutes() {
       <Route path="/students/tracking" element={<StudentsTracking />} />
       <Route path="/students/alerts" element={<StudentsAlerts />} />
       <Route path="/students/documents" element={<StudentsDocuments />} />
-      <Route path="/students/communication" element={<StudentsCommunication />} />
+      
       
       {/* Registration sub-module routes */}
       <Route path="/students/registration/dashboard" element={<StudentsRegistrationDashboard />} />
@@ -360,20 +344,6 @@ export function ModuleRoutes() {
       <Route path="/settings/monitoring" element={<SettingsMonitoring />} />
       <Route path="/settings/users" element={<SettingsUsers />} />
 
-      {/* Communication Module Routes */}
-      <Route path="/communication" element={<Communication />} />
-      <Route path="/communication/messages" element={<CommunicationMessages />} />
-      <Route path="/communication/notifications" element={<CommunicationNotifications />} />
-      <Route path="/communication/settings" element={<CommunicationSettings />} />
-      <Route path="/communication/integrations" element={<CommunicationIntegrations />} />
-      <Route path="/communication/internal/announcements" element={<CommunicationAnnouncements />} />
-      <Route path="/communication/internal/emails" element={<CommunicationEmails />} />
-      <Route path="/communication/internal/directory" element={<CommunicationDirectory />} />
-      <Route path="/communication/external/crm" element={<CommunicationCrm />} />
-      <Route path="/communication/external/internships" element={<CommunicationInternships />} />
-      <Route path="/communication/external/alumni" element={<CommunicationAlumni />} />
-      <Route path="/communication/external/international" element={<CommunicationInternational />} />
-      <Route path="/communication/external/events" element={<CommunicationEvents />} />
 
       {/* Documents Module Routes */}
       <Route path="/documents" element={<Documents />} />

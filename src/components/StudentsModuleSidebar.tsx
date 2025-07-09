@@ -19,7 +19,7 @@ import {
   Activity,
   Bell,
   FileText,
-  MessageSquare,
+  
   ArrowLeft,
   Zap,
   BarChart3,
@@ -40,7 +40,7 @@ const studentsItems = [
   { title: "Profils étudiants", url: "/students/profiles", icon: User },
   { title: "Suivi académique", url: "/students/tracking", icon: Activity },
   { title: "Alertes automatiques", url: "/students/alerts", icon: Bell },
-  { title: "Communication intégrée", url: "/students/communication", icon: MessageSquare },
+  
   { title: "Documents administratifs", url: "/students/documents", icon: FileText },
   
   // ADMINISTRATION
