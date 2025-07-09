@@ -2,6 +2,7 @@ import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { MessageSquare, Users, Globe, Bell, Settings, ArrowLeft, User, BarChart3, Mail, Handshake, GraduationCap, Briefcase } from "lucide-react";
+import { RealTimeNotificationBadge } from "@/components/communication/RealTimeNotificationBadge";
 const communicationItems = [{
   title: "Messages instantanés",
   url: "/communication/messages",
@@ -86,6 +87,9 @@ export function CommunicationModuleSidebar() {
                         <div className="flex-1 min-w-0">
                           <span className="text-base block truncate">{item.title}</span>
                         </div>
+                        {item.title === "Notifications" && (
+                          <RealTimeNotificationBadge className="ml-1" />
+                        )}
                         {isActive && <div className="w-2 h-2 bg-violet-500 rounded-full" />}
                       </Link>
                     </SidebarMenuButton>

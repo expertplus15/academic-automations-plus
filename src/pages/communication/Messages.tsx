@@ -27,6 +27,9 @@ import { useToast } from '@/hooks/use-toast';
 import { useMessages } from '@/hooks/communication/useMessages';
 import { usePresence } from '@/hooks/communication/usePresence';
 import { ConversationsList } from '@/components/communication/ConversationsList';
+import { MessageInput } from '@/components/communication/MessageInput';
+import { MessageBubble } from '@/components/communication/MessageBubble';
+import { ConversationHeader } from '@/components/communication/ConversationHeader';
 import { useState, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -120,26 +123,19 @@ export default function CommunicationMessages() {
   };
 
 
-  const handleSendMessage = async () => {
-    if (!messageInput.trim() || !selectedConversation) return;
+  const handleSendMessage = async (content: string, messageType: 'TEXT' | 'AUDIO' = 'TEXT') => {
+    if (!content.trim() || !selectedConversation) return;
     
     try {
       await sendMessage(selectedConversation, {
-        content: messageInput.trim(),
-        message_type: 'TEXT'
+        content: content.trim(),
+        message_type: messageType
       });
-      setMessageInput('');
     } catch (error) {
       console.error('Error sending message:', error);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
 
   const getPresenceStatus = (userId: string) => {
     return getUserStatus(userId);
@@ -262,66 +258,42 @@ export default function CommunicationMessages() {
             {selectedConversation ? (
               <>
                 {/* Header de conversation */}
-                <div className="p-4 border-b bg-card">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback>
-                          {getConversationAvatar(conversations.find(c => c.id === selectedConversation) || {})}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h3 className="font-semibold">
-                          {getConversationName(conversations.find(c => c.id === selectedConversation) || {})}
-                        </h3>
-                        <p className="text-xs text-muted-foreground">
-                          {isConversationOnline(conversations.find(c => c.id === selectedConversation) || {}) 
-                            ? 'En ligne' : 'Hors ligne'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="icon">
-                        <Pin className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon">
-                        <Archive className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon">
-                        <Settings className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+                <ConversationHeader
+                  conversation={conversations.find(c => c.id === selectedConversation) || { id: '', type: 'DIRECT' }}
+                  isOnline={isConversationOnline(conversations.find(c => c.id === selectedConversation) || {})}
+                  participantCount={conversations.find(c => c.id === selectedConversation)?.participants?.length || 0}
+                />
 
                 {/* Zone des messages */}
                 <ScrollArea className="flex-1 p-4 bg-muted/30">
                   <div className="space-y-4">
                     {messages[selectedConversation]?.length ? (
-                      messages[selectedConversation].map((message, index) => (
-                        <div 
-                          key={message.id} 
-                          className={`flex ${message.sender_id === 'current_user_id' ? 'justify-end' : 'justify-start'}`}
-                        >
-                          <div className={`p-3 rounded-lg max-w-xs shadow-sm ${
-                            message.sender_id === 'current_user_id' 
-                              ? 'bg-primary text-primary-foreground' 
-                              : 'bg-card'
-                          }`}>
-                            <p className="text-sm">{message.content}</p>
-                            <span className={`text-xs ${
-                              message.sender_id === 'current_user_id' 
-                                ? 'text-primary-foreground/70' 
-                                : 'text-muted-foreground'
-                            }`}>
-                              {message.created_at && formatMessageTime(message.created_at)}
-                            </span>
-                          </div>
-                        </div>
-                      ))
+                      messages[selectedConversation].map((message, index) => {
+                        // Get current user ID
+                        const currentUserId = 'current_user_id'; // TODO: Get from auth context
+                        const isOwn = message.sender_id === currentUserId;
+                        const showSender = !isOwn && (
+                          index === 0 || 
+                          messages[selectedConversation][index - 1]?.sender_id !== message.sender_id
+                        );
+                        
+                        return (
+                          <MessageBubble
+                            key={message.id}
+                            message={message}
+                            isOwn={isOwn}
+                            showSender={showSender}
+                            onReply={(messageId) => {
+                              // TODO: Implement reply functionality in Phase 4
+                              console.log('Reply to:', messageId);
+                            }}
+                            onReact={(messageId, reaction) => {
+                              // TODO: Implement reactions in Phase 4
+                              console.log('React to:', messageId, reaction);
+                            }}
+                          />
+                        );
+                      })
                     ) : (
                       <div className="text-center p-4">
                         <p className="text-muted-foreground">Aucun message dans cette conversation</p>
@@ -332,23 +304,11 @@ export default function CommunicationMessages() {
                 </ScrollArea>
 
                 {/* Zone de saisie */}
-                <div className="p-4 border-t bg-card">
-                  <div className="flex gap-2">
-                    <Button variant="ghost" size="icon">
-                      <PaperclipIcon className="h-4 w-4" />
-                    </Button>
-                    <Input 
-                      placeholder="Tapez votre message..." 
-                      className="flex-1"
-                      value={messageInput}
-                      onChange={(e) => setMessageInput(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                    />
-                    <Button onClick={handleSendMessage} disabled={!messageInput.trim()}>
-                      <Send className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+                <MessageInput 
+                  onSendMessage={handleSendMessage}
+                  disabled={loading}
+                  placeholder="Tapez votre message..."
+                />
               </>
             ) : (
               <div className="flex-1 flex items-center justify-center bg-muted/30">

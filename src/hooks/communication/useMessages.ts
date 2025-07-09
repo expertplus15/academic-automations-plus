@@ -246,10 +246,11 @@ export function useMessages() {
     }
   }, []);
 
-  // Set up real-time subscriptions
+  // Set up real-time subscriptions with enhanced functionality
   useEffect(() => {
+    // Messages real-time subscription
     const messagesSubscription = supabase
-      .channel('messages')
+      .channel('messages-realtime')
       .on('postgres_changes', 
         { event: 'INSERT', schema: 'public', table: 'messages' },
         (payload) => {
@@ -261,14 +262,36 @@ export function useMessages() {
               newMessage
             ]
           }));
+          
+          // Show notification for new messages (will be handled by notification system)
+          // TODO: Integrate with notification system for new message alerts
+        }
+      )
+      .on('postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'messages' },
+        (payload) => {
+          const updatedMessage = payload.new as Message;
+          setMessages(prev => ({
+            ...prev,
+            [updatedMessage.conversation_id]: (prev[updatedMessage.conversation_id] || []).map(msg =>
+              msg.id === updatedMessage.id ? updatedMessage : msg
+            )
+          }));
         }
       )
       .subscribe();
 
+    // Conversations real-time subscription
     const conversationsSubscription = supabase
-      .channel('conversations')
+      .channel('conversations-realtime')
       .on('postgres_changes',
         { event: '*', schema: 'public', table: 'conversations' },
+        () => {
+          fetchConversations();
+        }
+      )
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'conversation_participants' },
         () => {
           fetchConversations();
         }
@@ -286,6 +309,20 @@ export function useMessages() {
     fetchConversations();
   }, [fetchConversations]);
 
+  // Get unread count for a conversation
+  const getUnreadCount = useCallback((conversationId: string) => {
+    // This would require implementing last_read_at tracking
+    // For now, return 0 - will be enhanced in later phases
+    return 0;
+  }, []);
+
+  // Get total unread messages count
+  const getTotalUnreadCount = useCallback(() => {
+    return conversations.reduce((total, conv) => {
+      return total + getUnreadCount(conv.id);
+    }, 0);
+  }, [conversations, getUnreadCount]);
+
   return {
     conversations,
     messages,
@@ -295,6 +332,8 @@ export function useMessages() {
     fetchMessages,
     createConversation,
     sendMessage,
-    markAsRead
+    markAsRead,
+    getUnreadCount,
+    getTotalUnreadCount
   };
 }
