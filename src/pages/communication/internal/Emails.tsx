@@ -26,6 +26,8 @@ import {
 } from "lucide-react";
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { EmailCampaignFormModal } from "@/components/communication/EmailCampaignFormModal";
+import { useState } from 'react';
 
 export default function CommunicationEmails() {
   const { hasRole } = useAuth();
@@ -102,12 +104,13 @@ export default function CommunicationEmails() {
     }
   ];
 
+  const [isCampaignFormOpen, setIsCampaignFormOpen] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] = useState<any>(null);
+
   const handleCreateCampaign = () => {
     if (canManageEmails) {
-      toast({
-        title: "Nouvelle campagne",
-        description: "Fonctionnalité de création de campagne en développement",
-      });
+      setSelectedCampaign(null);
+      setIsCampaignFormOpen(true);
     } else {
       toast({
         title: "Accès refusé",
@@ -286,11 +289,18 @@ export default function CommunicationEmails() {
                                   <Play className="h-4 w-4" />
                                 }
                               </Button>
-                              {canManageEmails && (
-                                <Button variant="outline" size="sm">
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                              )}
+                            {canManageEmails && (
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedCampaign(campaign);
+                                  setIsCampaignFormOpen(true);
+                                }}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            )}
                             </div>
                           </div>
                           <div className="grid grid-cols-3 gap-4 pt-3 border-t">
@@ -380,6 +390,13 @@ export default function CommunicationEmails() {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Email Campaign Form Modal */}
+                <EmailCampaignFormModal
+                  open={isCampaignFormOpen}
+                  onOpenChange={setIsCampaignFormOpen}
+                  campaign={selectedCampaign}
+                />
               </div>
             </div>
           </div>

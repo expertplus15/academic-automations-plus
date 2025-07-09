@@ -33,6 +33,7 @@ import { ConversationHeader } from '@/components/communication/ConversationHeade
 import { useState, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { NewConversationModal } from '@/components/communication/NewConversationModal';
 
 export default function CommunicationMessages() {
   const { hasRole } = useAuth();
@@ -321,22 +322,11 @@ export default function CommunicationMessages() {
           </div>
         </div>
 
-        {/* Dialog pour nouvelle conversation */}
-        <Dialog open={showNewConversationDialog} onOpenChange={setShowNewConversationDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Nouvelle conversation</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Fonctionnalité de création de conversation en développement
-              </p>
-              <Button onClick={() => setShowNewConversationDialog(false)}>
-                Fermer
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        {/* New Conversation Modal */}
+        <NewConversationModal
+          open={showNewConversationDialog}
+          onOpenChange={setShowNewConversationDialog}
+        />
       </CommunicationModuleLayout>
     </ProtectedRoute>
   );

@@ -24,8 +24,10 @@ import {
 } from "lucide-react";
 
 import { AsyncButton } from "@/components/communication/AsyncButton";
+import { AnnouncementFormModal } from "@/components/communication/AnnouncementFormModal";
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 export default function CommunicationAnnouncements() {
   const { hasRole } = useAuth();
@@ -72,12 +74,13 @@ export default function CommunicationAnnouncements() {
     }
   ];
 
+  const [isAnnouncementFormOpen, setIsAnnouncementFormOpen] = useState(false);
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState<any>(null);
+
   const handleCreateAnnouncement = () => {
     if (canManageAnnouncements) {
-      toast({
-        title: "Nouvelle annonce",
-        description: "Fonctionnalité de création d'annonce en développement",
-      });
+      setSelectedAnnouncement(null);
+      setIsAnnouncementFormOpen(true);
     } else {
       toast({
         title: "Accès refusé",
@@ -89,10 +92,9 @@ export default function CommunicationAnnouncements() {
 
   const handleEditAnnouncement = (id: string) => {
     if (canManageAnnouncements) {
-      toast({
-        title: "Modifier l'annonce",
-        description: `Modification de l'annonce ${id} en développement`,
-      });
+      const announcement = announcements.find(a => a.id === id);
+      setSelectedAnnouncement(announcement);
+      setIsAnnouncementFormOpen(true);
     } else {
       toast({
         title: "Accès refusé",
@@ -322,6 +324,13 @@ export default function CommunicationAnnouncements() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Announcement Form Modal */}
+            <AnnouncementFormModal
+              open={isAnnouncementFormOpen}
+              onOpenChange={setIsAnnouncementFormOpen}
+              announcement={selectedAnnouncement}
+            />
           </div>
         </div>
       </CommunicationModuleLayout>
