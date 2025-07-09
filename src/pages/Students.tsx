@@ -1,6 +1,6 @@
 
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { StudentsModuleLayout } from "@/components/layouts/StudentsModuleLayout";
+import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
@@ -30,11 +30,11 @@ export default function Students() {
   if (loading) {
     return (
       <ProtectedRoute allowedRoles={['admin', 'teacher', 'hr']}>
-        <StudentsModuleLayout>
+        <ModuleLayout>
           <div className="flex items-center justify-center min-h-96">
             <LoadingSpinner size="lg" />
           </div>
-        </StudentsModuleLayout>
+        </ModuleLayout>
       </ProtectedRoute>
     );
   }
@@ -42,7 +42,7 @@ export default function Students() {
   if (error) {
     return (
       <ProtectedRoute allowedRoles={['admin', 'teacher', 'hr']}>
-        <StudentsModuleLayout>
+        <ModuleLayout>
           <div className="flex items-center justify-center min-h-96">
             <div className="text-center">
               <AlertTriangle className="w-12 h-12 text-destructive mx-auto mb-4" />
@@ -50,7 +50,7 @@ export default function Students() {
               <p className="text-muted-foreground">{error}</p>
             </div>
           </div>
-        </StudentsModuleLayout>
+        </ModuleLayout>
       </ProtectedRoute>
     );
   }
@@ -97,7 +97,7 @@ export default function Students() {
 
   return (
     <ProtectedRoute allowedRoles={['admin', 'teacher', 'hr']}>
-      <StudentsModuleLayout>
+      <ModuleLayout>
         {/* Hero Section avec carte de fond */}
         <div className="relative overflow-hidden">
           {/* Carte de fond avec gradient emerald */}
@@ -298,7 +298,7 @@ export default function Students() {
             </div>
           </div>
         </div>
-      </StudentsModuleLayout>
+      </ModuleLayout>
     </ProtectedRoute>
   );
 }

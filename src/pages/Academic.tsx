@@ -1,13 +1,13 @@
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { AcademicModuleLayout } from '@/components/layouts/AcademicModuleLayout';
+import { ModuleLayout } from '@/components/layouts/ModuleLayout';
 import { NewAcademicDashboard } from '@/components/academic/NewAcademicDashboard';
 
 export default function Academic() {
   return (
     <ProtectedRoute allowedRoles={['admin', 'teacher']}>
-      <AcademicModuleLayout>
+      <ModuleLayout>
         <NewAcademicDashboard />
-      </AcademicModuleLayout>
+      </ModuleLayout>
     </ProtectedRoute>
   );
 }

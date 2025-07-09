@@ -40,6 +40,7 @@ import FinanceReports from '@/pages/finance/Reports';
 import FinanceCashFlow from '@/pages/finance/CashFlow';
 import FinanceAnalytics from '@/pages/finance/Analytics';
 import FinanceCategories from '@/pages/finance/Categories';
+import ExpenseCategories from '@/pages/finance/ExpenseCategories';
 
 import FinanceReconciliation from '@/pages/finance/Reconciliation';
 import FinanceExpenses from '@/pages/finance/Expenses';
@@ -224,6 +225,7 @@ export function ModuleRoutes() {
       
       {/* Configuration */}
       <Route path="/finance/categories" element={<FinanceCategories />} />
+      <Route path="/finance/expense-categories" element={<ExpenseCategories />} />
       
       <Route path="/finance/reconciliation" element={<FinanceReconciliation />} />
       

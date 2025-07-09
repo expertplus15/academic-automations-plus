@@ -1,13 +1,13 @@
 import React from 'react';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { DocumentsModuleLayout } from "@/components/layouts/DocumentsModuleLayout";
+import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { DocumentsPageHeader } from "@/components/DocumentsPageHeader";
 import { DocumentsDashboard } from "@/components/documents/DocumentsDashboard";
 
 export default function Documents() {
   return (
     <ProtectedRoute allowedRoles={['admin', 'hr', 'teacher']}>
-      <DocumentsModuleLayout>
+      <ModuleLayout>
         <DocumentsPageHeader 
           title="Gestion Documentaire" 
           subtitle="Service centralisé de gestion des documents" 
@@ -17,7 +17,7 @@ export default function Documents() {
             <DocumentsDashboard />
           </div>
         </div>
-      </DocumentsModuleLayout>
+      </ModuleLayout>
     </ProtectedRoute>
   );
 }
