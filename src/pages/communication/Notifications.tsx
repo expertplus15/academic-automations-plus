@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Bell, 
   Search, 
@@ -15,7 +16,9 @@ import {
   Clock,
   AlertCircle,
   Info,
-  MessageSquare
+  MessageSquare,
+  Archive,
+  MoreVertical
 } from "lucide-react";
 import { useNotifications } from '@/hooks/communication/useNotifications';
 import { useState } from 'react';
@@ -35,6 +38,8 @@ export default function CommunicationNotifications() {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
+  const [selectedNotifications, setSelectedNotifications] = useState<string[]>([]);
+  const [bulkMode, setBulkMode] = useState(false);
 
   // Filter notifications
   const filteredNotifications = notifications.filter(notification => {
@@ -125,40 +130,105 @@ export default function CommunicationNotifications() {
             </CardHeader>
             
             <CardContent>
-              <div className="flex gap-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    placeholder="Rechercher dans les notifications..." 
-                    className="pl-9"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
+              <div className="space-y-3">
+                <div className="flex gap-4">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                      placeholder="Rechercher dans les notifications..." 
+                      className="pl-9"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button 
+                      variant={filter === 'all' ? 'default' : 'outline'} 
+                      size="sm"
+                      onClick={() => setFilter('all')}
+                    >
+                      Toutes
+                    </Button>
+                    <Button 
+                      variant={filter === 'unread' ? 'default' : 'outline'} 
+                      size="sm"
+                      onClick={() => setFilter('unread')}
+                    >
+                      Non lues ({unreadCount})
+                    </Button>
+                    <Button 
+                      variant={filter === 'read' ? 'default' : 'outline'} 
+                      size="sm"
+                      onClick={() => setFilter('read')}
+                    >
+                      Lues
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setBulkMode(!bulkMode)}
+                    >
+                      {bulkMode ? 'Annuler' : 'Sélection'}
+                    </Button>
+                  </div>
                 </div>
-                
-                <div className="flex gap-2">
-                  <Button 
-                    variant={filter === 'all' ? 'default' : 'outline'} 
-                    size="sm"
-                    onClick={() => setFilter('all')}
-                  >
-                    Toutes
-                  </Button>
-                  <Button 
-                    variant={filter === 'unread' ? 'default' : 'outline'} 
-                    size="sm"
-                    onClick={() => setFilter('unread')}
-                  >
-                    Non lues ({unreadCount})
-                  </Button>
-                  <Button 
-                    variant={filter === 'read' ? 'default' : 'outline'} 
-                    size="sm"
-                    onClick={() => setFilter('read')}
-                  >
-                    Lues
-                  </Button>
-                </div>
+
+                {/* Bulk Actions */}
+                {bulkMode && (
+                  <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg">
+                    <Checkbox 
+                      checked={selectedNotifications.length === filteredNotifications.length}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedNotifications(filteredNotifications.map(n => n.id));
+                        } else {
+                          setSelectedNotifications([]);
+                        }
+                      }}
+                    />
+                    <span className="text-sm font-medium">
+                      {selectedNotifications.length} sélectionnée(s)
+                    </span>
+                    {selectedNotifications.length > 0 && (
+                      <div className="flex gap-2 ml-auto">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            selectedNotifications.forEach(id => markAsRead(id));
+                            setSelectedNotifications([]);
+                          }}
+                        >
+                          <CheckCheck className="w-4 h-4 mr-1" />
+                          Marquer comme lues
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            selectedNotifications.forEach(id => deleteNotification(id));
+                            setSelectedNotifications([]);
+                          }}
+                        >
+                          <Archive className="w-4 h-4 mr-1" />
+                          Archiver
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="destructive"
+                          onClick={() => {
+                            selectedNotifications.forEach(id => deleteNotification(id));
+                            setSelectedNotifications([]);
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Supprimer
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -189,15 +259,29 @@ export default function CommunicationNotifications() {
                         )}
                         onClick={() => !notification.is_read && markAsRead(notification.id)}
                       >
-                        <div className="flex items-start gap-3">
-                          <div className={cn(
-                            "w-8 h-8 rounded-full flex items-center justify-center bg-muted",
-                            getNotificationColor(notification.notification_type)
-                          )}>
-                            {getNotificationIcon(notification.notification_type)}
-                          </div>
-                          
-                          <div className="flex-1 min-w-0">
+                         <div className="flex items-start gap-3">
+                           {bulkMode && (
+                             <Checkbox 
+                               checked={selectedNotifications.includes(notification.id)}
+                               onCheckedChange={(checked) => {
+                                 if (checked) {
+                                   setSelectedNotifications(prev => [...prev, notification.id]);
+                                 } else {
+                                   setSelectedNotifications(prev => prev.filter(id => id !== notification.id));
+                                 }
+                               }}
+                               onClick={(e) => e.stopPropagation()}
+                             />
+                           )}
+                           
+                           <div className={cn(
+                             "w-8 h-8 rounded-full flex items-center justify-center bg-muted",
+                             getNotificationColor(notification.notification_type)
+                           )}>
+                             {getNotificationIcon(notification.notification_type)}
+                           </div>
+                           
+                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">

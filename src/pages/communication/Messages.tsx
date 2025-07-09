@@ -281,16 +281,13 @@ export default function CommunicationMessages() {
                           <MessageBubble
                             key={message.id}
                             message={message}
+                            currentUserId={currentUserId}
                             isOwn={isOwn}
                             showSender={showSender}
-                            onReply={(messageId) => {
-                              // TODO: Implement reply functionality in Phase 4
-                              console.log('Reply to:', messageId);
-                            }}
-                            onReact={(messageId, reaction) => {
-                              // TODO: Implement reactions in Phase 4
-                              console.log('React to:', messageId, reaction);
-                            }}
+                            onReply={(messageId) => console.log('Reply to:', messageId)}
+                            onReact={(messageId, reaction) => console.log('React:', messageId, reaction)}
+                            onEdit={(messageId, newContent) => console.log('Edit:', messageId, newContent)}
+                            onDelete={(messageId) => console.log('Delete:', messageId)}
                           />
                         );
                       })
