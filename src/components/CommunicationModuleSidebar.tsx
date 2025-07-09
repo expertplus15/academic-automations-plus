@@ -7,10 +7,6 @@ const communicationItems = [{
   url: "/communication/messages",
   icon: MessageSquare
 }, {
-  title: "Appels & Visio",
-  url: "/communication/calls",
-  icon: Video
-}, {
   title: "Notifications",
   url: "/communication/notifications",
   icon: Bell
@@ -35,9 +31,9 @@ const communicationItems = [{
   url: "/communication/external/events",
   icon: Users
 }, {
-  title: "Annonces officielles",
+  title: "Annonces & Communications",
   url: "/communication/internal/announcements",
-  icon: Bell
+  icon: Video
 }, {
   title: "Emails automatiques",
   url: "/communication/internal/emails",

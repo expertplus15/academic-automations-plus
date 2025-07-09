@@ -165,7 +165,6 @@ import CommunicationAlumni from '@/pages/communication/external/Alumni';
 import CommunicationInternational from '@/pages/communication/external/International';
 import CommunicationEvents from '@/pages/communication/external/Events';
 import CommunicationMessages from '@/pages/communication/Messages';
-import CommunicationCalls from '@/pages/communication/Calls';
 import CommunicationNotifications from '@/pages/communication/Notifications';
 import CommunicationSettings from '@/pages/communication/Settings';
 import CommunicationIntegrations from '@/pages/communication/Integrations';
@@ -362,7 +361,6 @@ export function ModuleRoutes() {
       {/* Communication Module Routes */}
       <Route path="/communication" element={<Communication />} />
       <Route path="/communication/messages" element={<CommunicationMessages />} />
-      <Route path="/communication/calls" element={<CommunicationCalls />} />
       <Route path="/communication/notifications" element={<CommunicationNotifications />} />
       <Route path="/communication/settings" element={<CommunicationSettings />} />
       <Route path="/communication/integrations" element={<CommunicationIntegrations />} />
@@ -370,7 +368,6 @@ export function ModuleRoutes() {
       <Route path="/communication/internal/emails" element={<CommunicationEmails />} />
       <Route path="/communication/internal/directory" element={<CommunicationDirectory />} />
       <Route path="/communication/messages" element={<Communication />} />
-      <Route path="/communication/calls" element={<Communication />} />
       <Route path="/communication/notifications" element={<Communication />} />
       <Route path="/communication/settings" element={<Communication />} />
       <Route path="/communication/integrations" element={<Communication />} />
