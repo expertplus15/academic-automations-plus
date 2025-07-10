@@ -169,6 +169,7 @@ import Transport from '@/pages/services/Transport';
 import Catering from '@/pages/services/Catering';
 import Accommodation from '@/pages/services/Accommodation';
 import Library from '@/pages/services/Library';
+import Activities from '@/pages/services/Activities';
 
 // Services health pages
 import ServicesHealthRecords from '@/pages/services/health/Records';
@@ -377,6 +378,7 @@ export function ModuleRoutes() {
       <Route path="/services/catering" element={<Catering />} />
       <Route path="/services/accommodation" element={<Accommodation />} />
       <Route path="/services/library" element={<Library />} />
+      <Route path="/services/activities" element={<Activities />} />
 
       {/* Services Health Routes */}
       <Route path="/services/health/records" element={<ServicesHealthRecords />} />
