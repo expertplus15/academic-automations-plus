@@ -1,22 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CommunicationModuleLayout } from '@/components/layouts/CommunicationModuleLayout';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Phone, PhoneMissed, PhoneCall, Video, Users } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Calls() {
+  const { toast } = useToast();
+
+  const handleNewCall = () => {
+    toast({
+      title: "Nouvel appel",
+      description: "Fonctionnalité d'appel en cours de développement.",
+    });
+  };
+
+  const handleVideoConference = () => {
+    toast({
+      title: "Visioconférence",
+      description: "Fonctionnalité de visioconférence en cours de développement.",
+    });
+  };
+
   const headerActions = [
     {
       label: "Nouvel appel",
       icon: Phone,
-      onClick: () => {},
+      onClick: handleNewCall,
       variant: 'default' as const
     },
     {
       label: "Visioconférence",
       icon: Video,
-      onClick: () => {},
+      onClick: handleVideoConference,
       variant: 'outline' as const
     }
   ];
@@ -67,7 +84,7 @@ export default function Calls() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Button className="w-full">
+                <Button className="w-full" onClick={handleNewCall}>
                   Démarrer un appel
                 </Button>
               </CardContent>
@@ -81,7 +98,7 @@ export default function Calls() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" onClick={handleVideoConference}>
                   Créer une réunion
                 </Button>
               </CardContent>
@@ -95,7 +112,10 @@ export default function Calls() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" onClick={() => toast({
+                  title: "Conférence",
+                  description: "Fonctionnalité de conférence en cours de développement.",
+                })}>
                   Rejoindre
                 </Button>
               </CardContent>
@@ -129,10 +149,10 @@ export default function Calls() {
                     </div>
                     
                     <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={handleNewCall}>
                         <Phone className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" onClick={handleVideoConference}>
                         <Video className="w-4 h-4" />
                       </Button>
                     </div>
