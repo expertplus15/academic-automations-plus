@@ -104,17 +104,22 @@ export function CommunicationModuleCards() {
         <p className="text-muted-foreground">4 modules disponibles</p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         {modules.map((module, index) => (
-          <ModuleCard
+          <div
             key={index}
-            title={module.title}
-            description={module.description}
-            icon={module.icon}
-            color={module.color}
-            stats={module.stats}
-            actions={module.actions}
-          />
+            className="group relative"
+            style={{ animationDelay: `${index * 100}ms` }}
+          >
+            <ModuleCard
+              title={module.title}
+              description={module.description}
+              icon={module.icon}
+              color={module.color}
+              stats={module.stats}
+              actions={module.actions}
+            />
+          </div>
         ))}
       </div>
     </div>
