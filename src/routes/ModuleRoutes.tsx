@@ -164,6 +164,12 @@ import Documents from '@/pages/Documents';
 import Communication from '@/pages/Communication';
 import CommunicationRoutes from '@/routes/CommunicationRoutes';
 
+// Services module pages
+import Transport from '@/pages/services/Transport';
+import Catering from '@/pages/services/Catering';
+import Accommodation from '@/pages/services/Accommodation';
+import Library from '@/pages/services/Library';
+
 // Services health pages
 import ServicesHealthRecords from '@/pages/services/health/Records';
 import ServicesHealthAppointments from '@/pages/services/health/Appointments';
@@ -365,6 +371,12 @@ export function ModuleRoutes() {
       <Route path="/documents/notifications" element={<Documents />} />
       <Route path="/documents/settings" element={<Documents />} />
       <Route path="/documents/compliance" element={<Documents />} />
+
+      {/* Services Module Routes */}
+      <Route path="/services/transport" element={<Transport />} />
+      <Route path="/services/catering" element={<Catering />} />
+      <Route path="/services/accommodation" element={<Accommodation />} />
+      <Route path="/services/library" element={<Library />} />
 
       {/* Services Health Routes */}
       <Route path="/services/health/records" element={<ServicesHealthRecords />} />
