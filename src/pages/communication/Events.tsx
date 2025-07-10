@@ -1,66 +1,123 @@
 import React, { useState } from 'react';
 import { CommunicationModuleLayout } from '@/components/layouts/CommunicationModuleLayout';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { Calendar, Plus, MapPin, Clock, Users, ChevronLeft, ChevronRight } from 'lucide-react';
+import { NewEventModal } from '@/components/communication/NewEventModal';
+import { EventDetailsModal } from '@/components/communication/EventDetailsModal';
+import { Calendar, Plus, MapPin, Clock, Users, ChevronLeft, ChevronRight, Eye, Edit } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
+
+const initialEvents = [
+  {
+    id: 1,
+    title: "Portes ouvertes",
+    date: "2024-01-20",
+    time: "09:00",
+    location: "Campus principal",
+    type: "public",
+    attendees: 156,
+    description: "Découvrez notre établissement et nos formations"
+  },
+  {
+    id: 2,
+    title: "Conférence métiers du numérique",
+    date: "2024-01-22",
+    time: "14:00",
+    location: "Amphithéâtre A",
+    type: "academic",
+    attendees: 89,
+    description: "Rencontrez des professionnels du secteur"
+  },
+  {
+    id: 3,
+    title: "Remise des diplômes",
+    date: "2024-01-25",
+    time: "18:00",
+    location: "Grande salle",
+    type: "ceremony",
+    attendees: 234,
+    description: "Cérémonie de remise des diplômes promotion 2023"
+  },
+  {
+    id: 4,
+    title: "Formation premiers secours",
+    date: "2024-01-28",
+    time: "10:00",
+    location: "Salle de formation",
+    type: "training",
+    attendees: 25,
+    description: "Formation obligatoire pour le personnel"
+  }
+];
 
 export default function Events() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'list'>('month');
+  const [showNewEventModal, setShowNewEventModal] = useState(false);
+  const [showEventDetails, setShowEventDetails] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [eventsData, setEventsData] = useState(initialEvents);
+  const { toast } = useToast();
+
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    setCurrentDate(prev => {
+      const newDate = new Date(prev);
+      if (direction === 'prev') {
+        newDate.setMonth(prev.getMonth() - 1);
+      } else {
+        newDate.setMonth(prev.getMonth() + 1);
+      }
+      return newDate;
+    });
+  };
+
+  const goToToday = () => {
+    setCurrentDate(new Date());
+  };
+
+  const handleCreateEvent = (eventData: any) => {
+    const newEvent = {
+      id: eventsData.length + 1,
+      title: eventData.title,
+      date: eventData.date,
+      time: eventData.time,
+      location: eventData.location,
+      type: eventData.type,
+      attendees: 0,
+      description: eventData.description
+    };
+    
+    setEventsData(prev => [...prev, newEvent]);
+    toast({
+      title: "Événement créé",
+      description: `L'événement "${eventData.title}" a été créé avec succès.`,
+    });
+  };
+
+  const handleViewEvent = (eventId: number) => {
+    const event = eventsData.find(e => e.id === eventId);
+    setSelectedEvent(event);
+    setShowEventDetails(true);
+  };
+
+  const handleEditEvent = (eventId: number) => {
+    toast({
+      title: "Modifier l'événement",
+      description: `Modification de l'événement #${eventId}`,
+    });
+  };
 
   const headerActions = [
     {
       label: "Nouvel événement",
       icon: Plus,
-      onClick: () => {},
+      onClick: () => setShowNewEventModal(true),
       variant: 'default' as const
     }
   ];
 
-  const events = [
-    {
-      id: 1,
-      title: "Portes ouvertes",
-      date: "2024-01-20",
-      time: "09:00",
-      location: "Campus principal",
-      type: "public",
-      attendees: 156,
-      description: "Découvrez notre établissement et nos formations"
-    },
-    {
-      id: 2,
-      title: "Conférence métiers du numérique",
-      date: "2024-01-22",
-      time: "14:00",
-      location: "Amphithéâtre A",
-      type: "academic",
-      attendees: 89,
-      description: "Rencontrez des professionnels du secteur"
-    },
-    {
-      id: 3,
-      title: "Remise des diplômes",
-      date: "2024-01-25",
-      time: "18:00",
-      location: "Grande salle",
-      type: "ceremony",
-      attendees: 234,
-      description: "Cérémonie de remise des diplômes promotion 2023"
-    },
-    {
-      id: 4,
-      title: "Formation premiers secours",
-      date: "2024-01-28",
-      time: "10:00",
-      location: "Salle de formation",
-      type: "training",
-      attendees: 25,
-      description: "Formation obligatoire pour le personnel"
-    }
-  ];
 
   const getEventTypeBadge = (type: string) => {
     switch (type) {
@@ -120,17 +177,17 @@ export default function Events() {
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => navigateMonth('prev')}>
                     <ChevronLeft className="w-4 h-4" />
                   </Button>
                   <h3 className="text-lg font-medium">
                     {currentDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
                   </h3>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => navigateMonth('next')}>
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={goToToday}>
                   Aujourd'hui
                 </Button>
               </div>
@@ -138,7 +195,7 @@ export default function Events() {
             <CardContent>
               {viewMode === 'list' ? (
                 <div className="space-y-4">
-                  {events.map((event) => (
+                  {eventsData.map((event) => (
                     <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -173,10 +230,12 @@ export default function Events() {
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => handleViewEvent(event.id)}>
+                          <Eye className="w-4 h-4 mr-2" />
                           Voir
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => handleEditEvent(event.id)}>
+                          <Edit className="w-4 h-4 mr-2" />
                           Modifier
                         </Button>
                       </div>
@@ -205,7 +264,7 @@ export default function Events() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {events.slice(0, 3).map((event) => (
+                  {eventsData.slice(0, 3).map((event) => (
                     <div key={event.id} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                       <div className="w-2 h-2 bg-primary rounded-full"></div>
                       <div className="flex-1">
@@ -248,6 +307,18 @@ export default function Events() {
             </Card>
           </div>
         </div>
+
+        <NewEventModal
+          open={showNewEventModal}
+          onOpenChange={setShowNewEventModal}
+          onSave={handleCreateEvent}
+        />
+        
+        <EventDetailsModal
+          open={showEventDetails}
+          onOpenChange={setShowEventDetails}
+          event={selectedEvent}
+        />
       </CommunicationModuleLayout>
     </ProtectedRoute>
   );
