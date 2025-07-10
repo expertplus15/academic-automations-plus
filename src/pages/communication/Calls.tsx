@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Calls() {
+  console.log('Calls component is rendering');
   const { toast } = useToast();
 
   const handleNewCall = () => {
@@ -65,6 +66,8 @@ export default function Calls() {
     }
   ];
 
+  console.log('About to render Calls component JSX');
+  
   return (
     <ProtectedRoute allowedRoles={['admin', 'teacher', 'hr', 'student']}>
       <CommunicationModuleLayout 
