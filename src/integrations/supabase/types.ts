@@ -6353,6 +6353,84 @@ export type Database = {
         }
         Relationships: []
       }
+      transport_reservations: {
+        Row: {
+          created_at: string
+          departure_time: string
+          destination_stop: string
+          id: string
+          line_id: string
+          payment_status: string
+          pickup_stop: string
+          reservation_date: string
+          status: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          departure_time: string
+          destination_stop: string
+          id?: string
+          line_id: string
+          payment_status?: string
+          pickup_stop: string
+          reservation_date: string
+          status?: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          departure_time?: string
+          destination_stop?: string
+          id?: string
+          line_id?: string
+          payment_status?: string
+          pickup_stop?: string
+          reservation_date?: string
+          status?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      transport_schedules: {
+        Row: {
+          arrival_time: string
+          created_at: string
+          day_of_week: number
+          departure_time: string
+          id: string
+          is_active: boolean
+          line_id: string
+          stops: Json
+          updated_at: string
+        }
+        Insert: {
+          arrival_time: string
+          created_at?: string
+          day_of_week: number
+          departure_time: string
+          id?: string
+          is_active?: boolean
+          line_id: string
+          stops?: Json
+          updated_at?: string
+        }
+        Update: {
+          arrival_time?: string
+          created_at?: string
+          day_of_week?: number
+          departure_time?: string
+          id?: string
+          is_active?: boolean
+          line_id?: string
+          stops?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       transport_stops: {
         Row: {
           address: string | null
@@ -6386,6 +6464,48 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           name?: string
+        }
+        Relationships: []
+      }
+      transport_subscriptions: {
+        Row: {
+          amount: number
+          created_at: string
+          end_date: string
+          id: string
+          line_id: string
+          payment_date: string | null
+          start_date: string
+          status: string
+          student_id: string
+          subscription_type: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          end_date: string
+          id?: string
+          line_id: string
+          payment_date?: string | null
+          start_date: string
+          status?: string
+          student_id: string
+          subscription_type: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          end_date?: string
+          id?: string
+          line_id?: string
+          payment_date?: string | null
+          start_date?: string
+          status?: string
+          student_id?: string
+          subscription_type?: string
+          updated_at?: string
         }
         Relationships: []
       }
