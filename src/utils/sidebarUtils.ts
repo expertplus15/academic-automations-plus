@@ -12,6 +12,7 @@ import { ServicesModuleSidebar } from "@/components/ServicesModuleSidebar";
 import { HealthModuleSidebar } from "@/components/HealthModuleSidebar";
 
 import { DocumentsModuleSidebar } from "@/components/DocumentsModuleSidebar";
+import { CommunicationModuleSidebar } from "@/components/CommunicationModuleSidebar";
 
 export const getSidebarForPath = (pathname: string) => {
   if (pathname.startsWith('/academic')) return AcademicModuleSidebar;
@@ -28,5 +29,6 @@ export const getSidebarForPath = (pathname: string) => {
   if (pathname.startsWith('/health')) return HealthModuleSidebar;
   
   if (pathname.startsWith('/documents')) return DocumentsModuleSidebar;
+  if (pathname.startsWith('/communication')) return CommunicationModuleSidebar;
   return null;
 };

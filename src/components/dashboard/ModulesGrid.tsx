@@ -85,6 +85,14 @@ export function ModulesGrid() {
       onClick: () => navigate('/resources')
     },
     {
+      title: "Communication",
+      subtitle: "Messages, notifications, répertoire",
+      icon: MessageSquare,
+      color: "bg-[#4F78FF]",
+      notifications: 5,
+      onClick: () => navigate('/communication')
+    },
+    {
       title: "Paramètres & Config",
       subtitle: "Centre de contrôle plateforme",
       icon: Settings,
