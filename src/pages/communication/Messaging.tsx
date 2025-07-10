@@ -1,18 +1,21 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useState } from 'react';
 import { CommunicationModuleLayout } from '@/components/layouts/CommunicationModuleLayout';
 import { MessagesList } from '@/components/communication/MessagesList';
 import { ChatWindow } from '@/components/communication/ChatWindow';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { CommunicationProvider } from '@/contexts/CommunicationContext';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { NewConversationModal } from '@/components/communication/NewConversationModal';
 import { Plus } from 'lucide-react';
 
 export default function Messaging() {
+  const [showNewConversation, setShowNewConversation] = useState(false);
+
   const headerActions = [
     {
       label: "Nouveau message",
       icon: Plus,
-      onClick: () => {},
+      onClick: () => setShowNewConversation(true),
       variant: 'default' as const
     }
   ];
@@ -41,6 +44,11 @@ export default function Messaging() {
             </div>
           </Suspense>
         </CommunicationModuleLayout>
+        
+        <NewConversationModal
+          open={showNewConversation}
+          onClose={() => setShowNewConversation(false)}
+        />
       </CommunicationProvider>
     </ProtectedRoute>
   );
