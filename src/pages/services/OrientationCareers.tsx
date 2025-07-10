@@ -5,7 +5,7 @@ import { AppointmentBooking } from "@/components/orientation/AppointmentBooking"
 import { JobBoard } from "@/components/orientation/JobBoard";
 import { CareerResources } from "@/components/orientation/CareerResources";
 import { MyCareerPath } from "@/components/orientation/MyCareerPath";
-import { Brain, Calendar, Briefcase, BookOpen, Target } from "lucide-react";
+import { Brain, Calendar, Briefcase, BookOpen, Target, MapPin, Globe } from "lucide-react";
 
 export default function OrientationCareers() {
   return (
