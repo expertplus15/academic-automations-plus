@@ -97,7 +97,42 @@ export const useConversations = () => {
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+
+      // Process conversations to add last_message and unread_count
+      const processedConversations = await Promise.all(
+        (data || []).map(async (conversation) => {
+          // Get last message
+          const { data: lastMessage } = await supabase
+            .from('messages')
+            .select(`
+              id,
+              content,
+              created_at,
+              sender:profiles(full_name, avatar_url)
+            `)
+            .eq('conversation_id', conversation.id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+          // Get unread count for current user
+          const { count: unreadCount } = await supabase
+            .from('messages')
+            .select('*', { count: 'exact', head: true })
+            .eq('conversation_id', conversation.id)
+            .gt('created_at', 
+              conversation.participants?.find(p => p.user_id === user.id)?.last_read_at || '1970-01-01'
+            );
+
+          return {
+            ...conversation,
+            last_message: lastMessage || null,
+            unread_count: unreadCount || 0,
+          };
+        })
+      );
+
+      return processedConversations;
     },
     enabled: !!user?.id,
   });
