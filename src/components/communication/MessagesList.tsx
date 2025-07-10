@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, Plus } from 'lucide-react';
 
-export function MessagesList() {
+export const MessagesList = memo(function MessagesList() {
   return (
     <Card className="h-full rounded-none border-0">
       <CardHeader className="pb-3">
@@ -29,4 +29,4 @@ export function MessagesList() {
       </CardContent>
     </Card>
   );
-}
+});

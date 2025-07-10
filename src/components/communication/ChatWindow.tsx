@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { MessageSquare } from 'lucide-react';
 
-export function ChatWindow() {
+export const ChatWindow = memo(function ChatWindow() {
   return (
     <Card className="h-full rounded-none border-0">
       <CardContent className="h-full flex items-center justify-center">
@@ -14,4 +14,4 @@ export function ChatWindow() {
       </CardContent>
     </Card>
   );
-}
+});

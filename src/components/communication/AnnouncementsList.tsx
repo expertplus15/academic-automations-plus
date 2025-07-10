@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Megaphone, Calendar, Eye, Edit } from 'lucide-react';
 
-export function AnnouncementsList() {
+export const AnnouncementsList = memo(function AnnouncementsList() {
   const announcements = [
     {
       id: 1,
@@ -121,4 +121,4 @@ export function AnnouncementsList() {
       </div>
     </div>
   );
-}
+});

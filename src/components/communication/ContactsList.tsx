@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Search, MessageSquare, Mail, Phone } from 'lucide-react';
 
-export function ContactsList() {
+export const ContactsList = memo(function ContactsList() {
   const contacts = [
     {
       id: 1,
@@ -114,4 +114,4 @@ export function ContactsList() {
       </div>
     </div>
   );
-}
+});
