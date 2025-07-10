@@ -7,59 +7,24 @@ import { Calendar, Plus, MapPin, Clock, Users, ChevronLeft, ChevronRight, Eye, E
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-
-const initialEvents = [
-  {
-    id: 1,
-    title: "Portes ouvertes",
-    date: "2024-01-20",
-    time: "09:00",
-    location: "Campus principal",
-    type: "public",
-    attendees: 156,
-    description: "Découvrez notre établissement et nos formations"
-  },
-  {
-    id: 2,
-    title: "Conférence métiers du numérique",
-    date: "2024-01-22",
-    time: "14:00",
-    location: "Amphithéâtre A",
-    type: "academic",
-    attendees: 89,
-    description: "Rencontrez des professionnels du secteur"
-  },
-  {
-    id: 3,
-    title: "Remise des diplômes",
-    date: "2024-01-25",
-    time: "18:00",
-    location: "Grande salle",
-    type: "ceremony",
-    attendees: 234,
-    description: "Cérémonie de remise des diplômes promotion 2023"
-  },
-  {
-    id: 4,
-    title: "Formation premiers secours",
-    date: "2024-01-28",
-    time: "10:00",
-    location: "Salle de formation",
-    type: "training",
-    attendees: 25,
-    description: "Formation obligatoire pour le personnel"
-  }
-];
+import { useEvents, Event } from '@/hooks/useEvents';
 
 export default function Events() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'list'>('month');
   const [showNewEventModal, setShowNewEventModal] = useState(false);
   const [showEventDetails, setShowEventDetails] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [eventsData, setEventsData] = useState(initialEvents);
-  const { toast } = useToast();
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  
+  const { 
+    events, 
+    loading, 
+    createEvent, 
+    updateEvent, 
+    deleteEvent, 
+    getEventById,
+    getEventsForMonth 
+  } = useEvents();
 
   const navigateMonth = (direction: 'prev' | 'next') => {
     setCurrentDate(prev => {
@@ -77,36 +42,37 @@ export default function Events() {
     setCurrentDate(new Date());
   };
 
-  const handleCreateEvent = (eventData: any) => {
-    const newEvent = {
-      id: eventsData.length + 1,
-      title: eventData.title,
-      date: eventData.date,
-      time: eventData.time,
-      location: eventData.location,
-      type: eventData.type,
-      attendees: 0,
-      description: eventData.description
-    };
-    
-    setEventsData(prev => [...prev, newEvent]);
-    toast({
-      title: "Événement créé",
-      description: `L'événement "${eventData.title}" a été créé avec succès.`,
-    });
+  const handleCreateEvent = async (eventData: any) => {
+    try {
+      const startDate = `${eventData.date}T${eventData.time}:00`;
+      const endDate = `${eventData.date}T${eventData.endTime || eventData.time}:00`;
+      
+      await createEvent({
+        title: eventData.title,
+        description: eventData.description,
+        start_date: startDate,
+        end_date: endDate,
+        location: eventData.location,
+        type: eventData.type,
+        registration_required: eventData.registrationRequired || false,
+        is_free: eventData.isFree || true,
+        capacity_max: eventData.capacity || null,
+      });
+    } catch (error) {
+      // Error is handled in the hook
+    }
   };
 
-  const handleViewEvent = (eventId: number) => {
-    const event = eventsData.find(e => e.id === eventId);
-    setSelectedEvent(event);
+  const handleViewEvent = (eventId: string) => {
+    const event = getEventById(eventId);
+    setSelectedEvent(event || null);
     setShowEventDetails(true);
   };
 
-  const handleEditEvent = (eventId: number) => {
-    toast({
-      title: "Modifier l'événement",
-      description: `Modification de l'événement #${eventId}`,
-    });
+  const handleEditEvent = (eventId: string) => {
+    // For now, just show edit info - can be enhanced later
+    const event = getEventById(eventId);
+    console.log('Edit event:', event);
   };
 
   const headerActions = [
@@ -195,52 +161,62 @@ export default function Events() {
             <CardContent>
               {viewMode === 'list' ? (
                 <div className="space-y-4">
-                  {eventsData.map((event) => (
-                    <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Calendar className="w-6 h-6 text-primary" />
+                  {loading ? (
+                    <div className="text-center py-8">Chargement des événements...</div>
+                  ) : events.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      Aucun événement trouvé
+                    </div>
+                  ) : (
+                    events.map((event) => (
+                      <div key={event.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Calendar className="w-6 h-6 text-primary" />
+                          </div>
+                          
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-medium">{event.title}</h3>
+                              {getEventTypeBadge(event.type)}
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-2">{event.description}</p>
+                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                {formatDate(event.start_date)}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {new Date(event.start_date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                {event.location || 'Lieu non défini'}
+                              </span>
+                              {event.capacity_max && (
+                                <span className="flex items-center gap-1">
+                                  <Users className="w-3 h-3" />
+                                  Max {event.capacity_max} participants
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
                         
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-medium">{event.title}</h3>
-                            {getEventTypeBadge(event.type)}
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-2">{event.description}</p>
-                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              {formatDate(event.date)}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {event.time}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <MapPin className="w-3 h-3" />
-                              {event.location}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Users className="w-3 h-3" />
-                              {event.attendees} participants
-                            </span>
-                          </div>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="sm" onClick={() => handleViewEvent(event.id)}>
+                            <Eye className="w-4 h-4 mr-2" />
+                            Voir
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleEditEvent(event.id)}>
+                            <Edit className="w-4 h-4 mr-2" />
+                            Modifier
+                          </Button>
                         </div>
                       </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => handleViewEvent(event.id)}>
-                          <Eye className="w-4 h-4 mr-2" />
-                          Voir
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleEditEvent(event.id)}>
-                          <Edit className="w-4 h-4 mr-2" />
-                          Modifier
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">
@@ -264,17 +240,22 @@ export default function Events() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {eventsData.slice(0, 3).map((event) => (
+                  {events.slice(0, 3).map((event) => (
                     <div key={event.id} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                       <div className="w-2 h-2 bg-primary rounded-full"></div>
                       <div className="flex-1">
                         <p className="font-medium text-sm">{event.title}</p>
                         <p className="text-xs text-muted-foreground">
-                          {event.date} à {event.time} - {event.location}
+                          {formatDate(event.start_date)} à {new Date(event.start_date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} - {event.location || 'Lieu TBD'}
                         </p>
                       </div>
                     </div>
                   ))}
+                  {events.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      Aucun événement à venir
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>

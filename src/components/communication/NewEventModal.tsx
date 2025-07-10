@@ -10,7 +10,7 @@ import { Calendar, Clock, MapPin, Users, Tag } from 'lucide-react';
 interface NewEventModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (eventData: any) => void;
+  onSave: (eventData: any) => Promise<void>;
 }
 
 export function NewEventModal({ open, onOpenChange, onSave }: NewEventModalProps) {
@@ -25,20 +25,24 @@ export function NewEventModal({ open, onOpenChange, onSave }: NewEventModalProps
     registrationRequired: false
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
-    onOpenChange(false);
-    setFormData({
-      title: '',
-      description: '',
-      date: '',
-      time: '',
-      location: '',
-      type: '',
-      capacity: '',
-      registrationRequired: false
-    });
+    try {
+      await onSave(formData);
+      onOpenChange(false);
+      setFormData({
+        title: '',
+        description: '',
+        date: '',
+        time: '',
+        location: '',
+        type: '',
+        capacity: '',
+        registrationRequired: false
+      });
+    } catch (error) {
+      // Error handling is done in the parent component
+    }
   };
 
   const handleInputChange = (field: string, value: any) => {

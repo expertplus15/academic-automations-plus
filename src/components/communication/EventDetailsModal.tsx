@@ -3,19 +3,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, MapPin, Users, Tag } from 'lucide-react';
 
+import { Event } from '@/hooks/useEvents';
+
 interface EventDetailsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  event: {
-    id: number;
-    title: string;
-    date: string;
-    time: string;
-    location: string;
-    type: string;
-    attendees: number;
-    description: string;
-  } | null;
+  event: Event | null;
 }
 
 export function EventDetailsModal({ open, onOpenChange, event }: EventDetailsModalProps) {
@@ -72,7 +65,7 @@ export function EventDetailsModal({ open, onOpenChange, event }: EventDetailsMod
                 <Calendar className="w-5 h-5 text-primary" />
                 <div>
                   <p className="font-medium">Date</p>
-                  <p className="text-sm text-muted-foreground">{formatDate(event.date)}</p>
+                  <p className="text-sm text-muted-foreground">{formatDate(event.start_date)}</p>
                 </div>
               </div>
 
@@ -80,7 +73,12 @@ export function EventDetailsModal({ open, onOpenChange, event }: EventDetailsMod
                 <Clock className="w-5 h-5 text-primary" />
                 <div>
                   <p className="font-medium">Heure</p>
-                  <p className="text-sm text-muted-foreground">{event.time}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {new Date(event.start_date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                    {event.end_date !== event.start_date && (
+                      <> - {new Date(event.end_date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</>
+                    )}
+                  </p>
                 </div>
               </div>
             </div>
@@ -97,8 +95,10 @@ export function EventDetailsModal({ open, onOpenChange, event }: EventDetailsMod
               <div className="flex items-center gap-3">
                 <Users className="w-5 h-5 text-primary" />
                 <div>
-                  <p className="font-medium">Participants</p>
-                  <p className="text-sm text-muted-foreground">{event.attendees} inscrits</p>
+                  <p className="font-medium">Capacité</p>
+                  <p className="text-sm text-muted-foreground">
+                    {event.capacity_max ? `Maximum ${event.capacity_max} participants` : 'Illimitée'}
+                  </p>
                 </div>
               </div>
             </div>
