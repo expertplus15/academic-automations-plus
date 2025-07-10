@@ -81,13 +81,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setLoading(false);
         }
 
-        // Handle auth events
-        if (event === 'SIGNED_IN') {
-          toast({
-            title: "Connexion réussie",
-            description: "Bienvenue !",
-          });
-        } else if (event === 'SIGNED_OUT') {
+        // Handle auth events - only show toasts for user-initiated actions
+        if (event === 'SIGNED_OUT') {
           toast({
             title: "Déconnexion",
             description: "À bientôt !",
