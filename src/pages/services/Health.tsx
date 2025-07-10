@@ -1,5 +1,9 @@
 import { ServicesModuleLayout } from "@/components/layouts/ServicesModuleLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { HealthRecord } from "@/components/health/HealthRecord";
+import { AppointmentManager } from "@/components/health/AppointmentManager";
+import { MedicationTracker } from "@/components/health/MedicationTracker";
+import { EmergencyInfo } from "@/components/health/EmergencyInfo";
 import { FileText, Stethoscope, Pill, AlertTriangle, Activity } from "lucide-react";
 
 export default function Health() {

@@ -1,21 +1,38 @@
 import { ServicesModuleLayout } from "@/components/layouts/ServicesModuleLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MapPin, Globe } from "lucide-react";
+import { OrientationTests } from "@/components/orientation/OrientationTests";
+import { AppointmentBooking } from "@/components/orientation/AppointmentBooking";
+import { JobBoard } from "@/components/orientation/JobBoard";
+import { CareerResources } from "@/components/orientation/CareerResources";
+import { MyCareerPath } from "@/components/orientation/MyCareerPath";
+import { Brain, Calendar, Briefcase, BookOpen, Target } from "lucide-react";
 
 export default function OrientationCareers() {
   return (
     <ServicesModuleLayout title="Orientation & Carrière" subtitle="Accompagnement scolaire et insertion professionnelle">
       <div className="p-6">
         <div className="max-w-7xl mx-auto">
-          <Tabs defaultValue="orientation" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="orientation" className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                Orientation scolaire
+          <Tabs defaultValue="tests" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="tests" className="flex items-center gap-2">
+                <Brain className="w-4 h-4" />
+                Tests d'orientation
               </TabsTrigger>
-              <TabsTrigger value="careers" className="flex items-center gap-2">
-                <Globe className="w-4 h-4" />
-                Insertion professionnelle
+              <TabsTrigger value="appointments" className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Rendez-vous
+              </TabsTrigger>
+              <TabsTrigger value="jobs" className="flex items-center gap-2">
+                <Briefcase className="w-4 h-4" />
+                Offres d'emploi
+              </TabsTrigger>
+              <TabsTrigger value="resources" className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4" />
+                Ressources
+              </TabsTrigger>
+              <TabsTrigger value="path" className="flex items-center gap-2">
+                <Target className="w-4 h-4" />
+                Mon parcours
               </TabsTrigger>
             </TabsList>
 
