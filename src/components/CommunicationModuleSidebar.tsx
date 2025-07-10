@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { 
   MessageSquare, 
@@ -8,7 +8,7 @@ import {
   Home
 } from 'lucide-react';
 
-export function CommunicationModuleSidebar() {
+export const CommunicationModuleSidebar = memo(function CommunicationModuleSidebar() {
   const location = useLocation();
 
   const menuItems = [
@@ -79,4 +79,4 @@ export function CommunicationModuleSidebar() {
       </nav>
     </div>
   );
-}
+});

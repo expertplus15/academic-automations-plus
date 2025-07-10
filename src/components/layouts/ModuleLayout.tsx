@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { StudentsModuleSidebar } from "@/components/StudentsModuleSidebar";
@@ -13,12 +13,15 @@ interface ModuleLayoutProps {
   showHeader?: boolean;
 }
 
-export function ModuleLayout({ children, sidebar, title, subtitle, showHeader = false }: ModuleLayoutProps) {
+export const ModuleLayout = memo(function ModuleLayout({ children, sidebar, title, subtitle, showHeader = false }: ModuleLayoutProps) {
   const location = useLocation();
   
-  // Auto-select sidebar based on current route
-  const AutoSidebar = getSidebarForPath(location.pathname);
-  const SelectedSidebar = sidebar || (AutoSidebar ? <AutoSidebar /> : <StudentsModuleSidebar />);
+  // Auto-select sidebar based on current route with memoization
+  const SelectedSidebar = useMemo(() => {
+    if (sidebar) return sidebar;
+    const AutoSidebar = getSidebarForPath(location.pathname);
+    return AutoSidebar ? <AutoSidebar /> : <StudentsModuleSidebar />;
+  }, [sidebar, location.pathname]);
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -43,4 +46,4 @@ export function ModuleLayout({ children, sidebar, title, subtitle, showHeader = 
       </div>
     </SidebarProvider>
   );
-}
+});
