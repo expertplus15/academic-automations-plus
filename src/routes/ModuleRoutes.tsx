@@ -162,10 +162,7 @@ import Documents from '@/pages/Documents';
 
 // Communication module pages
 import Communication from '@/pages/Communication';
-import CommunicationMessaging from '@/pages/communication/Messaging';
-import CommunicationNotifications from '@/pages/communication/Notifications';
-import CommunicationDirectory from '@/pages/communication/Directory';
-import CommunicationAnnouncements from '@/pages/communication/Announcements';
+import CommunicationRoutes from '@/routes/CommunicationRoutes';
 
 // Services health pages
 import ServicesHealthRecords from '@/pages/services/health/Records';
@@ -354,10 +351,7 @@ export function ModuleRoutes() {
 
       {/* Communication Module Routes */}
       <Route path="/communication" element={<Communication />} />
-      <Route path="/communication/messaging" element={<CommunicationMessaging />} />
-      <Route path="/communication/notifications" element={<CommunicationNotifications />} />
-      <Route path="/communication/directory" element={<CommunicationDirectory />} />
-      <Route path="/communication/announcements" element={<CommunicationAnnouncements />} />
+      <Route path="/communication/*" element={<CommunicationRoutes />} />
 
       {/* Documents Module Routes */}
       <Route path="/documents" element={<Documents />} />
