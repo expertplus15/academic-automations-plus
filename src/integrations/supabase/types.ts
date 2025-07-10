@@ -215,6 +215,108 @@ export type Database = {
         }
         Relationships: []
       }
+      accommodation_assignments: {
+        Row: {
+          created_at: string | null
+          deposit_amount: number | null
+          end_date: string | null
+          id: string
+          monthly_rent: number
+          notes: string | null
+          room_id: string
+          start_date: string
+          status: string | null
+          student_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          deposit_amount?: number | null
+          end_date?: string | null
+          id?: string
+          monthly_rent: number
+          notes?: string | null
+          room_id: string
+          start_date: string
+          status?: string | null
+          student_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          deposit_amount?: number | null
+          end_date?: string | null
+          id?: string
+          monthly_rent?: number
+          notes?: string | null
+          room_id?: string
+          start_date?: string
+          status?: string | null
+          student_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_accommodation_assignments_room"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "accommodation_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_accommodation_assignments_student"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      accommodation_rooms: {
+        Row: {
+          building_name: string
+          capacity: number
+          created_at: string | null
+          current_occupancy: number | null
+          description: string | null
+          facilities: Json | null
+          id: string
+          is_available: boolean | null
+          monthly_rent: number
+          room_number: string
+          room_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          building_name: string
+          capacity: number
+          created_at?: string | null
+          current_occupancy?: number | null
+          description?: string | null
+          facilities?: Json | null
+          id?: string
+          is_available?: boolean | null
+          monthly_rent: number
+          room_number: string
+          room_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          building_name?: string
+          capacity?: number
+          created_at?: string | null
+          current_occupancy?: number | null
+          description?: string | null
+          facilities?: Json | null
+          id?: string
+          is_available?: boolean | null
+          monthly_rent?: number
+          room_number?: string
+          room_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       accounting_entries: {
         Row: {
           created_at: string | null
@@ -323,6 +425,57 @@ export type Database = {
             columns: ["entry_id"]
             isOneToOne: false
             referencedRelation: "accounting_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      activity_enrollments: {
+        Row: {
+          activity_id: string
+          created_at: string | null
+          enrollment_date: string
+          id: string
+          notes: string | null
+          payment_status: string | null
+          status: string | null
+          student_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          activity_id: string
+          created_at?: string | null
+          enrollment_date?: string
+          id?: string
+          notes?: string | null
+          payment_status?: string | null
+          status?: string | null
+          student_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          activity_id?: string
+          created_at?: string | null
+          enrollment_date?: string
+          id?: string
+          notes?: string | null
+          payment_status?: string | null
+          status?: string | null
+          student_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_activity_enrollments_activity"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "student_activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_activity_enrollments_student"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
@@ -1223,6 +1376,146 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      catering_balances: {
+        Row: {
+          balance: number | null
+          created_at: string | null
+          id: string
+          last_recharge_amount: number | null
+          last_recharge_date: string | null
+          student_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          balance?: number | null
+          created_at?: string | null
+          id?: string
+          last_recharge_amount?: number | null
+          last_recharge_date?: string | null
+          student_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          balance?: number | null
+          created_at?: string | null
+          id?: string
+          last_recharge_amount?: number | null
+          last_recharge_date?: string | null
+          student_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_catering_balances_student"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      catering_menus: {
+        Row: {
+          allergens: Json | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_available: boolean | null
+          items: Json | null
+          meal_type: string
+          menu_date: string
+          name: string
+          nutritional_info: Json | null
+          price: number
+          updated_at: string | null
+        }
+        Insert: {
+          allergens?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_available?: boolean | null
+          items?: Json | null
+          meal_type: string
+          menu_date: string
+          name: string
+          nutritional_info?: Json | null
+          price: number
+          updated_at?: string | null
+        }
+        Update: {
+          allergens?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_available?: boolean | null
+          items?: Json | null
+          meal_type?: string
+          menu_date?: string
+          name?: string
+          nutritional_info?: Json | null
+          price?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      catering_orders: {
+        Row: {
+          created_at: string | null
+          id: string
+          menu_id: string
+          order_date: string
+          pickup_time: string | null
+          quantity: number | null
+          special_requests: string | null
+          status: string | null
+          student_id: string
+          total_amount: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          menu_id: string
+          order_date: string
+          pickup_time?: string | null
+          quantity?: number | null
+          special_requests?: string | null
+          status?: string | null
+          student_id: string
+          total_amount: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          menu_id?: string
+          order_date?: string
+          pickup_time?: string | null
+          quantity?: number | null
+          special_requests?: string | null
+          status?: string | null
+          student_id?: string
+          total_amount?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_catering_orders_menu"
+            columns: ["menu_id"]
+            isOneToOne: false
+            referencedRelation: "catering_menus"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_catering_orders_student"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       chart_of_accounts: {
         Row: {
@@ -2774,6 +3067,112 @@ export type Database = {
           },
         ]
       }
+      health_appointments: {
+        Row: {
+          appointment_date: string
+          appointment_time: string
+          appointment_type: string
+          created_at: string | null
+          doctor_name: string | null
+          id: string
+          notes: string | null
+          reason: string | null
+          status: string | null
+          student_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          appointment_date: string
+          appointment_time: string
+          appointment_type: string
+          created_at?: string | null
+          doctor_name?: string | null
+          id?: string
+          notes?: string | null
+          reason?: string | null
+          status?: string | null
+          student_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          appointment_date?: string
+          appointment_time?: string
+          appointment_type?: string
+          created_at?: string | null
+          doctor_name?: string | null
+          id?: string
+          notes?: string | null
+          reason?: string | null
+          status?: string | null
+          student_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_health_appointments_student"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      health_records: {
+        Row: {
+          allergies: Json | null
+          blood_type: string | null
+          chronic_conditions: Json | null
+          created_at: string | null
+          doctor_name: string | null
+          doctor_phone: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          id: string
+          insurance_number: string | null
+          medical_notes: string | null
+          student_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          allergies?: Json | null
+          blood_type?: string | null
+          chronic_conditions?: Json | null
+          created_at?: string | null
+          doctor_name?: string | null
+          doctor_phone?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          id?: string
+          insurance_number?: string | null
+          medical_notes?: string | null
+          student_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          allergies?: Json | null
+          blood_type?: string | null
+          chronic_conditions?: Json | null
+          created_at?: string | null
+          doctor_name?: string | null
+          doctor_phone?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          id?: string
+          insurance_number?: string | null
+          medical_notes?: string | null
+          student_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_health_records_student"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoice_lines: {
         Row: {
           created_at: string | null
@@ -3100,6 +3499,123 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      library_catalog: {
+        Row: {
+          author: string | null
+          available_copies: number | null
+          category: string
+          created_at: string | null
+          description: string | null
+          digital_url: string | null
+          id: string
+          is_available: boolean | null
+          is_digital: boolean | null
+          isbn: string | null
+          location: string | null
+          publication_year: number | null
+          publisher: string | null
+          title: string
+          total_copies: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          author?: string | null
+          available_copies?: number | null
+          category: string
+          created_at?: string | null
+          description?: string | null
+          digital_url?: string | null
+          id?: string
+          is_available?: boolean | null
+          is_digital?: boolean | null
+          isbn?: string | null
+          location?: string | null
+          publication_year?: number | null
+          publisher?: string | null
+          title: string
+          total_copies?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          author?: string | null
+          available_copies?: number | null
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          digital_url?: string | null
+          id?: string
+          is_available?: boolean | null
+          is_digital?: boolean | null
+          isbn?: string | null
+          location?: string | null
+          publication_year?: number | null
+          publisher?: string | null
+          title?: string
+          total_copies?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      library_loans: {
+        Row: {
+          book_id: string
+          created_at: string | null
+          due_date: string
+          fine_amount: number | null
+          id: string
+          loan_date: string
+          notes: string | null
+          renewal_count: number | null
+          return_date: string | null
+          status: string | null
+          student_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          book_id: string
+          created_at?: string | null
+          due_date: string
+          fine_amount?: number | null
+          id?: string
+          loan_date?: string
+          notes?: string | null
+          renewal_count?: number | null
+          return_date?: string | null
+          status?: string | null
+          student_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          book_id?: string
+          created_at?: string | null
+          due_date?: string
+          fine_amount?: number | null
+          id?: string
+          loan_date?: string
+          notes?: string | null
+          renewal_count?: number | null
+          return_date?: string | null
+          status?: string | null
+          student_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_library_loans_book"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "library_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_library_loans_student"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
@@ -4210,6 +4726,59 @@ export type Database = {
           },
         ]
       }
+      service_requests: {
+        Row: {
+          assigned_to: string | null
+          created_at: string | null
+          description: string
+          id: string
+          priority: string | null
+          resolved_at: string | null
+          response: string | null
+          service_type: string
+          status: string | null
+          student_id: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string | null
+          description: string
+          id?: string
+          priority?: string | null
+          resolved_at?: string | null
+          response?: string | null
+          service_type: string
+          status?: string | null
+          student_id: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string | null
+          description?: string
+          id?: string
+          priority?: string | null
+          resolved_at?: string | null
+          response?: string | null
+          service_type?: string
+          status?: string | null
+          student_id?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_service_requests_student"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_types: {
         Row: {
           code: string
@@ -4449,6 +5018,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      student_activities: {
+        Row: {
+          category: string
+          created_at: string | null
+          current_participants: number | null
+          description: string | null
+          end_date: string | null
+          id: string
+          instructor_name: string | null
+          is_active: boolean | null
+          location: string | null
+          max_participants: number | null
+          name: string
+          registration_fee: number | null
+          required_level: string | null
+          schedule: Json | null
+          start_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          current_participants?: number | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          instructor_name?: string | null
+          is_active?: boolean | null
+          location?: string | null
+          max_participants?: number | null
+          name: string
+          registration_fee?: number | null
+          required_level?: string | null
+          schedule?: Json | null
+          start_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          current_participants?: number | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          instructor_name?: string | null
+          is_active?: boolean | null
+          location?: string | null
+          max_participants?: number | null
+          name?: string
+          registration_fee?: number | null
+          required_level?: string | null
+          schedule?: Json | null
+          start_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       student_badges: {
         Row: {
@@ -5613,6 +6239,155 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      transport_bookings: {
+        Row: {
+          amount: number
+          arrival_stop_id: string
+          booking_date: string
+          created_at: string | null
+          departure_stop_id: string
+          departure_time: string
+          id: string
+          line_id: string
+          seat_number: string | null
+          status: string | null
+          student_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          arrival_stop_id: string
+          booking_date: string
+          created_at?: string | null
+          departure_stop_id: string
+          departure_time: string
+          id?: string
+          line_id: string
+          seat_number?: string | null
+          status?: string | null
+          student_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          arrival_stop_id?: string
+          booking_date?: string
+          created_at?: string | null
+          departure_stop_id?: string
+          departure_time?: string
+          id?: string
+          line_id?: string
+          seat_number?: string | null
+          status?: string | null
+          student_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_transport_bookings_arrival"
+            columns: ["arrival_stop_id"]
+            isOneToOne: false
+            referencedRelation: "transport_stops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_transport_bookings_departure"
+            columns: ["departure_stop_id"]
+            isOneToOne: false
+            referencedRelation: "transport_stops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_transport_bookings_line"
+            columns: ["line_id"]
+            isOneToOne: false
+            referencedRelation: "transport_lines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_transport_bookings_student"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transport_lines: {
+        Row: {
+          code: string
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          price: number | null
+          route_data: Json | null
+          schedule: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          price?: number | null
+          route_data?: Json | null
+          schedule?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          price?: number | null
+          route_data?: Json | null
+          schedule?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      transport_stops: {
+        Row: {
+          address: string | null
+          code: string
+          created_at: string | null
+          facilities: Json | null
+          id: string
+          is_active: boolean | null
+          latitude: number | null
+          longitude: number | null
+          name: string
+        }
+        Insert: {
+          address?: string | null
+          code: string
+          created_at?: string | null
+          facilities?: Json | null
+          id?: string
+          is_active?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+        }
+        Update: {
+          address?: string | null
+          code?: string
+          created_at?: string | null
+          facilities?: Json | null
+          id?: string
+          is_active?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+        }
+        Relationships: []
       }
       user_badges: {
         Row: {
