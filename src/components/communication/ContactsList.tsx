@@ -36,19 +36,19 @@ export const ContactsList = memo(function ContactsList() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'online': return 'bg-[#10B981]';
-      case 'away': return 'bg-[#F59E0B]';
-      case 'offline': return 'bg-[#64748B]';
-      default: return 'bg-[#64748B]';
+      case 'online': return 'bg-green-500';
+      case 'away': return 'bg-yellow-500';
+      case 'offline': return 'bg-gray-500';
+      default: return 'bg-gray-500';
     }
   };
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'Enseignant': return 'bg-[#4F78FF]/10 text-[#4F78FF]';
+      case 'Enseignant': return 'bg-primary/10 text-primary';
       case 'Étudiante':
-      case 'Étudiant': return 'bg-[#10B981]/10 text-[#10B981]';
-      default: return 'bg-[#64748B]/10 text-[#64748B]';
+      case 'Étudiant': return 'bg-green-500/10 text-green-500';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -74,7 +74,7 @@ export const ContactsList = memo(function ContactsList() {
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <Avatar>
-                      <AvatarFallback className="bg-[#4F78FF]/10 text-[#4F78FF]">
+                      <AvatarFallback className="bg-primary/10 text-primary">
                         {contact.name.split(' ').map(n => n[0]).join('')}
                       </AvatarFallback>
                     </Avatar>

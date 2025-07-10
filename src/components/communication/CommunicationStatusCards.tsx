@@ -11,29 +11,29 @@ export function CommunicationStatusCards() {
       title: "Messages non lus",
       value: stats?.unreadMessages || 0,
       icon: MessageSquare,
-      color: "text-[#4F78FF]",
-      bgColor: "bg-[#4F78FF]/10"
+      color: "text-primary",
+      bgColor: "bg-primary/10"
     },
     {
       title: "Notifications actives",
       value: stats?.activeNotifications || 0,
       icon: Bell,
-      color: "text-[#10B981]",
-      bgColor: "bg-[#10B981]/10"
+      color: "text-emerald-500",
+      bgColor: "bg-emerald-500/10"
     },
     {
       title: "Contacts disponibles",
       value: stats?.availableContacts || 0,
       icon: Users,
-      color: "text-[#8B5CF6]",
-      bgColor: "bg-[#8B5CF6]/10"
+      color: "text-purple-500",
+      bgColor: "bg-purple-500/10"
     },
     {
       title: "Annonces publiées",
       value: stats?.publishedAnnouncements || 0,
       icon: Megaphone,
-      color: "text-[#F59E0B]",
-      bgColor: "bg-[#F59E0B]/10"
+      color: "text-orange-500",
+      bgColor: "bg-orange-500/10"
     }
   ];
 

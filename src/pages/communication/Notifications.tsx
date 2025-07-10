@@ -2,17 +2,17 @@ import React from 'react';
 import { ModuleLayout } from '@/components/layouts/ModuleLayout';
 import { NotificationsList } from '@/components/communication/NotificationsList';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { Bell, Plus } from 'lucide-react';
 
 export default function Notifications() {
   return (
     <ProtectedRoute allowedRoles={['admin', 'teacher', 'hr', 'student']}>
-      <ModuleLayout>
+      <ModuleLayout 
+        showHeader={true}
+        title="Centre de Notifications"
+        subtitle="Gérez vos notifications et alertes"
+      >
         <div className="p-6">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-foreground">Centre de Notifications</h1>
-            <p className="text-muted-foreground">Gérez vos notifications et alertes</p>
-          </div>
-          
           <NotificationsList />
         </div>
       </ModuleLayout>

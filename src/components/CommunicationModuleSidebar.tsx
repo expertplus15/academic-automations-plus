@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { 
   MessageSquare, 
   Bell, 
@@ -48,7 +48,7 @@ export const CommunicationModuleSidebar = memo(function CommunicationModuleSideb
     <div className="w-64 bg-white border-r border-border h-full">
       <div className="p-6 border-b border-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4F78FF] to-[#8B5CF6] flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center">
             <MessageSquare className="w-5 h-5 text-white" />
           </div>
           <div>
@@ -62,17 +62,17 @@ export const CommunicationModuleSidebar = memo(function CommunicationModuleSideb
         <ul className="space-y-2">
           {menuItems.map((item) => (
             <li key={item.path}>
-              <a
-                href={item.path}
+              <Link
+                to={item.path}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                   item.isActive
-                    ? 'bg-[#4F78FF]/10 text-[#4F78FF] font-medium'
+                    ? 'bg-primary/10 text-primary font-medium'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                 }`}
               >
                 <item.icon className="w-4 h-4" />
                 {item.title}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>

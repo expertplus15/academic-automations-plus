@@ -1,4 +1,65 @@
 import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+
+export const CommunicationSkeleton = () => (
+  <div className="space-y-6 p-6 animate-fade-in">
+    {/* Banner skeleton */}
+    <div className="animate-pulse">
+      <div className="h-48 bg-gradient-to-br from-muted/50 to-muted rounded-3xl"></div>
+    </div>
+    
+    {/* Stats cards skeleton */}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <Card key={i} className="animate-pulse border-0 shadow-md">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-2">
+                <div className="h-4 bg-muted rounded w-20"></div>
+                <div className="h-8 bg-muted rounded w-12"></div>
+              </div>
+              <div className="w-12 h-12 bg-muted rounded-xl"></div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+    
+    {/* Module cards skeleton */}
+    <div className="space-y-6">
+      <div className="animate-pulse">
+        <div className="h-6 bg-muted rounded w-48 mb-2"></div>
+        <div className="h-4 bg-muted rounded w-32"></div>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Card key={i} className="animate-pulse border-0 shadow-md">
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-muted rounded-xl"></div>
+                  <div className="space-y-2">
+                    <div className="h-5 bg-muted rounded w-24"></div>
+                    <div className="h-4 bg-muted rounded w-40"></div>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-4 bg-muted rounded w-32"></div>
+                  <div className="h-4 bg-muted rounded w-28"></div>
+                </div>
+                <div className="flex gap-2">
+                  <div className="h-8 bg-muted rounded w-20"></div>
+                  <div className="h-8 bg-muted rounded w-16"></div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
 export const MessageListSkeleton = () => (
   <div className="p-4 space-y-4">

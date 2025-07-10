@@ -3,7 +3,7 @@ import { MessageSquare, Users, Bell, Megaphone } from 'lucide-react';
 
 export function CommunicationBanner() {
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#4F78FF] via-[#4F78FF] to-[#8B5CF6] p-8 text-white">
+    <div className="relative overflow-hidden rounded-3xl bg-gradient-primary p-8 text-white">
       {/* Éléments décoratifs en arrière-plan */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full transform translate-x-16 -translate-y-16"></div>
       <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full transform -translate-x-12 translate-y-12"></div>
@@ -15,7 +15,7 @@ export function CommunicationBanner() {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-white">Module Communication</h1>
-            <p className="text-blue-100">Centre de communication unifié - Messages, notifications et annonces</p>
+            <p className="text-white/80">Centre de communication unifié - Messages, notifications et annonces</p>
           </div>
         </div>
         
@@ -23,28 +23,28 @@ export function CommunicationBanner() {
           <div className="flex items-center gap-3 bg-white/10 rounded-xl p-3">
             <MessageSquare className="w-5 h-5 text-white" />
             <div>
-              <p className="text-sm text-blue-100">Messages</p>
+              <p className="text-sm text-white/70">Messages</p>
               <p className="text-lg font-semibold">Instantané</p>
             </div>
           </div>
           <div className="flex items-center gap-3 bg-white/10 rounded-xl p-3">
             <Bell className="w-5 h-5 text-white" />
             <div>
-              <p className="text-sm text-blue-100">Notifications</p>
+              <p className="text-sm text-white/70">Notifications</p>
               <p className="text-lg font-semibold">Temps réel</p>
             </div>
           </div>
           <div className="flex items-center gap-3 bg-white/10 rounded-xl p-3">
             <Users className="w-5 h-5 text-white" />
             <div>
-              <p className="text-sm text-blue-100">Répertoire</p>
+              <p className="text-sm text-white/70">Répertoire</p>
               <p className="text-lg font-semibold">Unifié</p>
             </div>
           </div>
           <div className="flex items-center gap-3 bg-white/10 rounded-xl p-3">
             <Megaphone className="w-5 h-5 text-white" />
             <div>
-              <p className="text-sm text-blue-100">Annonces</p>
+              <p className="text-sm text-white/70">Annonces</p>
               <p className="text-lg font-semibold">Ciblées</p>
             </div>
           </div>

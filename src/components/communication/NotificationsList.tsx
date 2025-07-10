@@ -42,9 +42,9 @@ export function NotificationsList() {
 
   const getColor = (type: string) => {
     switch (type) {
-      case 'info': return 'text-[#4F78FF]';
-      case 'warning': return 'text-[#F59E0B]';
-      case 'success': return 'text-[#10B981]';
+      case 'info': return 'text-primary';
+      case 'warning': return 'text-yellow-500';
+      case 'success': return 'text-green-500';
       default: return 'text-muted-foreground';
     }
   };
@@ -56,7 +56,7 @@ export function NotificationsList() {
         const iconColor = getColor(notification.type);
         
         return (
-          <Card key={notification.id} className={`hover:shadow-md transition-all ${!notification.isRead ? 'border-l-4 border-l-[#4F78FF]' : ''}`}>
+          <Card key={notification.id} className={`hover:shadow-md transition-all ${!notification.isRead ? 'border-l-4 border-l-primary' : ''}`}>
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
                 <div className={`w-8 h-8 rounded-full bg-muted flex items-center justify-center mt-1`}>

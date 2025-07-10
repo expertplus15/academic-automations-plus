@@ -19,7 +19,7 @@ export function CommunicationModuleCards() {
       actions: [
         { 
           label: "Nouveau message", 
-          onClick: () => navigate('/communication/messaging/new'),
+          onClick: () => navigate('/communication/messaging'),
           variant: "default" as const
         },
         { 
@@ -41,7 +41,7 @@ export function CommunicationModuleCards() {
       actions: [
         { 
           label: "Créer notification", 
-          onClick: () => navigate('/communication/notifications/new'),
+          onClick: () => navigate('/communication/notifications'),
           variant: "default" as const
         },
         { 
@@ -85,7 +85,7 @@ export function CommunicationModuleCards() {
       actions: [
         { 
           label: "Nouvelle annonce", 
-          onClick: () => navigate('/communication/announcements/new'),
+          onClick: () => navigate('/communication/announcements'),
           variant: "default" as const
         },
         { 
