@@ -1,12 +1,8 @@
-import { ServicesPageHeader } from "@/components/ServicesPageHeader";
+import { ServicesModuleLayout } from "@/components/layouts/ServicesModuleLayout";
 
 export default function Transport() {
   return (
-    <div className="min-h-screen bg-background">
-      <ServicesPageHeader 
-        title="Transport scolaire" 
-        subtitle="Lignes & réservations" 
-      />
+    <ServicesModuleLayout title="Transport scolaire" subtitle="Lignes & réservations">
       <div className="p-6">
         <div className="max-w-6xl mx-auto">
           <div className="bg-card rounded-lg border p-6">
@@ -17,6 +13,6 @@ export default function Transport() {
           </div>
         </div>
       </div>
-    </div>
+    </ServicesModuleLayout>
   );
 }
