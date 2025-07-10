@@ -215,6 +215,54 @@ export type Database = {
         }
         Relationships: []
       }
+      accessibility_accommodations: {
+        Row: {
+          accommodation_type: string
+          approval_date: string | null
+          approved_by: string | null
+          created_at: string
+          description: string
+          end_date: string | null
+          id: string
+          medical_justification: string | null
+          notes: string | null
+          start_date: string
+          status: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          accommodation_type: string
+          approval_date?: string | null
+          approved_by?: string | null
+          created_at?: string
+          description: string
+          end_date?: string | null
+          id?: string
+          medical_justification?: string | null
+          notes?: string | null
+          start_date: string
+          status?: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          accommodation_type?: string
+          approval_date?: string | null
+          approved_by?: string | null
+          created_at?: string
+          description?: string
+          end_date?: string | null
+          id?: string
+          medical_justification?: string | null
+          notes?: string | null
+          start_date?: string
+          status?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       accommodation_assignments: {
         Row: {
           created_at: string | null
@@ -1377,6 +1425,135 @@ export type Database = {
         }
         Relationships: []
       }
+      career_appointments: {
+        Row: {
+          appointment_date: string
+          appointment_type: string
+          counselor_id: string | null
+          created_at: string
+          duration_minutes: number
+          feedback: string | null
+          id: string
+          notes: string | null
+          status: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          appointment_date: string
+          appointment_type?: string
+          counselor_id?: string | null
+          created_at?: string
+          duration_minutes?: number
+          feedback?: string | null
+          id?: string
+          notes?: string | null
+          status?: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          appointment_date?: string
+          appointment_type?: string
+          counselor_id?: string | null
+          created_at?: string
+          duration_minutes?: number
+          feedback?: string | null
+          id?: string
+          notes?: string | null
+          status?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      career_resources: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          download_count: number | null
+          external_url: string | null
+          file_url: string | null
+          id: string
+          is_public: boolean
+          resource_type: string
+          tags: Json | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          download_count?: number | null
+          external_url?: string | null
+          file_url?: string | null
+          id?: string
+          is_public?: boolean
+          resource_type?: string
+          tags?: Json | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          download_count?: number | null
+          external_url?: string | null
+          file_url?: string | null
+          id?: string
+          is_public?: boolean
+          resource_type?: string
+          tags?: Json | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      career_tests: {
+        Row: {
+          completion_date: string | null
+          created_at: string
+          id: string
+          is_completed: boolean
+          recommendations: string | null
+          results: Json | null
+          score: number | null
+          student_id: string
+          test_data: Json
+          test_type: string
+        }
+        Insert: {
+          completion_date?: string | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          recommendations?: string | null
+          results?: Json | null
+          score?: number | null
+          student_id: string
+          test_data?: Json
+          test_type: string
+        }
+        Update: {
+          completion_date?: string | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          recommendations?: string | null
+          results?: Json | null
+          score?: number | null
+          student_id?: string
+          test_data?: Json
+          test_type?: string
+        }
+        Relationships: []
+      }
       catering_balances: {
         Row: {
           balance: number | null
@@ -2118,6 +2295,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      emergency_contacts: {
+        Row: {
+          address: string | null
+          contact_name: string
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean
+          phone_primary: string
+          phone_secondary: string | null
+          priority_order: number
+          relationship: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          contact_name: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          phone_primary: string
+          phone_secondary?: string | null
+          priority_order?: number
+          relationship: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          contact_name?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          phone_primary?: string
+          phone_secondary?: string | null
+          priority_order?: number
+          relationship?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       evaluation_types: {
         Row: {
@@ -3067,6 +3289,51 @@ export type Database = {
           },
         ]
       }
+      health_alerts: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          alert_type: string
+          created_at: string
+          id: string
+          is_active: boolean
+          message: string
+          severity: string
+          student_id: string
+          title: string
+          trigger_condition: Json | null
+          updated_at: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          alert_type: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          message: string
+          severity?: string
+          student_id: string
+          title: string
+          trigger_condition?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          alert_type?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          message?: string
+          severity?: string
+          student_id?: string
+          title?: string
+          trigger_condition?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       health_appointments: {
         Row: {
           appointment_date: string
@@ -3116,6 +3383,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      health_medications: {
+        Row: {
+          created_at: string
+          dosage: string
+          end_date: string | null
+          frequency: string
+          id: string
+          instructions: string | null
+          is_active: boolean
+          medication_name: string
+          prescribed_by: string | null
+          side_effects: string | null
+          start_date: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          dosage: string
+          end_date?: string | null
+          frequency: string
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          medication_name: string
+          prescribed_by?: string | null
+          side_effects?: string | null
+          start_date: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          dosage?: string
+          end_date?: string | null
+          frequency?: string
+          id?: string
+          instructions?: string | null
+          is_active?: boolean
+          medication_name?: string
+          prescribed_by?: string | null
+          side_effects?: string | null
+          start_date?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       health_records: {
         Row: {
@@ -3372,6 +3687,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      job_offers: {
+        Row: {
+          application_deadline: string | null
+          company_name: string
+          contact_email: string | null
+          contact_phone: string | null
+          contract_type: string
+          created_at: string
+          description: string
+          id: string
+          is_published: boolean
+          job_title: string
+          job_type: string
+          location: string | null
+          posted_by: string | null
+          requirements: Json | null
+          salary_range: string | null
+          updated_at: string
+        }
+        Insert: {
+          application_deadline?: string | null
+          company_name: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          contract_type?: string
+          created_at?: string
+          description: string
+          id?: string
+          is_published?: boolean
+          job_title: string
+          job_type?: string
+          location?: string | null
+          posted_by?: string | null
+          requirements?: Json | null
+          salary_range?: string | null
+          updated_at?: string
+        }
+        Update: {
+          application_deadline?: string | null
+          company_name?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          contract_type?: string
+          created_at?: string
+          description?: string
+          id?: string
+          is_published?: boolean
+          job_title?: string
+          job_type?: string
+          location?: string | null
+          posted_by?: string | null
+          requirements?: Json | null
+          salary_range?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       lesson_progress: {
         Row: {
