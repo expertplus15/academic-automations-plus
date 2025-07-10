@@ -46,19 +46,74 @@ export function useDocumentTemplates() {
   const fetchTemplates = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('document_templates')
-        .select('*')
-        .eq('is_active', true)
-        .order('name');
+      const { data, error } = await supabase.functions.invoke('get-document-templates');
 
       if (error) {
         setError(error.message);
       } else {
-        setTemplates(data as DocumentTemplate[] || []);
+        setTemplates(data || []);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createTemplate = async (templateData: Omit<DocumentTemplate, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.functions.invoke('create-document-template', {
+        body: templateData
+      });
+
+      if (error) throw error;
+      
+      await fetchTemplates(); // Refresh list
+      return data;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la création';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateTemplate = async (id: string, updates: Partial<DocumentTemplate>) => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.functions.invoke('update-document-template', {
+        body: { id, ...updates }
+      });
+
+      if (error) throw error;
+      
+      await fetchTemplates(); // Refresh list
+      return data;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la mise à jour';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteTemplate = async (id: string) => {
+    try {
+      setLoading(true);
+      const { error } = await supabase.functions.invoke('delete-document-template', {
+        body: { id }
+      });
+
+      if (error) throw error;
+      
+      await fetchTemplates(); // Refresh list
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la suppression';
+      setError(errorMessage);
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -68,7 +123,15 @@ export function useDocumentTemplates() {
     fetchTemplates();
   }, []);
 
-  return { templates, loading, error, refetch: fetchTemplates };
+  return { 
+    templates, 
+    loading, 
+    error, 
+    refetch: fetchTemplates,
+    createTemplate,
+    updateTemplate,
+    deleteTemplate
+  };
 }
 
 export function useDocumentRequests() {
