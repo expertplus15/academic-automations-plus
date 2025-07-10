@@ -1,8 +1,7 @@
 import React from 'react';
-import { ModuleLayout } from '@/components/layouts/ModuleLayout';
+import { CommunicationModuleLayout } from '@/components/layouts/CommunicationModuleLayout';
 import { ContactsList } from '@/components/communication/ContactsList';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { CommunicationHeader } from '@/components/communication/CommunicationHeader';
 import { Users, UserPlus } from 'lucide-react';
 
 export default function Directory() {
@@ -17,15 +16,16 @@ export default function Directory() {
 
   return (
     <ProtectedRoute allowedRoles={['admin', 'teacher', 'hr', 'student']}>
-      <ModuleLayout 
+      <CommunicationModuleLayout 
         showHeader={true}
         title="Répertoire"
         subtitle="Contacts étudiants, enseignants et personnel"
+        actions={headerActions}
       >
         <div className="p-6">
           <ContactsList />
         </div>
-      </ModuleLayout>
+      </CommunicationModuleLayout>
     </ProtectedRoute>
   );
 }

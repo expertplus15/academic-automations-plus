@@ -1,19 +1,30 @@
 import React, { Suspense } from 'react';
-import { ModuleLayout } from '@/components/layouts/ModuleLayout';
+import { CommunicationModuleLayout } from '@/components/layouts/CommunicationModuleLayout';
 import { MessagesList } from '@/components/communication/MessagesList';
 import { ChatWindow } from '@/components/communication/ChatWindow';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { CommunicationProvider } from '@/contexts/CommunicationContext';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { Plus } from 'lucide-react';
 
 export default function Messaging() {
+  const headerActions = [
+    {
+      label: "Nouveau message",
+      icon: Plus,
+      onClick: () => {},
+      variant: 'default' as const
+    }
+  ];
+
   return (
     <ProtectedRoute allowedRoles={['admin', 'teacher', 'hr', 'student']}>
       <CommunicationProvider>
-        <ModuleLayout 
+        <CommunicationModuleLayout 
           showHeader={true}
           title="Messagerie"
           subtitle="Chat en temps réel et messages privés"
+          actions={headerActions}
         >
           <Suspense fallback={
             <div className="flex items-center justify-center min-h-[400px]">
@@ -29,7 +40,7 @@ export default function Messaging() {
               </div>
             </div>
           </Suspense>
-        </ModuleLayout>
+        </CommunicationModuleLayout>
       </CommunicationProvider>
     </ProtectedRoute>
   );

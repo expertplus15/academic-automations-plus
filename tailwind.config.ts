@@ -68,6 +68,7 @@ export default {
 				exams: 'rgb(var(--exams))',
 				results: 'rgb(var(--results))',
 				finance: 'rgb(var(--finance))',
+				communication: 'rgb(var(--communication))',
 				elearning: 'rgb(var(--elearning))',
 				hr: 'rgb(var(--hr))',
 				resources: 'rgb(var(--resources))',
