@@ -17,7 +17,7 @@ import {
   CheckCircle,
   Plus
 } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 export function ServicesDashboard() {

@@ -17,7 +17,7 @@ import {
   FileText
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 const systemStats = [

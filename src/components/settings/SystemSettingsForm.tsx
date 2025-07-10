@@ -10,7 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { systemSettingsSchema, type SystemSettingsData } from '@/lib/validations';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Settings, Save, Building, Globe, Calendar, GraduationCap } from 'lucide-react';
 

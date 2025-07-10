@@ -10,7 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { studentFormSchema, type StudentFormData } from '@/lib/validations';
 import { Student, CreateStudentData, UpdateStudentData } from '@/hooks/students/useStudentsData';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 interface StudentFormProps {

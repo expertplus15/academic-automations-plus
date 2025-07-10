@@ -1,10 +1,19 @@
-import React, { memo } from 'react';
+import React, { memo, Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Megaphone, Calendar, Eye, Edit } from 'lucide-react';
+import { AnnouncementsSkeleton } from './CommunicationSkeleton';
 
 export const AnnouncementsList = memo(function AnnouncementsList() {
+  return (
+    <Suspense fallback={<AnnouncementsSkeleton />}>
+      <AnnouncementsListContent />
+    </Suspense>
+  );
+});
+
+const AnnouncementsListContent = memo(function AnnouncementsListContent() {
   const announcements = [
     {
       id: 1,

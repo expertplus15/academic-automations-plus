@@ -22,10 +22,18 @@ interface AuthContextType {
   profile: UserProfile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, fullName: string, role?: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, userData?: { full_name?: string; role?: string }) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   updateProfile: (updates: any) => Promise<{ error: any }>;
+  hasRole: (role: string | string[]) => boolean;
+  canAccess: (requiredRole: 'admin' | 'teacher' | 'student' | 'hr' | 'finance') => boolean;
+  isAuthenticated: boolean;
+  isAdmin: boolean;
+  isTeacher: boolean;
+  isStudent: boolean;
+  isHR: boolean;
+  isFinance: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -142,7 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error };
   };
 
-  const signUp = async (email: string, password: string, fullName: string, role = 'student') => {
+  const signUp = async (email: string, password: string, userData: { full_name?: string; role?: string } = {}) => {
     setLoading(true);
     const redirectUrl = `${window.location.origin}/`;
     
@@ -152,8 +160,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       options: {
         emailRedirectTo: redirectUrl,
         data: {
-          full_name: fullName,
-          role: role
+          full_name: userData.full_name || '',
+          role: userData.role || 'student'
         }
       }
     });
@@ -191,6 +199,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error };
   };
 
+  const hasRole = (role: string | string[]) => {
+    if (!profile) return false;
+    const roles = Array.isArray(role) ? role : [role];
+    return roles.includes(profile.role);
+  };
+
+  const canAccess = (requiredRole: 'admin' | 'teacher' | 'student' | 'hr' | 'finance') => {
+    if (!profile) return false;
+    
+    const roleHierarchy = {
+      admin: ['admin'],
+      hr: ['admin', 'hr'],
+      finance: ['admin', 'finance'],
+      teacher: ['admin', 'teacher'],
+      student: ['admin', 'teacher', 'student']
+    };
+    
+    return roleHierarchy[requiredRole].includes(profile.role);
+  };
+
   const value = {
     user,
     session,
@@ -201,6 +229,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signOut,
     resetPassword,
     updateProfile,
+    hasRole,
+    canAccess,
+    isAuthenticated: !!user,
+    isAdmin: profile?.role === 'admin',
+    isTeacher: profile?.role === 'teacher',
+    isStudent: profile?.role === 'student',
+    isHR: profile?.role === 'hr',
+    isFinance: profile?.role === 'finance'
   };
 
   return (

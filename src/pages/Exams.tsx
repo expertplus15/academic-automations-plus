@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 import { useExamsData } from '@/hooks/useExamsData';
 import { useExamOptimization } from '@/hooks/useExamOptimization';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 

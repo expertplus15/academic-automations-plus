@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useTeacherProfiles } from '@/hooks/hr/useTeacherProfiles';
 import { useTeacherContracts } from '@/hooks/hr/useTeacherContracts';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 

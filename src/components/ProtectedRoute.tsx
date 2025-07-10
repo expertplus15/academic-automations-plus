@@ -1,14 +1,14 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, memo } from 'react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   allowedRoles?: ('admin' | 'teacher' | 'student' | 'hr' | 'finance')[];
 }
 
-export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
+export const ProtectedRoute = memo(function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -77,6 +77,6 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   }
 
   return <>{children}</>;
-}
+});
 
 export default ProtectedRoute;

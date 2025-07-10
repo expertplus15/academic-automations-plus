@@ -5,7 +5,7 @@ import { FinanceModuleSidebar } from '@/components/FinanceModuleSidebar';
 import { FinancePageHeader } from '@/components/FinancePageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useFinanceData } from '@/hooks/useFinanceData';
 import { useFinanceStats } from '@/hooks/useFinanceStats';
