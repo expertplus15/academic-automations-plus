@@ -23,13 +23,7 @@ import {
   ArrowLeft,
   User,
   BarChart3,
-  Globe,
-  Shield,
-  Activity,
-  Stethoscope,
-  Pill,
-  AlertTriangle,
-  FileText
+  Stethoscope
 } from "lucide-react";
 
 const servicesItems = [
@@ -38,13 +32,8 @@ const servicesItems = [
   { title: "Hébergement", url: "/services/accommodation", icon: Home },
   { title: "Bibliothèque", url: "/services/library", icon: BookOpen },
   { title: "Activités extra-scolaires", url: "/services/activities", icon: Heart },
-  { title: "Orientation", url: "/services/orientation", icon: MapPin },
-  { title: "Job board", url: "/services/careers", icon: Globe },
-  { title: "Dossiers médicaux", url: "/services/health/records", icon: FileText },
-  { title: "Suivi santé", url: "/services/health/appointments", icon: Stethoscope },
-  { title: "Médicaments", url: "/services/health/medications", icon: Pill },
-  { title: "Services d'urgence", url: "/services/health/emergency", icon: AlertTriangle },
-  { title: "Accessibilité", url: "/services/health/accessibility", icon: Activity }
+  { title: "Orientation & Carrière", url: "/services/orientation-careers", icon: MapPin },
+  { title: "Santé & Bien-être", url: "/services/health", icon: Stethoscope }
 ];
 
 export function ServicesModuleSidebar() {

@@ -170,15 +170,8 @@ import Catering from '@/pages/services/Catering';
 import Accommodation from '@/pages/services/Accommodation';
 import Library from '@/pages/services/Library';
 import Activities from '@/pages/services/Activities';
-import Orientation from '@/pages/services/Orientation';
-import Careers from '@/pages/services/Careers';
-
-// Services health pages
-import ServicesHealthRecords from '@/pages/services/health/Records';
-import ServicesHealthAppointments from '@/pages/services/health/Appointments';
-import ServicesHealthMedications from '@/pages/services/health/Medications';
-import ServicesHealthEmergency from '@/pages/services/health/Emergency';
-import ServicesHealthAccessibility from '@/pages/services/health/Accessibility';
+import OrientationCareers from '@/pages/services/OrientationCareers';
+import Health from '@/pages/services/Health';
 
 export function ModuleRoutes() {
   return (
@@ -381,15 +374,8 @@ export function ModuleRoutes() {
       <Route path="/services/accommodation" element={<Accommodation />} />
       <Route path="/services/library" element={<Library />} />
       <Route path="/services/activities" element={<Activities />} />
-      <Route path="/services/orientation" element={<Orientation />} />
-      <Route path="/services/careers" element={<Careers />} />
-
-      {/* Services Health Routes */}
-      <Route path="/services/health/records" element={<ServicesHealthRecords />} />
-      <Route path="/services/health/appointments" element={<ServicesHealthAppointments />} />
-      <Route path="/services/health/medications" element={<ServicesHealthMedications />} />
-      <Route path="/services/health/emergency" element={<ServicesHealthEmergency />} />
-      <Route path="/services/health/accessibility" element={<ServicesHealthAccessibility />} />
+      <Route path="/services/orientation-careers" element={<OrientationCareers />} />
+      <Route path="/services/health" element={<Health />} />
     </Routes>
   );
 }
