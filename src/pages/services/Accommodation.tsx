@@ -1,12 +1,8 @@
-import { ServicesPageHeader } from "@/components/ServicesPageHeader";
+import { ServicesModuleLayout } from "@/components/layouts/ServicesModuleLayout";
 
 export default function Accommodation() {
   return (
-    <div className="min-h-screen bg-background">
-      <ServicesPageHeader 
-        title="Hébergement" 
-        subtitle="Internat et dortoirs" 
-      />
+    <ServicesModuleLayout title="Hébergement" subtitle="Internat et dortoirs">
       <div className="p-6">
         <div className="max-w-6xl mx-auto">
           <div className="bg-card rounded-lg border p-6">
@@ -17,6 +13,6 @@ export default function Accommodation() {
           </div>
         </div>
       </div>
-    </div>
+    </ServicesModuleLayout>
   );
 }
