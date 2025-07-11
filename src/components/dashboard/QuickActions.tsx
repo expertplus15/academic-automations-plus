@@ -16,7 +16,7 @@ export function QuickActions() {
       description: "Saisir et consulter les notes",
       icon: GraduationCap,
       stats: "234 notes à saisir",
-      color: "bg-[#4F78FF]",
+      color: "bg-academic",
       href: "/academic/grades"
     },
     {
@@ -24,7 +24,7 @@ export function QuickActions() {
       description: "Emplois du temps et horaires",
       icon: Calendar,
       stats: "5 conflits détectés",
-      color: "bg-[#8B5CF6]",
+      color: "bg-exams",
       href: "/academic/timetables"
     },
     {
@@ -32,7 +32,7 @@ export function QuickActions() {
       description: "Inscriptions et profils",
       icon: Users,
       stats: "12 nouvelles demandes",
-      color: "bg-[#10B981]",
+      color: "bg-students",
       href: "/students"
     },
     {
@@ -40,7 +40,7 @@ export function QuickActions() {
       description: "Génération des bulletins",
       icon: FileText,
       stats: "45 bulletins prêts",
-      color: "bg-[#F59E0B]",
+      color: "bg-finance",
       href: "/results/transcripts"
     }
   ];
@@ -51,7 +51,7 @@ export function QuickActions() {
         <h2 className="text-2xl font-semibold text-foreground">Actions Académiques Rapides</h2>
         <Button 
           variant="ghost" 
-          className="text-[#64748B] hover:text-foreground hover:bg-white/20 rounded-xl"
+          className="text-muted-foreground hover:text-foreground hover:bg-white/20 rounded-xl"
         >
           Module Principal →
         </Button>
@@ -68,18 +68,18 @@ export function QuickActions() {
                 <div className={`p-3 rounded-xl ${action.color} shadow-sm`}>
                   <action.icon className="w-6 h-6 text-white" />
                 </div>
-                <ArrowRight className="w-5 h-5 text-[#64748B] group-hover:text-[#4F78FF] transition-colors" />
+                <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-academic transition-colors" />
               </div>
               
               <h3 className="text-foreground font-semibold mb-2">{action.title}</h3>
-              <p className="text-[#64748B] text-sm mb-3">{action.description}</p>
+              <p className="text-muted-foreground text-sm mb-3">{action.description}</p>
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-2 h-2 rounded-full bg-[#10B981]"></div>
-                <p className="text-[#64748B] text-xs">{action.stats}</p>
+                <div className="w-2 h-2 rounded-full bg-students"></div>
+                <p className="text-muted-foreground text-xs">{action.stats}</p>
               </div>
               
               <Button 
-                className="w-full bg-[#1F2937] hover:bg-[#1F2937]/90 text-white rounded-xl font-semibold py-2.5 transition-all duration-200"
+                className="w-full bg-foreground hover:bg-foreground/90 text-background rounded-xl font-semibold py-2.5 transition-all duration-200"
               >
                 Accéder
               </Button>

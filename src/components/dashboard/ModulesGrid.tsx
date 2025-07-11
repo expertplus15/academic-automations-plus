@@ -65,84 +65,84 @@ export function ModulesGrid() {
       title: "Académique & Pédagogie",
       subtitle: "Programmes, emplois du temps IA",
       icon: GraduationCap,
-      color: "bg-[#4F78FF]",
+      color: "bg-academic",
       onClick: () => navigate('/academic')
     },
     {
       title: "Gestion Étudiants",
       subtitle: "Inscription < 30s, suivi temps réel",
       icon: Users,
-      color: "bg-[#10B981]",
+      color: "bg-students",
       onClick: () => navigate('/students')
     },
     {
       title: "Examens & Organisation",
       subtitle: "Planification IA anti-conflits",
       icon: Calendar,
-      color: "bg-[#EF4444]",
+      color: "bg-exams",
       onClick: () => navigate('/exams')
     },
     {
       title: "Évaluations & Résultats",
       subtitle: "Bulletins < 5s, interface matricielle",
       icon: BarChart3,
-      color: "bg-[#8B5CF6]",
+      color: "bg-results",
       onClick: () => navigate('/results')
     },
     {
       title: "Finance & Comptabilité",
       subtitle: "Facturation instantanée",
       icon: DollarSign,
-      color: "bg-[#F59E0B]",
+      color: "bg-finance",
       onClick: () => navigate('/finance')
     },
     {
       title: "eLearning Numérique",
       subtitle: "SCORM/xAPI, authoring no-code",
       icon: BookOpen,
-      color: "bg-[#4F78FF]",
+      color: "bg-elearning",
       onClick: () => navigate('/elearning')
     },
     {
       title: "Ressources Humaines",
       subtitle: "Référentiel maître enseignants",
       icon: UserCheck,
-      color: "bg-[#8B5CF6]",
+      color: "bg-hr",
       onClick: () => navigate('/hr')
     },
     {
       title: "Ressources & Patrimoine",
       subtitle: "QR codes, maintenance prédictive",
       icon: Package,
-      color: "bg-[#F59E0B]",
+      color: "bg-resources",
       onClick: () => navigate('/resources')
     },
     {
       title: "Communication",
       subtitle: "Messages, notifications, répertoire",
       icon: MessageSquare,
-      color: "bg-[#4F78FF]",
+      color: "bg-communication",
       onClick: () => navigate('/communication')
     },
     {
       title: "Paramètres & Config",
       subtitle: "Centre de contrôle plateforme",
       icon: Settings,
-      color: "bg-[#64748B]",
+      color: "bg-settings",
       onClick: () => navigate('/settings')
     },
     {
       title: "Services aux Étudiants",
       subtitle: "Transport, restauration, santé",
       icon: Heart,
-      color: "bg-[#10B981]",
+      color: "bg-services",
       onClick: () => navigate('/services')
     },
     {
       title: "Gestion Documentaire",
       subtitle: "Templates, archives, signatures",
       icon: FileText,
-      color: "bg-[#4F78FF]",
+      color: "bg-academic",
       onClick: () => navigate('/documents')
     }
   ];
@@ -178,7 +178,7 @@ export function ModulesGrid() {
             </div>
             
             {/* Titre */}
-            <h3 className="text-foreground font-semibold text-sm text-center group-hover:text-[#4F78FF] transition-colors mb-1">
+            <h3 className="text-foreground font-semibold text-sm text-center group-hover:text-academic transition-colors mb-1">
               {module.title}
             </h3>
             

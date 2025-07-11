@@ -10,14 +10,14 @@ import { EnhancedTestsPanel } from '@/components/debug/EnhancedTestsPanel';
 export default function Dashboard() {
   return (
     <MainDashboardLayout>
-      <div className="min-h-screen bg-[#F8FAFC] p-6">
+      <div className="min-h-screen bg-background p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header avec salutation et cartes de statut */}
           <WelcomeHeader />
           
           {/* Modules de gestion */}
           <div className="space-y-6">
-            <h2 className="text-2xl font-semibold text-white">Modules de Gestion</h2>
+            <h2 className="text-2xl font-semibold text-foreground">Modules de Gestion</h2>
             <ModulesGrid />
           </div>
           
