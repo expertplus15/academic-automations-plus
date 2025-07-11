@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ResultsPageHeader } from "@/components/ResultsPageHeader";
+import { ModuleLayout } from "@/components/layouts/ModuleLayout";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -239,12 +240,11 @@ export default function Transcripts() {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      <ResultsPageHeader 
-        title="Relevés standards" 
-        subtitle="Standards académiques officiels"
-      />
-      
+    <ModuleLayout 
+      title="Relevés standards" 
+      subtitle="Standards académiques officiels"
+      showHeader={true}
+    >
       <div className="p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           
@@ -560,6 +560,6 @@ export default function Transcripts() {
           </Tabs>
         </div>
       </div>
-    </div>
+    </ModuleLayout>
   );
 }
