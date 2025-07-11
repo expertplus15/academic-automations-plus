@@ -8,6 +8,11 @@ import { SignatureManager } from "@/components/documents/SignatureManager";
 import { DocumentGenerator } from "@/components/documents/DocumentGenerator";
 import { DocumentSearch } from "@/components/documents/DocumentSearch";
 import { TemplateManager } from "@/components/documents/TemplateManager";
+import { DocumentArchives } from "@/components/documents/DocumentArchives";
+import { DocumentValidation } from "@/components/documents/DocumentValidation";
+import { DocumentDistribution } from "@/components/documents/DocumentDistribution";
+import { DocumentNotifications } from "@/components/documents/DocumentNotifications";
+import { DocumentSettings } from "@/components/documents/DocumentSettings";
 
 export default function Documents() {
   const location = useLocation();
@@ -26,6 +31,21 @@ export default function Documents() {
     }
     if (path === '/documents/templates') {
       return <TemplateManager />;
+    }
+    if (path === '/documents/archives') {
+      return <DocumentArchives />;
+    }
+    if (path === '/documents/validation') {
+      return <DocumentValidation />;
+    }
+    if (path === '/documents/distribution') {
+      return <DocumentDistribution />;
+    }
+    if (path === '/documents/notifications') {
+      return <DocumentNotifications />;
+    }
+    if (path === '/documents/settings') {
+      return <DocumentSettings />;
     }
     
     // Default to dashboard for /documents
