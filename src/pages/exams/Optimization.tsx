@@ -22,6 +22,8 @@ import {
   Cpu
 } from 'lucide-react';
 import { useExamOptimization } from '@/hooks/useExamOptimization';
+import { useExamConflictDetection } from '@/hooks/useExamConflictDetection';
+import { ExamConflictResolver } from '@/components/exams/ExamConflictResolver';
 import { useToast } from '@/hooks/use-toast';
 
 export default function ExamsOptimization() {
@@ -34,6 +36,15 @@ export default function ExamsOptimization() {
     getOptimizationMetrics, 
     getRecentOptimizations 
   } = useExamOptimization();
+  
+  const {
+    conflicts,
+    loading: conflictsLoading,
+    error: conflictsError,
+    detectConflicts,
+    resolveConflict
+  } = useExamConflictDetection();
+  
   const { toast } = useToast();
 
   const optimizationMetrics = getOptimizationMetrics();
@@ -41,19 +52,51 @@ export default function ExamsOptimization() {
 
   const handleOptimization = async () => {
     try {
-      // Pour l'exemple, on utilise un ID d'année académique fixe
-      // En production, cela viendrait du contexte/sélection utilisateur
       const academicYearId = "current"; 
       await runOptimization(academicYearId);
+      // Redétecter les conflits après optimisation
+      await detectConflicts(academicYearId);
       
       toast({
-        title: "Optimisation lancée",
-        description: "L'algorithme IA optimise votre planning...",
+        title: "Optimisation terminée",
+        description: "Le planning a été optimisé et les conflits détectés.",
       });
     } catch (error) {
       toast({
         title: "Erreur d'optimisation",
         description: "Une erreur est survenue lors de l'optimisation.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleResolveConflict = async (conflictId: string, resolution: string) => {
+    try {
+      await resolveConflict(conflictId, resolution);
+      toast({
+        title: "Conflit résolu",
+        description: `Le conflit a été résolu avec la méthode: ${resolution}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur de résolution",
+        description: "Une erreur est survenue lors de la résolution du conflit.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDetectConflicts = async () => {
+    try {
+      await detectConflicts("current");
+      toast({
+        title: "Analyse terminée",
+        description: `${conflicts.length} conflit(s) détecté(s).`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur d'analyse",
+        description: "Une erreur est survenue lors de l'analyse des conflits.",
         variant: "destructive",
       });
     }
@@ -138,13 +181,27 @@ export default function ExamsOptimization() {
           </Button>
         </div>
 
-        {/* Message d'erreur */}
+        {/* Messages d'erreur */}
         {error && (
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
+        {conflictsError && (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>Erreur de détection: {conflictsError}</AlertDescription>
+          </Alert>
+        )}
+
+        {/* Résolveur de conflits */}
+        <ExamConflictResolver
+          conflicts={conflicts}
+          loading={conflictsLoading}
+          onResolveConflict={handleResolveConflict}
+          onDetectConflicts={handleDetectConflicts}
+        />
 
         {/* Métriques de performance */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -171,12 +228,22 @@ export default function ExamsOptimization() {
           ))}
         </div>
 
-        <Tabs defaultValue="algorithms" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+        <Tabs defaultValue="conflicts" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="conflicts">Conflits</TabsTrigger>
             <TabsTrigger value="algorithms">Algorithmes</TabsTrigger>
             <TabsTrigger value="history">Historique</TabsTrigger>
             <TabsTrigger value="settings">Configuration</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="conflicts" className="space-y-6">
+            <ExamConflictResolver
+              conflicts={conflicts}
+              loading={conflictsLoading}
+              onResolveConflict={handleResolveConflict}
+              onDetectConflicts={handleDetectConflicts}
+            />
+          </TabsContent>
 
           <TabsContent value="algorithms" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

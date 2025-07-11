@@ -23,12 +23,24 @@ import {
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useExamsData } from '@/hooks/useExamsData';
+import { useExamConflictDetection } from '@/hooks/useExamConflictDetection';
 import { ConflictsList } from '@/components/exams/ConflictsList';
 import { formatConflictMessage } from '@/utils/pluralization';
 import { StatusBadge } from '@/components/ui/status-badge';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+import { useEffect } from 'react';
 
 export default function ExamsDashboard() {
-  const { stats, loading, error, refreshStats, conflicts } = useExamsData();
+  const { stats, loading, error, refreshStats } = useExamsData();
+  const { conflicts, detectConflicts } = useExamConflictDetection();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  // Détecter les conflits au chargement
+  useEffect(() => {
+    detectConflicts("current");
+  }, [detectConflicts]);
 
   const examStats = [
     {
@@ -41,12 +53,12 @@ export default function ExamsDashboard() {
       color: "violet"
     },
     {
-      label: formatConflictMessage(stats.conflictsCount),
-      value: stats.conflictsCount.toString(),
-      change: stats.conflictsCount === 0 ? "Aucun" : "-85%",
-      changeType: stats.conflictsCount === 0 ? "positive" : "negative" as const,
+      label: formatConflictMessage(conflicts.length),
+      value: conflicts.length.toString(),
+      change: conflicts.length === 0 ? "Aucun" : "-85%",
+      changeType: conflicts.length === 0 ? "positive" : "negative" as const,
       icon: AlertTriangle,
-      trend: [20, 15, 8, 5, stats.conflictsCount],
+      trend: [20, 15, 8, 5, conflicts.length],
       color: "orange"
     },
     {
@@ -156,21 +168,41 @@ export default function ExamsDashboard() {
         {/* Actions rapides */}
         <div className="flex flex-wrap gap-4 justify-between items-center">
           <div className="flex gap-3">
-            <Button className="bg-violet-600 hover:bg-violet-700">
+            <Button 
+              className="bg-violet-600 hover:bg-violet-700"
+              onClick={() => navigate('/exams/optimization')}
+            >
               <Bot className="w-4 h-4 mr-2" />
               Planification IA
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => navigate('/exams/create')}>
               <Calendar className="w-4 h-4 mr-2" />
               Nouvel examen
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => navigate('/exams/analytics')}>
               <BarChart3 className="w-4 h-4 mr-2" />
               Analytics
             </Button>
+            {conflicts.length > 0 && (
+              <Button 
+                variant="destructive" 
+                onClick={() => navigate('/exams/optimization')}
+                className="animate-pulse"
+              >
+                <AlertTriangle className="w-4 h-4 mr-2" />
+                Résoudre {conflicts.length} conflit(s)
+              </Button>
+            )}
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={refreshStats} disabled={loading}>
+            <Button 
+              variant="outline" 
+              onClick={async () => {
+                await refreshStats();
+                await detectConflicts("current");
+              }} 
+              disabled={loading}
+            >
               <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               {loading ? 'Actualisation...' : 'Actualiser'}
             </Button>
