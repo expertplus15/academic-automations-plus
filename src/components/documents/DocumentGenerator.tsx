@@ -136,11 +136,11 @@ export function DocumentGenerator() {
                       <SelectValue placeholder="Sélectionner un modèle" />
                     </SelectTrigger>
                     <SelectContent>
-                      {templates.map((template) => (
+                      {Array.isArray(templates) ? templates.map((template) => (
                         <SelectItem key={template.id} value={template.id}>
                           {template.name}
                         </SelectItem>
-                      ))}
+                      )) : null}
                     </SelectContent>
                   </Select>
                 </div>
@@ -202,11 +202,11 @@ export function DocumentGenerator() {
                     <SelectValue placeholder="Sélectionner un modèle" />
                   </SelectTrigger>
                   <SelectContent>
-                    {templates.map((template) => (
+                    {Array.isArray(templates) ? templates.map((template) => (
                       <SelectItem key={template.id} value={template.id}>
                         {template.name}
                       </SelectItem>
-                    ))}
+                    )) : null}
                   </SelectContent>
                 </Select>
               </div>
