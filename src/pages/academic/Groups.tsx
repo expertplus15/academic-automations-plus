@@ -3,74 +3,80 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AcademicModuleLayout } from '@/components/layouts/AcademicModuleLayout';
 import { GroupsList } from '@/components/academic/GroupsList';
 import { GroupForm } from '@/components/academic/GroupForm';
+import { useClassGroups } from '@/hooks/useSupabase';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { useClassGroups } from '@/hooks/useClassGroups';
 
 export default function Groups() {
-  const [editingGroup, setEditingGroup] = useState<any>(null);
-  const [showForm, setShowForm] = useState(false);
   const { data: groups, loading, refetch } = useClassGroups();
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingGroup, setEditingGroup] = useState<any>(null);
 
-  const handleEdit = (group: any) => {
-    setEditingGroup(group);
-    setShowForm(true);
+  const handleCreateSuccess = () => {
+    setShowCreateForm(false);
+    refetch();
   };
 
-  const handleSuccess = () => {
-    setShowForm(false);
+  const handleEditSuccess = () => {
     setEditingGroup(null);
     refetch();
   };
 
-  const handleCancel = () => {
-    setShowForm(false);
-    setEditingGroup(null);
-  };
-
-  const handleCreate = () => {
-    setEditingGroup(null);
-    setShowForm(true);
+  const handleEdit = (group: any) => {
+    setEditingGroup(group);
   };
 
   return (
     <ProtectedRoute allowedRoles={['admin', 'teacher']}>
       <AcademicModuleLayout 
-        title="Classes et Groupes" 
-        subtitle="Gestion des groupes d'étudiants"
+        title="Classes" 
+        subtitle="Gestion des groupes et classes"
         showHeader={true}
       >
         <div className="p-6">
-          <div className="max-w-6xl mx-auto space-y-6">
-            {!showForm ? (
-              <>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h2 className="text-2xl font-semibold">Gestion des Groupes</h2>
-                    <p className="text-muted-foreground">
-                      Organisez vos étudiants en classes, groupes de TD, TP et projets.
-                    </p>
-                  </div>
-                  <Button onClick={handleCreate}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Nouveau Groupe
+          <div className="max-w-6xl mx-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-2xl font-bold">Groupes et classes</h1>
+              <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nouvelle Classe
                   </Button>
-                </div>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Créer une classe</DialogTitle>
+                  </DialogHeader>
+                  <GroupForm 
+                    onSuccess={handleCreateSuccess}
+                    onCancel={() => setShowCreateForm(false)}
+                  />
+                </DialogContent>
+              </Dialog>
+            </div>
+            
+            <GroupsList 
+              groups={groups} 
+              loading={loading}
+              onEdit={handleEdit}
+              onRefresh={refetch}
+            />
 
-                <GroupsList
-                  groups={groups || []}
-                  loading={loading}
-                  onEdit={handleEdit}
-                  onRefresh={refetch}
+            {/* Edit Dialog */}
+            <Dialog open={!!editingGroup} onOpenChange={() => setEditingGroup(null)}>
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Modifier la classe</DialogTitle>
+                </DialogHeader>
+                <GroupForm 
+                  group={editingGroup}
+                  onSuccess={handleEditSuccess}
+                  onCancel={() => setEditingGroup(null)}
                 />
-              </>
-            ) : (
-              <GroupForm
-                group={editingGroup}
-                onSuccess={handleSuccess}
-                onCancel={handleCancel}
-              />
-            )}
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </AcademicModuleLayout>

@@ -102,6 +102,14 @@ export function useAcademicLevels() {
   return useTable('academic_levels');
 }
 
+// Hook spécialisé pour les groupes/classes
+export function useClassGroups() {
+  return useTable('class_groups', `
+    *,
+    programs!class_groups_program_id_fkey(*)
+  `);
+}
+
 // Re-export des fonctions utilitaires pour l'inscription
 export { autoEnrollStudent, generateStudentNumber } from '@/services/studentEnrollmentService';
 export type { StudentEnrollmentData, EnrollmentResult } from '@/services/studentEnrollmentService';

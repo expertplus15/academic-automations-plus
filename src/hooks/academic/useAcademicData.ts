@@ -49,9 +49,22 @@ export interface AcademicLevel {
   is_active?: boolean;
 }
 
+export interface Specialization {
+  id: string;
+  name: string;
+  code: string;
+  description?: string;
+  program_id?: string;
+  credits_required?: number;
+  duration_semesters?: number;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
 // Hook générique pour les données académiques
 function useAcademicTable<T>(
-  tableName: 'programs' | 'subjects' | 'departments' | 'academic_levels',
+  tableName: 'programs' | 'subjects' | 'departments' | 'academic_levels' | 'specializations',
   select = '*',
   orderBy = 'name'
 ) {
@@ -149,12 +162,27 @@ export function useAcademicLevels() {
   };
 }
 
+export function useSpecializations() {
+  const result = useAcademicTable<Specialization>('specializations', `
+    *,
+    programs!specializations_program_id_fkey(*)
+  `);
+  
+  return {
+    data: result.data,
+    specializations: result.data, // Alias pour compatibilité
+    loading: result.loading,
+    error: result.error,
+    refetch: result.refetch
+  };
+}
+
 // Hook pour créer des entités
 export function useCreateAcademic() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const create = async (table: 'programs' | 'subjects' | 'departments' | 'academic_levels', data: any, successMessage: string) => {
+  const create = async (table: 'programs' | 'subjects' | 'departments' | 'academic_levels' | 'specializations', data: any, successMessage: string) => {
     setLoading(true);
     try {
       console.log(`🔍 [DEBUG] Creating ${table}:`, data);
@@ -198,7 +226,7 @@ export function useUpdateAcademic() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const update = async (table: 'programs' | 'subjects' | 'departments' | 'academic_levels', id: string, data: any, successMessage: string) => {
+  const update = async (table: 'programs' | 'subjects' | 'departments' | 'academic_levels' | 'specializations', id: string, data: any, successMessage: string) => {
     setLoading(true);
     try {
       console.log(`🔍 [DEBUG] Updating ${table} ${id}:`, data);
@@ -243,7 +271,7 @@ export function useDeleteAcademic() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const deleteItem = async (table: 'programs' | 'subjects' | 'departments' | 'academic_levels', id: string, successMessage: string) => {
+  const deleteItem = async (table: 'programs' | 'subjects' | 'departments' | 'academic_levels' | 'specializations', id: string, successMessage: string) => {
     setLoading(true);
     try {
       console.log(`🔍 [DEBUG] Deleting ${table} ${id}`);

@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
+import { useAcademicStats } from '@/hooks/academic/useAcademicStats';
 import { 
   GraduationCap, 
   School, 
@@ -15,11 +16,12 @@ import {
 
 export function AcademicModuleCards() {
   const navigate = useNavigate();
+  const { stats, loading } = useAcademicStats();
 
   const moduleCards = [
     {
       title: 'Programmes',
-      subtitle: '12 programmes',
+      subtitle: loading ? 'Chargement...' : `${stats.programs} programmes`,
       icon: GraduationCap,
       color: 'bg-violet-500',
       route: '/academic/programs',
@@ -27,7 +29,7 @@ export function AcademicModuleCards() {
     },
     {
       title: 'Filières',
-      subtitle: '8 filières',
+      subtitle: loading ? 'Chargement...' : `${stats.specializations} filières`,
       icon: School,
       color: 'bg-teal-500',
       route: '/academic/pathways',
@@ -35,7 +37,7 @@ export function AcademicModuleCards() {
     },
     {
       title: 'Niveaux d\'Études',
-      subtitle: '6 niveaux',
+      subtitle: loading ? 'Chargement...' : `${stats.levels} niveaux`,
       icon: BarChart3,
       color: 'bg-orange-500',
       route: '/academic/levels',
@@ -43,7 +45,7 @@ export function AcademicModuleCards() {
     },
     {
       title: 'Classes',
-      subtitle: '24 classes',
+      subtitle: loading ? 'Chargement...' : `${stats.classes} classes`,
       icon: Users,
       color: 'bg-academic',
       route: '/academic/groups',
@@ -51,7 +53,7 @@ export function AcademicModuleCards() {
     },
     {
       title: 'Cours',
-      subtitle: 'Matières & contenus',
+      subtitle: loading ? 'Chargement...' : `${stats.subjects} matières`,
       icon: BookOpen,
       color: 'bg-teal-500',
       route: '/academic/subjects',
@@ -75,7 +77,7 @@ export function AcademicModuleCards() {
     },
     {
       title: 'Départements',
-      subtitle: 'Organisation',
+      subtitle: loading ? 'Chargement...' : `${stats.departments} départements`,
       icon: MapPin,
       color: 'bg-violet-500',
       route: '/academic/departments',
