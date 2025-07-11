@@ -1,19 +1,17 @@
-
-import { ModuleLayout } from "@/components/layouts/ModuleLayout";
-import { AcademicTrackingDashboard } from "@/components/tracking/AcademicTrackingDashboard";
+import { StudentsModuleLayout } from "@/components/layouts/StudentsModuleLayout";
 
 export default function Tracking() {
   return (
-    <ModuleLayout 
-      title="Suivi académique" 
-      subtitle="Suivi en temps réel des performances et de l'assiduité des étudiants"
-      showHeader={true}
+    <StudentsModuleLayout 
+      title="Suivi Académique" 
+      subtitle="Suivi des performances et du parcours des étudiants"
     >
       <div className="p-6">
-        <div className="max-w-7xl mx-auto">
-          <AcademicTrackingDashboard />
+        <div className="text-center py-12 text-muted-foreground">
+          <h3 className="text-lg font-semibold mb-2">Module Suivi Académique</h3>
+          <p>Fonctionnalité en cours de développement</p>
         </div>
       </div>
-    </ModuleLayout>
+    </StudentsModuleLayout>
   );
 }

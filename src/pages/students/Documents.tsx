@@ -1,17 +1,17 @@
-
-import { ModuleLayout } from "@/components/layouts/ModuleLayout";
-import { DocumentsManagement } from '@/components/documents/DocumentsManagement';
+import { StudentsModuleLayout } from "@/components/layouts/StudentsModuleLayout";
 
 export default function Documents() {
   return (
-    <ModuleLayout 
+    <StudentsModuleLayout 
       title="Documents Administratifs" 
-      subtitle="Génération et gestion des certificats et documents officiels"
-      showHeader={true}
+      subtitle="Génération et gestion des documents étudiants"
     >
       <div className="p-6">
-        <DocumentsManagement />
+        <div className="text-center py-12 text-muted-foreground">
+          <h3 className="text-lg font-semibold mb-2">Module Documents Administratifs</h3>
+          <p>Fonctionnalité en cours de développement</p>
+        </div>
       </div>
-    </ModuleLayout>
+    </StudentsModuleLayout>
   );
 }
