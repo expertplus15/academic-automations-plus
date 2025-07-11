@@ -3,6 +3,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AcademicModuleLayout } from '@/components/layouts/AcademicModuleLayout';
 import { LevelsList } from '@/components/academic/LevelsList';
 import { LevelForm } from '@/components/academic/LevelForm';
+import { ImportExportToolbar } from '@/components/academic/import-export/ImportExportToolbar';
 import { useAcademicLevels } from '@/hooks/useSupabase';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -56,6 +57,11 @@ export default function Levels() {
                 </DialogContent>
               </Dialog>
             </div>
+            
+            <ImportExportToolbar 
+              data={levels || []} 
+              onImportSuccess={refetch}
+            />
             
             <LevelsList 
               levels={levels} 
