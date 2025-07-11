@@ -6,36 +6,44 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FileSpreadsheet, FileText, Download } from 'lucide-react';
 import { ExportService } from '@/services/ExportService';
-import { LevelExportData } from '@/types/ImportExport';
+import { LevelExportData, SubjectExportData } from '@/types/ImportExport';
 
 interface ExportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   data: any[];
+  type?: 'levels' | 'subjects';
 }
 
-export function ExportDialog({ open, onOpenChange, data }: ExportDialogProps) {
+export function ExportDialog({ open, onOpenChange, data, type = 'levels' }: ExportDialogProps) {
   const [format, setFormat] = useState<'excel' | 'pdf'>('excel');
   const [includeAll, setIncludeAll] = useState(true);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const handleExport = () => {
-    let exportData: LevelExportData[];
-    
-    if (includeAll) {
-      exportData = data.map(level => ({
-        name: level.name,
-        code: level.code,
-        education_cycle: level.education_cycle,
-        duration_years: level.duration_years,
-        semesters: level.semesters,
-        ects_credits: level.ects_credits,
-        order_index: level.order_index
+    if (type === 'subjects') {
+      const exportData: SubjectExportData[] = data.map(subject => ({
+        name: subject.name,
+        code: subject.code,
+        description: subject.description,
+        credits_ects: subject.credits_ects,
+        coefficient: subject.coefficient,
+        hours_theory: subject.hours_theory,
+        hours_practice: subject.hours_practice,
+        hours_project: subject.hours_project,
+        status: subject.status
       }));
+
+      if (format === 'excel') {
+        ExportService.exportSubjectsToExcel(exportData);
+      } else if (format === 'pdf') {
+        ExportService.exportSubjectsToPDF(exportData);
+      }
     } else {
-      exportData = data
-        .filter(level => selectedIds.includes(level.id))
-        .map(level => ({
+      let exportData: LevelExportData[];
+      
+      if (includeAll) {
+        exportData = data.map(level => ({
           name: level.name,
           code: level.code,
           education_cycle: level.education_cycle,
@@ -44,16 +52,29 @@ export function ExportDialog({ open, onOpenChange, data }: ExportDialogProps) {
           ects_credits: level.ects_credits,
           order_index: level.order_index
         }));
-    }
+      } else {
+        exportData = data
+          .filter(level => selectedIds.includes(level.id))
+          .map(level => ({
+            name: level.name,
+            code: level.code,
+            education_cycle: level.education_cycle,
+            duration_years: level.duration_years,
+            semesters: level.semesters,
+            ects_credits: level.ects_credits,
+            order_index: level.order_index
+          }));
+      }
 
-    const filename = includeAll 
-      ? 'niveaux-academiques-complet'
-      : `niveaux-academiques-selection-${selectedIds.length}`;
+      const filename = includeAll 
+        ? 'niveaux-academiques-complet'
+        : `niveaux-academiques-selection-${selectedIds.length}`;
 
-    if (format === 'excel') {
-      ExportService.exportToExcel(exportData, filename);
-    } else {
-      ExportService.exportToPDF(exportData, filename);
+      if (format === 'excel') {
+        ExportService.exportToExcel(exportData, filename);
+      } else {
+        ExportService.exportToPDF(exportData, filename);
+      }
     }
 
     onOpenChange(false);
@@ -83,7 +104,7 @@ export function ExportDialog({ open, onOpenChange, data }: ExportDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Export avancé des niveaux</DialogTitle>
+          <DialogTitle>Export avancé des {type === 'subjects' ? 'matières' : 'niveaux'}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -119,13 +140,13 @@ export function ExportDialog({ open, onOpenChange, data }: ExportDialogProps) {
                   onCheckedChange={(checked) => setIncludeAll(checked as boolean)}
                 />
                 <Label htmlFor="all-data" className="cursor-pointer">
-                  Tous les niveaux ({data.length})
+                  Tous les {type === 'subjects' ? 'matières' : 'niveaux'} ({data.length})
                 </Label>
               </div>
               
               {!includeAll && (
                 <div className="ml-6 space-y-2 max-h-40 overflow-y-auto border rounded p-3">
-                  <Label className="text-sm font-medium">Sélectionner les niveaux:</Label>
+                  <Label className="text-sm font-medium">Sélectionner les {type === 'subjects' ? 'matières' : 'niveaux'}:</Label>
                   {data.map(level => (
                     <div key={level.id} className="flex items-center space-x-2">
                       <Checkbox
@@ -134,7 +155,7 @@ export function ExportDialog({ open, onOpenChange, data }: ExportDialogProps) {
                         onCheckedChange={() => toggleSelection(level.id)}
                       />
                       <Label htmlFor={level.id} className="cursor-pointer text-sm">
-                        {level.name} ({level.code}) - {getCycleLabel(level.education_cycle)}
+                        {level.name} ({level.code}){type === 'levels' ? ` - ${getCycleLabel(level.education_cycle)}` : ''}
                       </Label>
                     </div>
                   ))}
@@ -148,8 +169,8 @@ export function ExportDialog({ open, onOpenChange, data }: ExportDialogProps) {
             <h4 className="font-semibold mb-2">Résumé de l'export:</h4>
             <ul className="text-sm space-y-1">
               <li>• Format: {format === 'excel' ? 'Excel (.xlsx)' : 'PDF'}</li>
-              <li>• Nombre de niveaux: {includeAll ? data.length : selectedIds.length}</li>
-              <li>• Colonnes: Nom, Code, Cycle, Durée, Semestres, ECTS, Ordre</li>
+              <li>• Nombre de {type === 'subjects' ? 'matières' : 'niveaux'}: {includeAll ? data.length : selectedIds.length}</li>
+              <li>• Colonnes: {type === 'subjects' ? 'Nom, Code, ECTS, Coefficient, Heures, Statut' : 'Nom, Code, Cycle, Durée, Semestres, ECTS, Ordre'}</li>
             </ul>
           </div>
 

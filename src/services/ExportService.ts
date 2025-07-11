@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { LevelExportData, ExportOptions } from '@/types/ImportExport';
+import { LevelExportData, SubjectExportData, ExportOptions } from '@/types/ImportExport';
 
 export class ExportService {
   static exportToExcel(data: LevelExportData[], filename: string = 'niveaux-academiques') {
@@ -148,6 +148,94 @@ export class ExportService {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Template');
 
     XLSX.writeFile(workbook, 'template_niveaux_academiques.xlsx');
+  }
+
+  // Services pour les matières
+  static exportSubjectsToExcel(data: SubjectExportData[]) {
+    const worksheet = XLSX.utils.json_to_sheet(data.map(subject => ({
+      'Nom': subject.name,
+      'Code': subject.code,
+      'Description': subject.description || '',
+      'Crédits ECTS': subject.credits_ects,
+      'Coefficient': subject.coefficient,
+      'Heures Théorie': subject.hours_theory,
+      'Heures Pratique': subject.hours_practice,
+      'Heures Projet': subject.hours_project,
+      'Total Heures': subject.hours_theory + subject.hours_practice + subject.hours_project,
+      'Statut': subject.status
+    })));
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Matières');
+
+    const fileName = `matieres_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  }
+
+  static exportSubjectsToPDF(data: SubjectExportData[]) {
+    const doc = new jsPDF();
+
+    // En-tête
+    doc.setFontSize(20);
+    doc.text('Liste des Matières', 20, 20);
+    
+    doc.setFontSize(12);
+    doc.text(`Généré le: ${new Date().toLocaleDateString('fr-FR')}`, 20, 30);
+    doc.text(`Nombre total: ${data.length} matières`, 20, 40);
+
+    // Tableau des données
+    const tableData = data.map(subject => [
+      subject.name,
+      subject.code,
+      subject.credits_ects.toString(),
+      subject.coefficient.toString(),
+      (subject.hours_theory + subject.hours_practice + subject.hours_project).toString(),
+      subject.status
+    ]);
+
+    autoTable(doc, {
+      head: [['Nom', 'Code', 'ECTS', 'Coeff.', 'Total H', 'Statut']],
+      body: tableData,
+      startY: 50,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [52, 152, 219] }
+    });
+
+    const fileName = `matieres_${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(fileName);
+  }
+
+  static downloadSubjectsTemplate() {
+    const templateData = [
+      {
+        name: 'Mathématiques Appliquées',
+        code: 'MATH101',
+        description: 'Introduction aux mathématiques pour l\'informatique',
+        credits_ects: 6,
+        coefficient: 1.5,
+        hours_theory: 30,
+        hours_practice: 15,
+        hours_project: 0,
+        status: 'active'
+      }
+    ];
+
+    const worksheet = XLSX.utils.json_to_sheet(templateData.map(subject => ({
+      'Nom': subject.name,
+      'Code': subject.code,
+      'Description': subject.description,
+      'Crédits ECTS': subject.credits_ects,
+      'Coefficient': subject.coefficient,
+      'Heures Théorie': subject.hours_theory,
+      'Heures Pratique': subject.hours_practice,
+      'Heures Projet': subject.hours_project,
+      'Statut': subject.status
+    })));
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Template Matières');
+
+    XLSX.writeFile(workbook, 'template_matieres.xlsx');
   }
 
   private static getCycleLabel(cycle: string): string {

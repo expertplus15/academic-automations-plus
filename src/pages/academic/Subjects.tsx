@@ -4,6 +4,7 @@ import { AcademicModuleLayout } from '@/components/layouts/AcademicModuleLayout'
 import { SubjectsList } from '@/components/academic/SubjectsList';
 import { SubjectForm } from '@/components/academic/SubjectForm';
 import { useSubjects } from '@/hooks/academic/useAcademicData';
+import { SubjectsImportExportToolbar } from '@/components/academic/import-export/SubjectsImportExportToolbar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
@@ -56,6 +57,11 @@ export default function Subjects() {
                 </DialogContent>
               </Dialog>
             </div>
+
+            <SubjectsImportExportToolbar 
+              data={subjects || []} 
+              onImportSuccess={refetch} 
+            />
             
             <SubjectsList 
               subjects={subjects} 

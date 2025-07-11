@@ -13,9 +13,10 @@ interface ImportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  type?: 'levels' | 'subjects';
 }
 
-export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProps) {
+export function ImportDialog({ open, onOpenChange, onSuccess, type = 'levels' }: ImportDialogProps) {
   const [file, setFile] = useState<File | null>(null);
   const [previewData, setPreviewData] = useState<ImportPreviewData | null>(null);
   const [importing, setImporting] = useState(false);
@@ -27,7 +28,23 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
     setFile(uploadedFile);
     
     try {
-      const preview = await ImportService.parseFile(uploadedFile);
+      let preview;
+      if (type === 'subjects') {
+        // Pour les matières, nous devons utiliser une validation adaptée
+        const data = await ImportService.parseFile(uploadedFile);
+        const validatedData = ImportService.validateSubjectsData(data.valid as any);
+        preview = {
+          valid: validatedData.valid as any,
+          errors: validatedData.errors.map((error, index) => ({
+            row: index + 1,
+            field: 'general',
+            message: error
+          })),
+          totalRows: data.totalRows
+        };
+      } else {
+        preview = await ImportService.parseFile(uploadedFile);
+      }
       setPreviewData(preview);
       setStep('preview');
     } catch (error) {
@@ -37,7 +54,7 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
         variant: 'destructive',
       });
     }
-  }, [toast]);
+  }, [toast, type]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -60,20 +77,39 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
     setImporting(true);
 
     try {
-      const result = await ImportService.importData(previewData.valid);
-      setImportResult(result);
+      let result;
+      if (type === 'subjects') {
+        // Pour les matières, nous devons adapter la validation et l'import
+        const validatedData = ImportService.validateSubjectsData(previewData.valid as any);
+        result = await ImportService.importSubjectsToDatabase(validatedData.valid);
+        // Adapter le format de retour pour compatibility
+        setImportResult({
+          success: result.errors.length === 0,
+          imported: result.success,
+          errors: result.errors.map((error, index) => ({
+            row: index + 1,
+            field: 'general',
+            message: error
+          })),
+          skipped: 0
+        });
+      } else {
+        result = await ImportService.importData(previewData.valid);
+        setImportResult(result);
+      }
+      
       setStep('result');
       
-      if (result.success) {
+      if (result.success || (type === 'subjects' && result.success > 0)) {
         toast({
           title: 'Import réussi',
-          description: `${result.imported} niveaux importés avec succès`,
+          description: `${type === 'subjects' ? result.success : result.imported} ${type === 'subjects' ? 'matières' : 'niveaux'} importés avec succès`,
         });
         onSuccess();
       } else {
         toast({
           title: 'Import partiellement réussi',
-          description: `${result.imported} importés, ${result.errors.length} erreurs`,
+          description: `${type === 'subjects' ? result.success : result.imported} importés, ${type === 'subjects' ? result.errors.length : result.errors.length} erreurs`,
           variant: 'destructive',
         });
       }
@@ -178,7 +214,7 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
               onClick={handleImport} 
               disabled={previewData.valid.length === 0 || previewData.errors.length > 0}
             >
-              Importer {previewData.valid.length} niveau(x)
+              Importer {previewData.valid.length} {type === 'subjects' ? 'matière(s)' : 'niveau(x)'}
             </Button>
           </div>
         </>
@@ -248,7 +284,7 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <DialogTitle>Import de niveaux académiques</DialogTitle>
+            <DialogTitle>Import de {type === 'subjects' ? 'matières' : 'niveaux académiques'}</DialogTitle>
             <Button variant="ghost" size="sm" onClick={handleClose}>
               <X className="h-4 w-4" />
             </Button>

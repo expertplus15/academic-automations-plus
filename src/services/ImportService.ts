@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { LevelExportData, ImportValidationError, ImportPreviewData, ImportResult } from '@/types/ImportExport';
+import { LevelExportData, SubjectExportData, ImportValidationError, ImportPreviewData, ImportResult } from '@/types/ImportExport';
 import { supabase } from '@/integrations/supabase/client';
 
 export class ImportService {
@@ -244,6 +244,108 @@ export class ImportService {
         skipped: data.length
       };
     }
+  }
+
+  // Services pour les matières
+  static validateSubjectsData(data: any[]): {
+    valid: SubjectExportData[];
+    errors: string[];
+  } {
+    const valid: SubjectExportData[] = [];
+    const errors: string[] = [];
+
+    data.forEach((row, index) => {
+      const rowIndex = index + 1;
+
+      if (!row.Nom || typeof row.Nom !== 'string') {
+        errors.push(`Ligne ${rowIndex}: Le nom est requis`);
+        return;
+      }
+
+      if (!row.Code || typeof row.Code !== 'string') {
+        errors.push(`Ligne ${rowIndex}: Le code est requis`);
+        return;
+      }
+
+      const creditsEcts = parseFloat(row['Crédits ECTS']);
+      if (isNaN(creditsEcts) || creditsEcts < 1 || creditsEcts > 30) {
+        errors.push(`Ligne ${rowIndex}: Crédits ECTS invalides (1-30)`);
+        return;
+      }
+
+      const coefficient = parseFloat(row.Coefficient);
+      if (isNaN(coefficient) || coefficient < 0.5 || coefficient > 5) {
+        errors.push(`Ligne ${rowIndex}: Coefficient invalide (0.5-5.0)`);
+        return;
+      }
+
+      const hoursTheory = parseInt(row['Heures Théorie']) || 0;
+      const hoursPractice = parseInt(row['Heures Pratique']) || 0;
+      const hoursProject = parseInt(row['Heures Projet']) || 0;
+
+      if (hoursTheory < 0 || hoursPractice < 0 || hoursProject < 0) {
+        errors.push(`Ligne ${rowIndex}: Les heures ne peuvent pas être négatives`);
+        return;
+      }
+
+      const status = row.Statut?.toLowerCase() || 'active';
+      if (!['active', 'inactive', 'archived'].includes(status)) {
+        errors.push(`Ligne ${rowIndex}: Statut invalide (active, inactive, archived)`);
+        return;
+      }
+
+      valid.push({
+        name: row.Nom.trim(),
+        code: row.Code.trim().toUpperCase(),
+        description: row.Description?.trim() || '',
+        credits_ects: creditsEcts,
+        coefficient: coefficient,
+        hours_theory: hoursTheory,
+        hours_practice: hoursPractice,
+        hours_project: hoursProject,
+        status: status
+      });
+    });
+
+    return { valid, errors };
+  }
+
+  static async importSubjectsToDatabase(data: SubjectExportData[]): Promise<{
+    success: number;
+    errors: string[];
+  }> {
+    const results = {
+      success: 0,
+      errors: [] as string[]
+    };
+
+    for (const subject of data) {
+      try {
+        const { error } = await supabase
+          .from('subjects')
+          .insert({
+            name: subject.name,
+            code: subject.code,
+            description: subject.description,
+            credits_ects: subject.credits_ects,
+            coefficient: subject.coefficient,
+            hours_theory: subject.hours_theory,
+            hours_practice: subject.hours_practice,
+            hours_project: subject.hours_project,
+            status: subject.status
+          });
+
+        if (error) {
+          results.errors.push(`Erreur pour ${subject.name}: ${error.message}`);
+        } else {
+          results.success++;
+        }
+      } catch (error) {
+        results.errors.push(`Erreur pour ${subject.name}: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+      }
+    }
+
+    return results;
   }
 
   private static async getExistingCodes(): Promise<string[]> {

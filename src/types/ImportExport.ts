@@ -8,6 +8,18 @@ export interface LevelExportData {
   order_index: number;
 }
 
+export interface SubjectExportData {
+  name: string;
+  code: string;
+  description?: string;
+  credits_ects: number;
+  coefficient: number;
+  hours_theory: number;
+  hours_practice: number;
+  hours_project: number;
+  status: string;
+}
+
 export interface ImportValidationError {
   row: number;
   field: string;
