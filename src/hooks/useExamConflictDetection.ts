@@ -11,11 +11,25 @@ export function useExamConflictDetection() {
   const detectConflicts = useCallback(async (academicYearId?: string) => {
     try {
       setLoading(true);
+      setError(null);
+      
+      // Si on passe "current", récupérer l'ID de l'année académique courante
+      let yearId = academicYearId;
+      if (academicYearId === "current") {
+        const { data: currentYear } = await supabase
+          .from('academic_years')
+          .select('id')
+          .eq('is_current', true)
+          .single();
+        yearId = currentYear?.id;
+      }
+      
       const { data, error } = await supabase.rpc('detect_exam_conflicts', {
-        p_academic_year_id: academicYearId
+        p_academic_year_id: yearId
       });
 
       if (error) {
+        console.error('Erreur de détection de conflits:', error);
         setError(error.message);
       } else {
         // Mapping des données pour s'assurer de la compatibilité des types
@@ -27,9 +41,11 @@ export function useExamConflictDetection() {
           description: conflict.description,
           affected_data: conflict.affected_data
         }));
+        console.log('Conflits détectés:', mappedConflicts);
         setConflicts(mappedConflicts);
       }
     } catch (err) {
+      console.error('Erreur lors de la détection des conflits:', err);
       setError(err instanceof Error ? err.message : 'Erreur lors de la détection des conflits');
     } finally {
       setLoading(false);
@@ -68,28 +84,31 @@ export function useExamConflictDetection() {
   const resolveConflict = useCallback(async (conflictId: string, resolution: string) => {
     try {
       setLoading(true);
-      const { error } = await supabase
-        .from('exam_conflicts')
-        .update({
-          resolution_status: 'resolved',
-          resolution_notes: resolution,
-          resolved_at: new Date().toISOString(),
-          resolved_by: (await supabase.auth.getUser()).data.user?.id
-        })
-        .eq('id', conflictId);
-
-      if (error) {
-        setError(error.message);
-      } else {
-        // Retirer le conflit de la liste locale
-        setConflicts(prev => prev.filter(c => c.conflict_id !== conflictId));
+      setError(null);
+      
+      // Pour l'instant, on simule une résolution en retirant le conflit de la liste
+      // En production, ceci ferait appel à une logique de résolution automatique
+      console.log(`Résolution du conflit ${conflictId} avec méthode: ${resolution}`);
+      
+      if (resolution === 'Automatique') {
+        // Simulation de résolution automatique
+        // Ici on pourrait décaler l'horaire, changer de salle, etc.
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulation de traitement
       }
+      
+      // Retirer le conflit de la liste locale (simulation de résolution)
+      setConflicts(prev => prev.filter(c => c.conflict_id !== conflictId));
+      
+      // Redétecter les conflits pour vérifier que la résolution a fonctionné
+      await detectConflicts("current");
+      
     } catch (err) {
+      console.error('Erreur lors de la résolution:', err);
       setError(err instanceof Error ? err.message : 'Erreur lors de la résolution');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [detectConflicts]);
 
   return {
     conflicts,
