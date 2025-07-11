@@ -105,49 +105,99 @@ export class ExportService {
   }
 
   static downloadTemplate() {
-    const template = [
+    // Template data with comprehensive examples
+    const templateData = [
       {
-        name: 'Licence 1ère année',
-        code: 'L1',
-        education_cycle: 'license',
-        duration_years: 1,
-        semesters: 2,
-        ects_credits: 60,
-        order_index: 1
+        'Nom du niveau': 'Licence 1ère année',
+        'Code': 'L1',
+        'Cycle d\'études': 'license',
+        'Durée (années)': 1,
+        'Nombre de semestres': 2,
+        'Crédits ECTS': 60,
+        'Ordre d\'affichage': 1
       },
       {
-        name: 'Master 1ère année',
-        code: 'M1',
-        education_cycle: 'master',
-        duration_years: 1,
-        semesters: 2,
-        ects_credits: 60,
-        order_index: 4
+        'Nom du niveau': 'Licence 2ème année',
+        'Code': 'L2',
+        'Cycle d\'études': 'license',
+        'Durée (années)': 1,
+        'Nombre de semestres': 2,
+        'Crédits ECTS': 60,
+        'Ordre d\'affichage': 2
+      },
+      {
+        'Nom du niveau': 'Master 1ère année',
+        'Code': 'M1',
+        'Cycle d\'études': 'master',
+        'Durée (années)': 1,
+        'Nombre de semestres': 2,
+        'Crédits ECTS': 60,
+        'Ordre d\'affichage': 4
       }
     ];
 
-    const worksheet = XLSX.utils.json_to_sheet(template);
-    
-    // Add instructions
+    // Instructions sheet
     const instructions = [
-      ['TEMPLATE - IMPORT NIVEAUX ACADÉMIQUES'],
+      ['MODÈLE D\'IMPORTATION - NIVEAUX ACADÉMIQUES'],
       [''],
-      ['Instructions:'],
-      ['1. Remplissez les données en respectant le format'],
-      ['2. Les cycles possibles: license, master, doctorat, prepa, bts, custom'],
-      ['3. Les codes doivent être uniques'],
-      ['4. Supprimez ces lignes d\'instruction avant l\'import'],
+      ['INSTRUCTIONS IMPORTANTES:'],
+      ['1. Respectez exactement les noms des colonnes'],
+      ['2. Les codes doivent être uniques (pas de doublons)'],
+      ['3. Cycles autorisés: license, master, doctorat, prepa, bts, custom'],
+      ['4. Durée et semestres: nombres entiers positifs'],
+      ['5. Crédits ECTS: nombre entier (optionnel)'],
+      ['6. Ordre d\'affichage: nombre entier pour le tri'],
       [''],
-      ['Données d\'exemple:']
+      ['FORMATS REQUIS:'],
+      ['• Nom du niveau: Texte (obligatoire)'],
+      ['• Code: Texte court unique (obligatoire)'],
+      ['• Cycle d\'études: license/master/doctorat/prepa/bts/custom'],
+      ['• Durée (années): Nombre entier'],
+      ['• Nombre de semestres: Nombre entier'],
+      ['• Crédits ECTS: Nombre entier (peut être vide)'],
+      ['• Ordre d\'affichage: Nombre entier'],
+      [''],
+      ['ÉTAPES:'],
+      ['1. Supprimez cet onglet "Instructions"'],
+      ['2. Remplissez l\'onglet "Données" avec vos niveaux'],
+      ['3. Sauvegardez le fichier'],
+      ['4. Importez depuis l\'interface']
     ];
 
     const instructionSheet = XLSX.utils.aoa_to_sheet(instructions);
+    const dataSheet = XLSX.utils.json_to_sheet(templateData);
+    
+    // Style the data sheet headers
+    const range = XLSX.utils.decode_range(dataSheet['!ref'] || 'A1');
+    for (let col = range.s.c; col <= range.e.c; col++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+      if (!dataSheet[cellAddress]) continue;
+      dataSheet[cellAddress].s = {
+        font: { bold: true, sz: 12 },
+        fill: { fgColor: { rgb: 'E3F2FD' } },
+        alignment: { horizontal: 'center' }
+      };
+    }
+
+    // Set column widths for data sheet
+    dataSheet['!cols'] = [
+      { width: 25 }, // Nom
+      { width: 10 }, // Code
+      { width: 20 }, // Cycle
+      { width: 15 }, // Durée
+      { width: 18 }, // Semestres
+      { width: 15 }, // ECTS
+      { width: 15 }  // Ordre
+    ];
+
+    // Set column widths for instructions
+    instructionSheet['!cols'] = [{ width: 60 }];
     
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, instructionSheet, 'Instructions');
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Template');
+    XLSX.utils.book_append_sheet(workbook, dataSheet, 'Données');
 
-    XLSX.writeFile(workbook, 'template_niveaux_academiques.xlsx');
+    XLSX.writeFile(workbook, 'modele_import_niveaux_academiques.xlsx');
   }
 
   // Services pour les matières
@@ -206,36 +256,114 @@ export class ExportService {
   }
 
   static downloadSubjectsTemplate() {
+    // Template data with comprehensive examples
     const templateData = [
       {
-        name: 'Mathématiques Appliquées',
-        code: 'MATH101',
-        description: 'Introduction aux mathématiques pour l\'informatique',
-        credits_ects: 6,
-        coefficient: 1.5,
-        hours_theory: 30,
-        hours_practice: 15,
-        hours_project: 0,
-        status: 'active'
+        'Nom': 'Mathématiques Appliquées',
+        'Code': 'MATH101',
+        'Description': 'Introduction aux mathématiques pour l\'informatique',
+        'Crédits ECTS': 6,
+        'Coefficient': 1.5,
+        'Heures Théorie': 30,
+        'Heures Pratique': 15,
+        'Heures Projet': 0,
+        'Statut': 'active'
+      },
+      {
+        'Nom': 'Algorithmique et Programmation',
+        'Code': 'INFO102',
+        'Description': 'Bases de l\'algorithmique et programmation orientée objet',
+        'Crédits ECTS': 8,
+        'Coefficient': 2,
+        'Heures Théorie': 25,
+        'Heures Pratique': 35,
+        'Heures Projet': 10,
+        'Statut': 'active'
+      },
+      {
+        'Nom': 'Communication Professionnelle',
+        'Code': 'COM101',
+        'Description': 'Techniques de communication écrite et orale',
+        'Crédits ECTS': 3,
+        'Coefficient': 1,
+        'Heures Théorie': 20,
+        'Heures Pratique': 10,
+        'Heures Projet': 5,
+        'Statut': 'active'
       }
     ];
 
-    const worksheet = XLSX.utils.json_to_sheet(templateData.map(subject => ({
-      'Nom': subject.name,
-      'Code': subject.code,
-      'Description': subject.description,
-      'Crédits ECTS': subject.credits_ects,
-      'Coefficient': subject.coefficient,
-      'Heures Théorie': subject.hours_theory,
-      'Heures Pratique': subject.hours_practice,
-      'Heures Projet': subject.hours_project,
-      'Statut': subject.status
-    })));
+    // Instructions sheet
+    const instructions = [
+      ['MODÈLE D\'IMPORTATION - MATIÈRES ACADÉMIQUES'],
+      [''],
+      ['INSTRUCTIONS IMPORTANTES:'],
+      ['1. Respectez exactement les noms des colonnes'],
+      ['2. Les codes doivent être uniques (pas de doublons)'],
+      ['3. Statuts autorisés: active, inactive, archived'],
+      ['4. Tous les nombres doivent être positifs'],
+      ['5. La description est optionnelle'],
+      ['6. Les heures peuvent être à 0 si non applicable'],
+      [''],
+      ['FORMATS REQUIS:'],
+      ['• Nom: Texte (obligatoire)'],
+      ['• Code: Texte court unique (obligatoire)'],
+      ['• Description: Texte long (optionnel)'],
+      ['• Crédits ECTS: Nombre entier positif'],
+      ['• Coefficient: Nombre décimal (ex: 1.5)'],
+      ['• Heures Théorie: Nombre entier'],
+      ['• Heures Pratique: Nombre entier'],
+      ['• Heures Projet: Nombre entier'],
+      ['• Statut: active/inactive/archived'],
+      [''],
+      ['CONSEILS:'],
+      ['• Total heures = Théorie + Pratique + Projet'],
+      ['• Coefficient affecte le calcul des moyennes'],
+      ['• Codes courts facilitent la gestion (ex: MATH101)'],
+      [''],
+      ['ÉTAPES:'],
+      ['1. Supprimez cet onglet "Instructions"'],
+      ['2. Remplissez l\'onglet "Données" avec vos matières'],
+      ['3. Vérifiez l\'unicité des codes'],
+      ['4. Sauvegardez et importez le fichier']
+    ];
 
+    const instructionSheet = XLSX.utils.aoa_to_sheet(instructions);
+    const dataSheet = XLSX.utils.json_to_sheet(templateData);
+    
+    // Style the data sheet headers
+    const range = XLSX.utils.decode_range(dataSheet['!ref'] || 'A1');
+    for (let col = range.s.c; col <= range.e.c; col++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+      if (!dataSheet[cellAddress]) continue;
+      dataSheet[cellAddress].s = {
+        font: { bold: true, sz: 12 },
+        fill: { fgColor: { rgb: 'E8F5E8' } },
+        alignment: { horizontal: 'center' }
+      };
+    }
+
+    // Set column widths for data sheet
+    dataSheet['!cols'] = [
+      { width: 30 }, // Nom
+      { width: 12 }, // Code
+      { width: 40 }, // Description
+      { width: 12 }, // ECTS
+      { width: 12 }, // Coefficient
+      { width: 15 }, // H. Théorie
+      { width: 15 }, // H. Pratique
+      { width: 15 }, // H. Projet
+      { width: 12 }  // Statut
+    ];
+
+    // Set column widths for instructions
+    instructionSheet['!cols'] = [{ width: 60 }];
+    
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Template Matières');
+    XLSX.utils.book_append_sheet(workbook, instructionSheet, 'Instructions');
+    XLSX.utils.book_append_sheet(workbook, dataSheet, 'Données');
 
-    XLSX.writeFile(workbook, 'template_matieres.xlsx');
+    XLSX.writeFile(workbook, 'modele_import_matieres_academiques.xlsx');
   }
 
   private static getCycleLabel(cycle: string): string {
