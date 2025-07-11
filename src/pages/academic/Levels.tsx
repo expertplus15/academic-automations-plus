@@ -7,14 +7,12 @@ import { ImportExportToolbar } from '@/components/academic/import-export/ImportE
 import { useAcademicLevels } from '@/hooks/useSupabase';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Plus, FlaskConical } from 'lucide-react';
-import AcademicTestRunner from '@/components/test/AcademicTestRunner';
+import { Plus } from 'lucide-react';
 
 export default function Levels() {
   const { data: levels, loading, refetch } = useAcademicLevels();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingLevel, setEditingLevel] = useState<any>(null);
-  const [showTestRunner, setShowTestRunner] = useState(false);
 
   const handleCreateSuccess = () => {
     setShowCreateForm(false);
@@ -42,21 +40,6 @@ export default function Levels() {
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-bold">Niveaux d'études</h1>
               <div className="flex gap-2">
-                <Dialog open={showTestRunner} onOpenChange={setShowTestRunner}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline">
-                      <FlaskConical className="h-4 w-4 mr-2" />
-                      Tests QA
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Tests QA - Module Gestion Académique</DialogTitle>
-                    </DialogHeader>
-                    <AcademicTestRunner />
-                  </DialogContent>
-                </Dialog>
-                
                 <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
                   <DialogTrigger asChild>
                     <Button>
