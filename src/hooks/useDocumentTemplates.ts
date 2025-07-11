@@ -157,7 +157,18 @@ export function useDocumentRequests() {
       if (error) {
         setError(error.message);
       } else {
-        setRequests(data as DocumentRequest[] || []);
+        // Transform the data to match our DocumentRequest interface
+        const transformedRequests = (data || []).map((request: any) => ({
+          ...request,
+          template: request.template ? {
+            ...request.template,
+            template_content: typeof request.template.template_content === 'object' && 
+                            request.template.template_content !== null
+              ? request.template.template_content as { title: string; fields: string[]; template: string; }
+              : { title: '', fields: [], template: '' }
+          } : undefined
+        }));
+        setRequests(transformedRequests as DocumentRequest[]);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
