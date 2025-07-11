@@ -1,6 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { useTransportAlerts } from '@/hooks/useTransportAlerts';
+import { useAccommodationStatus } from '@/hooks/useAccommodationStatus';
+import { useHRModule } from '@/hooks/useHRModule';
+import { useExamsData } from '@/hooks/useExamsData';
+import { formatNotificationCount } from '@/utils/pluralization';
 import { 
   GraduationCap, 
   Users, 
@@ -13,11 +18,47 @@ import {
   MessageSquare,
   Heart,
   BarChart3,
-  FileText
+  FileText,
+  AlertTriangle
 } from 'lucide-react';
 
 export function ModulesGrid() {
   const navigate = useNavigate();
+  
+  // Get real-time data for critical modules
+  const { stats: transportStats } = useTransportAlerts();
+  const { stats: accommodationStats } = useAccommodationStatus();
+  const { stats: hrStats } = useHRModule();
+  const { stats: examStats } = useExamsData();
+
+  const getModuleNotifications = (moduleTitle: string) => {
+    switch (moduleTitle) {
+      case "Services aux Étudiants":
+        return {
+          count: transportStats.alertsCount,
+          variant: transportStats.alertsCount > 0 ? "critical" as const : "success" as const,
+          showAlert: transportStats.alertsCount > 0
+        };
+      case "Examens & Organisation":
+        return {
+          count: examStats.conflictsCount,
+          variant: examStats.conflictsCount > 0 ? "warning" as const : "success" as const,
+          showAlert: examStats.conflictsCount > 0
+        };
+      case "Ressources Humaines":
+        return {
+          count: hrStats.hasData ? 0 : 1,
+          variant: hrStats.hasData ? "success" as const : "warning" as const,
+          showAlert: !hrStats.hasData
+        };
+      default:
+        return {
+          count: Math.floor(Math.random() * 5), // Mock notifications for other modules
+          variant: "info" as const,
+          showAlert: false
+        };
+    }
+  };
 
   const modules = [
     {
@@ -25,7 +66,6 @@ export function ModulesGrid() {
       subtitle: "Programmes, emplois du temps IA",
       icon: GraduationCap,
       color: "bg-[#4F78FF]",
-      notifications: 12,
       onClick: () => navigate('/academic')
     },
     {
@@ -33,7 +73,6 @@ export function ModulesGrid() {
       subtitle: "Inscription < 30s, suivi temps réel",
       icon: Users,
       color: "bg-[#10B981]",
-      notifications: 3,
       onClick: () => navigate('/students')
     },
     {
@@ -41,7 +80,6 @@ export function ModulesGrid() {
       subtitle: "Planification IA anti-conflits",
       icon: Calendar,
       color: "bg-[#EF4444]",
-      notifications: 6,
       onClick: () => navigate('/exams')
     },
     {
@@ -49,7 +87,6 @@ export function ModulesGrid() {
       subtitle: "Bulletins < 5s, interface matricielle",
       icon: BarChart3,
       color: "bg-[#8B5CF6]",
-      notifications: 8,
       onClick: () => navigate('/results')
     },
     {
@@ -57,7 +94,6 @@ export function ModulesGrid() {
       subtitle: "Facturation instantanée",
       icon: DollarSign,
       color: "bg-[#F59E0B]",
-      notifications: 7,
       onClick: () => navigate('/finance')
     },
     {
@@ -65,7 +101,6 @@ export function ModulesGrid() {
       subtitle: "SCORM/xAPI, authoring no-code",
       icon: BookOpen,
       color: "bg-[#4F78FF]",
-      notifications: 8,
       onClick: () => navigate('/elearning')
     },
     {
@@ -73,7 +108,6 @@ export function ModulesGrid() {
       subtitle: "Référentiel maître enseignants",
       icon: UserCheck,
       color: "bg-[#8B5CF6]",
-      notifications: 2,
       onClick: () => navigate('/hr')
     },
     {
@@ -81,7 +115,6 @@ export function ModulesGrid() {
       subtitle: "QR codes, maintenance prédictive",
       icon: Package,
       color: "bg-[#F59E0B]",
-      notifications: 1,
       onClick: () => navigate('/resources')
     },
     {
@@ -89,7 +122,6 @@ export function ModulesGrid() {
       subtitle: "Messages, notifications, répertoire",
       icon: MessageSquare,
       color: "bg-[#4F78FF]",
-      notifications: 5,
       onClick: () => navigate('/communication')
     },
     {
@@ -97,7 +129,6 @@ export function ModulesGrid() {
       subtitle: "Centre de contrôle plateforme",
       icon: Settings,
       color: "bg-[#64748B]",
-      notifications: 0,
       onClick: () => navigate('/settings')
     },
     {
@@ -105,7 +136,6 @@ export function ModulesGrid() {
       subtitle: "Transport, restauration, santé",
       icon: Heart,
       color: "bg-[#10B981]",
-      notifications: 3,
       onClick: () => navigate('/services')
     },
     {
@@ -113,44 +143,52 @@ export function ModulesGrid() {
       subtitle: "Templates, archives, signatures",
       icon: FileText,
       color: "bg-[#4F78FF]",
-      notifications: 2,
       onClick: () => navigate('/documents')
     }
   ];
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {modules.map((module, index) => (
-        <div 
-          key={index}
-          className="flex flex-col items-center cursor-pointer group relative p-4 rounded-2xl hover:bg-white/50 transition-all duration-200"
-          onClick={module.onClick}
-        >
-          {/* Badge de notification */}
-          {module.notifications > 0 && (
-            <Badge 
-              className="absolute -top-2 -right-2 bg-[#EF4444] text-white border-0 text-xs min-w-[20px] h-5 flex items-center justify-center rounded-full shadow-sm z-10"
-            >
-              {module.notifications}
-            </Badge>
-          )}
-          
-          {/* Icône */}
-          <div className={`w-16 h-16 mb-3 rounded-2xl ${module.color} flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 group-hover:scale-105`}>
-            <module.icon className="w-8 h-8 text-white" />
+      {modules.map((module, index) => {
+        const notifications = getModuleNotifications(module.title);
+        
+        return (
+          <div 
+            key={index}
+            className="flex flex-col items-center cursor-pointer group relative p-4 rounded-2xl hover:bg-white/50 transition-all duration-200"
+            onClick={module.onClick}
+          >
+            {/* Badge de notification intelligent */}
+            {notifications.count > 0 && (
+              <div className="absolute -top-2 -right-2 z-10">
+                <StatusBadge
+                  variant={notifications.variant}
+                  size="sm"
+                  icon={notifications.showAlert ? <AlertTriangle className="w-3 h-3" /> : undefined}
+                  className="min-w-[20px] h-5 rounded-full shadow-sm text-xs"
+                >
+                  {formatNotificationCount(notifications.count)}
+                </StatusBadge>
+              </div>
+            )}
+            
+            {/* Icône */}
+            <div className={`w-16 h-16 mb-3 rounded-2xl ${module.color} flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 group-hover:scale-105`}>
+              <module.icon className="w-8 h-8 text-white" />
+            </div>
+            
+            {/* Titre */}
+            <h3 className="text-foreground font-semibold text-sm text-center group-hover:text-[#4F78FF] transition-colors mb-1">
+              {module.title}
+            </h3>
+            
+            {/* Sous-titre */}
+            <p className="text-muted-foreground text-xs text-center leading-tight">
+              {module.subtitle}
+            </p>
           </div>
-          
-          {/* Titre */}
-          <h3 className="text-foreground font-semibold text-sm text-center group-hover:text-[#4F78FF] transition-colors mb-1">
-            {module.title}
-          </h3>
-          
-          {/* Sous-titre */}
-          <p className="text-muted-foreground text-xs text-center leading-tight">
-            {module.subtitle}
-          </p>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

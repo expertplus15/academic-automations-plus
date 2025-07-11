@@ -4,6 +4,7 @@ import { FinanceModuleSidebar } from '@/components/FinanceModuleSidebar';
 import { FinancePageHeader } from '@/components/FinancePageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useFinanceStats } from '@/hooks/useFinanceStats';
+import { formatInvoiceMessage } from '@/utils/pluralization';
 import { 
   TrendingUp, 
   TrendingDown,
@@ -75,7 +76,7 @@ export default function Dashboard() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Factures émises</p>
+                  <p className="text-sm text-muted-foreground">{formatInvoiceMessage(stats.invoicesCount)} émises</p>
                   <p className="text-2xl font-bold text-foreground">{stats.invoicesCount}</p>
                 </div>
                 <div className="p-3 bg-blue-100 rounded-xl">

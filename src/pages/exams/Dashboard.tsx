@@ -24,6 +24,8 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useExamsData } from '@/hooks/useExamsData';
 import { ConflictsList } from '@/components/exams/ConflictsList';
+import { formatConflictMessage } from '@/utils/pluralization';
+import { StatusBadge } from '@/components/ui/status-badge';
 
 export default function ExamsDashboard() {
   const { stats, loading, error, refreshStats, conflicts } = useExamsData();
@@ -39,7 +41,7 @@ export default function ExamsDashboard() {
       color: "violet"
     },
     {
-      label: "Conflits détectés",
+      label: formatConflictMessage(stats.conflictsCount),
       value: stats.conflictsCount.toString(),
       change: stats.conflictsCount === 0 ? "Aucun" : "-85%",
       changeType: stats.conflictsCount === 0 ? "positive" : "negative" as const,
@@ -112,13 +114,13 @@ export default function ExamsDashboard() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'confirmed':
-        return <Badge className="bg-green-100 text-green-700 border-green-200"><CheckCircle className="w-3 h-3 mr-1" />Confirmé</Badge>;
+        return <StatusBadge variant="success-outline" icon={<CheckCircle className="w-3 h-3" />}>Confirmé</StatusBadge>;
       case 'scheduled':
-        return <Badge className="bg-blue-100 text-blue-700 border-blue-200"><Calendar className="w-3 h-3 mr-1" />Planifié</Badge>;
+        return <StatusBadge variant="info-outline" icon={<Calendar className="w-3 h-3" />}>Planifié</StatusBadge>;
       case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200"><Clock className="w-3 h-3 mr-1" />En attente</Badge>;
+        return <StatusBadge variant="warning-outline" icon={<Clock className="w-3 h-3" />}>En attente</StatusBadge>;
       default:
-        return <Badge>{status}</Badge>;
+        return <StatusBadge variant="default">{status}</StatusBadge>;
     }
   };
 
