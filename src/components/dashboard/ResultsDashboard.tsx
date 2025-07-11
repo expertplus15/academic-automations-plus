@@ -113,8 +113,8 @@ export function ResultsDashboard() {
           variant: 'default' as const
         },
         {
-          label: 'Templates Personnalisés',
-          onClick: () => navigate('/results/templates'),
+          label: 'Aperçu Modèles',
+          onClick: () => navigate('/results/reports?tab=templates'),
           variant: 'outline' as const
         }
       ],
@@ -192,8 +192,8 @@ export function ResultsDashboard() {
           variant: 'default' as const
         },
         {
-          label: 'Calculs Automatiques',
-          onClick: () => navigate('/results/calculations'),
+          label: 'Interface Matricielle',
+          onClick: () => navigate('/results/matrix'),
           variant: 'outline' as const
         },
         {
