@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ModuleLayout } from '@/components/layouts/ModuleLayout';
 import { FinanceModuleSidebar } from '@/components/FinanceModuleSidebar';
 import { FinancePageHeader } from '@/components/FinancePageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Zap, Upload, AlertTriangle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Zap, Upload, Download, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function Reconciliation() {
   return (

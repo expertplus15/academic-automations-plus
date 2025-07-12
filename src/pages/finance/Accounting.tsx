@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ModuleLayout } from '@/components/layouts/ModuleLayout';
 import { FinanceModuleSidebar } from '@/components/FinanceModuleSidebar';
 import { FinancePageHeader } from '@/components/FinancePageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calculator, FileText, AlertTriangle } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useChartOfAccounts } from '@/hooks/finance/useChartOfAccounts';
+import { Calculator, Plus, FileText, BarChart3, Book } from 'lucide-react';
 
 export default function Accounting() {
   return (
