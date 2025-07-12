@@ -20,16 +20,20 @@ export function ReceivablesManager() {
   const { toast } = useToast();
 
   const handleAction = (studentName: string) => {
+    // TODO: Implémenter la logique de recouvrement réelle
     toast({
-      title: "Action Lancée",
-      description: `Procédure de recouvrement initiée pour ${studentName}`,
+      title: "Fonctionnalité en développement",
+      description: `Action pour ${studentName} sera implémentée prochainement`,
+      variant: "destructive"
     });
   };
 
   const handleRecommendation = (studentName: string, action: string) => {
+    // TODO: Implémenter l'application des recommandations IA
     toast({
-      title: "Recommandation Appliquée",
-      description: `${action} appliquée pour ${studentName}`,
+      title: "Fonctionnalité en développement", 
+      description: `${action} pour ${studentName} sera implémentée prochainement`,
+      variant: "destructive"
     });
   };
   const receivablesByAge = [

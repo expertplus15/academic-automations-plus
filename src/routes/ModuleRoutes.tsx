@@ -41,10 +41,6 @@ import FinanceCashFlow from '@/pages/finance/CashFlow';
 import FinanceAnalytics from '@/pages/finance/Analytics';
 import FinanceCategories from '@/pages/finance/Categories';
 import ExpenseCategories from '@/pages/finance/ExpenseCategories';
-
-import FinanceReconciliation from '@/pages/finance/Reconciliation';
-import FinanceExpenses from '@/pages/finance/Expenses';
-import FinanceSuppliers from '@/pages/finance/Suppliers';
 import FinanceBalanceSheet from '@/pages/finance/BalanceSheet';
 import FinanceIncomeStatement from '@/pages/finance/IncomeStatement';
 
@@ -55,6 +51,12 @@ import FinanceCommercial from '@/pages/finance/Commercial';
 import FinanceTreasury from '@/pages/finance/Treasury';
 import FinanceTreasuryPayments from '@/pages/finance/TreasuryPayments';
 import FinanceReceivablesCredits from '@/pages/finance/ReceivablesCredits';
+import FinanceReconciliation from '@/pages/finance/Reconciliation';
+import FinanceExpenses from '@/pages/finance/Expenses';
+import FinanceExpenseCategories from '@/pages/finance/ExpenseCategories';
+import FinanceSuppliers from '@/pages/finance/Suppliers';
+import FinanceAccounting from '@/pages/finance/Accounting';
+import FinanceStatements from '@/pages/finance/Statements';
 import FinanceManagementIntelligence from '@/pages/finance/ManagementIntelligence';
 import FinanceClosing from '@/pages/finance/Closing';
 import FinanceConfig from '@/pages/finance/Config';
@@ -205,10 +207,6 @@ export function ModuleRoutes() {
       <Route path="/finance/cash-flow" element={<FinanceCashFlow />} />
       <Route path="/finance/analytics" element={<FinanceAnalytics />} />
       
-      {/* Expenses */}
-      <Route path="/finance/expenses" element={<FinanceExpenses />} />
-      <Route path="/finance/suppliers" element={<FinanceSuppliers />} />
-      
       {/* Financial Statements */}
       <Route path="/finance/balance-sheet" element={<FinanceBalanceSheet />} />
       <Route path="/finance/income-statement" element={<FinanceIncomeStatement />} />
@@ -216,8 +214,6 @@ export function ModuleRoutes() {
       {/* Configuration */}
       <Route path="/finance/categories" element={<FinanceCategories />} />
       <Route path="/finance/expense-categories" element={<ExpenseCategories />} />
-      
-      <Route path="/finance/reconciliation" element={<FinanceReconciliation />} />
       
       {/* New Finance Sub-Modules (SM1-SM6) */}
       {/* SM1: Administration & IA */}
@@ -234,6 +230,12 @@ export function ModuleRoutes() {
       <Route path="/finance/receivables" element={<FinanceReceivablesCredits />} />
       <Route path="/finance/credits" element={<FinanceReceivablesCredits />} />
       <Route path="/finance/collection" element={<FinanceReceivablesCredits />} />
+      <Route path="/finance/reconciliation" element={<FinanceReconciliation />} />
+      <Route path="/finance/expenses" element={<FinanceExpenses />} />
+      <Route path="/finance/expense-categories" element={<FinanceExpenseCategories />} />
+      <Route path="/finance/suppliers" element={<FinanceSuppliers />} />
+      <Route path="/finance/accounting" element={<FinanceAccounting />} />
+      <Route path="/finance/statements" element={<FinanceStatements />} />
       
       {/* SM5: Comptabilité Générale */}
       
