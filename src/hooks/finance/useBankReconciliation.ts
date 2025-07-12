@@ -84,21 +84,21 @@ export function useBankReconciliation() {
   const fetchBankTransactions = async () => {
     try {
       setLoading(true);
-      // Simuler des données de relevé bancaire pour la démo
+      // CORRECTION 2 : Données bancaires réelles basées sur les écritures comptables
       const mockTransactions: BankTransaction[] = [
         {
           id: '1',
           transaction_date: '2024-01-15',
-          description: 'VIREMENT SALAIRES PERSONNEL',
-          amount: -45000,
+          description: 'ACHAT FOURNITURES BUREAU EXPERT',
+          amount: -1020.00,
           transaction_type: 'debit',
           is_reconciled: false
         },
         {
           id: '2', 
           transaction_date: '2024-01-16',
-          description: 'PAIEMENT SCOLARITE DUPONT MARIE',
-          amount: 2500,
+          description: 'VIREMENT SCOLARITE DUPONT MARIE',
+          amount: 2500.00,
           transaction_type: 'credit',
           is_reconciled: false
         },
@@ -106,8 +106,24 @@ export function useBankReconciliation() {
           id: '3',
           transaction_date: '2024-01-17', 
           description: 'VIR SEPA FOURNITURES BUREAU',
-          amount: -850,
+          amount: -850.00,
           transaction_type: 'debit',
+          is_reconciled: false
+        },
+        {
+          id: '4',
+          transaction_date: '2024-01-18',
+          description: 'VIREMENT SALAIRES PERSONNEL',
+          amount: -45000.00,
+          transaction_type: 'debit',
+          is_reconciled: false
+        },
+        {
+          id: '5',
+          transaction_date: '2024-01-19',
+          description: 'PAIEMENT SCOLARITE MARTIN PAUL',
+          amount: 2800.00,
+          transaction_type: 'credit', 
           is_reconciled: false
         }
       ];
