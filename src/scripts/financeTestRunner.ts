@@ -12,7 +12,7 @@ interface TestResult {
   actual: string;
 }
 
-interface DiagnosticReport {
+export interface DiagnosticReport {
   timestamp: Date;
   totalTests: number;
   passed: number;
