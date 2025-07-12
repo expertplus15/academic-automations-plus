@@ -86,7 +86,7 @@ export function ServicesDashboard() {
     if (canManageServices) {
       toast({
         title: "Nouveau service",
-        description: "Fonctionnalité en développement",
+        description: "Formulaire de création à implémenter",
       });
     } else {
       handleRestrictedAction("créer un service", ['admin', 'hr']);

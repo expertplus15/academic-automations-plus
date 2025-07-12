@@ -5,8 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useFinanceData } from '@/hooks/useFinanceData';
+import { useCommercialQuotations } from '@/hooks/finance/useCommercialQuotations';
+import { useCommercialInvoices } from '@/hooks/finance/useCommercialInvoices';
+import { useCommercialClients } from '@/hooks/finance/useCommercialClients';
 import { EnhancedInvoiceForm } from '@/components/finance/EnhancedInvoiceForm';
 import { FreeInvoiceForm } from '@/components/finance/FreeInvoiceForm';
+import { QuotationDialog } from '@/components/finance/QuotationDialog';
 import { ValidateInvoiceModal } from '@/components/finance/ValidateInvoiceModal';
 import { RecordPaymentModal } from '@/components/finance/RecordPaymentModal';
 import { useToast } from '@/hooks/use-toast';
@@ -36,14 +40,12 @@ export function UnifiedInvoicing() {
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('all');
   const { invoices, loading, fetchInvoices } = useFinanceData();
+  const { quotations, refetchQuotations } = useCommercialQuotations();
+  const { invoices: commercialInvoices, refetchInvoices: refetchCommercialInvoices } = useCommercialInvoices();
   const { toast } = useToast();
 
   const handleQuoteCreation = () => {
-    toast({
-      title: "Fonctionnalité en développement",
-      description: "La création de devis sera disponible dans une prochaine version",
-      variant: "destructive"
-    });
+    setShowQuoteForm(true);
   };
 
   const handleValidateInvoice = (invoice: any) => {
@@ -224,6 +226,18 @@ export function UnifiedInvoicing() {
         onOpenChange={setShowValidateModal}
         invoice={selectedInvoice}
         onSuccess={fetchInvoices}
+      />
+
+      <QuotationDialog
+        open={showQuoteForm}
+        onClose={() => setShowQuoteForm(false)}
+        onSuccess={(quotation) => {
+          refetchQuotations();
+          toast({
+            title: "Succès",
+            description: `Devis ${quotation.quotation_number} créé avec succès`
+          });
+        }}
       />
 
       <RecordPaymentModal

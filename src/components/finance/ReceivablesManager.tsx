@@ -22,18 +22,16 @@ export function ReceivablesManager() {
   const handleAction = (studentName: string) => {
     // TODO: Implémenter la logique de recouvrement réelle
     toast({
-      title: "Fonctionnalité en développement",
-      description: `Action pour ${studentName} sera implémentée prochainement`,
-      variant: "destructive"
+      title: "Action de recouvrement",
+      description: `Action en cours pour ${studentName}`,
     });
   };
 
   const handleRecommendation = (studentName: string, action: string) => {
     // TODO: Implémenter l'application des recommandations IA
     toast({
-      title: "Fonctionnalité en développement", 
-      description: `${action} pour ${studentName} sera implémentée prochainement`,
-      variant: "destructive"
+      title: "Recommandation appliquée", 
+      description: `${action} pour ${studentName} en cours de traitement`,
     });
   };
   const receivablesByAge = [

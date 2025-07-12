@@ -41,11 +41,8 @@ export default function Finance() {
       });
       return;
     }
-    toast({
-      title: "Fonctionnalité en développement",
-      description: "La création de factures sera disponible dans une prochaine version",
-      variant: "destructive"
-    });
+    // Redirection vers le module de facturation
+    window.location.href = "/finance/invoices";
   };
 
   const handleRecordPayment = () => {
@@ -57,11 +54,8 @@ export default function Finance() {
       });
       return;
     }
-    toast({
-      title: "Fonctionnalité en développement",
-      description: "L'enregistrement de paiements sera disponible dans une prochaine version",
-      variant: "destructive"
-    });
+    // Redirection vers le module de facturation pour enregistrer un paiement
+    window.location.href = "/finance/invoices";
   };
 
   const handleManageScholarships = () => {
@@ -74,9 +68,8 @@ export default function Finance() {
       return;
     }
     toast({
-      title: "Fonctionnalité en développement",
-      description: "La gestion des bourses sera disponible dans une prochaine version",
-      variant: "destructive"
+      title: "Gestion des bourses",
+      description: "Fonctionnalité à implémenter - Redirection vers aide financière",
     });
   };
 
