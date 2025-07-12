@@ -42,8 +42,9 @@ export default function Finance() {
       return;
     }
     toast({
-      title: "Créer une facture",
-      description: "Interface de création de facture ouverte",
+      title: "Fonctionnalité en développement",
+      description: "La création de factures sera disponible dans une prochaine version",
+      variant: "destructive"
     });
   };
 
@@ -57,8 +58,9 @@ export default function Finance() {
       return;
     }
     toast({
-      title: "Enregistrer un paiement",
-      description: "Interface de saisie de paiement ouverte",
+      title: "Fonctionnalité en développement",
+      description: "L'enregistrement de paiements sera disponible dans une prochaine version",
+      variant: "destructive"
     });
   };
 
@@ -72,8 +74,9 @@ export default function Finance() {
       return;
     }
     toast({
-      title: "Gestion des bourses",
-      description: "Interface de gestion des bourses ouverte",
+      title: "Fonctionnalité en développement",
+      description: "La gestion des bourses sera disponible dans une prochaine version",
+      variant: "destructive"
     });
   };
 

@@ -40,10 +40,10 @@ export function UnifiedInvoicing() {
 
   const handleQuoteCreation = () => {
     toast({
-      title: "Création de Devis",
-      description: "Formulaire de création de devis ouvert",
+      title: "Fonctionnalité en développement",
+      description: "La création de devis sera disponible dans une prochaine version",
+      variant: "destructive"
     });
-    setShowQuoteForm(true);
   };
 
   const handleValidateInvoice = (invoice: any) => {

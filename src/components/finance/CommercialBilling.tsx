@@ -20,43 +20,49 @@ export function CommercialBilling() {
 
   const handleNewInvoice = () => {
     toast({
-      title: "Nouvelle Facture",
-      description: "Interface de création de facture commerciale ouverte",
+      title: "Fonctionnalité en développement",
+      description: "La facturation commerciale sera disponible dans une prochaine version",
+      variant: "destructive"
     });
   };
 
   const handleNewQuotation = () => {
     toast({
-      title: "Nouveau Devis",
-      description: "Interface de création de devis commercial ouverte",
+      title: "Fonctionnalité en développement", 
+      description: "La création de devis commerciaux sera disponible dans une prochaine version",
+      variant: "destructive"
     });
   };
 
   const handleNewClient = () => {
     toast({
-      title: "Nouveau Client",
-      description: "Formulaire d'ajout de client B2B ouvert",
+      title: "Fonctionnalité en développement",
+      description: "La gestion des clients B2B sera disponible dans une prochaine version",
+      variant: "destructive"
     });
   };
 
   const handleViewInvoice = (invoiceNumber: string) => {
     toast({
-      title: "Facture Ouverte",
-      description: `Détails de la facture ${invoiceNumber}`,
+      title: "Fonctionnalité en développement",
+      description: "La consultation détaillée des factures sera disponible prochainement",
+      variant: "destructive"
     });
   };
 
   const handleViewQuotation = (quoteNumber: string) => {
     toast({
-      title: "Devis Ouvert",
-      description: `Détails du devis ${quoteNumber}`,
+      title: "Fonctionnalité en développement",
+      description: "La consultation détaillée des devis sera disponible prochainement", 
+      variant: "destructive"
     });
   };
 
   const handleViewClient = (clientName: string) => {
     toast({
-      title: "Client Ouvert",
-      description: `Profil détaillé de ${clientName}`,
+      title: "Fonctionnalité en développement",
+      description: "La gestion détaillée des clients sera disponible prochainement",
+      variant: "destructive"
     });
   };
   const serviceTypes = [
