@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useChartOfAccounts } from '@/hooks/finance/useChartOfAccounts';
-import { Calculator, Plus, FileText, BarChart3, Book } from 'lucide-react';
+import { Calculator, Plus, FileText, BarChart3, Book, AlertTriangle } from 'lucide-react';
 
 export default function Accounting() {
   return (

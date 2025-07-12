@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Zap, Upload, Download, CheckCircle, AlertCircle } from 'lucide-react';
+import { Zap, Upload, Download, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react';
 
 export default function Reconciliation() {
   return (
