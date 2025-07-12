@@ -29,6 +29,58 @@ export function useBankReconciliation() {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
+  // Algorithme de matching avancé
+  const matchTransaction = (bankTx: BankTransaction, accountingEntries: any[]) => {
+    let bestMatch = null;
+    let bestScore = 0;
+    
+    accountingEntries.forEach(entry => {
+      let score = 0;
+      
+      // Montant exact = +40 points
+      if (Math.abs(bankTx.amount - entry.total_amount) < 0.01) score += 40;
+      
+      // Date proche = +30 points max
+      const daysDiff = Math.abs(daysBetween(new Date(bankTx.transaction_date), new Date(entry.entry_date)));
+      score += Math.max(0, 30 - (daysDiff * 5));
+      
+      // Similarité libellé = +30 points max  
+      score += textSimilarity(bankTx.description, entry.description || '') * 30;
+      
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = entry;
+      }
+    });
+    
+    return { match: bestMatch, score: bestScore };
+  };
+
+  // Fonction utilitaire : calcul de jours entre deux dates
+  const daysBetween = (date1: Date, date2: Date) => {
+    const diffTime = Math.abs(date2.getTime() - date1.getTime());
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  // Fonction utilitaire : similarité de texte (algorithme Levenshtein simplifié)
+  const textSimilarity = (str1: string, str2: string) => {
+    const s1 = str1.toLowerCase().trim();
+    const s2 = str2.toLowerCase().trim();
+    
+    if (s1 === s2) return 1;
+    if (s1.length === 0 || s2.length === 0) return 0;
+    
+    // Recherche de mots-clés communs
+    const words1 = s1.split(/\s+/);
+    const words2 = s2.split(/\s+/);
+    const commonWords = words1.filter(word => 
+      word.length > 2 && words2.some(w => w.includes(word) || word.includes(w))
+    );
+    
+    const similarity = commonWords.length / Math.max(words1.length, words2.length);
+    return Math.min(similarity, 1);
+  };
+
   const fetchBankTransactions = async () => {
     try {
       setLoading(true);
@@ -37,7 +89,7 @@ export function useBankReconciliation() {
         {
           id: '1',
           transaction_date: '2024-01-15',
-          description: 'VIREMENT SALAIRES',
+          description: 'VIREMENT SALAIRES PERSONNEL',
           amount: -45000,
           transaction_type: 'debit',
           is_reconciled: false
@@ -45,9 +97,17 @@ export function useBankReconciliation() {
         {
           id: '2', 
           transaction_date: '2024-01-16',
-          description: 'PAIEMENT SCOLARITE DUPONT',
+          description: 'PAIEMENT SCOLARITE DUPONT MARIE',
           amount: 2500,
           transaction_type: 'credit',
+          is_reconciled: false
+        },
+        {
+          id: '3',
+          transaction_date: '2024-01-17', 
+          description: 'VIR SEPA FOURNITURES BUREAU',
+          amount: -850,
+          transaction_type: 'debit',
           is_reconciled: false
         }
       ];
@@ -112,20 +172,34 @@ export function useBankReconciliation() {
     try {
       setLoading(true);
       
-      // Simuler la logique de rapprochement automatique
+      // Récupérer les écritures comptables non rapprochées
+      const { data: accountingEntries } = await supabase
+        .from('accounting_entries')
+        .select('*')
+        .eq('status', 'validated')
+        .is('reconciled_with', null);
+      
       const unreconciled = bankTransactions.filter(t => !t.is_reconciled);
-      const matches: ReconciliationMatch[] = unreconciled.slice(0, 2).map(transaction => ({
-        bank_transaction: transaction,
-        accounting_entries: [], // Serait peuplé avec les vraies écritures
-        match_score: Math.random() * 100,
-        match_type: 'exact' as const
-      }));
+      const matches: ReconciliationMatch[] = [];
+      
+      unreconciled.forEach(transaction => {
+        const result = matchTransaction(transaction, accountingEntries || []);
+        
+        if (result.score >= 60) { // Seuil de confiance minimum
+          matches.push({
+            bank_transaction: transaction,
+            accounting_entries: result.match ? [result.match] : [],
+            match_score: result.score,
+            match_type: result.score >= 95 ? 'exact' : result.score >= 80 ? 'partial' : 'manual'
+          });
+        }
+      });
       
       setPendingMatches(matches);
       
       toast({
         title: "Rapprochement automatique terminé",
-        description: `${matches.length} correspondances trouvées`,
+        description: `${matches.length} correspondances trouvées avec scores de ${matches.map(m => Math.round(m.match_score)).join(', ')}%`,
       });
       
     } catch (error) {
