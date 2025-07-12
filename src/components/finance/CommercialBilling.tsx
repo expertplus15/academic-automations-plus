@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Receipt, 
@@ -14,55 +15,53 @@ import {
   Calendar,
   Euro
 } from 'lucide-react';
+import { useCommercialClients } from '@/hooks/finance/useCommercialClients';
+import { useCommercialQuotations } from '@/hooks/finance/useCommercialQuotations';
+import { useCommercialInvoices } from '@/hooks/finance/useCommercialInvoices';
+import { CommercialClientForm } from './forms/CommercialClientForm';
+import { QuotationForm } from './forms/QuotationForm';
+import { CommercialInvoiceForm } from './forms/CommercialInvoiceForm';
 
 export function CommercialBilling() {
   const { toast } = useToast();
+  const [showClientForm, setShowClientForm] = useState(false);
+  const [showQuotationForm, setShowQuotationForm] = useState(false);
+  const [showInvoiceForm, setShowInvoiceForm] = useState(false);
+
+  const { clients, loading: clientsLoading } = useCommercialClients();
+  const { quotations, loading: quotationsLoading } = useCommercialQuotations();
+  const { invoices, loading: invoicesLoading } = useCommercialInvoices();
 
   const handleNewInvoice = () => {
-    toast({
-      title: "Fonctionnalité en développement",
-      description: "La facturation commerciale sera disponible dans une prochaine version",
-      variant: "destructive"
-    });
+    setShowInvoiceForm(true);
   };
 
   const handleNewQuotation = () => {
-    toast({
-      title: "Fonctionnalité en développement", 
-      description: "La création de devis commerciaux sera disponible dans une prochaine version",
-      variant: "destructive"
-    });
+    setShowQuotationForm(true);
   };
 
   const handleNewClient = () => {
-    toast({
-      title: "Fonctionnalité en développement",
-      description: "La gestion des clients B2B sera disponible dans une prochaine version",
-      variant: "destructive"
-    });
+    setShowClientForm(true);
   };
 
   const handleViewInvoice = (invoiceNumber: string) => {
     toast({
-      title: "Fonctionnalité en développement",
-      description: "La consultation détaillée des factures sera disponible prochainement",
-      variant: "destructive"
+      title: "Détails de la facture",
+      description: `Consultation de la facture ${invoiceNumber}`,
     });
   };
 
   const handleViewQuotation = (quoteNumber: string) => {
     toast({
-      title: "Fonctionnalité en développement",
-      description: "La consultation détaillée des devis sera disponible prochainement", 
-      variant: "destructive"
+      title: "Détails du devis",
+      description: `Consultation du devis ${quoteNumber}`,
     });
   };
 
   const handleViewClient = (clientName: string) => {
     toast({
-      title: "Fonctionnalité en développement",
-      description: "La gestion détaillée des clients sera disponible prochainement",
-      variant: "destructive"
+      title: "Détails du client",
+      description: `Consultation du client ${clientName}`,
     });
   };
   const serviceTypes = [
@@ -72,90 +71,37 @@ export function CommercialBilling() {
     { name: "Recherche & Développement", revenue: "€156,000", count: 6, growth: "+31%" }
   ];
 
-  const recentInvoices = [
-    {
-      number: "COM24-0023",
-      client: "TechCorp Industries",
-      service: "Formation Management",
-      amount: "€12,500",
-      status: "paid",
-      date: "2024-03-15"
-    },
-    {
-      number: "COM24-0024", 
-      client: "Innovation Labs",
-      service: "Audit Processus",
-      amount: "€28,000",
-      status: "sent",
-      date: "2024-03-18"
-    },
-    {
-      number: "COM24-0025",
-      client: "Global Solutions",
-      service: "Conseil Stratégique",
-      amount: "€45,000",
-      status: "draft",
-      date: "2024-03-20"
-    }
-  ];
+  const recentInvoices = invoices.slice(0, 10).map(invoice => {
+    const client = clients.find(c => c.id === invoice.client_id);
+    return {
+      number: invoice.invoice_number,
+      client: client?.company_name || 'Client inconnu',
+      service: invoice.title,
+      amount: `€${invoice.total_amount?.toLocaleString() || '0'}`,
+      status: invoice.status || 'draft',
+      date: new Date(invoice.invoice_date || invoice.created_at).toLocaleDateString('fr-FR')
+    };
+  });
 
-  const clients = [
-    {
-      name: "TechCorp Industries",
-      sector: "Technologie",
-      revenue_ytd: "€78,500",
-      projects: 5,
-      satisfaction: 98
-    },
-    {
-      name: "Innovation Labs",
-      sector: "R&D",
-      revenue_ytd: "€156,000", 
-      projects: 8,
-      satisfaction: 95
-    },
-    {
-      name: "Global Solutions",
-      sector: "Conseil",
-      revenue_ytd: "€203,400",
-      projects: 12,
-      satisfaction: 97
-    },
-    {
-      name: "Future Dynamics",
-      sector: "Manufacturing",
-      revenue_ytd: "€89,200",
-      projects: 6,
-      satisfaction: 92
-    }
-  ];
+  const clientsData = clients.slice(0, 8).map(client => ({
+    name: client.company_name,
+    sector: client.industry || 'Non spécifié',
+    revenue_ytd: '€0', // À calculer depuis les factures
+    projects: 0, // À calculer depuis les projets
+    satisfaction: 95 // Valeur par défaut
+  }));
 
-  const quotations = [
-    {
-      number: "DEV24-0012",
-      client: "Smart Industries",
-      service: "Transformation Digitale",
-      amount: "€85,000",
-      status: "pending",
-      expiry: "2024-04-15"
-    },
-    {
-      number: "DEV24-0013",
-      client: "Green Energy Corp",
-      service: "Audit Environnemental",
-      amount: "€32,000",
-      status: "negotiation",
-      expiry: "2024-04-20"
-    },
-    {
-      number: "DEV24-0014",
-      client: "NextGen Solutions",
-      service: "Formation Leadership",
-      amount: "€18,500",
-      status: "accepted",
-      expiry: "2024-04-25"
-    }
-  ];
+  const quotationsData = quotations.slice(0, 10).map(quotation => {
+    const client = clients.find(c => c.id === quotation.client_id);
+    return {
+      number: quotation.quotation_number,
+      client: client?.company_name || 'Client inconnu',
+      service: quotation.title,
+      amount: `€${quotation.total_amount?.toLocaleString() || '0'}`,
+      status: quotation.status || 'draft',
+      expiry: quotation.valid_until ? new Date(quotation.valid_until).toLocaleDateString('fr-FR') : 'Non définie'
+    };
+  });
 
   return (
     <div className="space-y-6">
@@ -200,7 +146,11 @@ export function CommercialBilling() {
           <Card>
             <CardContent className="p-0">
               <div className="divide-y">
-                {recentInvoices.map((invoice, index) => (
+                {invoicesLoading ? (
+                  <div className="p-4 text-center text-muted-foreground">Chargement...</div>
+                ) : recentInvoices.length === 0 ? (
+                  <div className="p-4 text-center text-muted-foreground">Aucune facture trouvée</div>
+                ) : recentInvoices.map((invoice, index) => (
                   <div key={index} className="p-4 flex items-center justify-between">
                     <div className="flex-1">
                       <div className="font-medium">{invoice.number}</div>
@@ -242,7 +192,11 @@ export function CommercialBilling() {
           <Card>
             <CardContent className="p-0">
               <div className="divide-y">
-                {quotations.map((quote, index) => (
+                {quotationsLoading ? (
+                  <div className="p-4 text-center text-muted-foreground">Chargement...</div>
+                ) : quotationsData.length === 0 ? (
+                  <div className="p-4 text-center text-muted-foreground">Aucun devis trouvé</div>
+                ) : quotationsData.map((quote, index) => (
                   <div key={index} className="p-4 flex items-center justify-between">
                     <div className="flex-1">
                       <div className="font-medium">{quote.number}</div>
@@ -259,10 +213,10 @@ export function CommercialBilling() {
                     <div className="text-center">
                       <Badge variant={
                         quote.status === 'accepted' ? 'default' :
-                        quote.status === 'negotiation' ? 'secondary' : 'outline'
+                        quote.status === 'sent' ? 'secondary' : 'outline'
                       }>
                         {quote.status === 'accepted' ? 'Accepté' :
-                         quote.status === 'negotiation' ? 'Négociation' : 'En attente'}
+                         quote.status === 'sent' ? 'Envoyé' : 'Brouillon'}
                       </Badge>
                     </div>
                     <Button size="sm" variant="outline" className="ml-4" onClick={() => handleViewQuotation(quote.number)}>
@@ -285,7 +239,11 @@ export function CommercialBilling() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {clients.map((client, index) => (
+            {clientsLoading ? (
+              <div className="col-span-2 text-center text-muted-foreground">Chargement...</div>
+            ) : clientsData.length === 0 ? (
+              <div className="col-span-2 text-center text-muted-foreground">Aucun client trouvé</div>
+            ) : clientsData.map((client, index) => (
               <Card key={index}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -416,6 +374,57 @@ export function CommercialBilling() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Dialogs */}
+      <Dialog open={showClientForm} onOpenChange={setShowClientForm}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Nouveau Client B2B</DialogTitle>
+          </DialogHeader>
+          <CommercialClientForm 
+            onSubmit={async () => {
+              setShowClientForm(false);
+            }}
+            onCancel={async () => {
+              setShowClientForm(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showQuotationForm} onOpenChange={setShowQuotationForm}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Nouveau Devis Commercial</DialogTitle>
+          </DialogHeader>
+          <QuotationForm 
+            clients={clients}
+            onSubmit={async () => {
+              setShowQuotationForm(false);
+            }}
+            onCancel={async () => {
+              setShowQuotationForm(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showInvoiceForm} onOpenChange={setShowInvoiceForm}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Nouvelle Facture Commerciale</DialogTitle>
+          </DialogHeader>
+          <CommercialInvoiceForm 
+            clients={clients}
+            onSubmit={async () => {
+              setShowInvoiceForm(false);
+            }}
+            onCancel={async () => {
+              setShowInvoiceForm(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
