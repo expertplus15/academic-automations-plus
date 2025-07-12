@@ -17,6 +17,7 @@ import {
   Calculator
 } from "lucide-react";
 import { runFinanceDiagnostic } from '@/scripts/financeTestRunner';
+import { runAcceleratedFinanceDiagnostic } from '@/scripts/acceleratedFinanceDiagnostic';
 import type { DiagnosticReport } from '@/scripts/financeTestRunner';
 
 interface TestResultProps {
@@ -85,22 +86,55 @@ export default function FinanceDiagnostic() {
   const [isRunning, setIsRunning] = useState(false);
   const [report, setReport] = useState<DiagnosticReport | null>(null);
   const [progress, setProgress] = useState(0);
+  const [acceleratedMode, setAcceleratedMode] = useState(true);
 
   const runDiagnostic = async () => {
     setIsRunning(true);
     setProgress(0);
     
     try {
-      // Simuler progression pour l'UI
-      const progressInterval = setInterval(() => {
-        setProgress(prev => Math.min(prev + 10, 90));
-      }, 200);
+      if (acceleratedMode) {
+        // Mode diagnostic accéléré
+        const progressInterval = setInterval(() => {
+          setProgress(prev => Math.min(prev + 5, 90));
+        }, 500);
 
-      const diagnosticReport = await runFinanceDiagnostic();
-      
-      clearInterval(progressInterval);
-      setProgress(100);
-      setReport(diagnosticReport);
+        const acceleratedResult = await runAcceleratedFinanceDiagnostic();
+        
+        clearInterval(progressInterval);
+        setProgress(100);
+        
+        // Convertir le résultat accéléré en format DiagnosticReport
+        const mockReport: DiagnosticReport = {
+          timestamp: new Date(),
+          totalTests: acceleratedResult.results.length,
+          passed: acceleratedResult.results.filter(r => r.status === 'SUCCESS').length,
+          failed: acceleratedResult.results.filter(r => r.status === 'ERROR').length,
+          errors: acceleratedResult.results.filter(r => r.status === 'WARNING').length,
+          results: acceleratedResult.results.map(r => ({
+            testName: r.step,
+            status: r.status === 'SUCCESS' ? 'PASS' : r.status === 'WARNING' ? 'ERROR' : 'FAIL',
+            duration: r.duration,
+            details: r.details,
+            expected: 'Diagnostic réussi',
+            actual: r.details
+          })),
+          recommendations: acceleratedResult.nextActions
+        };
+        
+        setReport(mockReport);
+      } else {
+        // Mode diagnostic standard
+        const progressInterval = setInterval(() => {
+          setProgress(prev => Math.min(prev + 10, 90));
+        }, 200);
+
+        const diagnosticReport = await runFinanceDiagnostic();
+        
+        clearInterval(progressInterval);
+        setProgress(100);
+        setReport(diagnosticReport);
+      }
       
     } catch (error) {
       console.error('Erreur durant le diagnostic:', error);
@@ -158,23 +192,40 @@ export default function FinanceDiagnostic() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-4">
-            <Button 
-              onClick={runDiagnostic} 
-              disabled={isRunning}
-              size="lg"
-            >
-              {isRunning ? 'Diagnostic en cours...' : 'Lancer le Diagnostic'}
-            </Button>
-            
-            {isRunning && (
-              <div className="flex-1">
-                <Progress value={progress} className="w-full" />
-                <span className="text-sm text-muted-foreground mt-1">
-                  {progress}% - Analyse en cours...
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={acceleratedMode}
+                  onChange={(e) => setAcceleratedMode(e.target.checked)}
+                  className="rounded"
+                />
+                <span className="text-sm font-medium">
+                  Mode Diagnostic Accéléré (Recommandé)
                 </span>
-              </div>
-            )}
+              </label>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <Button 
+                onClick={runDiagnostic} 
+                disabled={isRunning}
+                size="lg"
+              >
+                {isRunning ? 'Diagnostic en cours...' : 
+                 acceleratedMode ? 'Lancer le Diagnostic Accéléré' : 'Lancer le Diagnostic Standard'}
+              </Button>
+            
+              {isRunning && (
+                <div className="flex-1">
+                  <Progress value={progress} className="w-full" />
+                  <span className="text-sm text-muted-foreground mt-1">
+                    {progress}% - {acceleratedMode ? 'Diagnostic accéléré' : 'Analyse standard'} en cours...
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
