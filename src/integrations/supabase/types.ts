@@ -1959,6 +1959,268 @@ export type Database = {
           },
         ]
       }
+      commercial_clients: {
+        Row: {
+          billing_address: string | null
+          company_name: string
+          contact_email: string | null
+          contact_first_name: string | null
+          contact_last_name: string | null
+          contact_phone: string | null
+          created_at: string | null
+          created_by: string | null
+          credit_limit: number | null
+          id: string
+          industry: string | null
+          is_active: boolean | null
+          notes: string | null
+          payment_terms: number | null
+          shipping_address: string | null
+          siret: string | null
+          updated_at: string | null
+          vat_number: string | null
+        }
+        Insert: {
+          billing_address?: string | null
+          company_name: string
+          contact_email?: string | null
+          contact_first_name?: string | null
+          contact_last_name?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          credit_limit?: number | null
+          id?: string
+          industry?: string | null
+          is_active?: boolean | null
+          notes?: string | null
+          payment_terms?: number | null
+          shipping_address?: string | null
+          siret?: string | null
+          updated_at?: string | null
+          vat_number?: string | null
+        }
+        Update: {
+          billing_address?: string | null
+          company_name?: string
+          contact_email?: string | null
+          contact_first_name?: string | null
+          contact_last_name?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          credit_limit?: number | null
+          id?: string
+          industry?: string | null
+          is_active?: boolean | null
+          notes?: string | null
+          payment_terms?: number | null
+          shipping_address?: string | null
+          siret?: string | null
+          updated_at?: string | null
+          vat_number?: string | null
+        }
+        Relationships: []
+      }
+      commercial_invoice_lines: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          discount_percentage: number | null
+          id: string
+          invoice_id: string
+          line_total: number
+          quantity: number
+          service_name: string
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          id?: string
+          invoice_id: string
+          line_total: number
+          quantity?: number
+          service_name: string
+          unit_price: number
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          id?: string
+          invoice_id?: string
+          line_total?: number
+          quantity?: number
+          service_name?: string
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_invoice_lines_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commercial_invoices: {
+        Row: {
+          client_id: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          invoice_date: string | null
+          invoice_number: string
+          notes: string | null
+          paid_amount: number | null
+          payment_date: string | null
+          payment_method: string | null
+          quotation_id: string | null
+          status: string | null
+          subtotal: number
+          tax_amount: number | null
+          tax_rate: number | null
+          terms_conditions: string | null
+          title: string
+          total_amount: number
+          updated_at: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_date?: string | null
+          invoice_number: string
+          notes?: string | null
+          paid_amount?: number | null
+          payment_date?: string | null
+          payment_method?: string | null
+          quotation_id?: string | null
+          status?: string | null
+          subtotal?: number
+          tax_amount?: number | null
+          tax_rate?: number | null
+          terms_conditions?: string | null
+          title: string
+          total_amount?: number
+          updated_at?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_date?: string | null
+          invoice_number?: string
+          notes?: string | null
+          paid_amount?: number | null
+          payment_date?: string | null
+          payment_method?: string | null
+          quotation_id?: string | null
+          status?: string | null
+          subtotal?: number
+          tax_amount?: number | null
+          tax_rate?: number | null
+          terms_conditions?: string | null
+          title?: string
+          total_amount?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_invoices_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_invoices_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_quotations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commercial_quotations: {
+        Row: {
+          client_id: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          notes: string | null
+          quotation_date: string | null
+          quotation_number: string
+          status: string | null
+          subtotal: number
+          tax_amount: number | null
+          tax_rate: number | null
+          terms_conditions: string | null
+          title: string
+          total_amount: number
+          updated_at: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          notes?: string | null
+          quotation_date?: string | null
+          quotation_number: string
+          status?: string | null
+          subtotal?: number
+          tax_amount?: number | null
+          tax_rate?: number | null
+          terms_conditions?: string | null
+          title: string
+          total_amount?: number
+          updated_at?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          notes?: string | null
+          quotation_date?: string | null
+          quotation_number?: string
+          status?: string | null
+          subtotal?: number
+          tax_amount?: number | null
+          tax_rate?: number | null
+          terms_conditions?: string | null
+          title?: string
+          total_amount?: number
+          updated_at?: string | null
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_quotations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_favorites: {
         Row: {
           contact_id: string
@@ -5549,6 +5811,50 @@ export type Database = {
           },
         ]
       }
+      quotation_lines: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          discount_percentage: number | null
+          id: string
+          line_total: number
+          quantity: number
+          quotation_id: string
+          service_name: string
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          id?: string
+          line_total: number
+          quantity?: number
+          quotation_id: string
+          service_name: string
+          unit_price: number
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          id?: string
+          line_total?: number
+          quantity?: number
+          quotation_id?: string
+          service_name?: string
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotation_lines_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_quotations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       results_audit_logs: {
         Row: {
           after_data: Json | null
@@ -8105,6 +8411,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      generate_commercial_invoice_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       generate_document_number: {
         Args: { doc_type: string }
         Returns: string
@@ -8122,6 +8432,10 @@ export type Database = {
         Returns: string
       }
       generate_procurement_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_quotation_number: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
