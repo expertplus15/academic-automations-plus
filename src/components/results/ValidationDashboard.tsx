@@ -1,18 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle, XCircle, AlertTriangle, Play, BarChart3 } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle, Play, BarChart3, Settings, Zap, Brain } from 'lucide-react';
+import { useAdvancedGradeValidation } from '@/hooks/useAdvancedGradeValidation';
+import { useToast } from '@/hooks/use-toast';
 
 export function ValidationDashboard() {
+  const { 
+    loading, 
+    error, 
+    alerts, 
+    rules, 
+    fetchValidationRules, 
+    fetchActiveAlerts, 
+    getValidationStatistics,
+    resolveAlert,
+    acknowledgeAlert 
+  } = useAdvancedGradeValidation();
+  
+  const { toast } = useToast();
   const [validationStatus, setValidationStatus] = useState({
-    total: 1247,
-    validated: 1098,
-    errors: 23,
-    warnings: 126,
-    pending: 149
+    total: 0,
+    validated: 0,
+    errors: 0,
+    warnings: 0,
+    pending: 0
   });
 
   const validationRules = [

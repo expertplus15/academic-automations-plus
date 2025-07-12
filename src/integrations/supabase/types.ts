@@ -143,6 +143,63 @@ export type Database = {
           },
         ]
       }
+      academic_honors: {
+        Row: {
+          academic_year_id: string
+          average_score: number | null
+          calculated_at: string | null
+          created_at: string | null
+          criteria_met: Json
+          ects_earned: number | null
+          honor_level: string
+          honor_type: string
+          id: string
+          semester: number | null
+          student_id: string
+        }
+        Insert: {
+          academic_year_id: string
+          average_score?: number | null
+          calculated_at?: string | null
+          created_at?: string | null
+          criteria_met: Json
+          ects_earned?: number | null
+          honor_level: string
+          honor_type: string
+          id?: string
+          semester?: number | null
+          student_id: string
+        }
+        Update: {
+          academic_year_id?: string
+          average_score?: number | null
+          calculated_at?: string | null
+          created_at?: string | null
+          criteria_met?: Json
+          ects_earned?: number | null
+          honor_level?: string
+          honor_type?: string
+          id?: string
+          semester?: number | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academic_honors_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academic_honors_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       academic_levels: {
         Row: {
           code: string
@@ -181,6 +238,67 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      academic_performance_metrics: {
+        Row: {
+          academic_year_id: string | null
+          calculation_date: string
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          metric_name: string
+          metric_type: string
+          metric_value: number | null
+          program_id: string | null
+          subject_id: string | null
+        }
+        Insert: {
+          academic_year_id?: string | null
+          calculation_date?: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          metric_name: string
+          metric_type: string
+          metric_value?: number | null
+          program_id?: string | null
+          subject_id?: string | null
+        }
+        Update: {
+          academic_year_id?: string | null
+          calculation_date?: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          metric_name?: string
+          metric_type?: string
+          metric_value?: number | null
+          program_id?: string | null
+          subject_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academic_performance_metrics_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academic_performance_metrics_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academic_performance_metrics_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       academic_years: {
         Row: {
@@ -2427,6 +2545,70 @@ export type Database = {
           },
         ]
       }
+      ects_calculation_config: {
+        Row: {
+          academic_year_id: string
+          calculation_formula: string | null
+          coefficient: number
+          compensation_allowed: boolean | null
+          created_at: string | null
+          ects_credits: number
+          id: string
+          minimum_grade: number | null
+          program_id: string
+          subject_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          academic_year_id: string
+          calculation_formula?: string | null
+          coefficient?: number
+          compensation_allowed?: boolean | null
+          created_at?: string | null
+          ects_credits?: number
+          id?: string
+          minimum_grade?: number | null
+          program_id: string
+          subject_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          academic_year_id?: string
+          calculation_formula?: string | null
+          coefficient?: number
+          compensation_allowed?: boolean | null
+          created_at?: string | null
+          ects_credits?: number
+          id?: string
+          minimum_grade?: number | null
+          program_id?: string
+          subject_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ects_calculation_config_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ects_calculation_config_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ects_calculation_config_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_campaigns: {
         Row: {
           clicked_count: number | null
@@ -3478,6 +3660,288 @@ export type Database = {
             columns: ["request_id"]
             isOneToOne: false
             referencedRelation: "document_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      grade_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string | null
+          grade_id: string | null
+          id: string
+          message: string
+          metadata: Json | null
+          resolution_notes: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          rule_id: string | null
+          severity: string
+          status: string
+          student_id: string
+          subject_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string | null
+          grade_id?: string | null
+          id?: string
+          message: string
+          metadata?: Json | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          rule_id?: string | null
+          severity?: string
+          status?: string
+          student_id: string
+          subject_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string | null
+          grade_id?: string | null
+          id?: string
+          message?: string
+          metadata?: Json | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          rule_id?: string | null
+          severity?: string
+          status?: string
+          student_id?: string
+          subject_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grade_alerts_grade_id_fkey"
+            columns: ["grade_id"]
+            isOneToOne: false
+            referencedRelation: "student_grades"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "grade_alerts_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "grade_alerts_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "grade_validation_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "grade_alerts_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "grade_alerts_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      grade_simulations: {
+        Row: {
+          academic_year_id: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          original_data: Json
+          results: Json
+          simulated_data: Json
+          simulation_name: string
+          simulation_type: string
+          student_id: string
+        }
+        Insert: {
+          academic_year_id: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          original_data: Json
+          results: Json
+          simulated_data: Json
+          simulation_name: string
+          simulation_type?: string
+          student_id: string
+        }
+        Update: {
+          academic_year_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          original_data?: Json
+          results?: Json
+          simulated_data?: Json
+          simulation_name?: string
+          simulation_type?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grade_simulations_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "grade_simulations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "grade_simulations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      grade_validation_rules: {
+        Row: {
+          academic_year_id: string | null
+          conditions: Json
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_active: boolean
+          program_id: string | null
+          rule_name: string
+          rule_type: string
+          severity: string
+          subject_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          academic_year_id?: string | null
+          conditions?: Json
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          program_id?: string | null
+          rule_name: string
+          rule_type: string
+          severity?: string
+          subject_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          academic_year_id?: string | null
+          conditions?: Json
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          program_id?: string | null
+          rule_name?: string
+          rule_type?: string
+          severity?: string
+          subject_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grade_validation_rules_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "grade_validation_rules_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "grade_validation_rules_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "grade_validation_rules_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      grade_validation_workflow: {
+        Row: {
+          comments: string | null
+          created_at: string | null
+          grade_id: string
+          id: string
+          metadata: Json | null
+          updated_at: string | null
+          validation_date: string | null
+          validation_status: string
+          validator_id: string | null
+          validator_role: string
+          workflow_step: number
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string | null
+          grade_id: string
+          id?: string
+          metadata?: Json | null
+          updated_at?: string | null
+          validation_date?: string | null
+          validation_status?: string
+          validator_id?: string | null
+          validator_role: string
+          workflow_step?: number
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string | null
+          grade_id?: string
+          id?: string
+          metadata?: Json | null
+          updated_at?: string | null
+          validation_date?: string | null
+          validation_status?: string
+          validator_id?: string | null
+          validator_role?: string
+          workflow_step?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grade_validation_workflow_grade_id_fkey"
+            columns: ["grade_id"]
+            isOneToOne: false
+            referencedRelation: "student_grades"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "grade_validation_workflow_validator_id_fkey"
+            columns: ["validator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -4671,6 +5135,56 @@ export type Database = {
           },
         ]
       }
+      predictive_analytics: {
+        Row: {
+          calculated_at: string | null
+          confidence_level: number | null
+          contributing_factors: Json | null
+          created_at: string | null
+          id: string
+          model_version: string | null
+          prediction_score: number | null
+          prediction_type: string
+          recommendations: Json | null
+          student_id: string
+          valid_until: string | null
+        }
+        Insert: {
+          calculated_at?: string | null
+          confidence_level?: number | null
+          contributing_factors?: Json | null
+          created_at?: string | null
+          id?: string
+          model_version?: string | null
+          prediction_score?: number | null
+          prediction_type: string
+          recommendations?: Json | null
+          student_id: string
+          valid_until?: string | null
+        }
+        Update: {
+          calculated_at?: string | null
+          confidence_level?: number | null
+          contributing_factors?: Json | null
+          created_at?: string | null
+          id?: string
+          model_version?: string | null
+          prediction_score?: number | null
+          prediction_type?: string
+          recommendations?: Json | null
+          student_id?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "predictive_analytics_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       procurement_items: {
         Row: {
           created_at: string | null
@@ -5029,6 +5543,62 @@ export type Database = {
           {
             foreignKeyName: "properties_responsible_person_id_fkey"
             columns: ["responsible_person_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      results_audit_logs: {
+        Row: {
+          after_data: Json | null
+          before_data: Json | null
+          created_at: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          ip_address: unknown | null
+          metadata: Json | null
+          operation_details: Json
+          operation_type: string
+          session_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          after_data?: Json | null
+          before_data?: Json | null
+          created_at?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          operation_details: Json
+          operation_type: string
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          after_data?: Json | null
+          before_data?: Json | null
+          created_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          operation_details?: Json
+          operation_type?: string
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "results_audit_logs_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -7478,6 +8048,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_dropout_risk_score: {
+        Args: { p_student_id: string }
+        Returns: number
+      }
+      calculate_ects_with_compensation: {
+        Args: {
+          p_student_id: string
+          p_academic_year_id: string
+          p_semester?: number
+        }
+        Returns: Json
+      }
       calculate_student_averages: {
         Args: {
           p_student_id: string
@@ -7585,6 +8167,15 @@ export type Database = {
           p_evaluation_type_id: string
           p_grade: number
           p_max_grade?: number
+        }
+        Returns: Json
+      }
+      validate_grade_with_rules: {
+        Args: {
+          p_student_id: string
+          p_subject_id: string
+          p_grade: number
+          p_evaluation_type_id: string
         }
         Returns: Json
       }
