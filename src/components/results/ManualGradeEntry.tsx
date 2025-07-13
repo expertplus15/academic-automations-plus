@@ -10,6 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useEvaluationTypes } from '@/hooks/useEvaluationTypes';
 import { useStudents } from '@/hooks/useStudents';
 import { useStudentGrades } from '@/hooks/useStudentGrades';
+import { useSubjects } from '@/hooks/useSubjects';
+import { usePrograms } from '@/hooks/usePrograms';
 import { 
   Plus, 
   Search, 
@@ -57,14 +59,18 @@ export function ManualGradeEntry({
   const [saving, setSaving] = useState(false);
 
   const { toast } = useToast();
-  const { evaluationTypes } = useEvaluationTypes();
-  const { students } = useStudents();
+  const { evaluationTypes, loading: evalTypesLoading } = useEvaluationTypes();
+  const { students, loading: studentsLoading } = useStudents();
   const { saveGrade } = useStudentGrades();
+  const { subjects } = useSubjects();
+  const { programs } = usePrograms();
 
-  const filteredStudents = students.filter(student =>
-    student.profile?.full_name?.toLowerCase().includes(searchStudent.toLowerCase()) ||
-    student.student_number?.includes(searchStudent)
-  );
+  // Filtre des étudiants avec informations du programme
+  const filteredStudents = students.filter(student => {
+    const matchesSearch = student.profile?.full_name?.toLowerCase().includes(searchStudent.toLowerCase()) ||
+      student.student_number?.includes(searchStudent);
+    return matchesSearch;
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,6 +154,8 @@ export function ManualGradeEntry({
 
   const selectedStudent = students.find(s => s.id === formData.studentId);
   const selectedEvalType = evaluationTypes.find(e => e.id === formData.evaluationTypeId);
+  const currentSubject = subjects.find(s => s.id === subjectId);
+  const studentProgram = selectedStudent?.program;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -167,25 +175,26 @@ export function ManualGradeEntry({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Student selection */}
           <div>
-            <Label htmlFor="student-search">Étudiant *</Label>
+            <Label htmlFor="student-search">Étudiant * {currentSubject && `(${currentSubject.name})`}</Label>
             <div className="space-y-2">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="student-search"
-                  placeholder="Rechercher un étudiant..."
+                  placeholder={studentsLoading ? "Chargement des étudiants..." : "Rechercher un étudiant..."}
                   value={searchStudent}
                   onChange={(e) => setSearchStudent(e.target.value)}
                   className="pl-10"
+                  disabled={studentsLoading}
                 />
               </div>
               
               {searchStudent && (
                 <Card className="max-h-40 overflow-y-auto">
                   <CardContent className="p-2">
-                    {filteredStudents.length === 0 ? (
+                    {filteredStudents.length === 0 && !studentsLoading ? (
                       <p className="text-sm text-muted-foreground text-center py-2">
-                        Aucun étudiant trouvé
+                        {searchStudent ? 'Aucun étudiant trouvé' : 'Tapez pour rechercher un étudiant'}
                       </p>
                     ) : (
                       <div className="space-y-1">
@@ -203,8 +212,9 @@ export function ManualGradeEntry({
                               <User className="w-4 h-4" />
                               <div>
                                 <div className="font-medium">{student.profile?.full_name}</div>
-                                <div className="text-muted-foreground">
+                                <div className="text-muted-foreground text-xs">
                                   {student.student_number}
+                                  {student.program && ` - ${student.program.code}`}
                                 </div>
                               </div>
                             </div>
@@ -223,6 +233,7 @@ export function ManualGradeEntry({
                     <div className="font-medium">{selectedStudent.profile?.full_name}</div>
                     <div className="text-sm text-muted-foreground">
                       {selectedStudent.student_number}
+                      {studentProgram && ` - ${studentProgram.name}`}
                     </div>
                   </div>
                 </div>
@@ -233,11 +244,13 @@ export function ManualGradeEntry({
           {/* Evaluation type */}
           <div>
             <Label htmlFor="evaluation-type">Type d'évaluation *</Label>
-            <Select value={formData.evaluationTypeId} onValueChange={(value) => 
-              setFormData({ ...formData, evaluationTypeId: value })
-            }>
+            <Select 
+              value={formData.evaluationTypeId} 
+              onValueChange={(value) => setFormData({ ...formData, evaluationTypeId: value })}
+              disabled={evalTypesLoading}
+            >
               <SelectTrigger>
-                <SelectValue placeholder="Sélectionner un type" />
+                <SelectValue placeholder={evalTypesLoading ? "Chargement..." : "Sélectionner un type"} />
               </SelectTrigger>
               <SelectContent>
                 {evaluationTypes.filter(type => type.is_active).map(type => (
@@ -245,9 +258,17 @@ export function ManualGradeEntry({
                     <div className="flex items-center gap-2">
                       <BookOpen className="w-4 h-4" />
                       <span>{type.name} ({type.weight_percentage}%)</span>
+                      {type.description && (
+                        <span className="text-xs text-muted-foreground">- {type.description}</span>
+                      )}
                     </div>
                   </SelectItem>
                 ))}
+                {evaluationTypes.length === 0 && !evalTypesLoading && (
+                  <SelectItem value="" disabled>
+                    Aucun type d'évaluation disponible
+                  </SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -307,10 +328,12 @@ export function ManualGradeEntry({
           {selectedStudent && selectedEvalType && formData.grade && (
             <Card className="bg-muted/50">
               <CardContent className="pt-4">
-                <h4 className="font-medium mb-2">Résumé</h4>
+                <h4 className="font-medium mb-2">Résumé de la Note</h4>
                 <div className="text-sm space-y-1">
                   <div>Étudiant: {selectedStudent.profile?.full_name}</div>
-                  <div>Type: {selectedEvalType.name}</div>
+                  <div>Programme: {studentProgram?.name || 'Non défini'}</div>
+                  <div>Matière: {currentSubject?.name || 'Matière courante'}</div>
+                  <div>Type: {selectedEvalType.name} ({selectedEvalType.weight_percentage}%)</div>
                   <div>Note: {formData.grade}/{formData.maxGrade}</div>
                 </div>
               </CardContent>
