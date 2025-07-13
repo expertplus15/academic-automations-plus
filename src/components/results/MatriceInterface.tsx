@@ -605,7 +605,8 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
                 
                 {/* Lignes d'étudiants */}
                 {students.map(student => (
-                  <div key={student.id}>
+                  <React.Fragment key={student.id}>
+                    {/* Colonne nom étudiant */}
                     <div className="p-3 font-medium bg-muted/30 rounded flex flex-col justify-center min-h-[50px]">
                       <div className="text-sm font-semibold truncate leading-tight">
                         {student.profile?.full_name || `Étudiant ${student.student_number}`}
@@ -614,15 +615,16 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
                         {student.student_number}
                       </div>
                     </div>
+                    {/* Colonnes d'évaluations */}
                     {evaluations.map(evaluation => {
                       const cell = matrixData.find(c => 
                         c.studentId === student.id && c.evaluationId === evaluation.id
                       );
                       return cell ? renderGradeCell(cell, student, evaluation) : (
-                        <div key={`${student.id}_${evaluation.id}`} className="border border-border bg-muted/20 min-h-[40px]" />
+                        <div key={`${student.id}_${evaluation.id}`} className="border border-border bg-muted/20 min-h-[50px]" />
                       );
                     })}
-                  </div>
+                  </React.Fragment>
                 ))}
               </div>
             </div>
