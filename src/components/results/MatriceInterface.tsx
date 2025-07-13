@@ -515,10 +515,10 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
               
               {/* Actions secondaires */}
               <div className="flex items-center gap-1 border-l pl-3">
-                <Button variant="outline" size="sm" onClick={exportToCSV} title="Exporter CSV">
+                <Button variant="outline" size="sm" title="Importer">
                   <Download className="w-4 h-4" />
                 </Button>
-                <Button variant="outline" size="sm" title="Importer">
+                <Button variant="outline" size="sm" onClick={exportToCSV} title="Exporter CSV">
                   <Upload className="w-4 h-4" />
                 </Button>
               </div>
