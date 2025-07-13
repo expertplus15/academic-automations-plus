@@ -15,6 +15,9 @@ import { useEvaluationTypes } from '@/hooks/useEvaluationTypes';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Save, Users, RefreshCw, Download, Upload, Edit3, Lock, Unlock, MessageSquare, History, Share, Brain, Zap } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Progress } from '@/components/ui/progress';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { CRDTService } from '@/services/CRDTService';
 import { CollaborativeChat } from './CollaborativeChat';
 import { MultipleCursors } from './MultipleCursors';
@@ -435,44 +438,143 @@ export function MatriceInterface({
             </div>
           </div>
           
-          {/* Toolbar unifié */}
-          <div className="flex items-center justify-between mt-4 pt-4 border-t">
-            <div className="flex items-center gap-3">
-              {/* Action principale */}
-              <Button size="sm" onClick={() => saveChanges()} disabled={pendingChanges.size === 0} className="bg-primary hover:bg-primary/90">
-                <Save className="w-4 h-4 mr-2" />
-                Sauvegarder ({pendingChanges.size})
-              </Button>
-              
-              {/* Actions secondaires */}
-              <div className="flex items-center gap-1 border-l pl-3">
-                <Button variant="outline" size="sm" title="Importer">
-                  <Download className="w-4 h-4" />
-                </Button>
-                <Button variant="outline" size="sm" onClick={exportToCSV} title="Exporter CSV">
-                  <Upload className="w-4 h-4" />
-                </Button>
+          {/* Toolbar optimisé */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-4 pt-4 border-t">
+            <TooltipProvider>
+              <div className="flex items-center gap-4">
+                {/* Auto-save avec switch */}
+                <div className="flex items-center gap-2">
+                  <Switch 
+                    checked={autoSave} 
+                    onCheckedChange={setAutoSave}
+                    id="auto-save"
+                  />
+                  <label htmlFor="auto-save" className="text-sm font-medium cursor-pointer">
+                    Auto-save
+                  </label>
+                </div>
+
+                {/* Actions de sauvegarde */}
+                <div className="flex items-center gap-2">
+                  {pendingChanges.size > 0 ? (
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        size="default" 
+                        onClick={() => saveChanges()} 
+                        className="bg-primary hover:bg-primary/90 h-9 px-4"
+                      >
+                        <Save className="w-4 h-4 mr-2" />
+                        Sauvegarder
+                        <Badge variant="secondary" className="ml-2 h-5 px-2 text-xs">
+                          {pendingChanges.size}
+                        </Badge>
+                      </Button>
+                      <Progress value={0} className="w-20 h-2" />
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                      Sauvegardé
+                    </div>
+                  )}
+                </div>
+
+                {/* Actions import/export */}
+                <div className="flex items-center gap-1 border-l pl-3">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="outline" size="default" className="h-9 px-3">
+                        <Upload className="w-4 h-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Importer des données</TooltipContent>
+                  </Tooltip>
+                  
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="outline" size="default" onClick={exportToCSV} className="h-9 px-3">
+                        <Download className="w-4 h-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Exporter en CSV</TooltipContent>
+                  </Tooltip>
+                </div>
               </div>
-              
-              {/* Outils collaboratifs */}
-              <div className="flex items-center gap-1 border-l pl-3">
-                <Button variant={showChat ? "default" : "outline"} size="sm" onClick={() => setShowChat(!showChat)} title="Chat collaboratif">
-                  <MessageSquare className="w-4 h-4" />
-                </Button>
-                <Button variant={showAIInsights ? "default" : "outline"} size="sm" onClick={() => setShowAIInsights(!showAIInsights)} title="Insights IA">
-                  <Brain className="w-4 h-4" />
-                </Button>
-                <Button variant={viewHistory ? "default" : "outline"} size="sm" onClick={() => setViewHistory(!viewHistory)} title="Historique">
-                  <History className="w-4 h-4" />
-                </Button>
+
+              {/* Outils collaboratifs et utilisateurs connectés */}
+              <div className="flex items-center gap-3">
+                {/* Utilisateurs connectés avec avatars */}
+                <div className="flex items-center gap-2">
+                  <div className="flex -space-x-2">
+                    {connectedUsers.slice(0, 3).map((user, index) => (
+                      <div 
+                        key={user.id}
+                        className="w-8 h-8 rounded-full border-2 border-background flex items-center justify-center text-xs font-medium text-white"
+                        style={{ backgroundColor: user.color }}
+                        title={user.name}
+                      >
+                        {user.name.charAt(0).toUpperCase()}
+                      </div>
+                    ))}
+                    {connectedUsers.length > 3 && (
+                      <div className="w-8 h-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-xs font-medium">
+                        +{connectedUsers.length - 3}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-muted-foreground">
+                      {connectedUsers.length} en ligne
+                    </span>
+                  </div>
+                </div>
+
+                {/* Actions collaboratives */}
+                <div className="flex items-center gap-1 border-l pl-3">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant={showChat ? "default" : "outline"} 
+                        size="default" 
+                        onClick={() => setShowChat(!showChat)}
+                        className="h-9 px-3"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Chat collaboratif</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant={showAIInsights ? "default" : "outline"} 
+                        size="default" 
+                        onClick={() => setShowAIInsights(!showAIInsights)}
+                        className="h-9 px-3"
+                      >
+                        <Brain className="w-4 h-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Insights IA</TooltipContent>
+                  </Tooltip>
+                  
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        variant={viewHistory ? "default" : "outline"} 
+                        size="default" 
+                        onClick={() => setViewHistory(!viewHistory)}
+                        className="h-9 px-3"
+                      >
+                        <History className="w-4 h-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Historique des modifications</TooltipContent>
+                  </Tooltip>
+                </div>
               </div>
-            </div>
-            
-            {/* Auto-save indicator */}
-            <Button variant="ghost" size="sm" onClick={() => setAutoSave(!autoSave)} className="text-xs" title={`Auto-save ${autoSave ? 'activé' : 'désactivé'}`}>
-              <Zap className={`w-3 h-3 mr-1 ${autoSave ? 'text-emerald-500' : 'text-muted-foreground'}`} />
-              Auto-save: {autoSave ? 'ON' : 'OFF'}
-            </Button>
+            </TooltipProvider>
           </div>
         </CardHeader>
       </Card>
