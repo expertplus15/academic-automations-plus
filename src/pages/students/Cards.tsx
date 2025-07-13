@@ -152,7 +152,7 @@ export default function Cards() {
                   <p className="text-sm text-muted-foreground">À imprimer</p>
                   <p className="text-2xl font-bold text-blue-600">{stats.toPrint}</p>
                 </div>
-                <Print className="w-8 h-8 text-blue-600" />
+                <Printer className="w-8 h-8 text-blue-600" />
               </div>
             </CardContent>
           </Card>
