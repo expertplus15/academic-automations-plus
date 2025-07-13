@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { FileText, Users, Download, Settings, Play } from "lucide-react";
+import { usePrograms } from "@/hooks/usePrograms";
 
 interface GenerationFormProps {
   type: "bulletin" | "transcript" | "certificate" | "attestation" | "batch";
@@ -18,6 +19,8 @@ interface GenerationFormProps {
 }
 
 export function GenerationForm({ type, templateId, onGenerate, onCancel }: GenerationFormProps) {
+  const { programs, loading: programsLoading } = usePrograms();
+  
   const [config, setConfig] = useState({
     template: templateId || "",
     academicYear: "",
@@ -146,12 +149,14 @@ export function GenerationForm({ type, templateId, onGenerate, onCancel }: Gener
             setConfig(prev => ({ ...prev, program: value }))
           }>
             <SelectTrigger>
-              <SelectValue placeholder="Sélectionner un programme" />
+              <SelectValue placeholder={programsLoading ? "Chargement..." : "Sélectionner un programme"} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="l1-info">L1 Informatique</SelectItem>
-              <SelectItem value="l2-info">L2 Informatique</SelectItem>
-              <SelectItem value="m1-info">M1 Informatique</SelectItem>
+              {programs.map((program) => (
+                <SelectItem key={program.id} value={program.id}>
+                  {program.name} {program.code && `(${program.code})`}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
