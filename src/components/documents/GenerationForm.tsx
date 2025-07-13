@@ -175,7 +175,7 @@ export function GenerationForm({ type, templateId, onGenerate, onCancel }: Gener
                 <SelectValue placeholder={studentsLoading ? "Chargement..." : "Sélectionner un étudiant"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Aucun étudiant spécifique</SelectItem>
+                <SelectItem value="none">Aucun étudiant spécifique</SelectItem>
                 {students.map((student) => (
                   <SelectItem key={student.id} value={student.id}>
                     {student.profile?.full_name || student.student_number}

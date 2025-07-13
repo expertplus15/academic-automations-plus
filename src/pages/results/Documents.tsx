@@ -48,7 +48,9 @@ export default function Documents() {
   // Handle generation
   const handleGenerate = async (config: any) => {
     try {
-      await generateDocument(config.template, config.student_id, config);
+      // Si student_id est "none", on passe undefined pour une génération générique
+      const studentId = config.student_id === "none" ? undefined : config.student_id;
+      await generateDocument(config.template, studentId, config);
       setShowGenerationForm(false);
     } catch (error) {
       console.error('Generation error:', error);
