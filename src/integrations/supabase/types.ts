@@ -5284,6 +5284,102 @@ export type Database = {
           },
         ]
       }
+      module_sync_configurations: {
+        Row: {
+          auto_sync: boolean | null
+          created_at: string | null
+          id: string
+          is_enabled: boolean | null
+          last_sync_at: string | null
+          next_sync_at: string | null
+          operation_type: string
+          source_module: string
+          sync_frequency: string | null
+          sync_rules: Json | null
+          target_module: string
+          updated_at: string | null
+        }
+        Insert: {
+          auto_sync?: boolean | null
+          created_at?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          last_sync_at?: string | null
+          next_sync_at?: string | null
+          operation_type: string
+          source_module: string
+          sync_frequency?: string | null
+          sync_rules?: Json | null
+          target_module: string
+          updated_at?: string | null
+        }
+        Update: {
+          auto_sync?: boolean | null
+          created_at?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          last_sync_at?: string | null
+          next_sync_at?: string | null
+          operation_type?: string
+          source_module?: string
+          sync_frequency?: string | null
+          sync_rules?: Json | null
+          target_module?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      module_sync_operations: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          entity_id: string
+          entity_type: string
+          error_message: string | null
+          id: string
+          max_retries: number | null
+          operation_type: string
+          retry_count: number | null
+          source_module: string
+          status: string | null
+          sync_data: Json | null
+          target_module: string
+          triggered_by: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          entity_id: string
+          entity_type: string
+          error_message?: string | null
+          id?: string
+          max_retries?: number | null
+          operation_type: string
+          retry_count?: number | null
+          source_module: string
+          status?: string | null
+          sync_data?: Json | null
+          target_module: string
+          triggered_by?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          error_message?: string | null
+          id?: string
+          max_retries?: number | null
+          operation_type?: string
+          retry_count?: number | null
+          source_module?: string
+          status?: string | null
+          sync_data?: Json | null
+          target_module?: string
+          triggered_by?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string | null
@@ -7565,6 +7661,39 @@ export type Database = {
         }
         Relationships: []
       }
+      sync_events: {
+        Row: {
+          created_at: string | null
+          entity_id: string | null
+          event_data: Json | null
+          event_type: string
+          id: string
+          module: string
+          processed: boolean | null
+          triggered_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          entity_id?: string | null
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          module: string
+          processed?: boolean | null
+          triggered_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          entity_id?: string | null
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          module?: string
+          processed?: boolean | null
+          triggered_by?: string | null
+        }
+        Relationships: []
+      }
       system_notifications: {
         Row: {
           created_at: string | null
@@ -8804,6 +8933,17 @@ export type Database = {
           expiry_date: string
           days_until_expiry: number
         }[]
+      }
+      trigger_module_sync: {
+        Args: {
+          p_source_module: string
+          p_target_module: string
+          p_operation_type: string
+          p_entity_id: string
+          p_entity_type: string
+          p_sync_data?: Json
+        }
+        Returns: string
       }
       validate_grade_entry: {
         Args: {

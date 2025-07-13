@@ -6,14 +6,22 @@ import { ModulesGrid } from '@/components/dashboard/ModulesGrid';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { RecentActivity } from '@/components/dashboard/RecentActivity';
 import { EnhancedTestsPanel } from '@/components/debug/EnhancedTestsPanel';
+import { SyncStatusIndicator } from '@/components/sync/SyncStatusIndicator';
+import { useSyncTriggers } from '@/hooks/useSyncTriggers';
 
 export default function Dashboard() {
+  // Initialiser les déclencheurs de synchronisation
+  useSyncTriggers();
+
   return (
     <MainDashboardLayout>
       <div className="min-h-screen bg-background p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header avec salutation et cartes de statut */}
           <WelcomeHeader />
+          
+          {/* État de synchronisation */}
+          <SyncStatusIndicator />
           
           {/* Modules de gestion */}
           <div className="space-y-6">

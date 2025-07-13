@@ -278,7 +278,7 @@ export default function Sync() {
                             </span>
                             <span>ID: {operation.entity_id}</span>
                             <span>
-                              {new Date(operation.triggered_at).toLocaleString('fr-FR')}
+                              {new Date(operation.created_at).toLocaleString('fr-FR')}
                             </span>
                             {operation.retry_count > 0 && (
                               <span className="text-yellow-600">
@@ -286,7 +286,7 @@ export default function Sync() {
                               </span>
                             )}
                           </div>
-                          {operation.status === 'in_progress' && (
+                          {operation.status === 'processing' && (
                             <Progress value={65} className="h-2 mt-2" />
                           )}
                           {operation.error_message && (

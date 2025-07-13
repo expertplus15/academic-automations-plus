@@ -1,17 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface SyncOperation {
   id: string;
-  source_module: 'hr' | 'academic' | 'finance' | 'students';
-  target_module: 'hr' | 'academic' | 'finance' | 'students';
-  operation_type: 'teacher_assignment' | 'salary_sync' | 'contract_sync' | 'availability_sync' | 'performance_sync';
+  source_module: string;
+  target_module: string;
+  operation_type: string;
   entity_id: string;
   entity_type: string;
-  sync_data: Record<string, any>;
-  status: 'pending' | 'in_progress' | 'completed' | 'failed' | 'cancelled';
-  triggered_by: string;
-  triggered_at: string;
+  sync_data: any;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  triggered_by: string | null;
+  created_at: string;
   completed_at?: string;
   error_message?: string;
   retry_count: number;
@@ -28,7 +28,7 @@ export interface SyncConfiguration {
   sync_frequency?: 'realtime' | 'hourly' | 'daily' | 'weekly' | 'manual';
   last_sync_at?: string;
   next_sync_at?: string;
-  sync_rules: Record<string, any>;
+  sync_rules: any;
   created_at: string;
   updated_at: string;
 }
@@ -50,120 +50,34 @@ export function useModuleSync() {
     try {
       setLoading(true);
       
-      // Données factices pour la synchronisation
-      const mockOperations: SyncOperation[] = [
-        {
-          id: '1',
-          source_module: 'hr',
-          target_module: 'academic',
-          operation_type: 'teacher_assignment',
-          entity_id: 'teacher1',
-          entity_type: 'teacher_profile',
-          sync_data: {
-            teacher_id: 'teacher1',
-            subjects: ['MATH_ADV', 'STAT_101'],
-            availability: { monday: '08:00-17:00', tuesday: '10:00-16:00' }
-          },
-          status: 'completed',
-          triggered_by: 'user1',
-          triggered_at: new Date(Date.now() - 3600000).toISOString(),
-          completed_at: new Date(Date.now() - 3000000).toISOString(),
-          retry_count: 0,
-          max_retries: 3
-        },
-        {
-          id: '2',
-          source_module: 'hr',
-          target_module: 'finance',
-          operation_type: 'salary_sync',
-          entity_id: 'contract1',
-          entity_type: 'teacher_contract',
-          sync_data: {
-            contract_id: 'contract1',
-            teacher_id: 'teacher1',
-            salary_amount: 3500,
-            effective_date: '2024-01-01'
-          },
-          status: 'in_progress',
-          triggered_by: 'system',
-          triggered_at: new Date(Date.now() - 600000).toISOString(),
-          retry_count: 1,
-          max_retries: 3
-        },
-        {
-          id: '3',
-          source_module: 'academic',
-          target_module: 'hr',
-          operation_type: 'availability_sync',
-          entity_id: 'schedule1',
-          entity_type: 'timetable_slot',
-          sync_data: {
-            teacher_id: 'teacher2',
-            schedule_conflicts: ['Monday 14:00-16:00 overlaps with course PHYS_101'],
-            availability_updates: { monday: 'limited', wednesday: 'unavailable' }
-          },
-          status: 'failed',
-          triggered_by: 'system',
-          triggered_at: new Date(Date.now() - 1800000).toISOString(),
-          error_message: 'Teacher availability conflict detected',
-          retry_count: 3,
-          max_retries: 3
-        }
-      ];
-
-      const mockConfigurations: SyncConfiguration[] = [
-        {
-          id: '1',
-          source_module: 'hr',
-          target_module: 'academic',
-          operation_type: 'teacher_assignment',
-          is_enabled: true,
-          auto_sync: true,
-          sync_frequency: 'realtime',
-          last_sync_at: new Date(Date.now() - 3600000).toISOString(),
-          sync_rules: {
-            sync_on: ['contract_creation', 'specialty_assignment'],
-            conditions: { status: 'active' }
-          },
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: '2',
-          source_module: 'hr',
-          target_module: 'finance',
-          operation_type: 'salary_sync',
-          is_enabled: true,
-          auto_sync: false,
-          sync_frequency: 'daily',
-          last_sync_at: new Date(Date.now() - 86400000).toISOString(),
-          next_sync_at: new Date(Date.now() + 86400000).toISOString(),
-          sync_rules: {
-            sync_on: ['contract_update', 'salary_change'],
-            validation: { min_amount: 1000, max_amount: 10000 }
-          },
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: '3',
-          source_module: 'academic',
-          target_module: 'hr',
-          operation_type: 'availability_sync',
-          is_enabled: false,
-          auto_sync: true,
-          sync_frequency: 'hourly',
-          sync_rules: {
-            sync_on: ['schedule_conflict', 'timetable_change'],
-            notify_on: ['conflict_detected']
-          },
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      ];
-
-      setSyncOperations(mockOperations);
-      setSyncConfigurations(mockConfigurations);
+      // Récupérer les opérations de synchronisation réelles
+      const { data: operations, error: opsError } = await supabase
+        .from('module_sync_operations')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      
+      if (opsError) throw opsError;
+      
+      // Récupérer les configurations de synchronisation
+      const { data: configs, error: configsError } = await supabase
+        .from('module_sync_configurations')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (configsError) throw configsError;
+      
+      setSyncOperations((operations || []).map(op => ({
+        ...op,
+        sync_data: op.sync_data || {},
+        triggered_by: op.triggered_by || null,
+        status: (op.status as 'pending' | 'processing' | 'completed' | 'failed') || 'pending'
+      })));
+      setSyncConfigurations((configs || []).map(config => ({
+        ...config,
+        sync_rules: config.sync_rules || {},
+        sync_frequency: (config.sync_frequency as 'realtime' | 'hourly' | 'daily' | 'weekly' | 'manual') || 'manual'
+      })));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
     } finally {
@@ -173,53 +87,25 @@ export function useModuleSync() {
 
   const triggerSync = async (configId: string, entityId?: string) => {
     try {
-      // Simulation du déclenchement de synchronisation
       const config = syncConfigurations.find(c => c.id === configId);
       if (!config) throw new Error('Configuration non trouvée');
 
-      const newOperation: SyncOperation = {
-        id: Date.now().toString(),
-        source_module: config.source_module as any,
-        target_module: config.target_module as any,
-        operation_type: config.operation_type as any,
-        entity_id: entityId || 'manual_trigger',
-        entity_type: 'manual',
-        sync_data: { triggered_manually: true },
-        status: 'pending',
-        triggered_by: 'current_user',
-        triggered_at: new Date().toISOString(),
-        retry_count: 0,
-        max_retries: 3
-      };
+      // Déclencher la synchronisation via la fonction DB
+      const { data, error } = await supabase.rpc('trigger_module_sync', {
+        p_source_module: config.source_module,
+        p_target_module: config.target_module,
+        p_operation_type: config.operation_type,
+        p_entity_id: entityId || 'manual_trigger',
+        p_entity_type: 'manual',
+        p_sync_data: { triggered_manually: true }
+      });
 
-      setSyncOperations(prev => [newOperation, ...prev]);
+      if (error) throw error;
+
+      // Actualiser les données
+      await fetchSyncData();
       
-      // Simuler le processus de synchronisation
-      setTimeout(() => {
-        setSyncOperations(prev => 
-          prev.map(op => 
-            op.id === newOperation.id 
-              ? { ...op, status: 'in_progress' as const }
-              : op
-          )
-        );
-      }, 1000);
-
-      setTimeout(() => {
-        setSyncOperations(prev => 
-          prev.map(op => 
-            op.id === newOperation.id 
-              ? { 
-                  ...op, 
-                  status: 'completed' as const, 
-                  completed_at: new Date().toISOString() 
-                }
-              : op
-          )
-        );
-      }, 3000);
-
-      return { success: true, operationId: newOperation.id };
+      return { success: true, operationId: data };
     } catch (err) {
       return { 
         success: false, 
@@ -230,13 +116,14 @@ export function useModuleSync() {
 
   const updateConfiguration = async (configId: string, updates: Partial<SyncConfiguration>) => {
     try {
-      setSyncConfigurations(prev => 
-        prev.map(config => 
-          config.id === configId 
-            ? { ...config, ...updates, updated_at: new Date().toISOString() }
-            : config
-        )
-      );
+      const { error } = await supabase
+        .from('module_sync_configurations')
+        .update(updates)
+        .eq('id', configId);
+      
+      if (error) throw error;
+      
+      await fetchSyncData();
       return { success: true };
     } catch (err) {
       return { 
@@ -253,35 +140,18 @@ export function useModuleSync() {
         throw new Error('Impossible de relancer cette opération');
       }
 
-      setSyncOperations(prev => 
-        prev.map(op => 
-          op.id === operationId 
-            ? { 
-                ...op, 
-                status: 'pending' as const,
-                retry_count: op.retry_count + 1,
-                error_message: undefined
-              }
-            : op
-        )
-      );
+      const { error } = await supabase
+        .from('module_sync_operations')
+        .update({ 
+          status: 'pending',
+          retry_count: operation.retry_count + 1,
+          error_message: null
+        })
+        .eq('id', operationId);
 
-      // Simuler une nouvelle tentative
-      setTimeout(() => {
-        setSyncOperations(prev => 
-          prev.map(op => 
-            op.id === operationId 
-              ? { 
-                  ...op, 
-                  status: Math.random() > 0.5 ? 'completed' as const : 'failed' as const,
-                  completed_at: Math.random() > 0.5 ? new Date().toISOString() : undefined,
-                  error_message: Math.random() > 0.5 ? undefined : 'Erreur persistante'
-                }
-              : op
-          )
-        );
-      }, 2000);
-
+      if (error) throw error;
+      
+      await fetchSyncData();
       return { success: true };
     } catch (err) {
       return { 
@@ -291,23 +161,57 @@ export function useModuleSync() {
     }
   };
 
-  const publishEvent = async (module: string, event: string, data: any) => {
-    // Simuler la publication d'événement
-    const newEvent = {
-      id: Date.now().toString(),
-      module,
-      action: event,
-      status: 'completed',
-      timestamp: new Date(),
-      data
-    };
-    
-    setSyncEvents(prev => [newEvent, ...prev].slice(0, 50)); // Garder seulement les 50 derniers
-    return { success: true };
-  };
+  const publishEvent = useCallback(async (module: string, eventType: string, data: any) => {
+    try {
+      const { error } = await supabase
+        .from('sync_events')
+        .insert({
+          module,
+          event_type: eventType,
+          entity_id: data.id || data.entity_id || null,
+          event_data: data
+        });
+
+      if (error) throw error;
+      
+      return { success: true };
+    } catch (err) {
+      console.error('Erreur publication événement:', err);
+      return { success: false, error: err };
+    }
+  }, []);
 
   useEffect(() => {
     fetchSyncData();
+    
+    // Écouter les changements temps réel sur les opérations de sync
+    const syncChannel = supabase
+      .channel('sync-operations')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'module_sync_operations'
+      }, () => {
+        fetchSyncData();
+      })
+      .subscribe();
+
+    // Écouter les événements de synchronisation
+    const eventsChannel = supabase
+      .channel('sync-events')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'sync_events'
+      }, (payload) => {
+        setSyncEvents(prev => [payload.new, ...prev].slice(0, 50));
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(syncChannel);
+      supabase.removeChannel(eventsChannel);
+    };
   }, []);
 
   return {
