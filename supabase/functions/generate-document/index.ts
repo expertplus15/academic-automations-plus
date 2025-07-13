@@ -37,8 +37,8 @@ serve(async (req) => {
     const body = await req.json();
     const { template_id, student_id, request_data } = body;
 
-    if (!template_id || !student_id) {
-      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+    if (!template_id) {
+      return new Response(JSON.stringify({ error: 'Missing template_id' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -59,23 +59,27 @@ serve(async (req) => {
       });
     }
 
-    // Get student data
-    const { data: student, error: studentError } = await supabase
-      .from('students')
-      .select(`
-        *,
-        profiles!inner(full_name, email),
-        programs(name),
-        academic_levels(name)
-      `)
-      .eq('id', student_id)
-      .single();
+    // Get student data (if student_id provided)
+    let student = null;
+    if (student_id) {
+      const { data: studentData, error: studentError } = await supabase
+        .from('students')
+        .select(`
+          *,
+          profiles!inner(full_name, email),
+          programs(name),
+          academic_levels(name)
+        `)
+        .eq('id', student_id)
+        .single();
 
-    if (studentError || !student) {
-      return new Response(JSON.stringify({ error: 'Student not found' }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      if (studentError || !studentData) {
+        return new Response(JSON.stringify({ error: 'Student not found' }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      student = studentData;
     }
 
     // Create document request
@@ -111,11 +115,11 @@ serve(async (req) => {
       
       // Replace common variables
       const replacements = {
-        '{{student_name}}': student.profiles.full_name,
-        '{{student_number}}': student.student_number,
-        '{{student_email}}': student.profiles.email,
-        '{{program_name}}': student.programs?.name || '',
-        '{{level_name}}': student.academic_levels?.name || '',
+        '{{student_name}}': student?.profiles?.full_name || '',
+        '{{student_number}}': student?.student_number || '',
+        '{{student_email}}': student?.profiles?.email || '',
+        '{{program_name}}': student?.programs?.name || '',
+        '{{level_name}}': student?.academic_levels?.name || '',
         '{{document_number}}': docNumber,
         '{{date}}': new Date().toLocaleDateString('fr-FR'),
         '{{academic_year}}': new Date().getFullYear().toString(),
