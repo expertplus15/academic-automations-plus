@@ -27,19 +27,43 @@ import {
   BarChart3,
   User,
   LayoutDashboard,
-  PenTool
+  PenTool,
+  TrendingUp,
+  Download,
+  Settings
 } from "lucide-react";
 
 const examsItems = [
-  { title: "Création d'examen", url: "/exams/creation", icon: PenTool },
-  { title: "Planification examens", url: "/exams/planning", icon: Calendar },
-  { title: "Optimisation automatique", url: "/exams/optimization", icon: BarChart3 },
-  { title: "Gestion salles", url: "/exams/rooms", icon: Building },
-  { title: "Attribution surveillants", url: "/exams/supervisors", icon: Users },
-  { title: "Convocations massives", url: "/exams/invitations", icon: Mail },
-  { title: "Surveillance temps réel", url: "/exams/monitoring", icon: Monitor },
-  { title: "Incidents & PV", url: "/exams/incidents", icon: AlertTriangle }
+  // Gestion
+  { title: "Création d'examen", url: "/exams/creation", icon: PenTool, group: "Gestion" },
+  { title: "Planification examens", url: "/exams/planning", icon: Calendar, group: "Gestion" },
+  { title: "Calendrier", url: "/exams/calendar", icon: Calendar, group: "Gestion" },
+  
+  // Intelligence
+  { title: "Optimisation automatique", url: "/exams/optimization", icon: BarChart3, group: "Intelligence" },
+  { title: "Analytics", url: "/exams/analytics", icon: TrendingUp, group: "Intelligence" },
+  
+  // Opérations
+  { title: "Gestion salles", url: "/exams/rooms", icon: Building, group: "Opérations" },
+  { title: "Attribution surveillants", url: "/exams/supervisors", icon: Users, group: "Opérations" },
+  { title: "Convocations massives", url: "/exams/invitations", icon: Mail, group: "Opérations" },
+  
+  // Surveillance
+  { title: "Surveillance temps réel", url: "/exams/monitoring", icon: Monitor, group: "Surveillance" },
+  { title: "Incidents & PV", url: "/exams/incidents", icon: AlertTriangle, group: "Surveillance" },
+  
+  // Administration
+  { title: "Rapports", url: "/exams/reports", icon: Download, group: "Administration" },
+  { title: "Paramètres", url: "/exams/settings", icon: Settings, group: "Administration" }
 ];
+
+const groupedItems = examsItems.reduce((groups, item) => {
+  if (!groups[item.group]) {
+    groups[item.group] = [];
+  }
+  groups[item.group].push(item);
+  return groups;
+}, {} as Record<string, typeof examsItems>);
 
 export function ExamsModuleSidebar() {
   const location = useLocation();
@@ -80,38 +104,45 @@ export function ExamsModuleSidebar() {
         </div>
         
         
-        <SidebarGroup className="py-2">
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
-              {examsItems.map(item => {
-                const ItemIcon = item.icon;
-                const isActive = location.pathname === item.url;
-                
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <Link 
-                        to={item.url} 
-                        className={cn(
-                          "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
-                          "text-sidebar-foreground hover:bg-sidebar-accent",
-                          isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                        )}
-                      >
-                        {isActive && <div className="absolute left-0 w-1 h-6 bg-violet-500 rounded-r" />}
-                        <ItemIcon className="w-4 h-4 text-violet-500" />
-                        <div className="flex-1 min-w-0">
-                          <span className="text-base block truncate">{item.title}</span>
-                        </div>
-                        {isActive && <div className="w-2 h-2 bg-violet-500 rounded-full" />}
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {Object.entries(groupedItems).map(([groupName, items]) => (
+          <SidebarGroup key={groupName} className="py-2">
+            <div className="px-3 pb-2">
+              <h3 className="text-xs font-medium text-sidebar-foreground/70 uppercase tracking-wider">
+                {groupName}
+              </h3>
+            </div>
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-1">
+                {items.map(item => {
+                  const ItemIcon = item.icon;
+                  const isActive = location.pathname === item.url;
+                  
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <Link 
+                          to={item.url} 
+                          className={cn(
+                            "flex items-center gap-3 px-3 py-3 rounded-lg transition-colors relative",
+                            "text-sidebar-foreground hover:bg-sidebar-accent",
+                            isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                          )}
+                        >
+                          {isActive && <div className="absolute left-0 w-1 h-6 bg-violet-500 rounded-r" />}
+                          <ItemIcon className="w-4 h-4 text-violet-500" />
+                          <div className="flex-1 min-w-0">
+                            <span className="text-base block truncate">{item.title}</span>
+                          </div>
+                          {isActive && <div className="w-2 h-2 bg-violet-500 rounded-full" />}
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
 
       <SidebarFooter className="p-4 border-t border-sidebar-border/30">
