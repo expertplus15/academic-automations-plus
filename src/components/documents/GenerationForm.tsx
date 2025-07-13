@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { FileText, Users, Download, Settings, Play } from "lucide-react";
 import { usePrograms } from "@/hooks/usePrograms";
+import { useStudents } from "@/hooks/useStudents";
 
 interface GenerationFormProps {
   type: "bulletin" | "transcript" | "certificate" | "attestation" | "batch";
@@ -20,13 +21,15 @@ interface GenerationFormProps {
 
 export function GenerationForm({ type, templateId, onGenerate, onCancel }: GenerationFormProps) {
   const { programs, loading: programsLoading } = usePrograms();
+  const { students, loading: studentsLoading } = useStudents();
   
   const [config, setConfig] = useState({
     template: templateId || "",
     academicYear: "",
     semester: "",
     program: "",
-    students: [],
+    student_id: "", // Étudiant spécifique pour génération unique
+    students: [], // Liste d'étudiants pour génération par lot
     includeGrades: true,
     includeAttendance: false,
     includeComments: true,
@@ -160,6 +163,28 @@ export function GenerationForm({ type, templateId, onGenerate, onCancel }: Gener
             </SelectContent>
           </Select>
         </div>
+
+        {/* Sélection d'étudiant (pour génération unique) */}
+        {type !== "batch" && (
+          <div className="space-y-2">
+            <Label htmlFor="student">Étudiant (optionnel)</Label>
+            <Select value={config.student_id} onValueChange={(value) => 
+              setConfig(prev => ({ ...prev, student_id: value }))
+            }>
+              <SelectTrigger>
+                <SelectValue placeholder={studentsLoading ? "Chargement..." : "Sélectionner un étudiant"} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Aucun étudiant spécifique</SelectItem>
+                {students.map((student) => (
+                  <SelectItem key={student.id} value={student.id}>
+                    {student.profile?.full_name || student.student_number}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         {/* Options d'inclusion */}
         <div className="space-y-4">
