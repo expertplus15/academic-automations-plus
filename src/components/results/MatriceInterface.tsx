@@ -366,11 +366,11 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
         key={cell.id}
         data-cell-id={cell.id}
         className={`
-          relative border border-border bg-background min-h-[40px] flex items-center justify-center
-          cursor-pointer transition-all duration-200
-          ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}
-          ${hasPendingChange ? 'bg-amber-50 border-amber-300' : ''}
-          ${cell.isLocked ? 'bg-muted cursor-not-allowed' : 'hover:bg-muted/50'}
+          relative bg-background min-h-[56px] flex items-center justify-center p-2
+          cursor-pointer transition-all duration-200 group
+          ${isSelected ? 'ring-2 ring-primary bg-primary/10' : ''}
+          ${hasPendingChange ? 'bg-amber-50/80 border-amber-400' : ''}
+          ${cell.isLocked ? 'bg-muted/50 cursor-not-allowed opacity-75' : 'hover:bg-primary/5 hover:shadow-sm'}
         `}
         onClick={async () => {
           if (!cell.isLocked) {
@@ -396,9 +396,33 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
             autoFocus
           />
         ) : (
-          <span className={`text-sm ${cell.grade === null ? 'text-muted-foreground' : 'font-medium'}`}>
-            {cell.grade?.toFixed(1) || '-'}
-          </span>
+          <div className="flex flex-col items-center justify-center w-full">
+            <span className={`text-sm font-medium ${
+              cell.grade === null 
+                ? 'text-muted-foreground' 
+                : cell.grade >= (cell.maxGrade * 0.8) 
+                  ? 'text-emerald-600' 
+                  : cell.grade >= (cell.maxGrade * 0.5) 
+                    ? 'text-amber-600' 
+                    : 'text-red-600'
+            }`}>
+              {cell.grade?.toFixed(1) || '-'}
+            </span>
+            {cell.grade !== null && (
+              <div className="w-full bg-muted/30 h-1 rounded-full mt-1 overflow-hidden">
+                <div 
+                  className={`h-full rounded-full transition-all duration-300 ${
+                    cell.grade >= (cell.maxGrade * 0.8) 
+                      ? 'bg-emerald-500' 
+                      : cell.grade >= (cell.maxGrade * 0.5) 
+                        ? 'bg-amber-500' 
+                        : 'bg-red-500'
+                  }`}
+                  style={{ width: `${(cell.grade / cell.maxGrade) * 100}%` }}
+                />
+              </div>
+            )}
+          </div>
         )}
         
         {cell.isLocked && (
@@ -442,118 +466,170 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
 
   return (
     <div className="space-y-6">
-      {/* Header avec collaboration */}
+      {/* Header optimisé avec toolbar */}
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Edit3 className="w-5 h-5" />
-              Interface Matricielle Collaborative
+            <div className="flex items-center gap-3">
+              <Edit3 className="w-5 h-5 text-primary" />
+              <div>
+                <CardTitle className="text-xl">Interface Matricielle</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Saisie collaborative en temps réel
+                </p>
+              </div>
               {isNewSession && (
-                <Badge variant="default" className="bg-green-500 text-white">
+                <Badge variant="default" className="bg-emerald-500 text-white animate-pulse">
                   Nouvelle Session
                 </Badge>
               )}
+            </div>
+            
+            {/* Status badges */}
+            <div className="flex items-center gap-2">
               <Badge variant="secondary" className="flex items-center gap-1">
                 <Users className="w-3 h-3" />
                 {connectedUsers.length} connecté{connectedUsers.length > 1 ? 's' : ''}
               </Badge>
               {pendingChanges.size > 0 && (
-                <Badge variant="outline" className="bg-amber-50 text-amber-700">
+                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
                   {pendingChanges.size} modification{pendingChanges.size > 1 ? 's' : ''} en attente
                 </Badge>
               )}
-            </CardTitle>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => setShowChat(!showChat)}>
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Chat
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => setShowAIInsights(!showAIInsights)}>
-                <Brain className="w-4 h-4 mr-2" />
-                IA Insights
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => setViewHistory(!viewHistory)}>
-                <History className="w-4 h-4 mr-2" />
-                Historique
-              </Button>
-              <Button variant="outline" size="sm">
-                <Upload className="w-4 h-4 mr-2" />
-                Importer
-              </Button>
-              <Button variant="outline" size="sm" onClick={exportToCSV}>
-                <Download className="w-4 h-4 mr-2" />
-                Exporter
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => setAutoSave(!autoSave)}>
-                {autoSave ? <Unlock className="w-4 h-4 mr-2" /> : <Lock className="w-4 h-4 mr-2" />}
-                Auto-save: {autoSave ? 'ON' : 'OFF'}
-              </Button>
-              <Button size="sm" onClick={() => saveChanges()} disabled={pendingChanges.size === 0}>
-                <Save className="w-4 h-4 mr-2" />
-                Sauvegarder tout
-              </Button>
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-            <Select value={selectedProgram} onValueChange={setSelectedProgram}>
-              <SelectTrigger>
-                <SelectValue placeholder="Programme" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les programmes</SelectItem>
-                {programs.map(program => (
-                  <SelectItem key={program.id} value={program.id}>
-                    {program.name}
-                  </SelectItem>
-                ))}
-                {programs.length === 0 && (
-                  <div className="px-2 py-1 text-sm text-muted-foreground">
-                    Aucun programme disponible
-                  </div>
-                )}
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-              <SelectTrigger>
-                <SelectValue placeholder="Matière" />
-              </SelectTrigger>
-              <SelectContent>
-                {subjects.map(subject => (
-                  <SelectItem key={subject.id} value={subject.id}>
-                    {subject.name} - {subject.credits_ects} ECTS
-                  </SelectItem>
-                ))}
-                {subjects.length === 0 && (
-                  <div className="px-2 py-1 text-sm text-muted-foreground">
-                    Aucune matière disponible
-                  </div>
-                )}
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedSemester.toString()} onValueChange={(value) => setSemester(parseInt(value))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Semestre" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">Semestre 1</SelectItem>
-                <SelectItem value="2">Semestre 2</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button variant="outline" onClick={loadMatrixData} disabled={isLoading || studentsLoading || evalTypesLoading}>
-              <RefreshCw className={`w-4 h-4 mr-2 ${isLoading || studentsLoading || evalTypesLoading ? 'animate-spin' : ''}`} />
-              Actualiser
+          
+          {/* Toolbar optimisé */}
+          <div className="flex items-center justify-between mt-4 pt-4 border-t">
+            <div className="flex items-center gap-2">
+              {/* Actions principales */}
+              <Button size="sm" onClick={() => saveChanges()} disabled={pendingChanges.size === 0} className="bg-primary hover:bg-primary/90">
+                <Save className="w-4 h-4 mr-2" />
+                Sauvegarder ({pendingChanges.size})
+              </Button>
+              
+              <Separator orientation="vertical" className="h-6" />
+              
+              {/* Actions secondaires groupées */}
+              <div className="flex items-center gap-1">
+                <Button variant="outline" size="sm" onClick={exportToCSV}>
+                  <Download className="w-4 h-4" />
+                </Button>
+                <Button variant="outline" size="sm">
+                  <Upload className="w-4 h-4" />
+                </Button>
+              </div>
+              
+              <Separator orientation="vertical" className="h-6" />
+              
+              {/* Outils collaboratifs */}
+              <div className="flex items-center gap-1">
+                <Button 
+                  variant={showChat ? "default" : "outline"} 
+                  size="sm" 
+                  onClick={() => setShowChat(!showChat)}
+                >
+                  <MessageSquare className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant={showAIInsights ? "default" : "outline"} 
+                  size="sm" 
+                  onClick={() => setShowAIInsights(!showAIInsights)}
+                >
+                  <Brain className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant={viewHistory ? "default" : "outline"} 
+                  size="sm" 
+                  onClick={() => setViewHistory(!viewHistory)}
+                >
+                  <History className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+            
+            {/* Auto-save toggle */}
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setAutoSave(!autoSave)}
+              className="text-xs"
+            >
+              <Zap className={`w-3 h-3 mr-1 ${autoSave ? 'text-emerald-500' : 'text-muted-foreground'}`} />
+              Auto-save: {autoSave ? 'ON' : 'OFF'}
             </Button>
+          </div>
+        </CardHeader>
+      </Card>
+
+      {/* Filtres optimisés */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Programme</label>
+              <Select value={selectedProgram} onValueChange={setSelectedProgram}>
+                <SelectTrigger className="h-10">
+                  <SelectValue placeholder="Tous les programmes" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les programmes</SelectItem>
+                  {programs.map((program) => (
+                    <SelectItem key={program.id} value={program.id}>
+                      {program.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Matière</label>
+              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                <SelectTrigger className="h-10">
+                  <SelectValue placeholder="Sélectionner une matière" />
+                </SelectTrigger>
+                <SelectContent>
+                  {subjects.map((subject) => (
+                    <SelectItem key={subject.id} value={subject.id}>
+                      {subject.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Semestre</label>
+              <Select value={selectedSemester.toString()} onValueChange={(value) => setSemester(parseInt(value))}>
+                <SelectTrigger className="h-10">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">Semestre 1</SelectItem>
+                  <SelectItem value="2">Semestre 2</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Actualisation</label>
+              <Button 
+                variant="outline" 
+                className="w-full h-10 hover:bg-primary hover:text-primary-foreground transition-colors" 
+                onClick={loadMatrixData} 
+                disabled={isLoading}
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                {isLoading ? 'Chargement...' : 'Actualiser'}
+              </Button>
+            </div>
           </div>
 
           {/* Utilisateurs connectés */}
           {connectedUsers.length > 1 && (
-            <div className="flex items-center gap-2 mb-4 p-3 bg-muted/50 rounded-lg">
+            <div className="flex items-center gap-2 mt-4 p-3 bg-muted/30 rounded-lg border">
+              <Users className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm font-medium">Utilisateurs connectés:</span>
               {connectedUsers.map(user => (
                 <Badge key={user.id} variant="outline" className="flex items-center gap-1">
@@ -578,64 +654,124 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
         />
       )}
 
-      {/* Matrice de saisie */}
+      {/* Matrice optimisée */}
       {students.length > 0 && evaluations.length > 0 && (
         <Card>
-          <CardHeader>
-            <CardTitle>Matrice de Notes - Mode Collaboratif</CardTitle>
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Edit3 className="w-5 h-5 text-primary" />
+                Matrice de Notes
+                <Badge variant="secondary" className="text-xs">
+                  {students.length} étudiants × {evaluations.length} évaluations
+                </Badge>
+              </CardTitle>
+              {crdtInitialized && (
+                <Badge variant="outline" className="text-emerald-600 border-emerald-200">
+                  Mode Collaboratif Actif
+                </Badge>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
-            <div ref={matrixRef} className="relative overflow-auto">
-              {/* Multiple Cursors Overlay */}
-              <MultipleCursors containerRef={matrixRef} />
-              
-              <div className="grid gap-1" style={{ 
-                gridTemplateColumns: `200px repeat(${evaluations.length}, minmax(80px, 1fr))` 
-              }}>
-                {/* Header */}
-                <div className="font-medium p-2 bg-muted rounded">Étudiant</div>
-                {evaluations.map(evaluation => (
-                  <div key={evaluation.id} className="font-medium p-2 bg-muted rounded text-center text-xs">
-                    {evaluation.name}
-                    <div className="text-xs text-muted-foreground mt-1">
-                      /20 - {evaluation.weight_percentage}%
+            {/* Matrice optimisée */}
+            <div className="relative rounded-lg border border-border overflow-hidden bg-background shadow-sm">
+              <div 
+                ref={matrixRef}
+                className="grid auto-rows-min overflow-auto max-h-[70vh]"
+                style={{
+                  gridTemplateColumns: `240px repeat(${evaluations.length}, minmax(120px, 1fr))`,
+                  minWidth: `${240 + evaluations.length * 120}px`
+                }}
+              >
+                {/* En-tête optimisé */}
+                <div className="bg-muted border-r border-b border-border p-4 font-semibold text-sm sticky left-0 top-0 z-20 flex items-center">
+                  <Users className="w-4 h-4 mr-2 text-muted-foreground" />
+                  Étudiant
+                </div>
+                {evaluations.map((evaluation, index) => (
+                  <div 
+                    key={evaluation.id} 
+                    className={`bg-muted border-r border-b border-border p-4 text-center font-semibold text-sm sticky top-0 z-10 min-w-[120px] ${
+                      index === evaluations.length - 1 ? 'border-r-0' : ''
+                    }`}
+                  >
+                    <div className="truncate font-medium" title={evaluation.name}>
+                      {evaluation.name}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1 flex items-center justify-center gap-1">
+                      <span>Max:</span>
+                      <Badge variant="outline" className="text-xs px-1 py-0">
+                        {evaluation.max_points || 20}
+                      </Badge>
                     </div>
                   </div>
                 ))}
                 
-                {/* Lignes d'étudiants */}
-                {students.map(student => (
+                {/* Lignes d'étudiants optimisées */}
+                {students.map((student, studentIndex) => (
                   <React.Fragment key={student.id}>
-                    {/* Colonne nom étudiant */}
-                    <div className="p-3 font-medium bg-muted/30 rounded flex flex-col justify-center min-h-[50px]">
-                      <div className="text-sm font-semibold truncate leading-tight">
-                        {student.profile?.full_name || `Étudiant ${student.student_number}`}
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-1 font-normal">
-                        {student.student_number}
+                    {/* Nom de l'étudiant */}
+                    <div className={`bg-background border-r border-b border-border p-4 font-medium text-sm sticky left-0 z-10 flex items-center min-h-[56px] ${
+                      studentIndex % 2 === 0 ? 'bg-muted/20' : ''
+                    }`}>
+                      <div className="flex items-center gap-2 w-full">
+                        <div className="w-2 h-2 rounded-full bg-primary/20"></div>
+                        <div className="truncate flex-1" title={student.profile?.full_name || student.student_number}>
+                          <div className="font-medium">
+                            {student.profile?.full_name || 'N/A'}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {student.student_number}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    {/* Colonnes d'évaluations */}
-                    {evaluations.map(evaluation => {
+                    
+                    {/* Cellules de notes */}
+                    {evaluations.map((evaluation, evalIndex) => {
                       const cell = matrixData.find(c => 
                         c.studentId === student.id && c.evaluationId === evaluation.id
                       );
-                      return cell ? renderGradeCell(cell, student, evaluation) : (
-                        <div key={`${student.id}_${evaluation.id}`} className="border border-border bg-muted/20 min-h-[50px]" />
+                      
+                      return cell ? (
+                        <div 
+                          key={cell.id}
+                          className={`border-r border-b border-border min-h-[56px] ${
+                            studentIndex % 2 === 0 ? 'bg-muted/10' : ''
+                          } ${evalIndex === evaluations.length - 1 ? 'border-r-0' : ''}`}
+                        >
+                          {renderGradeCell(cell, student, evaluation)}
+                        </div>
+                      ) : (
+                        <div 
+                          key={`${student.id}_${evaluation.id}`} 
+                          className={`border-r border-b border-border min-h-[56px] ${
+                            studentIndex % 2 === 0 ? 'bg-muted/10' : ''
+                          } ${evalIndex === evaluations.length - 1 ? 'border-r-0' : ''}`} 
+                        />
                       );
                     })}
                   </React.Fragment>
                 ))}
               </div>
+              
+              {/* Curseurs collaboratifs */}
+              {crdtInitialized && <MultipleCursors containerRef={matrixRef} />}
             </div>
             
-            {/* Instructions */}
-            <Separator className="my-4" />
-            <div className="text-sm text-muted-foreground space-y-1">
-              <p>• Double-cliquez sur une cellule pour la modifier</p>
-              <p>• Les modifications sont automatiquement sauvegardées si l'auto-save est activé</p>
-              <p>• Les cellules avec un point jaune ont des modifications en attente</p>
-              <p>• Les cellules verrouillées 🔒 sont publiées et ne peuvent pas être modifiées</p>
+            {/* Instructions optimisées */}
+            <div className="mt-4 p-4 bg-muted/30 rounded-lg border">
+              <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                <MessageSquare className="w-4 h-4" />
+                Instructions d'utilisation
+              </h4>
+              <div className="text-sm text-muted-foreground space-y-1">
+                <p>• <kbd className="px-1 py-0.5 text-xs bg-background border rounded">Double-clic</kbd> pour éditer une cellule</p>
+                <p>• <span className="inline-block w-2 h-2 bg-amber-500 rounded-full mr-1"></span> Modifications en attente</p>
+                <p>• <Lock className="inline w-3 h-3 mr-1" /> Cellules verrouillées (publiées)</p>
+                <p>• Les barres de progression indiquent le niveau de réussite</p>
+              </div>
             </div>
           </CardContent>
         </Card>
