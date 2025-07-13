@@ -466,7 +466,7 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
 
   return (
     <div className="space-y-6">
-      {/* Header optimisé avec toolbar */}
+      {/* Header unique optimisé */}
       <Card>
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
@@ -476,16 +476,16 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
                 <CardTitle className="text-xl">Interface Matricielle</CardTitle>
                 <p className="text-sm text-muted-foreground mt-1">
                   Saisie collaborative en temps réel
+                  {isNewSession && (
+                    <Badge variant="default" className="ml-2 bg-emerald-500 text-white animate-pulse">
+                      Nouvelle Session
+                    </Badge>
+                  )}
                 </p>
               </div>
-              {isNewSession && (
-                <Badge variant="default" className="bg-emerald-500 text-white animate-pulse">
-                  Nouvelle Session
-                </Badge>
-              )}
             </div>
             
-            {/* Status badges */}
+            {/* Status badges consolidés */}
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="flex items-center gap-1">
                 <Users className="w-3 h-3" />
@@ -499,35 +499,37 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
             </div>
           </div>
           
-          {/* Toolbar optimisé */}
+          {/* Toolbar unifié */}
           <div className="flex items-center justify-between mt-4 pt-4 border-t">
-            <div className="flex items-center gap-2">
-              {/* Actions principales */}
-              <Button size="sm" onClick={() => saveChanges()} disabled={pendingChanges.size === 0} className="bg-primary hover:bg-primary/90">
+            <div className="flex items-center gap-3">
+              {/* Action principale */}
+              <Button 
+                size="sm" 
+                onClick={() => saveChanges()} 
+                disabled={pendingChanges.size === 0} 
+                className="bg-primary hover:bg-primary/90"
+              >
                 <Save className="w-4 h-4 mr-2" />
                 Sauvegarder ({pendingChanges.size})
               </Button>
               
-              <Separator orientation="vertical" className="h-6" />
-              
-              {/* Actions secondaires groupées */}
-              <div className="flex items-center gap-1">
-                <Button variant="outline" size="sm" onClick={exportToCSV}>
+              {/* Actions secondaires */}
+              <div className="flex items-center gap-1 border-l pl-3">
+                <Button variant="outline" size="sm" onClick={exportToCSV} title="Exporter CSV">
                   <Download className="w-4 h-4" />
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" title="Importer">
                   <Upload className="w-4 h-4" />
                 </Button>
               </div>
               
-              <Separator orientation="vertical" className="h-6" />
-              
               {/* Outils collaboratifs */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1 border-l pl-3">
                 <Button 
                   variant={showChat ? "default" : "outline"} 
                   size="sm" 
                   onClick={() => setShowChat(!showChat)}
+                  title="Chat collaboratif"
                 >
                   <MessageSquare className="w-4 h-4" />
                 </Button>
@@ -535,6 +537,7 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
                   variant={showAIInsights ? "default" : "outline"} 
                   size="sm" 
                   onClick={() => setShowAIInsights(!showAIInsights)}
+                  title="Insights IA"
                 >
                   <Brain className="w-4 h-4" />
                 </Button>
@@ -542,18 +545,20 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
                   variant={viewHistory ? "default" : "outline"} 
                   size="sm" 
                   onClick={() => setViewHistory(!viewHistory)}
+                  title="Historique"
                 >
                   <History className="w-4 h-4" />
                 </Button>
               </div>
             </div>
             
-            {/* Auto-save toggle */}
+            {/* Auto-save indicator */}
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => setAutoSave(!autoSave)}
               className="text-xs"
+              title={`Auto-save ${autoSave ? 'activé' : 'désactivé'}`}
             >
               <Zap className={`w-3 h-3 mr-1 ${autoSave ? 'text-emerald-500' : 'text-muted-foreground'}`} />
               Auto-save: {autoSave ? 'ON' : 'OFF'}
@@ -654,28 +659,11 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
         />
       )}
 
-      {/* Matrice optimisée */}
+      {/* Matrice principale */}
       {students.length > 0 && evaluations.length > 0 && (
         <Card>
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Edit3 className="w-5 h-5 text-primary" />
-                Matrice de Notes
-                <Badge variant="secondary" className="text-xs">
-                  {students.length} étudiants × {evaluations.length} évaluations
-                </Badge>
-              </CardTitle>
-              {crdtInitialized && (
-                <Badge variant="outline" className="text-emerald-600 border-emerald-200">
-                  Mode Collaboratif Actif
-                </Badge>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            {/* Matrice optimisée */}
-            <div className="relative rounded-lg border border-border overflow-hidden bg-background shadow-sm">
+          <CardContent className="p-0">
+            <div className="relative rounded-lg overflow-hidden bg-background">
               <div 
                 ref={matrixRef}
                 className="grid auto-rows-min overflow-auto max-h-[70vh]"
@@ -684,7 +672,7 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
                   minWidth: `${240 + evaluations.length * 120}px`
                 }}
               >
-                {/* En-tête optimisé */}
+                {/* En-tête de la matrice */}
                 <div className="bg-muted border-r border-b border-border p-4 font-semibold text-sm sticky left-0 top-0 z-20 flex items-center">
                   <Users className="w-4 h-4 mr-2 text-muted-foreground" />
                   Étudiant
@@ -708,10 +696,9 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
                   </div>
                 ))}
                 
-                {/* Lignes d'étudiants optimisées */}
+                {/* Lignes d'étudiants */}
                 {students.map((student, studentIndex) => (
                   <React.Fragment key={student.id}>
-                    {/* Nom de l'étudiant */}
                     <div className={`bg-background border-r border-b border-border p-4 font-medium text-sm sticky left-0 z-10 flex items-center min-h-[56px] ${
                       studentIndex % 2 === 0 ? 'bg-muted/20' : ''
                     }`}>
@@ -728,7 +715,6 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
                       </div>
                     </div>
                     
-                    {/* Cellules de notes */}
                     {evaluations.map((evaluation, evalIndex) => {
                       const cell = matrixData.find(c => 
                         c.studentId === student.id && c.evaluationId === evaluation.id
@@ -756,25 +742,19 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
                 ))}
               </div>
               
-              {/* Curseurs collaboratifs */}
               {crdtInitialized && <MultipleCursors containerRef={matrixRef} />}
-            </div>
-            
-            {/* Instructions optimisées */}
-            <div className="mt-4 p-4 bg-muted/30 rounded-lg border">
-              <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
-                Instructions d'utilisation
-              </h4>
-              <div className="text-sm text-muted-foreground space-y-1">
-                <p>• <kbd className="px-1 py-0.5 text-xs bg-background border rounded">Double-clic</kbd> pour éditer une cellule</p>
-                <p>• <span className="inline-block w-2 h-2 bg-amber-500 rounded-full mr-1"></span> Modifications en attente</p>
-                <p>• <Lock className="inline w-3 h-3 mr-1" /> Cellules verrouillées (publiées)</p>
-                <p>• Les barres de progression indiquent le niveau de réussite</p>
-              </div>
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Instructions compactes */}
+      {students.length > 0 && evaluations.length > 0 && (
+        <div className="p-3 bg-muted/30 rounded-lg border-l-4 border-l-primary">
+          <div className="text-xs text-muted-foreground">
+            💡 <kbd className="px-1 py-0.5 text-xs bg-background border rounded">Double-clic</kbd> pour éditer • <span className="inline-block w-2 h-2 bg-amber-500 rounded-full mr-1"></span>Modifications en attente • <Lock className="inline w-3 h-3 mr-1" />Cellules verrouillées
+          </div>
+        </div>
       )}
 
       {matrixData.length === 0 && !isLoading && selectedSubject && (
