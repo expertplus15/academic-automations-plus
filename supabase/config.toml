@@ -23,3 +23,12 @@ verify_jwt = true
 
 [functions.export-data]
 verify_jwt = true
+
+[functions.template-editor]
+verify_jwt = true
+
+[functions.approval-workflow]
+verify_jwt = true
+
+[functions.realtime-analytics]
+verify_jwt = true

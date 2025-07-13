@@ -363,7 +363,14 @@ export function TemplateManager() {
                       <Button size="sm" variant="outline">
                         <Copy className="h-4 w-4" />
                       </Button>
-                      <Button size="sm" variant="outline">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedTemplate(template.id);
+                          setEditMode(true);
+                        }}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
                     </div>
