@@ -14,6 +14,7 @@ import {
   FileText,
   Clock
 } from 'lucide-react';
+import { FileService } from '@/services/FileService';
 
 interface ImportJob {
   id: string;
@@ -58,7 +59,7 @@ export function ImportInterface() {
     }
   };
 
-  const startImport = () => {
+  const startImport = async () => {
     if (!selectedFile) return;
 
     const newJob: ImportJob = {
@@ -68,40 +69,54 @@ export function ImportInterface() {
       status: 'processing',
       progress: 0,
       recordsProcessed: 0,
-      totalRecords: 150,
+      totalRecords: 0,
       errors: [],
       createdAt: new Date().toISOString()
     };
 
     setImportJobs(prev => [newJob, ...prev]);
-    setSelectedFile(null);
-
-    // Simulate import progress
-    const interval = setInterval(() => {
-      setImportJobs(prev => prev.map(job => {
-        if (job.id === newJob.id && job.status === 'processing') {
-          const newProgress = Math.min(job.progress + 10, 100);
-          const newRecordsProcessed = Math.floor((newProgress / 100) * job.totalRecords);
-          
-          if (newProgress === 100) {
-            clearInterval(interval);
-            return {
+    
+    // Import using FileService
+    try {
+      const fileType = selectedFile.name.endsWith('.xlsx') || selectedFile.name.endsWith('.csv') ? 'grades' : 'students';
+      const result = await FileService.uploadFile(selectedFile, fileType);
+      
+      if (result.success) {
+        setImportJobs(prev => prev.map(job => 
+          job.id === newJob.id 
+            ? {
+                ...job,
+                status: 'completed',
+                progress: 100,
+                recordsProcessed: result.processedData?.records || 0,
+                totalRecords: result.processedData?.total || 0
+              }
+            : job
+        ));
+      } else {
+        setImportJobs(prev => prev.map(job => 
+          job.id === newJob.id 
+            ? {
+                ...job,
+                status: 'error',
+                errors: [result.error || 'Erreur lors de l\'import']
+              }
+            : job
+        ));
+      }
+    } catch (error) {
+      setImportJobs(prev => prev.map(job => 
+        job.id === newJob.id 
+          ? {
               ...job,
-              progress: 100,
-              recordsProcessed: job.totalRecords,
-              status: 'completed'
-            };
-          }
-          
-          return {
-            ...job,
-            progress: newProgress,
-            recordsProcessed: newRecordsProcessed
-          };
-        }
-        return job;
-      }));
-    }, 500);
+              status: 'error',
+              errors: ['Erreur lors de l\'import']
+            }
+          : job
+      ));
+    }
+
+    setSelectedFile(null);
   };
 
   const getStatusIcon = (status: ImportJob['status']) => {
@@ -209,7 +224,18 @@ export function ImportInterface() {
                   Format Excel avec colonnes prédéfinies
                 </p>
               </div>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={async () => {
+                  const url = await FileService.downloadTemplate('grades');
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'modele-notes-standard.csv';
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+              >
                 <Download className="h-4 w-4 mr-1" />
                 Télécharger
               </Button>
@@ -222,7 +248,18 @@ export function ImportInterface() {
                   Import des crédits et coefficients
                 </p>
               </div>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={async () => {
+                  const url = await FileService.downloadTemplate('ects');
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'modele-ects.csv';
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+              >
                 <Download className="h-4 w-4 mr-1" />
                 Télécharger
               </Button>

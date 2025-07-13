@@ -20,6 +20,7 @@ import {
   Mail,
   Filter
 } from 'lucide-react';
+import { FileService } from '@/services/FileService';
 
 interface ReportTemplate {
   id: string;
@@ -98,7 +99,7 @@ export function ReportsGenerator() {
     }
   ];
 
-  const generateReport = () => {
+  const generateReport = async () => {
     if (!selectedTemplate) return;
 
     const template = templates.find(t => t.id === selectedTemplate);
@@ -117,34 +118,45 @@ export function ReportsGenerator() {
 
     setGenerationJobs(prev => [newJob, ...prev]);
 
-    // Simulate generation progress
-    const interval = setInterval(() => {
-      setGenerationJobs(prev => prev.map(job => {
-        if (job.id === newJob.id && job.status === 'processing') {
-          const newProgress = Math.min(job.progress + 8, 100);
-          const newRecordsGenerated = Math.floor((newProgress / 100) * job.totalRecords);
-          
-          if (newProgress === 100) {
-            clearInterval(interval);
-            return {
-              ...job,
-              progress: 100,
-              recordsGenerated: job.totalRecords,
-              status: 'completed',
-              completedAt: new Date().toISOString(),
-              downloadUrl: `/downloads/reports/${job.id}.pdf`
-            };
-          }
-          
-          return {
-            ...job,
-            progress: newProgress,
-            recordsGenerated: newRecordsGenerated
-          };
-        }
-        return job;
-      }));
-    }, 400);
+    try {
+      // Determine PDF type based on template
+      let pdfType: 'bulletin' | 'transcript' | 'report' = 'report';
+      if (template.type === 'bulletin') pdfType = 'bulletin';
+      else if (template.type === 'transcript') pdfType = 'transcript';
+
+      const result = await FileService.generatePDF({
+        type: pdfType,
+        templateId: selectedTemplate,
+        filters: filters
+      });
+
+      if (result.success) {
+        setGenerationJobs(prev => prev.map(job => 
+          job.id === newJob.id 
+            ? {
+                ...job,
+                progress: 100,
+                recordsGenerated: 125,
+                status: 'completed',
+                completedAt: new Date().toISOString(),
+                downloadUrl: result.downloadUrl
+              }
+            : job
+        ));
+      } else {
+        setGenerationJobs(prev => prev.map(job => 
+          job.id === newJob.id 
+            ? { ...job, status: 'error' }
+            : job
+        ));
+      }
+    } catch (error) {
+      setGenerationJobs(prev => prev.map(job => 
+        job.id === newJob.id 
+          ? { ...job, status: 'error' }
+          : job
+      ));
+    }
   };
 
   const getStatusBadge = (status: GenerationJob['status']) => {
@@ -435,7 +447,15 @@ export function ReportsGenerator() {
                             {job.totalRecords} rapports générés avec succès
                           </span>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => {
+                                if (job.downloadUrl) {
+                                  window.open(job.downloadUrl, '_blank');
+                                }
+                              }}
+                            >
                               <Download className="h-4 w-4 mr-1" />
                               Télécharger
                             </Button>

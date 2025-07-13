@@ -3501,6 +3501,45 @@ export type Database = {
           },
         ]
       }
+      export_jobs: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          file_name: string
+          file_url: string | null
+          filters: Json | null
+          format: string
+          id: string
+          records_count: number | null
+          status: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          file_name: string
+          file_url?: string | null
+          filters?: Json | null
+          format: string
+          id?: string
+          records_count?: number | null
+          status?: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          file_name?: string
+          file_url?: string | null
+          filters?: Json | null
+          format?: string
+          id?: string
+          records_count?: number | null
+          status?: string
+          type?: string
+        }
+        Relationships: []
+      }
       fee_types: {
         Row: {
           code: string
@@ -4407,6 +4446,51 @@ export type Database = {
           },
         ]
       }
+      import_jobs: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          errors: Json | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          processed_records: number | null
+          status: string
+          total_records: number | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          errors?: Json | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          processed_records?: number | null
+          status?: string
+          total_records?: number | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          errors?: Json | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          processed_records?: number | null
+          status?: string
+          total_records?: number | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       invoice_lines: {
         Row: {
           created_at: string | null
@@ -5311,6 +5395,53 @@ export type Database = {
           },
           {
             foreignKeyName: "payments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pdf_generations: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          file_name: string
+          file_url: string | null
+          generated_at: string | null
+          id: string
+          status: string
+          student_id: string | null
+          template_id: string | null
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          file_name: string
+          file_url?: string | null
+          generated_at?: string | null
+          id?: string
+          status?: string
+          student_id?: string | null
+          template_id?: string | null
+          type: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          file_name?: string
+          file_url?: string | null
+          generated_at?: string | null
+          id?: string
+          status?: string
+          student_id?: string | null
+          template_id?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pdf_generations_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "students"
