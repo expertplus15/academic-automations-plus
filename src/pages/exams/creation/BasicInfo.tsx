@@ -6,6 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FileText, BookOpen, GraduationCap } from 'lucide-react';
 import { ExamCreationData } from '@/hooks/exams/useExamCreation';
+import { usePrograms } from '@/hooks/usePrograms';
+import { useSubjects } from '@/hooks/useSubjects';
 
 interface BasicInfoProps {
   data: ExamCreationData;
@@ -13,6 +15,9 @@ interface BasicInfoProps {
 }
 
 export function BasicInfo({ data, onChange }: BasicInfoProps) {
+  const { programs, loading: programsLoading } = usePrograms();
+  const { subjects, loading: subjectsLoading } = useSubjects(data.programId);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 mb-6">
@@ -64,17 +69,28 @@ export function BasicInfo({ data, onChange }: BasicInfoProps) {
           <Select
             value={data.subjectId || ''}
             onValueChange={(value) => onChange({ subjectId: value })}
+            disabled={subjectsLoading || !data.programId}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Sélectionner la matière" />
+              <SelectValue placeholder={
+                !data.programId 
+                  ? "Sélectionner d'abord un programme" 
+                  : subjectsLoading 
+                    ? "Chargement..." 
+                    : "Sélectionner la matière"
+              } />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="math">📊 Mathématiques</SelectItem>
-              <SelectItem value="physics">⚡ Physique</SelectItem>
-              <SelectItem value="chemistry">🧪 Chimie</SelectItem>
-              <SelectItem value="history">📚 Histoire</SelectItem>
-              <SelectItem value="literature">📖 Littérature</SelectItem>
-              <SelectItem value="programming">💻 Programmation</SelectItem>
+              {subjects.map((subject) => (
+                <SelectItem key={subject.id} value={subject.id}>
+                  📚 {subject.name} ({subject.code})
+                </SelectItem>
+              ))}
+              {subjects.length === 0 && !subjectsLoading && (
+                <SelectItem value="" disabled>
+                  Aucune matière disponible
+                </SelectItem>
+              )}
             </SelectContent>
           </Select>
         </div>
@@ -84,17 +100,23 @@ export function BasicInfo({ data, onChange }: BasicInfoProps) {
           <Label>Programme *</Label>
           <Select
             value={data.programId || ''}
-            onValueChange={(value) => onChange({ programId: value })}
+            onValueChange={(value) => onChange({ programId: value, subjectId: undefined })}
+            disabled={programsLoading}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Sélectionner le programme" />
+              <SelectValue placeholder={programsLoading ? "Chargement..." : "Sélectionner le programme"} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="l1-info">🎓 L1 Informatique</SelectItem>
-              <SelectItem value="l2-info">🎓 L2 Informatique</SelectItem>
-              <SelectItem value="l3-info">🎓 L3 Informatique</SelectItem>
-              <SelectItem value="m1-info">🎓 M1 Informatique</SelectItem>
-              <SelectItem value="m2-info">🎓 M2 Informatique</SelectItem>
+              {programs.map((program) => (
+                <SelectItem key={program.id} value={program.id}>
+                  🎓 {program.name} ({program.code})
+                </SelectItem>
+              ))}
+              {programs.length === 0 && !programsLoading && (
+                <SelectItem value="" disabled>
+                  Aucun programme disponible
+                </SelectItem>
+              )}
             </SelectContent>
           </Select>
         </div>
