@@ -361,7 +361,45 @@ export default function Documents() {
         type={previewData?.type}
         previewData={previewData}
         loading={loading}
-        onDownload={() => console.log("Download")}
+        onDownload={() => {
+          if (previewData?.pdf_url) {
+            // Télécharger le PDF
+            const link = document.createElement('a');
+            link.href = previewData.pdf_url;
+            link.download = `${previewData.title || 'document'}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          } else if (previewData?.html) {
+            // Convertir le HTML en PDF et télécharger
+            const printWindow = window.open('', '_blank');
+            if (printWindow) {
+              printWindow.document.write(`
+                <html>
+                  <head>
+                    <title>${previewData.title || 'Document'}</title>
+                    <style>
+                      body { font-family: Arial, sans-serif; margin: 40px; }
+                      .document-header { text-align: center; margin-bottom: 30px; }
+                      .document-body { margin: 20px 0; }
+                      .document-footer { margin-top: 30px; text-align: center; }
+                    </style>
+                  </head>
+                  <body>
+                    ${previewData.html}
+                    <script>
+                      window.onload = function() {
+                        window.print();
+                        window.close();
+                      }
+                    </script>
+                  </body>
+                </html>
+              `);
+              printWindow.document.close();
+            }
+          }
+        }}
         onPrint={() => window.print()}
       />
     </ModuleLayout>
