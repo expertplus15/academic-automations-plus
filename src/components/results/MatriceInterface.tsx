@@ -605,7 +605,7 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
                 
                 {/* Lignes d'étudiants */}
                 {students.map(student => (
-                  <React.Fragment key={student.id}>
+                  <div key={student.id}>
                     <div className="p-2 font-medium bg-muted/30 rounded flex items-center">
                       <div className="truncate">
                         {student.profile?.full_name || `Étudiant ${student.student_number}`}
@@ -622,7 +622,7 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
                         <div key={`${student.id}_${evaluation.id}`} className="border border-border bg-muted/20 min-h-[40px]" />
                       );
                     })}
-                  </React.Fragment>
+                  </div>
                 ))}
               </div>
             </div>

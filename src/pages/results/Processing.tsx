@@ -1,144 +1,185 @@
+import React from 'react';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ModuleLayout } from "@/components/layouts/ModuleLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Cpu, Zap, BarChart3, Settings } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Cpu, Play, Pause, RotateCcw, Brain, Zap, CheckCircle, AlertTriangle } from 'lucide-react';
 
 export default function Processing() {
   return (
-    <ModuleLayout 
-      title="Traitement Avancé" 
-      subtitle="Algorithmes de calcul complexes et optimisation des performances"
-      showHeader={true}
-    >
-      <div className="p-6 space-y-6">
-        {/* Processing Status */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Cpu className="w-5 h-5 text-blue-500" />
-                Moteur de Calcul
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span>Calculs en cours</span>
-                    <span className="font-medium">78%</span>
+    <ProtectedRoute allowedRoles={['admin', 'teacher']}>
+      <ModuleLayout 
+        title="Traitement avancé" 
+        subtitle="Processus automatisés et intelligence artificielle"
+        showHeader={true}
+      >
+        <div className="p-6 space-y-6">
+          {/* Statut des processus */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">Calculs ECTS</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span className="text-sm">Terminé</span>
                   </div>
-                  <Progress value={78} className="h-2" />
+                  <Badge variant="secondary">100%</Badge>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">1,247 étudiants traités</span>
-                  <span className="text-muted-foreground">~2 min restantes</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">Moyennes pondérées</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-500" />
+                    <span className="text-sm">Terminé</span>
+                  </div>
+                  <Badge variant="secondary">100%</Badge>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">Compensations</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-yellow-500" />
+                    <span className="text-sm">En attente</span>
+                  </div>
+                  <Badge variant="outline">0%</Badge>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">Validations</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-yellow-500" />
+                    <span className="text-sm">En attente</span>
+                  </div>
+                  <Badge variant="outline">0%</Badge>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Processus automatisés */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Cpu className="w-5 h-5 text-blue-500" />
+                  Processus automatisés
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between p-3 border rounded">
+                  <div>
+                    <p className="font-medium">Calcul des moyennes</p>
+                    <p className="text-sm text-muted-foreground">Toutes les 2 heures</p>
+                  </div>
+                  <Button size="sm" variant="outline">
+                    <Play className="w-4 h-4 mr-2" />
+                    Démarrer
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between p-3 border rounded">
+                  <div>
+                    <p className="font-medium">Détection d'anomalies</p>
+                    <p className="text-sm text-muted-foreground">Temps réel</p>
+                  </div>
+                  <Button size="sm" variant="outline">
+                    <Pause className="w-4 h-4 mr-2" />
+                    Arrêter
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between p-3 border rounded">
+                  <div>
+                    <p className="font-medium">Synchronisation modules</p>
+                    <p className="text-sm text-muted-foreground">Chaque nuit</p>
+                  </div>
+                  <Button size="sm" variant="outline">
+                    <RotateCcw className="w-4 h-4 mr-2" />
+                    Relancer
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Brain className="w-5 h-5 text-purple-500" />
+                  Intelligence artificielle
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between p-3 border rounded">
+                  <div>
+                    <p className="font-medium">Prédiction de résultats</p>
+                    <p className="text-sm text-muted-foreground">Modèle ML activé</p>
+                  </div>
+                  <Badge variant="secondary">Actif</Badge>
+                </div>
+
+                <div className="flex items-center justify-between p-3 border rounded">
+                  <div>
+                    <p className="font-medium">Détection de fraude</p>
+                    <p className="text-sm text-muted-foreground">Surveillance continue</p>
+                  </div>
+                  <Badge variant="secondary">Actif</Badge>
+                </div>
+
+                <div className="flex items-center justify-between p-3 border rounded">
+                  <div>
+                    <p className="font-medium">Recommandations pédagogiques</p>
+                    <p className="text-sm text-muted-foreground">En développement</p>
+                  </div>
+                  <Badge variant="outline">Bientôt</Badge>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Logs et monitoring */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-emerald-500" />
-                Performance
+                <Zap className="w-5 h-5 text-yellow-500" />
+                Logs des traitements
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-sm">Vitesse de traitement</span>
-                  <span className="text-sm font-medium">2,341 notes/sec</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm">Temps moyen</span>
-                  <span className="text-sm font-medium">0.43ms/note</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm">Cache hit ratio</span>
-                  <span className="text-sm font-medium">94.2%</span>
-                </div>
+              <div className="text-center py-8">
+                <Cpu className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">
+                  Aucun traitement en cours
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Les logs d'exécution apparaîtront ici lors des traitements
+                </p>
               </div>
             </CardContent>
           </Card>
         </div>
-
-        {/* Advanced Algorithms */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Algorithmes Avancés</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 border rounded-lg">
-                <h4 className="font-medium mb-2">Prédiction de Réussite</h4>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Algorithme ML pour prédire les risques d'échec
-                </p>
-                <Button size="sm" variant="outline">
-                  <Zap className="w-4 h-4 mr-2" />
-                  Exécuter
-                </Button>
-              </div>
-
-              <div className="p-4 border rounded-lg">
-                <h4 className="font-medium mb-2">Analyse de Tendances</h4>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Détection automatique des patterns académiques
-                </p>
-                <Button size="sm" variant="outline">
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  Analyser
-                </Button>
-              </div>
-
-              <div className="p-4 border rounded-lg">
-                <h4 className="font-medium mb-2">Optimisation ECTS</h4>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Calcul optimisé des crédits européens
-                </p>
-                <Button size="sm" variant="outline">
-                  <Settings className="w-4 h-4 mr-2" />
-                  Configurer
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Processing Queue */}
-        <Card>
-          <CardHeader>
-            <CardTitle>File de Traitement</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div>
-                  <p className="font-medium">Calcul moyennes - Master 1</p>
-                  <p className="text-sm text-muted-foreground">156 étudiants</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-emerald-600">En cours</p>
-                  <p className="text-xs text-muted-foreground">2 min restantes</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between p-3 border rounded-lg">
-                <div>
-                  <p className="font-medium">Génération bulletins - L3</p>
-                  <p className="text-sm text-muted-foreground">89 étudiants</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-amber-600">En attente</p>
-                  <p className="text-xs text-muted-foreground">Position: 2</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </ModuleLayout>
+      </ModuleLayout>
+    </ProtectedRoute>
   );
 }
