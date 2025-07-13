@@ -606,12 +606,12 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
                 {/* Lignes d'étudiants */}
                 {students.map(student => (
                   <div key={student.id}>
-                    <div className="p-2 font-medium bg-muted/30 rounded flex items-center">
-                      <div className="truncate">
+                    <div className="p-3 font-medium bg-muted/30 rounded flex flex-col justify-center min-h-[50px]">
+                      <div className="text-sm font-semibold truncate leading-tight">
                         {student.profile?.full_name || `Étudiant ${student.student_number}`}
-                        <div className="text-xs text-muted-foreground">
-                          {student.student_number}
-                        </div>
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1 font-normal">
+                        {student.student_number}
                       </div>
                     </div>
                     {evaluations.map(evaluation => {
