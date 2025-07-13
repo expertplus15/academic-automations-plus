@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,11 @@ import { useSubjects } from '@/hooks/useSubjects';
 import { useAcademicYears } from '@/hooks/useAcademicYears';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Save, Users, RefreshCw, Download, Upload, Edit3, Lock, Unlock, MessageSquare, History, Share } from 'lucide-react';
+import { Save, Users, RefreshCw, Download, Upload, Edit3, Lock, Unlock, MessageSquare, History, Share, Brain, Zap } from 'lucide-react';
+import { CRDTService } from '@/services/CRDTService';
+import { CollaborativeChat } from './CollaborativeChat';
+import { MultipleCursors } from './MultipleCursors';
+import { AIInsightsDashboard } from './AIInsightsDashboard';
 
 interface GradeCell {
   id: string;
@@ -54,6 +58,11 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
   const [showComments, setShowComments] = useState(false);
   const [autoSave, setAutoSave] = useState(true);
   const [viewHistory, setViewHistory] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  const [showAIInsights, setShowAIInsights] = useState(false);
+  const [crdtInitialized, setCrdtInitialized] = useState(false);
+  
+  const matrixRef = useRef<HTMLDivElement>(null);
 
   const { toast } = useToast();
   const { getMatriceGrades, saveGradesBatch } = useStudentGrades();
@@ -62,6 +71,54 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
   const { academicYears } = useAcademicYears();
 
   const currentAcademicYear = academicYears.find(year => year.is_current);
+
+  // Initialize CRDT for collaborative editing
+  useEffect(() => {
+    if (selectedSubject && !crdtInitialized) {
+      const initCRDT = async () => {
+        try {
+          const user = (await supabase.auth.getUser()).data.user;
+          if (user) {
+            await CRDTService.initializeSession(
+              selectedSubject, 
+              user.id, 
+              user.email || 'Anonymous'
+            );
+            setCrdtInitialized(true);
+          }
+        } catch (error) {
+          console.error('Failed to initialize CRDT:', error);
+        }
+      };
+      initCRDT();
+    }
+
+    return () => {
+      if (crdtInitialized) {
+        CRDTService.cleanup();
+        setCrdtInitialized(false);
+      }
+    };
+  }, [selectedSubject, crdtInitialized]);
+
+  // Listen for CRDT operations
+  useEffect(() => {
+    const handleCRDTOperation = (event: CustomEvent) => {
+      const operation = event.detail;
+      if (operation.type === 'update' && operation.cellId) {
+        setMatrixData(prev => prev.map(cell => 
+          cell.id === operation.cellId 
+            ? { ...cell, grade: operation.value, lastModified: new Date() }
+            : cell
+        ));
+      }
+    };
+
+    window.addEventListener('crdt-operation', handleCRDTOperation as EventListener);
+    return () => {
+      window.removeEventListener('crdt-operation', handleCRDTOperation as EventListener);
+    };
+  }, []);
 
   // Effet pour nouvelle session
   useEffect(() => {
@@ -194,7 +251,7 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
     }
   };
 
-  const handleCellEdit = (cellId: string, value: string) => {
+  const handleCellEdit = async (cellId: string, value: string) => {
     const numValue = parseFloat(value);
     const cell = matrixData.find(c => c.id === cellId);
     
@@ -208,6 +265,21 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
         variant: "destructive",
       });
       return;
+    }
+    
+    // Apply CRDT operation for collaborative editing
+    if (crdtInitialized) {
+      try {
+        await CRDTService.applyOperation({
+          type: 'update',
+          cellId,
+          value: numValue,
+          position: 0,
+          userId: (await supabase.auth.getUser()).data.user?.id || 'anonymous'
+        });
+      } catch (error) {
+        console.error('CRDT operation failed:', error);
+      }
     }
     
     // Mise à jour optimiste
@@ -279,6 +351,7 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
     return (
       <div
         key={cell.id}
+        data-cell-id={cell.id}
         className={`
           relative border border-border bg-background min-h-[40px] flex items-center justify-center
           cursor-pointer transition-all duration-200
@@ -286,7 +359,14 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
           ${hasPendingChange ? 'bg-amber-50 border-amber-300' : ''}
           ${cell.isLocked ? 'bg-muted cursor-not-allowed' : 'hover:bg-muted/50'}
         `}
-        onClick={() => !cell.isLocked && setSelectedCell(cell.id)}
+        onClick={async () => {
+          if (!cell.isLocked) {
+            setSelectedCell(cell.id);
+            if (crdtInitialized) {
+              await CRDTService.updateCursor(cell.id, 0);
+            }
+          }
+        }}
         onDoubleClick={() => !cell.isLocked && setEditingCell(cell.id)}
       >
         {isEditing ? (
@@ -372,9 +452,13 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
               )}
             </CardTitle>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => setShowComments(!showComments)}>
+              <Button variant="outline" size="sm" onClick={() => setShowChat(!showChat)}>
                 <MessageSquare className="w-4 h-4 mr-2" />
-                Commentaires
+                Chat
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setShowAIInsights(!showAIInsights)}>
+                <Brain className="w-4 h-4 mr-2" />
+                IA Insights
               </Button>
               <Button variant="outline" size="sm" onClick={() => setViewHistory(!viewHistory)}>
                 <History className="w-4 h-4 mr-2" />
@@ -463,6 +547,14 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
         </CardContent>
       </Card>
 
+      {/* AI Insights Dashboard */}
+      {showAIInsights && (
+        <AIInsightsDashboard 
+          subjectId={selectedSubject} 
+          programId={selectedProgram} 
+        />
+      )}
+
       {/* Matrice de saisie */}
       {students.length > 0 && evaluations.length > 0 && (
         <Card>
@@ -470,7 +562,10 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
             <CardTitle>Matrice de Notes - Mode Collaboratif</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="overflow-auto">
+            <div ref={matrixRef} className="relative overflow-auto">
+              {/* Multiple Cursors Overlay */}
+              <MultipleCursors containerRef={matrixRef} />
+              
               <div className="grid gap-1" style={{ 
                 gridTemplateColumns: `200px repeat(${evaluations.length}, minmax(80px, 1fr))` 
               }}>
