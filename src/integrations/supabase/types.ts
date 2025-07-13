@@ -2875,45 +2875,70 @@ export type Database = {
       }
       document_templates: {
         Row: {
+          academic_year_id: string | null
+          auto_generate: boolean | null
           category_id: string | null
           code: string
           created_at: string | null
           description: string | null
           id: string
           is_active: boolean | null
+          level_id: string | null
           name: string
+          program_id: string | null
           requires_approval: boolean | null
+          target_audience: Json | null
           template_content: Json
           template_type: string
           updated_at: string | null
+          variables: Json | null
         }
         Insert: {
+          academic_year_id?: string | null
+          auto_generate?: boolean | null
           category_id?: string | null
           code: string
           created_at?: string | null
           description?: string | null
           id?: string
           is_active?: boolean | null
+          level_id?: string | null
           name: string
+          program_id?: string | null
           requires_approval?: boolean | null
+          target_audience?: Json | null
           template_content: Json
           template_type: string
           updated_at?: string | null
+          variables?: Json | null
         }
         Update: {
+          academic_year_id?: string | null
+          auto_generate?: boolean | null
           category_id?: string | null
           code?: string
           created_at?: string | null
           description?: string | null
           id?: string
           is_active?: boolean | null
+          level_id?: string | null
           name?: string
+          program_id?: string | null
           requires_approval?: boolean | null
+          target_audience?: Json | null
           template_content?: Json
           template_type?: string
           updated_at?: string | null
+          variables?: Json | null
         }
         Relationships: [
+          {
+            foreignKeyName: "document_templates_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "document_templates_category_id_fkey"
             columns: ["category_id"]
@@ -2921,7 +2946,69 @@ export type Database = {
             referencedRelation: "document_categories"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "document_templates_level_id_fkey"
+            columns: ["level_id"]
+            isOneToOne: false
+            referencedRelation: "academic_levels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_templates_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      document_variables: {
+        Row: {
+          calculation_type: string | null
+          category: string | null
+          created_at: string | null
+          default_value: string | null
+          description: string | null
+          id: string
+          is_required: boolean | null
+          label: string
+          name: string
+          source_field: string | null
+          source_table: string | null
+          updated_at: string | null
+          variable_type: string
+        }
+        Insert: {
+          calculation_type?: string | null
+          category?: string | null
+          created_at?: string | null
+          default_value?: string | null
+          description?: string | null
+          id?: string
+          is_required?: boolean | null
+          label: string
+          name: string
+          source_field?: string | null
+          source_table?: string | null
+          updated_at?: string | null
+          variable_type?: string
+        }
+        Update: {
+          calculation_type?: string | null
+          category?: string | null
+          created_at?: string | null
+          default_value?: string | null
+          description?: string | null
+          id?: string
+          is_required?: boolean | null
+          label?: string
+          name?: string
+          source_field?: string | null
+          source_table?: string | null
+          updated_at?: string | null
+          variable_type?: string
+        }
+        Relationships: []
       }
       ects_calculation_config: {
         Row: {
@@ -4026,6 +4113,7 @@ export type Database = {
       }
       generated_documents: {
         Row: {
+          academic_year_id: string | null
           document_number: string
           download_count: number | null
           expires_at: string | null
@@ -4036,9 +4124,12 @@ export type Database = {
           id: string
           is_valid: boolean | null
           last_downloaded_at: string | null
+          program_id: string | null
           request_id: string
+          semester: number | null
         }
         Insert: {
+          academic_year_id?: string | null
           document_number: string
           download_count?: number | null
           expires_at?: string | null
@@ -4049,9 +4140,12 @@ export type Database = {
           id?: string
           is_valid?: boolean | null
           last_downloaded_at?: string | null
+          program_id?: string | null
           request_id: string
+          semester?: number | null
         }
         Update: {
+          academic_year_id?: string | null
           document_number?: string
           download_count?: number | null
           expires_at?: string | null
@@ -4062,14 +4156,30 @@ export type Database = {
           id?: string
           is_valid?: boolean | null
           last_downloaded_at?: string | null
+          program_id?: string | null
           request_id?: string
+          semester?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "generated_documents_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "generated_documents_generated_by_fkey"
             columns: ["generated_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_documents_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
             referencedColumns: ["id"]
           },
           {
@@ -8932,6 +9042,17 @@ export type Database = {
           card_number: string
           expiry_date: string
           days_until_expiry: number
+        }[]
+      }
+      get_template_variables: {
+        Args: { p_template_type?: string; p_category?: string }
+        Returns: {
+          id: string
+          name: string
+          label: string
+          variable_type: string
+          category: string
+          description: string
         }[]
       }
       trigger_module_sync: {

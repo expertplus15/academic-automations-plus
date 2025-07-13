@@ -15,12 +15,6 @@ serve(async (req) => {
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false,
-        },
-      }
     );
 
     const authHeader = req.headers.get('Authorization')!;
@@ -34,46 +28,23 @@ serve(async (req) => {
     }
 
     const url = new URL(req.url);
-    const templateType = url.searchParams.get('type');
-    const isActive = url.searchParams.get('active');
-    const programId = url.searchParams.get('program_id');
-    const includeAcademicData = url.searchParams.get('include_academic') === 'true';
+    const category = url.searchParams.get('category');
 
-    let query = supabase
-      .from('document_templates')
-      .select(`
-        *,
-        ${includeAcademicData ? `
-        program:programs(id, name, code),
-        level:academic_levels(id, name),
-        academic_year:academic_years(id, name)
-        ` : ''}
-      `)
-      .order('name');
+    // Get available variables
+    const { data: variables, error: variablesError } = await supabase
+      .rpc('get_template_variables', { 
+        p_category: category 
+      });
 
-    if (templateType) {
-      query = query.eq('template_type', templateType);
-    }
-
-    if (isActive !== null) {
-      query = query.eq('is_active', isActive === 'true');
-    }
-
-    if (programId) {
-      query = query.or(`program_id.eq.${programId},program_id.is.null`);
-    }
-
-    const { data: templates, error } = await query;
-
-    if (error) {
-      console.error('Error fetching templates:', error);
-      return new Response(JSON.stringify({ error: error.message }), {
+    if (variablesError) {
+      console.error('Error fetching variables:', variablesError);
+      return new Response(JSON.stringify({ error: variablesError.message }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    return new Response(JSON.stringify({ templates }), {
+    return new Response(JSON.stringify({ variables: variables || [] }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 

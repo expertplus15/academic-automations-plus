@@ -6,8 +6,10 @@ import { DocumentsPageHeader } from "@/components/DocumentsPageHeader";
 import { DocumentsDashboard } from "@/components/documents/DocumentsDashboard";
 import { SignatureManager } from "@/components/documents/SignatureManager";
 import { DocumentGenerator } from "@/components/documents/DocumentGenerator";
+import { AcademicDocumentGenerator } from "@/components/documents/AcademicDocumentGenerator";
 import { DocumentSearch } from "@/components/documents/DocumentSearch";
 import { TemplateManager } from "@/components/documents/TemplateManager";
+import { AcademicTemplateManager } from "@/components/documents/AcademicTemplateManager";
 import { DocumentArchives } from "@/components/documents/DocumentArchives";
 import { DocumentValidation } from "@/components/documents/DocumentValidation";
 import { DocumentDistribution } from "@/components/documents/DocumentDistribution";
@@ -24,12 +26,18 @@ export default function Documents() {
       return <SignatureManager />;
     }
     if (path === '/documents/generator') {
+      return <AcademicDocumentGenerator />;
+    }
+    if (path === '/documents/generator-legacy') {
       return <DocumentGenerator />;
     }
     if (path === '/documents/search') {
       return <DocumentSearch />;
     }
     if (path === '/documents/templates') {
+      return <AcademicTemplateManager />;
+    }
+    if (path === '/documents/templates-legacy') {
       return <TemplateManager />;
     }
     if (path === '/documents/archives') {
