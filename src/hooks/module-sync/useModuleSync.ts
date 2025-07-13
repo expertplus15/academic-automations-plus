@@ -184,9 +184,12 @@ export function useModuleSync() {
   useEffect(() => {
     fetchSyncData();
     
+    // Utiliser des noms de canaux uniques pour éviter les conflits
+    const timestamp = Date.now();
+    
     // Écouter les changements temps réel sur les opérations de sync
     const syncChannel = supabase
-      .channel('sync-operations')
+      .channel(`sync-operations-${timestamp}`)
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
@@ -198,7 +201,7 @@ export function useModuleSync() {
 
     // Écouter les événements de synchronisation
     const eventsChannel = supabase
-      .channel('sync-events')
+      .channel(`sync-events-${timestamp}`)
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',

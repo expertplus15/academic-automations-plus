@@ -1,14 +1,27 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useModuleSync } from './module-sync/useModuleSync';
+import SyncManager from '@/utils/SyncManager';
 
 export function useSyncTriggers() {
   const { publishEvent } = useModuleSync();
+  const channelsRef = useRef<any[]>([]);
+  const syncManager = SyncManager.getInstance();
 
   useEffect(() => {
-    // Déclencher sync quand un étudiant est inscrit/modifié
-    const studentsChannel = supabase
-      .channel('students-sync')
+    // Éviter la double initialisation via le singleton
+    if (syncManager.initialize()) return;
+    syncManager.setInitialized(true);
+
+    // Nettoyer les anciens canaux s'il y en a
+    channelsRef.current.forEach(channel => {
+      supabase.removeChannel(channel);
+    });
+    channelsRef.current = [];
+
+    // Créer un canal unique pour tous les événements de synchronisation
+    const syncChannel = supabase
+      .channel(`sync-triggers-${Date.now()}`) // Nom unique avec timestamp
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
@@ -21,11 +34,6 @@ export function useSyncTriggers() {
           timestamp: new Date().toISOString()
         });
       })
-      .subscribe();
-
-    // Déclencher sync pour les notes
-    const gradesChannel = supabase
-      .channel('grades-sync')
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
@@ -39,11 +47,6 @@ export function useSyncTriggers() {
           timestamp: new Date().toISOString()
         });
       })
-      .subscribe();
-
-    // Déclencher sync pour les examens
-    const examsChannel = supabase
-      .channel('exams-sync')
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
@@ -56,11 +59,6 @@ export function useSyncTriggers() {
           timestamp: new Date().toISOString()
         });
       })
-      .subscribe();
-
-    // Déclencher sync pour les inscriptions aux examens
-    const examRegistrationsChannel = supabase
-      .channel('exam-registrations-sync')
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
@@ -75,11 +73,6 @@ export function useSyncTriggers() {
           timestamp: new Date().toISOString()
         });
       })
-      .subscribe();
-
-    // Déclencher sync pour les emplois du temps
-    const timetablesChannel = supabase
-      .channel('timetables-sync')
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
@@ -92,11 +85,6 @@ export function useSyncTriggers() {
           timestamp: new Date().toISOString()
         });
       })
-      .subscribe();
-
-    // Déclencher sync pour les sessions d'examen
-    const examSessionsChannel = supabase
-      .channel('exam-sessions-sync')
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
@@ -112,13 +100,14 @@ export function useSyncTriggers() {
       })
       .subscribe();
 
+    channelsRef.current.push(syncChannel);
+
     return () => {
-      supabase.removeChannel(studentsChannel);
-      supabase.removeChannel(gradesChannel);
-      supabase.removeChannel(examsChannel);
-      supabase.removeChannel(examRegistrationsChannel);
-      supabase.removeChannel(timetablesChannel);
-      supabase.removeChannel(examSessionsChannel);
+      syncManager.reset(supabase);
+      channelsRef.current.forEach(channel => {
+        supabase.removeChannel(channel);
+      });
+      channelsRef.current = [];
     };
   }, [publishEvent]);
 
