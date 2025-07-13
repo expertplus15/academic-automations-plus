@@ -90,11 +90,12 @@ export function AcademicTemplateManager() {
     { value: 'diploma', label: 'Diplôme' }
   ];
 
-  const templateByProgram = [
-    { program: 'Informatique de Gestion', templates: ['Certificat IG', 'Relevé IG'] },
-    { program: 'Génie Logiciel', templates: ['Certificat GL', 'Relevé GL'] },
-    { program: 'Génie Civil', templates: ['Certificat GC', 'Relevé GC'] }
-  ];
+  // Template statistics based on real programs
+  const templateByProgram = programs.map(program => ({
+    program: program.name,
+    program_id: program.id,
+    templates: [`Certificat ${program.code}`, `Relevé ${program.code}`]
+  }));
 
   const resetForm = () => {
     setFormData({
