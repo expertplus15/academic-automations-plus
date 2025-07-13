@@ -51,10 +51,16 @@ export function ModulesGrid() {
           variant: hrStats.hasData ? "success" as const : "warning" as const,
           showAlert: !hrStats.hasData
         };
+      case "Gestion Étudiants":
+        return {
+          count: 0, // Students module: no alerts (all systems operational)
+          variant: "success" as const,
+          showAlert: false
+        };
       default:
         return {
-          count: Math.floor(Math.random() * 5), // Mock notifications for other modules
-          variant: "info" as const,
+          count: 0, // No random notifications - all modules stable
+          variant: "success" as const,
           showAlert: false
         };
     }

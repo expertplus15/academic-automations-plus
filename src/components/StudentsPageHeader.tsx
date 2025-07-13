@@ -101,7 +101,7 @@ export function StudentsPageHeader() {
             <Button variant="ghost" size="sm" className="relative hover:bg-muted transition-colors">
               <Bell className="w-5 h-5" />
               <Badge className="absolute -top-1 -right-1 h-5 w-5 text-xs bg-destructive text-destructive-foreground p-0 flex items-center justify-center">
-                5
+                0
               </Badge>
             </Button>
           </DropdownMenuTrigger>
