@@ -8,6 +8,9 @@ import StudentsProfiles from '@/pages/students/Profiles';
 import StudentsTracking from '@/pages/students/Tracking';
 import StudentsAlerts from '@/pages/students/Alerts';
 import StudentsDocuments from '@/pages/students/Documents';
+import StudentsCards from '@/pages/students/Cards';
+import StudentsAnalytics from '@/pages/students/Analytics';
+import StudentsConfig from '@/pages/students/Config';
 
 
 // Students registration sub-module pages
@@ -258,6 +261,9 @@ export function ModuleRoutes() {
       <Route path="/students/tracking" element={<StudentsTracking />} />
       <Route path="/students/alerts" element={<StudentsAlerts />} />
       <Route path="/students/documents" element={<StudentsDocuments />} />
+      <Route path="/students/cards" element={<StudentsCards />} />
+      <Route path="/students/analytics" element={<StudentsAnalytics />} />
+      <Route path="/students/config" element={<StudentsConfig />} />
       
       
       {/* Registration sub-module routes */}
