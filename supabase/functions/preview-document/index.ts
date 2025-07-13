@@ -11,51 +11,20 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
-
   try {
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false,
-        },
-      }
     );
-
-    const authHeader = req.headers.get('Authorization')!;
-    const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
-    
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
 
     const body = await req.json();
     const { template_id, student_id, preview_data } = body;
-
-    if (!template_id) {
-      return new Response(JSON.stringify({ error: 'Missing template_id' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
 
     // Get template
     const { data: template, error: templateError } = await supabase
       .from('document_templates')
       .select('*')
       .eq('id', template_id)
-      .eq('is_active', true)
       .single();
 
     if (templateError || !template) {
@@ -65,10 +34,10 @@ serve(async (req) => {
       });
     }
 
-    // Get student data if student_id is provided
+    // Get student data if provided
     let student = null;
     if (student_id) {
-      const { data: studentData, error: studentError } = await supabase
+      const { data: studentData } = await supabase
         .from('students')
         .select(`
           *,
@@ -79,31 +48,31 @@ serve(async (req) => {
         .eq('id', student_id)
         .single();
 
-      if (studentError) {
-        console.error('Student not found:', studentError);
-      } else {
-        student = studentData;
-      }
+      student = studentData;
     }
 
-    // Generate preview content using HTML template
-    let previewContent = template.html_template || '<div>Aucun template HTML défini</div>';
+    // Use mock data for preview if no student
+    if (!student) {
+      student = {
+        student_number: 'STU001',
+        profiles: { full_name: 'Jean Dupont', email: 'jean.dupont@example.com' },
+        programs: { name: 'Informatique' },
+        academic_levels: { name: 'Licence' }
+      };
+    }
+
+    // Generate preview content
+    let previewContent = template.template_content.template;
     
-    // Replace template variables with actual data or default values
     const replacements = {
-      '{{student_name}}': student?.profiles?.full_name || '[Nom de l\'étudiant]',
-      '{{student_number}}': student?.student_number || '[Numéro étudiant]',
-      '{{student_email}}': student?.profiles?.email || '[Email étudiant]',
-      '{{program_name}}': student?.programs?.name || '[Programme d\'études]',
-      '{{level_name}}': student?.academic_levels?.name || '[Niveau académique]',
-      '{{document_number}}': '[NUMÉRO À GÉNÉRER]',
+      '{{student_name}}': student?.profiles?.full_name || 'Nom Étudiant',
+      '{{student_number}}': student?.student_number || 'NUM001',
+      '{{student_email}}': student?.profiles?.email || 'email@example.com',
+      '{{program_name}}': student?.programs?.name || 'Programme d\'étude',
+      '{{level_name}}': student?.academic_levels?.name || 'Niveau',
+      '{{document_number}}': 'PREV' + Date.now(),
       '{{date}}': new Date().toLocaleDateString('fr-FR'),
-      '{{academic_year}}': `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
-      '{{period}}': 'Semestre 1',
-      '{{grades_table}}': '<table><tr><td>Mathématiques</td><td>15/20</td></tr><tr><td>Français</td><td>14/20</td></tr></table>',
-      '{{subjects_list}}': '<ul><li>Mathématiques - 15/20</li><li>Français - 14/20</li></ul>',
-      '{{course_name}}': '[Nom du cours]',
-      '{{final_grade}}': '15',
+      '{{academic_year}}': new Date().getFullYear().toString(),
       ...preview_data
     };
 
@@ -111,29 +80,17 @@ serve(async (req) => {
       previewContent = previewContent.replace(new RegExp(key, 'g'), value || '');
     }
 
-    // Check for missing variables
-    const missingVariables = previewContent.match(/\{\{[^}]+\}\}/g) || [];
-
     return new Response(JSON.stringify({ 
-      html: previewContent,
-      missing_variables: missingVariables,
-      template_info: {
-        name: template.name,
-        type: template.template_type,
-        requires_approval: template.requires_approval
-      },
-      student_info: student ? {
-        name: student.profiles.full_name,
-        number: student.student_number,
-        program: student.programs?.name
-      } : null
+      content: previewContent,
+      template: template.name,
+      type: template.template_type
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    console.error('Unexpected error:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+    console.error('Preview error:', error);
+    return new Response(JSON.stringify({ error: 'Preview generation failed' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

@@ -75,13 +75,40 @@ export function useDocuments() {
     }
   };
 
-  // Fetch generated documents - using mock data for now
+  // Fetch generated documents
   const fetchDocuments = async () => {
     try {
       setLoading(true);
-      // Mock data since table structure doesn't match our interface
-      const mockDocuments: GeneratedDocument[] = [];
-      setDocuments(mockDocuments);
+      
+      const { data, error } = await supabase
+        .from('generated_documents')
+        .select(`
+          *,
+          document_requests!inner(
+            template_id,
+            student_id,
+            request_data
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedDocuments: GeneratedDocument[] = data?.map(doc => ({
+        id: doc.id,
+        template_id: doc.document_requests.template_id,
+        student_id: doc.document_requests.student_id,
+        document_number: doc.document_number,
+        file_path: doc.file_path,
+        download_url: undefined, // Will be populated when needed
+        generation_data: doc.document_requests.request_data,
+        is_valid: true,
+        generated_at: doc.generated_at,
+        expires_at: doc.expires_at,
+        signed_by: doc.generated_by
+      })) || [];
+
+      setDocuments(formattedDocuments);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors du chargement des documents');
     } finally {

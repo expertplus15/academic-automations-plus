@@ -35,3 +35,9 @@ verify_jwt = true
 
 [functions.ai-analytics]
 verify_jwt = true
+
+[functions.generate-document]
+verify_jwt = true
+
+[functions.preview-document]
+verify_jwt = false
