@@ -106,6 +106,7 @@ export function TemplateEditor({ templateId, onSave, onCancel }: TemplateEditorP
                   <SelectItem value="bulletin">Bulletin</SelectItem>
                   <SelectItem value="transcript">Relevé</SelectItem>
                   <SelectItem value="certificate">Certificat</SelectItem>
+                  <SelectItem value="attestation">Attestation</SelectItem>
                 </SelectContent>
               </Select>
             </div>

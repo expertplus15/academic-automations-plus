@@ -3,16 +3,67 @@ import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, Award, Layout, Plus, BarChart3, Settings, FileDown, Eye, Download } from "lucide-react";
+import { FileText, Award, Layout, Plus, BarChart3, Settings, FileDown, Eye, Download, Shield } from "lucide-react";
 import { DocumentCard } from "@/components/documents/DocumentCard";
 import { GenerationForm } from "@/components/documents/GenerationForm";
 import { TemplateEditor } from "@/components/documents/TemplateEditor";
 import { DocumentStats } from "@/components/documents/DocumentStats";
+import { DocumentPreview } from "@/components/documents/DocumentPreview";
+import { AttestationTab } from "@/components/documents/AttestationTab";
+import { useDocuments } from "@/hooks/useDocuments";
 
 export default function Documents() {
   const [activeView, setActiveView] = useState<string>("dashboard");
   const [showGenerationForm, setShowGenerationForm] = useState(false);
   const [showTemplateEditor, setShowTemplateEditor] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewData, setPreviewData] = useState<any>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [generationType, setGenerationType] = useState<"bulletin" | "transcript" | "certificate" | "attestation" | "batch">("bulletin");
+  
+  const { 
+    templates, 
+    loading, 
+    generateDocument, 
+    previewDocument, 
+    saveTemplate,
+    getDocumentsByType
+  } = useDocuments();
+
+  // Handle preview
+  const handlePreview = async (templateId: string, type: string) => {
+    try {
+      const preview = await previewDocument(templateId);
+      setPreviewData({
+        title: `Aperçu ${type}`,
+        type,
+        ...preview
+      });
+      setShowPreview(true);
+    } catch (error) {
+      console.error('Preview error:', error);
+    }
+  };
+
+  // Handle generation
+  const handleGenerate = async (config: any) => {
+    try {
+      await generateDocument(config.template, config.student_id, config);
+      setShowGenerationForm(false);
+    } catch (error) {
+      console.error('Generation error:', error);
+    }
+  };
+
+  // Handle template save
+  const handleTemplateSave = async (template: any) => {
+    try {
+      await saveTemplate(template);
+      setShowTemplateEditor(false);
+    } catch (error) {
+      console.error('Save error:', error);
+    }
+  };
 
   const renderMainContent = () => {
     if (activeView === "stats") {
@@ -22,11 +73,9 @@ export default function Documents() {
     if (showGenerationForm) {
       return (
         <GenerationForm
-          type="bulletin"
-          onGenerate={(config) => {
-            console.log("Génération:", config);
-            setShowGenerationForm(false);
-          }}
+          type={generationType}
+          templateId={selectedTemplate || undefined}
+          onGenerate={handleGenerate}
           onCancel={() => setShowGenerationForm(false)}
         />
       );
@@ -35,10 +84,8 @@ export default function Documents() {
     if (showTemplateEditor) {
       return (
         <TemplateEditor
-          onSave={(template) => {
-            console.log("Template sauvé:", template);
-            setShowTemplateEditor(false);
-          }}
+          templateId={selectedTemplate || undefined}
+          onSave={handleTemplateSave}
           onCancel={() => setShowTemplateEditor(false)}
         />
       );
@@ -47,7 +94,7 @@ export default function Documents() {
     return (
       <Tabs defaultValue="bulletins" className="space-y-6">
         <div className="flex items-center justify-between mb-6">
-          <TabsList className="grid grid-cols-4 w-full max-w-2xl">
+          <TabsList className="grid grid-cols-5 w-full max-w-3xl">
             <TabsTrigger value="bulletins" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               Bulletins
@@ -55,6 +102,10 @@ export default function Documents() {
             <TabsTrigger value="transcripts" className="flex items-center gap-2">
               <Award className="w-4 h-4" />
               Relevés
+            </TabsTrigger>
+            <TabsTrigger value="attestations" className="flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              Attestations
             </TabsTrigger>
             <TabsTrigger value="templates" className="flex items-center gap-2">
               <Layout className="w-4 h-4" />
@@ -74,7 +125,11 @@ export default function Documents() {
               <BarChart3 className="w-4 h-4 mr-2" />
               {activeView === "stats" ? "Dashboard" : "Statistiques"}
             </Button>
-            <Button onClick={() => setShowGenerationForm(true)}>
+            <Button onClick={() => {
+              setGenerationType("bulletin");
+              setSelectedTemplate(null);
+              setShowGenerationForm(true);
+            }}>
               <Plus className="w-4 h-4 mr-2" />
               Nouveau Document
             </Button>
@@ -91,40 +146,32 @@ export default function Documents() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <DocumentCard
-                title="Bulletin Semestriel"
-                description="Bulletin standard avec moyennes par matière"
-                type="bulletin"
-                status="ready"
-                lastGenerated="12/12/2024"
-                studentCount={156}
-                onPreview={() => console.log("Aperçu bulletin semestriel")}
-                onGenerate={() => setShowGenerationForm(true)}
-                onEdit={() => setShowTemplateEditor(true)}
-              />
+              {getDocumentsByType('bulletin').map((template) => (
+                <DocumentCard
+                  key={template.id}
+                  title={template.name}
+                  description={template.description || "Bulletin personnalisable"}
+                  type="bulletin"
+                  status="ready"
+                  templateId={template.id}
+                  onPreview={() => handlePreview(template.id, 'bulletin')}
+                  onGenerate={() => {
+                    setGenerationType("bulletin");
+                    setSelectedTemplate(template.id);
+                    setShowGenerationForm(true);
+                  }}
+                  onEdit={() => {
+                    setSelectedTemplate(template.id);
+                    setShowTemplateEditor(true);
+                  }}
+                />
+              ))}
               
-              <DocumentCard
-                title="Bulletin Complet"
-                description="Bulletin détaillé avec toutes les évaluations"
-                type="bulletin"
-                status="ready"
-                lastGenerated="10/12/2024"
-                studentCount={156}
-                onPreview={() => console.log("Aperçu bulletin complet")}
-                onGenerate={() => setShowGenerationForm(true)}
-                onEdit={() => setShowTemplateEditor(true)}
-              />
-
-              <DocumentCard
-                title="Bulletin Express"
-                description="Bulletin rapide pour évaluations urgentes"
-                type="bulletin"
-                status="draft"
-                studentCount={45}
-                onPreview={() => console.log("Aperçu bulletin express")}
-                onGenerate={() => setShowGenerationForm(true)}
-                onEdit={() => setShowTemplateEditor(true)}
-              />
+              {getDocumentsByType('bulletin').length === 0 && (
+                <div className="col-span-full text-center py-8 text-muted-foreground">
+                  Aucun template de bulletin disponible
+                </div>
+              )}
             </div>
           </TabsContent>
 
@@ -138,42 +185,48 @@ export default function Documents() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <DocumentCard
-                title="Relevé Officiel"
-                description="Document officiel pour les démarches administratives"
-                type="transcript"
-                status="ready"
-                lastGenerated="15/12/2024"
-                studentCount={89}
-                onPreview={() => console.log("Aperçu relevé officiel")}
-                onGenerate={() => setShowGenerationForm(true)}
-                onEdit={() => setShowTemplateEditor(true)}
-              />
+              {getDocumentsByType('transcript').map((template) => (
+                <DocumentCard
+                  key={template.id}
+                  title={template.name}
+                  description={template.description || "Relevé de notes personnalisable"}
+                  type="transcript"
+                  status="ready"
+                  templateId={template.id}
+                  onPreview={() => handlePreview(template.id, 'transcript')}
+                  onGenerate={() => {
+                    setGenerationType("transcript");
+                    setSelectedTemplate(template.id);
+                    setShowGenerationForm(true);
+                  }}
+                  onEdit={() => {
+                    setSelectedTemplate(template.id);
+                    setShowTemplateEditor(true);
+                  }}
+                />
+              ))}
               
-              <DocumentCard
-                title="Relevé Provisoire"
-                description="Document provisoire pour suivi pédagogique"
-                type="transcript"
-                status="ready"
-                lastGenerated="18/12/2024"
-                studentCount={234}
-                onPreview={() => console.log("Aperçu relevé provisoire")}
-                onGenerate={() => setShowGenerationForm(true)}
-                onEdit={() => setShowTemplateEditor(true)}
-              />
-
-              <DocumentCard
-                title="Relevé Européen"
-                description="Relevé au format ECTS européen"
-                type="transcript"
-                status="draft"
-                studentCount={67}
-                onPreview={() => console.log("Aperçu relevé européen")}
-                onGenerate={() => setShowGenerationForm(true)}
-                onEdit={() => setShowTemplateEditor(true)}
-              />
+              {getDocumentsByType('transcript').length === 0 && (
+                <div className="col-span-full text-center py-8 text-muted-foreground">
+                  Aucun template de relevé disponible
+                </div>
+              )}
             </div>
           </TabsContent>
+
+          <AttestationTab
+            templates={templates}
+            onPreview={handlePreview}
+            onGenerate={(templateId, type) => {
+              setGenerationType(type as any);
+              setSelectedTemplate(templateId);
+              setShowGenerationForm(true);
+            }}
+            onEdit={(templateId) => {
+              setSelectedTemplate(templateId);
+              setShowTemplateEditor(true);
+            }}
+          />
 
           <TabsContent value="templates" className="space-y-6">
             <div className="flex justify-between items-center">
@@ -185,35 +238,31 @@ export default function Documents() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <DocumentCard
-                title="Template Standard"
-                description="Modèle par défaut pour les bulletins"
-                type="template"
-                status="ready"
-                onPreview={() => console.log("Aperçu template standard")}
-                onGenerate={() => console.log("Utiliser template standard")}
-                onEdit={() => setShowTemplateEditor(true)}
-              />
+              {templates.map((template) => (
+                <DocumentCard
+                  key={template.id}
+                  title={template.name}
+                  description={template.description || "Template personnalisable"}
+                  type="template"
+                  status={template.is_active ? "ready" : "draft"}
+                  templateId={template.id}
+                  onPreview={() => handlePreview(template.id, 'template')}
+                  onGenerate={() => {
+                    setSelectedTemplate(template.id);
+                    setShowGenerationForm(true);
+                  }}
+                  onEdit={() => {
+                    setSelectedTemplate(template.id);
+                    setShowTemplateEditor(true);
+                  }}
+                />
+              ))}
               
-              <DocumentCard
-                title="Template Personnalisé"
-                description="Modèle avec logo et mise en page custom"
-                type="template"
-                status="ready"
-                onPreview={() => console.log("Aperçu template personnalisé")}
-                onGenerate={() => console.log("Utiliser template personnalisé")}
-                onEdit={() => setShowTemplateEditor(true)}
-              />
-
-              <DocumentCard
-                title="Template Moderne"
-                description="Design moderne avec graphiques intégrés"
-                type="template"
-                status="draft"
-                onPreview={() => console.log("Aperçu template moderne")}
-                onGenerate={() => console.log("Utiliser template moderne")}
-                onEdit={() => setShowTemplateEditor(true)}
-              />
+              {templates.length === 0 && (
+                <div className="col-span-full text-center py-8 text-muted-foreground">
+                  Aucun template disponible
+                </div>
+              )}
             </div>
           </TabsContent>
 
@@ -234,7 +283,10 @@ export default function Documents() {
                   <div className="space-y-3">
                     <Button 
                       className="w-full" 
-                      onClick={() => setShowGenerationForm(true)}
+                      onClick={() => {
+                        setGenerationType("bulletin");
+                        setShowGenerationForm(true);
+                      }}
                     >
                       <FileText className="w-4 h-4 mr-2" />
                       Bulletin Standard
@@ -242,10 +294,24 @@ export default function Documents() {
                     <Button 
                       variant="outline" 
                       className="w-full"
-                      onClick={() => setShowGenerationForm(true)}
+                      onClick={() => {
+                        setGenerationType("transcript");
+                        setShowGenerationForm(true);
+                      }}
                     >
                       <Award className="w-4 h-4 mr-2" />
                       Relevé de Notes
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => {
+                        setGenerationType("attestation");
+                        setShowGenerationForm(true);
+                      }}
+                    >
+                      <Shield className="w-4 h-4 mr-2" />
+                      Attestation
                     </Button>
                   </div>
                 </CardContent>
@@ -262,7 +328,10 @@ export default function Documents() {
                   <Button 
                     variant="outline" 
                     className="w-full"
-                    onClick={() => setShowGenerationForm(true)}
+                    onClick={() => {
+                      setGenerationType("batch");
+                      setShowGenerationForm(true);
+                    }}
                   >
                     <Settings className="w-4 h-4 mr-2" />
                     Configuration Avancée
@@ -275,15 +344,26 @@ export default function Documents() {
     );
   };
 
-  return (
+    return (
     <ModuleLayout 
       title="Documents & Bulletins" 
-      subtitle="Génération et gestion des bulletins, relevés et templates"
+      subtitle="Génération et gestion des bulletins, relevés et attestations"
       showHeader={true}
     >
       <div className="p-6">
         {renderMainContent()}
       </div>
+      
+      <DocumentPreview
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+        title={previewData?.title || "Aperçu"}
+        type={previewData?.type}
+        previewData={previewData}
+        loading={loading}
+        onDownload={() => console.log("Download")}
+        onPrint={() => window.print()}
+      />
     </ModuleLayout>
   );
 }

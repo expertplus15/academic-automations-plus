@@ -12,10 +12,11 @@ import {
 interface DocumentCardProps {
   title: string;
   description: string;
-  type: "bulletin" | "transcript" | "template";
+  type: "bulletin" | "transcript" | "template" | "certificate" | "attestation";
   status?: "draft" | "ready" | "generated";
   lastGenerated?: string;
   studentCount?: number;
+  templateId?: string;
   onPreview?: () => void;
   onGenerate?: () => void;
   onEdit?: () => void;
@@ -29,6 +30,7 @@ export function DocumentCard({
   status = "ready",
   lastGenerated,
   studentCount,
+  templateId,
   onPreview,
   onGenerate,
   onEdit,

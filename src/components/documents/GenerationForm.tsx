@@ -11,14 +11,15 @@ import { Progress } from "@/components/ui/progress";
 import { FileText, Users, Download, Settings, Play } from "lucide-react";
 
 interface GenerationFormProps {
-  type: "bulletin" | "transcript" | "batch";
+  type: "bulletin" | "transcript" | "certificate" | "attestation" | "batch";
+  templateId?: string;
   onGenerate?: (config: any) => void;
   onCancel?: () => void;
 }
 
-export function GenerationForm({ type, onGenerate, onCancel }: GenerationFormProps) {
+export function GenerationForm({ type, templateId, onGenerate, onCancel }: GenerationFormProps) {
   const [config, setConfig] = useState({
-    template: "",
+    template: templateId || "",
     academicYear: "",
     semester: "",
     program: "",
@@ -79,6 +80,8 @@ export function GenerationForm({ type, onGenerate, onCancel }: GenerationFormPro
           <Badge variant="outline">
             {type === "bulletin" && "Bulletin"}
             {type === "transcript" && "Relevé"}
+            {type === "certificate" && "Certificat"}
+            {type === "attestation" && "Attestation"}
             {type === "batch" && "Lot"}
           </Badge>
         </CardTitle>
