@@ -4,11 +4,13 @@ import { supabase } from '@/integrations/supabase/client';
 export interface Student {
   id: string;
   student_number: string;
+  program_id: string;
   profile: {
     full_name: string;
     email: string;
   };
   program: {
+    id: string;
     name: string;
     code: string;
   };
@@ -26,11 +28,13 @@ export function useStudents() {
         .select(`
           id,
           student_number,
+          program_id,
           profile:profiles!inner (
             full_name,
             email
           ),
           program:programs!inner (
+            id,
             name,
             code
           )

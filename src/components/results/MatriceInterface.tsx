@@ -10,6 +10,8 @@ import { useStudentGrades } from '@/hooks/useStudentGrades';
 import { usePrograms } from '@/hooks/usePrograms';
 import { useSubjects } from '@/hooks/useSubjects';
 import { useAcademicYears } from '@/hooks/useAcademicYears';
+import { useStudents } from '@/hooks/useStudents';
+import { useEvaluationTypes } from '@/hooks/useEvaluationTypes';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Save, Users, RefreshCw, Download, Upload, Edit3, Lock, Unlock, MessageSquare, History, Share, Brain, Zap } from 'lucide-react';
@@ -69,6 +71,8 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
   const { programs } = usePrograms();
   const { subjects } = useSubjects();
   const { academicYears } = useAcademicYears();
+  const { students: allStudents, loading: studentsLoading } = useStudents();
+  const { evaluationTypes, loading: evalTypesLoading } = useEvaluationTypes();
 
   const currentAcademicYear = academicYears.find(year => year.is_current);
 
@@ -204,22 +208,30 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
 
     setIsLoading(true);
     try {
-      // Charger les étudiants du programme (simplified)
-      const studentsData = { data: [] as any[] };
-      
-      // Charger les types d'évaluation pour cette matière
-      const evaluationsData = { data: [] as any[] };
-      
-      // Charger les notes existantes (mock for now)
-      const gradesData: any[] = [];
+      // Filtrer les étudiants par programme si sélectionné
+      let filteredStudents = allStudents;
+      if (selectedProgram && selectedProgram !== 'all') {
+        filteredStudents = allStudents.filter(student => student.program_id === selectedProgram);
+      }
 
-      setStudents(studentsData.data || []);
-      setEvaluations(evaluationsData.data || []);
+      // Filtrer les types d'évaluation actifs
+      const activeEvaluationTypes = evaluationTypes.filter(et => et.is_active);
+      
+      // Charger les notes existantes pour cette matière
+      const gradesData = await getMatriceGrades(
+        selectedSubject,
+        currentAcademicYear.id,
+        selectedSemester,
+        selectedProgram !== 'all' ? selectedProgram : undefined
+      );
+
+      setStudents(filteredStudents);
+      setEvaluations(activeEvaluationTypes);
       
       // Créer la matrice de cellules
       const matrix: GradeCell[] = [];
-      for (const student of studentsData.data || []) {
-        for (const evaluation of evaluationsData.data || []) {
+      for (const student of filteredStudents) {
+        for (const evaluation of activeEvaluationTypes) {
           const existingGrade = gradesData.find((g: any) => 
             g.student_id === student.id && g.evaluation_type_id === evaluation.id
           );
@@ -241,6 +253,7 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
       
       setMatrixData(matrix);
     } catch (error) {
+      console.error('Error loading matrix data:', error);
       toast({
         title: "Erreur",
         description: "Impossible de charger les données de la matrice",
@@ -496,6 +509,11 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
                     {program.name}
                   </SelectItem>
                 ))}
+                {programs.length === 0 && (
+                  <div className="px-2 py-1 text-sm text-muted-foreground">
+                    Aucun programme disponible
+                  </div>
+                )}
               </SelectContent>
             </Select>
 
@@ -506,9 +524,14 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
               <SelectContent>
                 {subjects.map(subject => (
                   <SelectItem key={subject.id} value={subject.id}>
-                    {subject.name}
+                    {subject.name} - {subject.credits_ects} ECTS
                   </SelectItem>
                 ))}
+                {subjects.length === 0 && (
+                  <div className="px-2 py-1 text-sm text-muted-foreground">
+                    Aucune matière disponible
+                  </div>
+                )}
               </SelectContent>
             </Select>
 
@@ -522,8 +545,8 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
               </SelectContent>
             </Select>
 
-            <Button variant="outline" onClick={loadMatrixData} disabled={isLoading}>
-              <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            <Button variant="outline" onClick={loadMatrixData} disabled={isLoading || studentsLoading || evalTypesLoading}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${isLoading || studentsLoading || evalTypesLoading ? 'animate-spin' : ''}`} />
               Actualiser
             </Button>
           </div>
@@ -575,7 +598,7 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
                   <div key={evaluation.id} className="font-medium p-2 bg-muted rounded text-center text-xs">
                     {evaluation.name}
                     <div className="text-xs text-muted-foreground mt-1">
-                      /{evaluation.max_grade || 20}
+                      /20 - {evaluation.weight_percentage}%
                     </div>
                   </div>
                 ))}
@@ -585,7 +608,10 @@ export function MatriceInterface({ isNewSession = false }: MatriceInterfaceProps
                   <React.Fragment key={student.id}>
                     <div className="p-2 font-medium bg-muted/30 rounded flex items-center">
                       <div className="truncate">
-                        {student.name || `Étudiant ${student.student_number}`}
+                        {student.profile?.full_name || `Étudiant ${student.student_number}`}
+                        <div className="text-xs text-muted-foreground">
+                          {student.student_number}
+                        </div>
                       </div>
                     </div>
                     {evaluations.map(evaluation => {
