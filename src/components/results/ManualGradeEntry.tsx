@@ -265,9 +265,9 @@ export function ManualGradeEntry({
                   </SelectItem>
                 ))}
                 {evaluationTypes.length === 0 && !evalTypesLoading && (
-                  <SelectItem value="" disabled>
+                  <div className="px-2 py-1 text-sm text-muted-foreground">
                     Aucun type d'évaluation disponible
-                  </SelectItem>
+                  </div>
                 )}
               </SelectContent>
             </Select>

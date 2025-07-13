@@ -87,9 +87,9 @@ export function BasicInfo({ data, onChange }: BasicInfoProps) {
                 </SelectItem>
               ))}
               {subjects.length === 0 && !subjectsLoading && (
-                <SelectItem value="" disabled>
+                <div className="px-2 py-1 text-sm text-muted-foreground">
                   Aucune matière disponible
-                </SelectItem>
+                </div>
               )}
             </SelectContent>
           </Select>
@@ -113,9 +113,9 @@ export function BasicInfo({ data, onChange }: BasicInfoProps) {
                 </SelectItem>
               ))}
               {programs.length === 0 && !programsLoading && (
-                <SelectItem value="" disabled>
+                <div className="px-2 py-1 text-sm text-muted-foreground">
                   Aucun programme disponible
-                </SelectItem>
+                </div>
               )}
             </SelectContent>
           </Select>
