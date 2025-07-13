@@ -710,6 +710,45 @@ export type Database = {
           },
         ]
       }
+      analytics_metrics: {
+        Row: {
+          calculated_at: string
+          created_at: string
+          dimensions: Json | null
+          id: string
+          metric_name: string
+          metric_type: string
+          reference_date: string | null
+          string_value: string | null
+          time_period: string | null
+          value: number | null
+        }
+        Insert: {
+          calculated_at?: string
+          created_at?: string
+          dimensions?: Json | null
+          id?: string
+          metric_name: string
+          metric_type: string
+          reference_date?: string | null
+          string_value?: string | null
+          time_period?: string | null
+          value?: number | null
+        }
+        Update: {
+          calculated_at?: string
+          created_at?: string
+          dimensions?: Json | null
+          id?: string
+          metric_name?: string
+          metric_type?: string
+          reference_date?: string | null
+          string_value?: string | null
+          time_period?: string | null
+          value?: number | null
+        }
+        Relationships: []
+      }
       announcement_reads: {
         Row: {
           acknowledged_at: string | null
@@ -803,6 +842,50 @@ export type Database = {
             columns: ["author_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      approval_history: {
+        Row: {
+          action: string
+          approval_id: string | null
+          created_at: string
+          from_stage: string | null
+          id: string
+          metadata: Json | null
+          performer_id: string | null
+          reason: string | null
+          to_stage: string | null
+        }
+        Insert: {
+          action: string
+          approval_id?: string | null
+          created_at?: string
+          from_stage?: string | null
+          id?: string
+          metadata?: Json | null
+          performer_id?: string | null
+          reason?: string | null
+          to_stage?: string | null
+        }
+        Update: {
+          action?: string
+          approval_id?: string | null
+          created_at?: string
+          from_stage?: string | null
+          id?: string
+          metadata?: Json | null
+          performer_id?: string | null
+          reason?: string | null
+          to_stage?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approval_history_approval_id_fkey"
+            columns: ["approval_id"]
+            isOneToOne: false
+            referencedRelation: "grade_approvals"
             referencedColumns: ["id"]
           },
         ]
@@ -1958,6 +2041,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      collaboration_sessions: {
+        Row: {
+          active_users: Json | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          metadata: Json | null
+          resource_id: string | null
+          session_type: string
+          updated_at: string
+        }
+        Insert: {
+          active_users?: Json | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          metadata?: Json | null
+          resource_id?: string | null
+          session_type: string
+          updated_at?: string
+        }
+        Update: {
+          active_users?: Json | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          metadata?: Json | null
+          resource_id?: string | null
+          session_type?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       commercial_clients: {
         Row: {
@@ -4054,6 +4170,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      grade_approvals: {
+        Row: {
+          approval_date: string | null
+          approver_id: string | null
+          comments: string | null
+          created_at: string
+          current_stage: string
+          grade_id: string | null
+          id: string
+          metadata: Json | null
+          status: string
+          updated_at: string
+          workflow_stage: string
+        }
+        Insert: {
+          approval_date?: string | null
+          approver_id?: string | null
+          comments?: string | null
+          created_at?: string
+          current_stage?: string
+          grade_id?: string | null
+          id?: string
+          metadata?: Json | null
+          status?: string
+          updated_at?: string
+          workflow_stage: string
+        }
+        Update: {
+          approval_date?: string | null
+          approver_id?: string | null
+          comments?: string | null
+          created_at?: string
+          current_stage?: string
+          grade_id?: string | null
+          id?: string
+          metadata?: Json | null
+          status?: string
+          updated_at?: string
+          workflow_stage?: string
+        }
+        Relationships: []
       }
       grade_simulations: {
         Row: {
@@ -7676,6 +7834,44 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: true
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_versions: {
+        Row: {
+          changes: string | null
+          content: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          template_id: string | null
+          version: number
+        }
+        Insert: {
+          changes?: string | null
+          content: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          template_id?: string | null
+          version: number
+        }
+        Update: {
+          changes?: string | null
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          template_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_versions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "document_templates"
             referencedColumns: ["id"]
           },
         ]
