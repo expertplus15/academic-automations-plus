@@ -186,10 +186,11 @@ export function useModuleSync() {
     
     // Utiliser des noms de canaux uniques pour éviter les conflits
     const timestamp = Date.now();
+    const randomId = Math.random().toString(36).substr(2, 9);
     
     // Écouter les changements temps réel sur les opérations de sync
     const syncChannel = supabase
-      .channel(`sync-operations-${timestamp}`)
+      .channel(`sync-operations-${timestamp}-${randomId}`)
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
@@ -199,9 +200,9 @@ export function useModuleSync() {
       })
       .subscribe();
 
-    // Écouter les événements de synchronisation
+    // Écouter les événements de synchronisation  
     const eventsChannel = supabase
-      .channel(`sync-events-${timestamp}`)
+      .channel(`sync-events-${timestamp}-${randomId}`)
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
@@ -212,8 +213,12 @@ export function useModuleSync() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(syncChannel);
-      supabase.removeChannel(eventsChannel);
+      try {
+        supabase.removeChannel(syncChannel);
+        supabase.removeChannel(eventsChannel);
+      } catch (error) {
+        console.warn('Erreur lors de la suppression des canaux:', error);
+      }
     };
   }, []);
 

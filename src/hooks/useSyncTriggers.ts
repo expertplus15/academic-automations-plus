@@ -14,6 +14,7 @@ export function useSyncTriggers() {
     syncManager.setInitialized(true);
 
     // Nettoyer les anciens canaux s'il y en a
+    syncManager.clearChannels(supabase);
     channelsRef.current.forEach(channel => {
       supabase.removeChannel(channel);
     });
@@ -21,7 +22,7 @@ export function useSyncTriggers() {
 
     // Créer un canal unique pour tous les événements de synchronisation
     const syncChannel = supabase
-      .channel(`sync-triggers-${Date.now()}`) // Nom unique avec timestamp
+      .channel(`sync-triggers-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`) // Nom unique avec timestamp et random
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
@@ -101,6 +102,7 @@ export function useSyncTriggers() {
       .subscribe();
 
     channelsRef.current.push(syncChannel);
+    syncManager.addChannel(syncChannel);
 
     return () => {
       syncManager.reset(supabase);
