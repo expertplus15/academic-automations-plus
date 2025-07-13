@@ -15,33 +15,21 @@ import { cn } from "@/lib/utils";
 import {
   BarChart3,
   Grid,
-  FileOutput,
   Calculator,
-  Award,
+  FileText,
+  Shield,
   TrendingUp,
   ArrowLeft,
-  Zap,
-  ClipboardList,
-  PieChart,
-  Upload,
-  CheckCircle,
-  Cpu,
-  Layout,
-  Brain,
-  Clock
+  Settings
 } from "lucide-react";
 
 const resultsItems = [
-  { title: "Interface matricielle", url: "/results/matrix", icon: Grid },
-  { title: "Import de données", url: "/results/import", icon: Upload },
-  { title: "Validation & Contrôle", url: "/results/validation", icon: CheckCircle },
-  { title: "Calculs automatiques", url: "/results/calculations", icon: Calculator },
-  { title: "Traitement avancé", url: "/results/processing", icon: Cpu },
-  { title: "Bulletins personnalisables", url: "/results/reports", icon: FileOutput },
-  { title: "Relevés standards", url: "/results/transcripts", icon: Award },
-  { title: "Templates & Modèles", url: "/results/templates", icon: Layout },
-  { title: "Analytics & Insights", url: "/results/analytics-insights", icon: Brain },
-  { title: "Historique & Audit", url: "/results/history", icon: Clock }
+  { title: "Saisie Matricielle", url: "/results/matrix", icon: Grid },
+  { title: "Calculs & Traitements", url: "/results/calculations", icon: Calculator },
+  { title: "Documents & Bulletins", url: "/results/documents", icon: FileText },
+  { title: "Validation & Contrôle", url: "/results/validation", icon: Shield },
+  { title: "Analytics & Insights", url: "/results/analytics", icon: TrendingUp },
+  { title: "Configuration", url: "/results/config", icon: Settings }
 ];
 
 export function ResultsModuleSidebar() {

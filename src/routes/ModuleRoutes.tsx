@@ -104,10 +104,9 @@ import ResultsImport from '@/pages/results/Import';
 import ResultsValidation from '@/pages/results/Validation';
 import ResultsCalculations from '@/pages/results/Calculations';
 import ResultsProcessing from '@/pages/results/Processing';
-import ResultsReports from '@/pages/results/Reports';
-import ResultsTranscripts from '@/pages/results/Transcripts';
-import ResultsTemplates from '@/pages/results/Templates';
-import ResultsAnalyticsInsights from '@/pages/results/AnalyticsInsights';
+import ResultsDocuments from '@/pages/results/Documents';
+import ResultsAnalytics from '@/pages/results/Analytics';
+import ResultsConfig from '@/pages/results/Config';
 import ResultsHistory from '@/pages/results/History';
 import Services from '@/pages/Services';
 
@@ -319,14 +318,11 @@ export function ModuleRoutes() {
       {/* New ACADEMIC+ Module Routes */}
       <Route path="/results" element={<Results />} />
       <Route path="/results/matrix" element={<ResultsMatrix />} />
-      <Route path="/results/import" element={<ResultsImport />} />
-      <Route path="/results/validation" element={<ResultsValidation />} />
       <Route path="/results/calculations" element={<ResultsCalculations />} />
-      <Route path="/results/processing" element={<ResultsProcessing />} />
-      <Route path="/results/reports" element={<ResultsReports />} />
-      <Route path="/results/transcripts" element={<ResultsTranscripts />} />
-      <Route path="/results/templates" element={<ResultsTemplates />} />
-      <Route path="/results/analytics-insights" element={<ResultsAnalyticsInsights />} />
+      <Route path="/results/documents" element={<ResultsDocuments />} />
+      <Route path="/results/validation" element={<ResultsValidation />} />
+      <Route path="/results/analytics" element={<ResultsAnalytics />} />
+      <Route path="/results/config" element={<ResultsConfig />} />
       <Route path="/results/history" element={<ResultsHistory />} />
       <Route path="/services" element={<Services />} />
 
