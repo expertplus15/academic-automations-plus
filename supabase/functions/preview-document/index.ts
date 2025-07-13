@@ -43,8 +43,8 @@ serve(async (req) => {
     const body = await req.json();
     const { template_id, student_id, preview_data } = body;
 
-    if (!template_id || !student_id) {
-      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+    if (!template_id) {
+      return new Response(JSON.stringify({ error: 'Missing template_id' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -65,38 +65,45 @@ serve(async (req) => {
       });
     }
 
-    // Get student data
-    const { data: student, error: studentError } = await supabase
-      .from('students')
-      .select(`
-        *,
-        profiles!inner(full_name, email),
-        programs(name),
-        academic_levels(name)
-      `)
-      .eq('id', student_id)
-      .single();
+    // Get student data if student_id is provided
+    let student = null;
+    if (student_id) {
+      const { data: studentData, error: studentError } = await supabase
+        .from('students')
+        .select(`
+          *,
+          profiles!inner(full_name, email),
+          programs(name),
+          academic_levels(name)
+        `)
+        .eq('id', student_id)
+        .single();
 
-    if (studentError || !student) {
-      return new Response(JSON.stringify({ error: 'Student not found' }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      if (studentError) {
+        console.error('Student not found:', studentError);
+      } else {
+        student = studentData;
+      }
     }
 
-    // Generate preview content
-    let previewContent = template.template_content.template;
+    // Generate preview content using HTML template
+    let previewContent = template.html_template || '<div>Aucun template HTML défini</div>';
     
-    // Replace template variables with actual data
+    // Replace template variables with actual data or default values
     const replacements = {
-      '{{student_name}}': student.profiles.full_name,
-      '{{student_number}}': student.student_number,
-      '{{student_email}}': student.profiles.email,
-      '{{program_name}}': student.programs?.name || '',
-      '{{level_name}}': student.academic_levels?.name || '',
+      '{{student_name}}': student?.profiles?.full_name || '[Nom de l\'étudiant]',
+      '{{student_number}}': student?.student_number || '[Numéro étudiant]',
+      '{{student_email}}': student?.profiles?.email || '[Email étudiant]',
+      '{{program_name}}': student?.programs?.name || '[Programme d\'études]',
+      '{{level_name}}': student?.academic_levels?.name || '[Niveau académique]',
       '{{document_number}}': '[NUMÉRO À GÉNÉRER]',
       '{{date}}': new Date().toLocaleDateString('fr-FR'),
-      '{{academic_year}}': new Date().getFullYear().toString(),
+      '{{academic_year}}': `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
+      '{{period}}': 'Semestre 1',
+      '{{grades_table}}': '<table><tr><td>Mathématiques</td><td>15/20</td></tr><tr><td>Français</td><td>14/20</td></tr></table>',
+      '{{subjects_list}}': '<ul><li>Mathématiques - 15/20</li><li>Français - 14/20</li></ul>',
+      '{{course_name}}': '[Nom du cours]',
+      '{{final_grade}}': '15',
       ...preview_data
     };
 
@@ -108,18 +115,18 @@ serve(async (req) => {
     const missingVariables = previewContent.match(/\{\{[^}]+\}\}/g) || [];
 
     return new Response(JSON.stringify({ 
-      preview_content: previewContent,
+      html: previewContent,
       missing_variables: missingVariables,
       template_info: {
         name: template.name,
         type: template.template_type,
         requires_approval: template.requires_approval
       },
-      student_info: {
+      student_info: student ? {
         name: student.profiles.full_name,
         number: student.student_number,
         program: student.programs?.name
-      }
+      } : null
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

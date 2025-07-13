@@ -38,38 +38,31 @@ export function useDocuments() {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Fetch templates - using mock data for now since table structure doesn't match
+  // Fetch templates from Supabase
   const fetchTemplates = async () => {
     try {
       setLoading(true);
-      // Mock data since table structure doesn't match our interface
-      const mockTemplates: DocumentTemplate[] = [
-        {
-          id: '1',
-          name: 'Bulletin Standard',
-          type: 'bulletin',
-          description: 'Modèle standard pour les bulletins',
-          content: {},
-          is_active: true,
-          is_default: true,
-          version: 1,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: '2',
-          name: 'Relevé Officiel',
-          type: 'transcript',
-          description: 'Modèle pour les relevés de notes',
-          content: {},
-          is_active: true,
-          is_default: false,
-          version: 1,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      ];
-      setTemplates(mockTemplates);
+      const { data, error } = await supabase
+        .from('document_templates')
+        .select('*')
+        .eq('is_active', true);
+
+      if (error) throw error;
+
+      const formattedTemplates: DocumentTemplate[] = data?.map(template => ({
+        id: template.id,
+        name: template.name,
+        type: template.template_type as 'bulletin' | 'transcript' | 'certificate' | 'attestation',
+        description: template.description,
+        content: template.template_content,
+        is_active: template.is_active,
+        is_default: false, // Default value since column might not exist yet
+        version: 1,
+        created_at: template.created_at,
+        updated_at: template.updated_at
+      })) || [];
+
+      setTemplates(formattedTemplates);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors du chargement des templates');
       toast({
