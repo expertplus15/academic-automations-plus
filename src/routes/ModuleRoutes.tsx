@@ -79,6 +79,7 @@ import AcademicInfrastructure from '@/pages/academic/Infrastructure';
 import AcademicCalendar from '@/pages/academic/Calendar';
 import { AcademicDiagnosticReport } from '@/pages/academic/AcademicDiagnosticReport';
 import StudentsDiagnosticReport from '@/pages/students/StudentsDiagnosticReport';
+import AcademicSync from '@/pages/academic/Sync';
 
 
 // Exams module pages
@@ -284,6 +285,7 @@ export function ModuleRoutes() {
       <Route path="/academic/timetables" element={<AcademicTimetables />} />
       <Route path="/academic/infrastructure" element={<AcademicInfrastructure />} />
       <Route path="/academic/calendar" element={<AcademicCalendar />} />
+      <Route path="/academic/sync" element={<AcademicSync />} />
         <Route path="/academic/diagnostic" element={<AcademicDiagnosticReport />} />
         <Route path="/students/diagnostic" element={<StudentsDiagnosticReport />} />
 
