@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { TemplateRenderer, getDefaultDataForTemplate } from './predefined/TemplateRenderer';
 import type { DocumentType } from '@/hooks/useDocumentTypes';
 import type { DocumentTemplate } from '@/hooks/useDocumentTemplatesEnhanced';
 
@@ -17,6 +18,13 @@ interface TemplateBlock {
   variables: string[];
   editable: boolean;
 }
+
+// Mapping des templates vers leurs types de rendu
+const TEMPLATE_TYPE_MAP: Record<string, string> = {
+  'Template Relevé EMD': 'emd_releve',
+  'Relevé Notes EMD': 'emd_releve',
+  'EMD Template': 'emd_releve'
+};
 
 interface SimpleTemplateCustomizerProps {
   documentType?: DocumentType | null;
@@ -36,84 +44,117 @@ export function SimpleTemplateCustomizer({
   const [templateName, setTemplateName] = useState(baseTemplate.name + ' (Personnalisé)');
   const [templateDescription, setTemplateDescription] = useState(baseTemplate.description || '');
   
-  // Convertir les sections en blocs simples
-  const [blocks, setBlocks] = useState<TemplateBlock[]>([
-    {
-      id: 'header',
-      name: '🏫 En-tête Institution',
-      content: baseTemplate.content?.sections?.[0]?.content || '',
-      variables: ['institution_name', 'document_type', 'issue_date'],
-      editable: true
-    },
-    {
-      id: 'student_info',
-      name: '👤 Informations Étudiant',
-      content: baseTemplate.content?.sections?.[1]?.content || '',
-      variables: ['student_name', 'student_number', 'program_name'],
-      editable: true
-    },
-    {
-      id: 'grades_table',
-      name: '📊 Tableau des Notes',
-      content: baseTemplate.content?.sections?.[2]?.content || '',
-      variables: ['grades', 'overall_average', 'total_ects'],
-      editable: true
-    },
-    {
-      id: 'summary',
-      name: '✅ Mentions & Totaux',
-      content: baseTemplate.content?.sections?.[3]?.content || '',
-      variables: ['overall_mention', 'validation_status'],
-      editable: true
-    },
-    {
-      id: 'signature',
-      name: '✍️ Signatures',
-      content: baseTemplate.content?.sections?.[4]?.content || '',
-      variables: ['director_name', 'city', 'issue_date'],
-      editable: true
+  // Détecter le type de template pour adapter les blocs
+  const templateType = Object.keys(TEMPLATE_TYPE_MAP).find(key => 
+    baseTemplate.name.includes(key)
+  ) ? TEMPLATE_TYPE_MAP[Object.keys(TEMPLATE_TYPE_MAP).find(key => 
+    baseTemplate.name.includes(key)
+  )!] : 'generic';
+
+  // Adapter les blocs selon le type de template
+  const getBlocksForTemplate = (type: string) => {
+    if (type === 'emd_releve') {
+      return [
+        {
+          id: 'header',
+          name: '🏫 En-tête Officiel EMD',
+          content: 'République, Ministère, École',
+          variables: ['republique', 'ministere', 'ecole'],
+          editable: true
+        },
+        {
+          id: 'document_info',
+          name: '📄 Informations Document',
+          content: 'Année académique, Session',
+          variables: ['annee_academique', 'session'],
+          editable: true
+        },
+        {
+          id: 'student_info',
+          name: '👤 Informations Étudiant',
+          content: 'Nom, Niveau, Système d\'étude',
+          variables: ['nom', 'niveau', 'systeme_etude'],
+          editable: true
+        },
+        {
+          id: 'grades_s1',
+          name: '📊 Tableau Notes S1',
+          content: 'Matières Semestre 1',
+          variables: ['semestre1', 'moyenne_generale_s1'],
+          editable: true
+        },
+        {
+          id: 'grades_s2',
+          name: '📊 Tableau Notes S2',
+          content: 'Matières Semestre 2',
+          variables: ['semestre2', 'moyenne_generale_s2'],
+          editable: true
+        },
+        {
+          id: 'summary',
+          name: '✅ Moyennes & Décisions',
+          content: 'Moyenne générale, Mention, Décision jury',
+          variables: ['moyenne_generale', 'mention', 'decision'],
+          editable: true
+        },
+        {
+          id: 'signature',
+          name: '✍️ Signatures Officielles',
+          content: 'Date, Directeur Général',
+          variables: ['date', 'directeur_general'],
+          editable: true
+        }
+      ];
     }
-  ]);
-
-  const [editingBlock, setEditingBlock] = useState<TemplateBlock | null>(null);
-  const [previewHtml, setPreviewHtml] = useState('');
-
-  // Générer l'aperçu en temps réel
-  const generatePreview = useCallback(() => {
-    let html = blocks.map(block => block.content).join('\n\n');
     
-    // Mock data pour l'aperçu
-    const mockData = {
-      institution_name: 'UNIVERSITÉ DE TECHNOLOGIE',
-      document_type: 'RELEVÉ DE NOTES OFFICIEL',
-      issue_date: new Date().toLocaleDateString('fr-FR'),
-      student_name: 'DUPONT Jean',
-      student_number: '2024001',
-      program_name: 'Master Informatique',
-      overall_average: '16.17',
-      total_ects: '30',
-      overall_mention: 'Bien',
-      validation_status: 'Validé',
-      director_name: 'Dr. Marie MARTIN',
-      city: 'Paris'
-    };
+    // Blocs génériques par défaut
+    return [
+      {
+        id: 'header',
+        name: '🏫 En-tête Institution',
+        content: baseTemplate.content?.sections?.[0]?.content || '',
+        variables: ['institution_name', 'document_type', 'issue_date'],
+        editable: true
+      },
+      {
+        id: 'student_info',
+        name: '👤 Informations Étudiant',
+        content: baseTemplate.content?.sections?.[1]?.content || '',
+        variables: ['student_name', 'student_number', 'program_name'],
+        editable: true
+      },
+      {
+        id: 'grades_table',
+        name: '📊 Tableau des Notes',
+        content: baseTemplate.content?.sections?.[2]?.content || '',
+        variables: ['grades', 'overall_average', 'total_ects'],
+        editable: true
+      },
+      {
+        id: 'summary',
+        name: '✅ Mentions & Totaux',
+        content: baseTemplate.content?.sections?.[3]?.content || '',
+        variables: ['overall_mention', 'validation_status'],
+        editable: true
+      },
+      {
+        id: 'signature',
+        name: '✍️ Signatures',
+        content: baseTemplate.content?.sections?.[4]?.content || '',
+        variables: ['director_name', 'city', 'issue_date'],
+        editable: true
+      }
+    ];
+  };
 
-    // Remplacer les variables
-    Object.entries(mockData).forEach(([key, value]) => {
-      html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
-    });
+  const [blocks, setBlocks] = useState<TemplateBlock[]>(getBlocksForTemplate(templateType));
+  const [editingBlock, setEditingBlock] = useState<TemplateBlock | null>(null);
+  const [previewData, setPreviewData] = useState(() => getDefaultDataForTemplate(templateType));
 
-    setPreviewHtml(`
-      <div style="max-width: 800px; margin: 0 auto; font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; background: white;">
-        ${html}
-      </div>
-    `);
-  }, [blocks]);
-
-  // Générer l'aperçu au chargement et à chaque modification
-  React.useEffect(() => {
-    generatePreview();
-  }, [generatePreview]);
+  // Gérer les modifications des données pour l'aperçu temps réel
+  const handleDataChange = useCallback((newData: any) => {
+    setPreviewData(prev => ({ ...prev, ...newData }));
+  }, []);
 
   const handleEditBlock = useCallback((block: TemplateBlock) => {
     setEditingBlock({ ...block });
@@ -251,10 +292,14 @@ export function SimpleTemplateCustomizer({
           <h3 className="text-lg font-semibold">Aperçu en temps réel</h3>
           <Card>
             <CardContent className="p-0">
-              <div 
-                className="min-h-[600px] overflow-auto border rounded-lg bg-white"
-                dangerouslySetInnerHTML={{ __html: previewHtml }}
-              />
+              <div className="min-h-[600px] overflow-auto border rounded-lg bg-white">
+                <TemplateRenderer
+                  templateType={templateType}
+                  data={previewData}
+                  isEditable={false}
+                  onDataChange={handleDataChange}
+                />
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -284,29 +329,59 @@ export function SimpleTemplateCustomizer({
           
           {editingBlock && (
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Variables disponibles</Label>
-                <div className="flex flex-wrap gap-2">
-                  {editingBlock.variables.map((variable) => (
-                    <code 
-                      key={variable}
-                      className="px-2 py-1 bg-muted rounded text-sm cursor-pointer hover:bg-muted/80"
-                      onClick={() => {
-                        const textarea = document.getElementById('block-content') as HTMLTextAreaElement;
-                        if (textarea) {
-                          const start = textarea.selectionStart;
-                          const end = textarea.selectionEnd;
-                          const text = textarea.value;
-                          const before = text.substring(0, start);
-                          const after = text.substring(end);
-                          const newText = before + `{{${variable}}}` + after;
-                          setEditingBlock(prev => prev ? { ...prev, content: newText } : null);
-                        }
-                      }}
-                    >
-                      {`{{${variable}}}`}
-                    </code>
-                  ))}
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Variables disponibles pour {editingBlock.name}</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {editingBlock.variables.map((variable) => (
+                      <div key={variable} className="flex items-center gap-2">
+                        <code className="px-2 py-1 bg-muted rounded text-sm">
+                          {variable}
+                        </code>
+                         <span className="text-sm text-muted-foreground">
+                           = {(() => {
+                             const value = previewData[variable as keyof typeof previewData];
+                             if (Array.isArray(value)) return `${value.length} éléments`;
+                             return String(value || 'Non défini');
+                           })()}
+                         </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Modifier les valeurs de test</Label>
+                  <div className="grid grid-cols-2 gap-4 max-h-40 overflow-y-auto">
+                    {editingBlock.variables.map((variable) => (
+                      <div key={variable} className="space-y-1">
+                        <Label className="text-xs">{variable}</Label>
+                         {(() => {
+                           const value = previewData[variable as keyof typeof previewData];
+                           if (Array.isArray(value)) {
+                             return (
+                               <div className="text-xs text-muted-foreground p-2 bg-muted rounded">
+                                 {variable} (tableau avec {value.length} éléments)
+                               </div>
+                             );
+                           }
+                           return (
+                             <Input
+                               value={String(value || '')}
+                               onChange={(e) => {
+                                 setPreviewData(prev => ({
+                                   ...prev,
+                                   [variable]: e.target.value
+                                 }));
+                               }}
+                               className="text-xs"
+                               placeholder={`Valeur pour ${variable}`}
+                             />
+                           );
+                         })()}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
               
