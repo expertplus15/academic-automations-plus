@@ -9,17 +9,33 @@ import { TypeSelector } from '@/components/documents/templates/TypeSelector';
 import { TemplateEditor } from '@/components/documents/templates/TemplateEditor';
 import { SectionBasedTemplateEditor } from '@/components/documents/templates/SectionBasedTemplateEditor';
 import { EnhancedTemplateManager } from '@/components/documents/templates/EnhancedTemplateManager';
+import { TemplateChoiceSelector } from '@/components/documents/templates/TemplateChoiceSelector';
+import { PredefinedTemplateSelector } from '@/components/documents/templates/PredefinedTemplateSelector';
 import type { DocumentType } from './types';
 import type { DocumentTemplate } from '@/hooks/useDocumentTemplatesEnhanced';
 
-type ViewMode = 'list' | 'select-type' | 'create' | 'edit' | 'preview';
+type ViewMode = 'choice' | 'predefined-selector' | 'manage-existing' | 'select-type' | 'create' | 'edit' | 'preview';
 
 export default function DocumentTemplatesCreation() {
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [viewMode, setViewMode] = useState<ViewMode>('choice');
   const [selectedType, setSelectedType] = useState<DocumentType | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(null);
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
+
+  // Nouveau: gestion des choix simplifiés
+  const handlePersonalizeModel = useCallback(() => {
+    setViewMode('predefined-selector');
+  }, []);
+
+  const handleCreateFromScratch = useCallback(() => {
+    setSelectedTemplate(null);
+    setViewMode('select-type');
+  }, []);
+
+  const handleManageExisting = useCallback(() => {
+    setViewMode('manage-existing');
+  }, []);
 
   const handleCreateTemplate = useCallback(() => {
     setSelectedTemplate(null);
@@ -28,6 +44,29 @@ export default function DocumentTemplatesCreation() {
 
   const handleTypeSelected = useCallback((type: DocumentType) => {
     setSelectedType(type);
+    setViewMode('create');
+  }, []);
+
+  // Gestion template prédéfini sélectionné
+  const handleSelectPredefinedTemplate = useCallback((template: any) => {
+    // Convertir le template prédéfini en DocumentType et DocumentTemplate
+    const mockType: DocumentType = {
+      id: template.id,
+      name: template.category,
+      code: template.id.toUpperCase(),
+      color: 'blue',
+      category: template.category,
+      description: template.description,
+      icon: 'FileText',
+      variables: template.variables || [],
+      validation_rules: {},
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    
+    setSelectedType(mockType);
+    setSelectedTemplate(null); // Nouveau template basé sur le prédéfini
     setViewMode('create');
   }, []);
 
@@ -48,22 +87,44 @@ export default function DocumentTemplatesCreation() {
     setViewMode('edit');
   }, []);
 
-  const handlePreviewTemplate = useCallback((template: DocumentTemplate) => {
+  const handlePreviewTemplate = useCallback((template: DocumentTemplate | any) => {
     setSelectedTemplate(template);
     setShowPreviewDialog(true);
   }, []);
 
   const handleViewReturn = useCallback(() => {
-    setViewMode('list');
+    setViewMode('choice');
     setSelectedType(null);
     setSelectedTemplate(null);
   }, []);
 
   const handleSaveSuccess = useCallback(() => {
-    setViewMode('list');
+    setViewMode('choice');
     setSelectedType(null);
     setSelectedTemplate(null);
   }, []);
+
+  // Vue principale: choix entre personnaliser ou créer de zéro
+  if (viewMode === 'choice') {
+    return (
+      <TemplateChoiceSelector
+        onPersonalizeModel={handlePersonalizeModel}
+        onCreateFromScratch={handleCreateFromScratch}
+        onManageExisting={handleManageExisting}
+      />
+    );
+  }
+
+  // Vue sélecteur de templates prédéfinis
+  if (viewMode === 'predefined-selector') {
+    return (
+      <PredefinedTemplateSelector
+        onBack={handleViewReturn}
+        onSelectTemplate={handleSelectPredefinedTemplate}
+        onPreviewTemplate={handlePreviewTemplate}
+      />
+    );
+  }
 
   if (viewMode === 'select-type') {
     return (
@@ -118,56 +179,43 @@ export default function DocumentTemplatesCreation() {
     );
   }
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Templates de Documents</h1>
-          <p className="text-muted-foreground">
-            Créez et gérez les templates pour chaque type de document
-          </p>
-        </div>
-        <Button onClick={handleCreateTemplate}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nouveau Template
-        </Button>
-      </div>
-
-      {/* Description */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Étape 2: Création des Templates
-          </CardTitle>
-          <CardDescription>
-            Créez des templates spécialisés basés sur les types de documents configurés.
-            Utilisez les variables et règles définies dans l'étape précédente.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <Settings className="h-4 w-4 text-blue-500" />
-              <span>Variables contextuelles</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <FileText className="h-4 w-4 text-green-500" />
-              <span>Éditeur spécialisé</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Settings className="h-4 w-4 text-purple-500" />
-              <span>Prévisualisation temps réel</span>
-            </div>
+  // Vue de gestion des templates existants (ancien comportement)
+  if (viewMode === 'manage-existing') {
+    return (
+      <div className="space-y-6">
+        {/* Header with back button */}
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={handleViewReturn}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold">Gestion des Templates Existants</h1>
+            <p className="text-muted-foreground">
+              Consultez, modifiez et gérez vos templates existants
+            </p>
           </div>
-        </CardContent>
-      </Card>
+          <Button onClick={handleCreateTemplate}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nouveau Template
+          </Button>
+        </div>
 
-      {/* Enhanced Templates Manager */}
-      <EnhancedTemplateManager 
-        onEdit={handleEditTemplate}
-        onPreview={handlePreviewTemplate}
+        {/* Enhanced Templates Manager */}
+        <EnhancedTemplateManager 
+          onEdit={handleEditTemplate}
+          onPreview={handlePreviewTemplate}
+        />
+      </div>
+    );
+  }
+
+  // Vue par défaut: retour à la sélection avec Dialog
+  return (
+    <>
+      <TemplateChoiceSelector
+        onPersonalizeModel={handlePersonalizeModel}
+        onCreateFromScratch={handleCreateFromScratch}
+        onManageExisting={handleManageExisting}
       />
 
       {/* Preview Dialog */}
@@ -205,7 +253,7 @@ export default function DocumentTemplatesCreation() {
               <div>
                 <label className="text-sm font-medium">Variables du template</label>
                 <div className="flex flex-wrap gap-2 mt-1">
-                  {Object.keys(selectedTemplate.variables).map((variable) => (
+                  {selectedTemplate.variables && Object.keys(selectedTemplate.variables).map((variable) => (
                     <Badge key={variable} variant="secondary" className="text-xs">
                       {variable}
                     </Badge>
@@ -237,6 +285,6 @@ export default function DocumentTemplatesCreation() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }
