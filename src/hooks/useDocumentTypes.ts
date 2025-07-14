@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface DocumentType {
   id: string;
@@ -93,32 +94,31 @@ export function useDocumentTypes() {
   });
   const { toast } = useToast();
 
-  // Fetch document types (mock implementation)
+  // Fetch document types (with persistent storage)
   const fetchTypes = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      let filteredTypes = [...mockDocumentTypes];
+      // Get from localStorage
+      const savedTypes = localStorage.getItem('document_types');
+      let allTypes = savedTypes ? JSON.parse(savedTypes) : [...mockDocumentTypes];
       
       // Apply filters
       if (filters.search) {
-        filteredTypes = filteredTypes.filter(type =>
+        allTypes = allTypes.filter((type: DocumentType) =>
           type.name.toLowerCase().includes(filters.search.toLowerCase()) ||
           type.description?.toLowerCase().includes(filters.search.toLowerCase())
         );
       }
       if (filters.category) {
-        filteredTypes = filteredTypes.filter(type => type.category === filters.category);
+        allTypes = allTypes.filter((type: DocumentType) => type.category === filters.category);
       }
       if (filters.isActive !== null) {
-        filteredTypes = filteredTypes.filter(type => type.is_active === filters.isActive);
+        allTypes = allTypes.filter((type: DocumentType) => type.is_active === filters.isActive);
       }
       
-      setTypes(filteredTypes);
+      setTypes(allTypes);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors du chargement';
       setError(errorMessage);
@@ -136,12 +136,19 @@ export function useDocumentTypes() {
   const createType = useCallback(async (typeData: Omit<DocumentType, 'id' | 'created_at' | 'updated_at'>) => {
     try {
       setLoading(true);
+      
       const newType: DocumentType = {
         ...typeData,
         id: `new_${Date.now()}`,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
+      
+      // Save to localStorage
+      const savedTypes = localStorage.getItem('document_types');
+      const allTypes = savedTypes ? JSON.parse(savedTypes) : [...mockDocumentTypes];
+      const updatedTypes = [newType, ...allTypes];
+      localStorage.setItem('document_types', JSON.stringify(updatedTypes));
       
       setTypes(prev => [newType, ...prev]);
       toast({
@@ -167,11 +174,16 @@ export function useDocumentTypes() {
   const updateType = useCallback(async (id: string, updates: Partial<DocumentType>) => {
     try {
       setLoading(true);
-      const updatedType = {
-        ...types.find(t => t.id === id),
-        ...updates,
-        updated_at: new Date().toISOString(),
-      } as DocumentType;
+      
+      const savedTypes = localStorage.getItem('document_types');
+      const allTypes = savedTypes ? JSON.parse(savedTypes) : [...mockDocumentTypes];
+      
+      const updatedTypes = allTypes.map((type: DocumentType) => 
+        type.id === id ? { ...type, ...updates, updated_at: new Date().toISOString() } : type
+      );
+      
+      localStorage.setItem('document_types', JSON.stringify(updatedTypes));
+      const updatedType = updatedTypes.find((type: DocumentType) => type.id === id);
 
       setTypes(prev => prev.map(type => type.id === id ? updatedType : type));
       toast({
@@ -197,6 +209,16 @@ export function useDocumentTypes() {
   const deleteType = useCallback(async (id: string) => {
     try {
       setLoading(true);
+      
+      const savedTypes = localStorage.getItem('document_types');
+      const allTypes = savedTypes ? JSON.parse(savedTypes) : [...mockDocumentTypes];
+      
+      const updatedTypes = allTypes.map((type: DocumentType) => 
+        type.id === id ? { ...type, is_active: false } : type
+      );
+      
+      localStorage.setItem('document_types', JSON.stringify(updatedTypes));
+      
       setTypes(prev => prev.map(type => 
         type.id === id ? { ...type, is_active: false } : type
       ));

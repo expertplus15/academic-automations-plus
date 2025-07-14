@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface DocumentTemplate {
   id: string;
@@ -86,41 +87,40 @@ export function useDocumentTemplatesEnhanced() {
   });
   const { toast } = useToast();
 
-  // Fetch templates (mock implementation)
+  // Fetch templates (with persistent storage)
   const fetchTemplates = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      let filteredTemplates = [...mockTemplates];
+      // Get from localStorage
+      const savedTemplates = localStorage.getItem('document_templates');
+      let allTemplates = savedTemplates ? JSON.parse(savedTemplates) : [...mockTemplates];
       
       // Apply filters
       if (filters.search) {
-        filteredTemplates = filteredTemplates.filter(template =>
+        allTemplates = allTemplates.filter((template: DocumentTemplate) =>
           template.name.toLowerCase().includes(filters.search.toLowerCase()) ||
           template.description?.toLowerCase().includes(filters.search.toLowerCase())
         );
       }
       if (filters.documentTypeId) {
-        filteredTemplates = filteredTemplates.filter(template => 
+        allTemplates = allTemplates.filter((template: DocumentTemplate) => 
           template.document_type_id === filters.documentTypeId
         );
       }
       if (filters.isActive !== null) {
-        filteredTemplates = filteredTemplates.filter(template => 
+        allTemplates = allTemplates.filter((template: DocumentTemplate) => 
           template.is_active === filters.isActive
         );
       }
       if (filters.isDefault !== null) {
-        filteredTemplates = filteredTemplates.filter(template => 
+        allTemplates = allTemplates.filter((template: DocumentTemplate) => 
           template.is_default === filters.isDefault
         );
       }
       
-      setTemplates(filteredTemplates);
+      setTemplates(allTemplates);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors du chargement';
       setError(errorMessage);
