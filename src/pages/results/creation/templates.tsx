@@ -167,7 +167,6 @@ export default function DocumentTemplatesCreation() {
       {/* Enhanced Templates Manager */}
       <EnhancedTemplateManager 
         onEdit={handleEditTemplate}
-        onCreateNew={handleCreateTemplate}
         onPreview={handlePreviewTemplate}
       />
 

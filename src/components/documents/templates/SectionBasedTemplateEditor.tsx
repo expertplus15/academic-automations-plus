@@ -626,7 +626,7 @@ export function SectionBasedTemplateEditor({
                       <div>
                         <Label>Alignement</Label>
                         <Select
-                          value={section.styles.textAlign || 'left'}
+                          value={section.styles?.textAlign || 'left'}
                           onValueChange={(value) => updateSection(section.id, {
                             styles: { ...section.styles, textAlign: value as any }
                           })}
@@ -645,7 +645,7 @@ export function SectionBasedTemplateEditor({
                       <div>
                         <Label>Taille de police</Label>
                         <Select
-                          value={section.styles.fontSize || 'base'}
+                          value={section.styles?.fontSize || 'base'}
                           onValueChange={(value) => updateSection(section.id, {
                             styles: { ...section.styles, fontSize: value }
                           })}
@@ -665,7 +665,7 @@ export function SectionBasedTemplateEditor({
                       <div>
                         <Label>Épaisseur</Label>
                         <Select
-                          value={section.styles.fontWeight || 'normal'}
+                          value={section.styles?.fontWeight || 'normal'}
                           onValueChange={(value) => updateSection(section.id, {
                             styles: { ...section.styles, fontWeight: value }
                           })}
@@ -685,7 +685,7 @@ export function SectionBasedTemplateEditor({
                         <Label>Couleur de fond</Label>
                         <Input
                           type="color"
-                          value={section.styles.backgroundColor || '#ffffff'}
+                          value={section.styles?.backgroundColor || '#ffffff'}
                           onChange={(e) => updateSection(section.id, {
                             styles: { ...section.styles, backgroundColor: e.target.value }
                           })}
