@@ -324,34 +324,72 @@ export class DatabaseDocumentService {
   // Génère un PDF
   static async generatePDF(data: DocumentGenerationData): Promise<Blob> {
     try {
-      const htmlContent = this.generateHTML(data);
+      console.log('🔄 Début génération PDF pour:', data.student.profile.full_name);
       
-      // Créer un élément temporaire pour le rendu
+      const htmlContent = this.generateHTML(data);
+      console.log('✅ HTML généré, longueur:', htmlContent.length);
+      
+      // Créer un élément temporaire avec styles simplifiés pour html2canvas
       const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = htmlContent;
-      tempDiv.style.position = 'absolute';
-      tempDiv.style.left = '-9999px';
+      tempDiv.innerHTML = this.simplifyHTMLForCanvas(htmlContent);
+      
+      // Améliorer le positionnement et les styles
+      tempDiv.style.position = 'fixed';
+      tempDiv.style.top = '0px';
+      tempDiv.style.left = '0px';
       tempDiv.style.width = '800px';
-      tempDiv.style.backgroundColor = 'white';
-      tempDiv.style.padding = '20px';
+      tempDiv.style.minHeight = '1000px';
+      tempDiv.style.backgroundColor = '#ffffff';
+      tempDiv.style.padding = '40px';
       tempDiv.style.fontFamily = 'Arial, sans-serif';
+      tempDiv.style.lineHeight = '1.6';
+      tempDiv.style.zIndex = '-9999';
+      tempDiv.style.visibility = 'hidden';
+      tempDiv.style.overflow = 'visible';
+      
       document.body.appendChild(tempDiv);
-
-      // Attendre que le rendu soit complet
-      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Forcer le recalcul des styles et attendre plus longtemps
+      tempDiv.offsetHeight; // Force reflow
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      console.log('📏 Taille du div:', tempDiv.offsetWidth, 'x', tempDiv.offsetHeight);
 
       const canvas = await html2canvas(tempDiv, {
-        scale: 2,
+        scale: 1.5,
         useCORS: true,
         backgroundColor: '#ffffff',
-        width: 800,
-        height: tempDiv.scrollHeight,
-        logging: false,
-        allowTaint: true,
-        foreignObjectRendering: true
+        width: tempDiv.offsetWidth,
+        height: tempDiv.offsetHeight,
+        logging: true, // Activer les logs pour debug
+        allowTaint: false,
+        foreignObjectRendering: false,
+        removeContainer: true,
+        imageTimeout: 30000,
+        onclone: (clonedDoc) => {
+          // Simplifier encore plus le DOM cloné
+          const clonedDiv = clonedDoc.querySelector('div');
+          if (clonedDiv) {
+            // Supprimer les éléments problématiques
+            const grids = clonedDiv.querySelectorAll('[style*="grid"]');
+            grids.forEach(grid => {
+              if (grid instanceof HTMLElement) {
+                grid.style.display = 'block';
+                grid.style.marginBottom = '20px';
+              }
+            });
+          }
+        }
       });
       
-      const imgData = canvas.toDataURL('image/png', 1.0);
+      console.log('🖼️ Canvas créé:', canvas.width, 'x', canvas.height);
+      
+      const imgData = canvas.toDataURL('image/png', 0.95);
+      console.log('📷 Image data généré, longueur:', imgData.length);
+      
+      if (imgData === 'data:,') {
+        throw new Error('Canvas vide - données d\'image non générées');
+      }
       
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -379,12 +417,35 @@ export class DatabaseDocumentService {
 
       // Nettoyer l'élément temporaire
       document.body.removeChild(tempDiv);
+      
+      const pdfBlob = pdf.output('blob');
+      console.log('✅ PDF généré avec succès, taille:', pdfBlob.size, 'bytes');
 
-      return pdf.output('blob');
+      return pdfBlob;
     } catch (error) {
-      console.error('Erreur lors de la génération PDF:', error);
-      throw new Error('Impossible de générer le PDF. Veuillez réessayer.');
+      console.error('❌ Erreur lors de la génération PDF:', error);
+      throw new Error('Impossible de générer le PDF: ' + error.message);
     }
+  }
+
+  // Simplifie le HTML pour améliorer la compatibilité avec html2canvas
+  private static simplifyHTMLForCanvas(htmlContent: string): string {
+    return htmlContent
+      // Remplacer les grilles CSS par des flexbox
+      .replace(/display:\s*grid;/g, 'display: flex; flex-wrap: wrap;')
+      .replace(/grid-template-columns:[^;]+;/g, '')
+      .replace(/gap:\s*\d+px;/g, 'margin: 10px;')
+      
+      // Simplifier les gradients
+      .replace(/background:\s*linear-gradient[^;]+;/g, 'background: #f8f9fa;')
+      
+      // Remplacer les styles complexes
+      .replace(/box-shadow:[^;]+;/g, 'border: 1px solid #e5e7eb;')
+      .replace(/border-radius:\s*\d+px;/g, 'border-radius: 4px;')
+      
+      // Forcer les couleurs de base
+      .replace(/color:\s*#[0-9a-f]{6};/gi, (match) => match)
+      .replace(/background-color:\s*#[0-9a-f]{6};/gi, (match) => match);
   }
 
   // Obtient les types de documents disponibles
