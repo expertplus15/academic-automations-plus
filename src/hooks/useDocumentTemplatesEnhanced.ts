@@ -1,21 +1,26 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import type { DocumentType } from './useDocumentTypes';
 
 export interface DocumentTemplate {
   id: string;
   name: string;
-  description?: string;
   document_type_id: string;
+  description?: string;
   content: any;
   variables: Record<string, any>;
+  preview_url?: string;
   is_active: boolean;
   is_default: boolean;
   version: number;
   created_at: string;
   updated_at: string;
-  preview_url?: string;
-  document_type?: DocumentType;
+  document_type?: {
+    id: string;
+    name: string;
+    code: string;
+    category: string;
+    color: string;
+  };
 }
 
 export interface TemplateFilters {
@@ -25,9 +30,53 @@ export interface TemplateFilters {
   isDefault: boolean | null;
 }
 
+// Mock data for development
+const mockTemplates: DocumentTemplate[] = [
+  {
+    id: '1',
+    name: 'Template Bulletin Standard',
+    document_type_id: '1',
+    description: 'Template standard pour les bulletins de notes',
+    content: { layout: 'standard', sections: ['header', 'grades', 'footer'] },
+    variables: { student_name: '', semester: '', grades: [] },
+    is_active: true,
+    is_default: true,
+    version: 1,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    document_type: {
+      id: '1',
+      name: 'Bulletin de Notes',
+      code: 'BULLETIN',
+      category: 'academique',
+      color: 'blue'
+    }
+  },
+  {
+    id: '2',
+    name: 'Template Relevé Complet',
+    document_type_id: '2',
+    description: 'Template détaillé pour les relevés de notes',
+    content: { layout: 'detailed', sections: ['header', 'all_grades', 'statistics', 'footer'] },
+    variables: { student_name: '', all_grades: [], gpa: 0 },
+    is_active: true,
+    is_default: true,
+    version: 2,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    document_type: {
+      id: '2',
+      name: 'Relevé de Notes',
+      code: 'RELEVE',
+      category: 'academique',
+      color: 'green'
+    }
+  },
+];
+
 export function useDocumentTemplatesEnhanced() {
   const [templates, setTemplates] = useState<DocumentTemplate[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<TemplateFilters>({
     search: '',
@@ -37,89 +86,41 @@ export function useDocumentTemplatesEnhanced() {
   });
   const { toast } = useToast();
 
-  // Mock data for now until tables are created
+  // Fetch templates (mock implementation)
   const fetchTemplates = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-
-      // Mock data - replace with real data once tables exist
-      const mockData: DocumentTemplate[] = [
-        {
-          id: '1',
-          name: 'Template Certificat Standard',
-          description: 'Template standard pour les certificats de scolarité',
-          document_type_id: '1',
-          content: '<html><body><h1>Certificat de Scolarité</h1><p>{{nom_etudiant}}</p></body></html>',
-          variables: { nom_etudiant: '', programme: '', annee_academique: '' },
-          is_active: true,
-          is_default: true,
-          version: 1,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          document_type: {
-            id: '1',
-            name: 'Certificat de Scolarité',
-            code: 'CERT_SCOL',
-            description: 'Certificat attestant de la scolarité d\'un étudiant',
-            icon: 'FileText',
-            color: '#3B82F6',
-            category: 'Certificats',
-            variables: ['nom_etudiant', 'programme', 'annee_academique'],
-            validation_rules: {},
-            is_active: true,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          }
-        },
-        {
-          id: '2',
-          name: 'Template Relevé de Notes',
-          description: 'Template pour les relevés de notes',
-          document_type_id: '2',
-          content: '<html><body><h1>Relevé de Notes</h1><p>{{nom_etudiant}}</p><p>{{notes}}</p></body></html>',
-          variables: { nom_etudiant: '', notes: '', moyenne: '' },
-          is_active: true,
-          is_default: true,
-          version: 1,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          document_type: {
-            id: '2',
-            name: 'Relevé de Notes',
-            code: 'RELEVE_NOTES',
-            description: 'Relevé officiel des notes d\'un étudiant',
-            icon: 'Award',
-            color: '#10B981',
-            category: 'Académique',
-            variables: ['nom_etudiant', 'notes', 'moyenne'],
-            validation_rules: {},
-            is_active: true,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          }
-        }
-      ];
-
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      let filteredTemplates = [...mockTemplates];
+      
       // Apply filters
-      let filteredData = mockData;
       if (filters.search) {
-        filteredData = filteredData.filter(template => 
+        filteredTemplates = filteredTemplates.filter(template =>
           template.name.toLowerCase().includes(filters.search.toLowerCase()) ||
           template.description?.toLowerCase().includes(filters.search.toLowerCase())
         );
       }
       if (filters.documentTypeId) {
-        filteredData = filteredData.filter(template => template.document_type_id === filters.documentTypeId);
+        filteredTemplates = filteredTemplates.filter(template => 
+          template.document_type_id === filters.documentTypeId
+        );
       }
       if (filters.isActive !== null) {
-        filteredData = filteredData.filter(template => template.is_active === filters.isActive);
+        filteredTemplates = filteredTemplates.filter(template => 
+          template.is_active === filters.isActive
+        );
       }
       if (filters.isDefault !== null) {
-        filteredData = filteredData.filter(template => template.is_default === filters.isDefault);
+        filteredTemplates = filteredTemplates.filter(template => 
+          template.is_default === filters.isDefault
+        );
       }
-
-      setTemplates(filteredData);
+      
+      setTemplates(filteredTemplates);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors du chargement';
       setError(errorMessage);
@@ -133,19 +134,18 @@ export function useDocumentTemplatesEnhanced() {
     }
   }, [filters, toast]);
 
-  // Create template (mock for now)
-  const createTemplate = useCallback(async (templateData: Omit<DocumentTemplate, 'id' | 'created_at' | 'updated_at'>) => {
+  // Create template
+  const createTemplate = useCallback(async (templateData: Omit<DocumentTemplate, 'id' | 'created_at' | 'updated_at' | 'version'>) => {
     try {
       setLoading(true);
-      
-      // Mock creation - replace with real API call once tables exist
       const newTemplate: DocumentTemplate = {
         ...templateData,
-        id: Date.now().toString(),
+        id: `new_${Date.now()}`,
+        version: 1,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
-
+      
       setTemplates(prev => [newTemplate, ...prev]);
       toast({
         title: "Succès",
@@ -166,18 +166,19 @@ export function useDocumentTemplatesEnhanced() {
     }
   }, [toast]);
 
-  // Update template (mock for now)
+  // Update template
   const updateTemplate = useCallback(async (id: string, updates: Partial<DocumentTemplate>) => {
     try {
       setLoading(true);
-      
-      // Mock update - replace with real API call once tables exist
-      const updatedTemplate = { ...updates, updated_at: new Date().toISOString() };
-      
-      setTemplates(prev => prev.map(template => 
-        template.id === id ? { ...template, ...updatedTemplate } : template
-      ));
-      
+      const currentTemplate = templates.find(t => t.id === id);
+      const updatedTemplate = {
+        ...currentTemplate,
+        ...updates,
+        version: currentTemplate ? currentTemplate.version + 1 : 1,
+        updated_at: new Date().toISOString(),
+      } as DocumentTemplate;
+
+      setTemplates(prev => prev.map(template => template.id === id ? updatedTemplate : template));
       toast({
         title: "Succès",
         description: "Template mis à jour",
@@ -195,16 +196,14 @@ export function useDocumentTemplatesEnhanced() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [templates, toast]);
 
-  // Delete template (soft delete, mock for now)
+  // Delete template
   const deleteTemplate = useCallback(async (id: string) => {
     try {
       setLoading(true);
-      
-      // Mock soft delete - replace with real API call once tables exist
       setTemplates(prev => prev.map(template => 
-        template.id === id ? { ...template, is_active: false, updated_at: new Date().toISOString() } : template
+        template.id === id ? { ...template, is_active: false } : template
       ));
       
       toast({
@@ -229,30 +228,28 @@ export function useDocumentTemplatesEnhanced() {
       ...originalTemplate,
       name: `${originalTemplate.name} (Copie)`,
       is_default: false,
-      version: 1,
     };
     delete (duplicatedData as any).id;
     delete (duplicatedData as any).created_at;
     delete (duplicatedData as any).updated_at;
+    delete (duplicatedData as any).version;
     delete (duplicatedData as any).document_type;
 
     return createTemplate(duplicatedData);
   }, [createTemplate]);
 
-  // Set default template (mock for now)
+  // Set as default
   const setAsDefault = useCallback(async (id: string) => {
     try {
       setLoading(true);
-      
-      // Mock set default - replace with real API call once tables exist
       const template = templates.find(t => t.id === id);
-      if (!template) return;
+      if (!template) throw new Error('Template non trouvé');
 
-      // Update local state
       setTemplates(prev => prev.map(t => ({
         ...t,
-        is_default: t.document_type_id === template.document_type_id ? t.id === id : t.is_default,
-        updated_at: t.id === id ? new Date().toISOString() : t.updated_at
+        is_default: t.document_type_id === template.document_type_id 
+          ? t.id === id 
+          : t.is_default
       })));
 
       toast({

@@ -22,9 +22,69 @@ export interface DocumentTypeFilters {
   isActive: boolean | null;
 }
 
+// Mock data for development
+const mockDocumentTypes: DocumentType[] = [
+  {
+    id: '1',
+    name: 'Bulletin de Notes',
+    code: 'BULLETIN',
+    description: 'Bulletin semestriel avec notes et moyennes détaillées',
+    icon: 'FileText',
+    color: 'blue',
+    category: 'academique',
+    variables: ['student_name', 'student_number', 'program', 'semester', 'grades'],
+    validation_rules: { required: ['student_name', 'semester'] },
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    name: 'Relevé de Notes',
+    code: 'RELEVE',
+    description: 'Relevé détaillé de toutes les notes obtenues',
+    icon: 'FileText',
+    color: 'green',
+    category: 'academique',
+    variables: ['student_name', 'student_number', 'program', 'all_grades', 'gpa'],
+    validation_rules: { required: ['student_name'] },
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '3',
+    name: 'Attestation de Scolarité',
+    code: 'ATTESTATION',
+    description: 'Certificat officiel de scolarité',
+    icon: 'FileText',
+    color: 'purple',
+    category: 'officiel',
+    variables: ['student_name', 'student_number', 'program', 'enrollment_date'],
+    validation_rules: {},
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '4',
+    name: 'Certificat de Réussite',
+    code: 'CERTIFICAT',
+    description: 'Certificat de réussite aux examens',
+    icon: 'FileText',
+    color: 'yellow',
+    category: 'officiel',
+    variables: ['student_name', 'program', 'graduation_date', 'honors'],
+    validation_rules: { required: ['graduation_date'] },
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+];
+
 export function useDocumentTypes() {
   const [types, setTypes] = useState<DocumentType[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<DocumentTypeFilters>({
     search: '',
@@ -33,60 +93,32 @@ export function useDocumentTypes() {
   });
   const { toast } = useToast();
 
-  // Mock data for now until tables are created
+  // Fetch document types (mock implementation)
   const fetchTypes = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-
-      // Mock data - replace with real data once tables exist
-      const mockData: DocumentType[] = [
-        {
-          id: '1',
-          name: 'Certificat de Scolarité',
-          code: 'CERT_SCOL',
-          description: 'Certificat attestant de la scolarité d\'un étudiant',
-          icon: 'FileText',
-          color: '#3B82F6',
-          category: 'Certificats',
-          variables: ['nom_etudiant', 'programme', 'annee_academique'],
-          validation_rules: {},
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        {
-          id: '2',
-          name: 'Relevé de Notes',
-          code: 'RELEVE_NOTES',
-          description: 'Relevé officiel des notes d\'un étudiant',
-          icon: 'Award',
-          color: '#10B981',
-          category: 'Académique',
-          variables: ['nom_etudiant', 'notes', 'moyenne'],
-          validation_rules: {},
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }
-      ];
-
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      let filteredTypes = [...mockDocumentTypes];
+      
       // Apply filters
-      let filteredData = mockData;
       if (filters.search) {
-        filteredData = filteredData.filter(type => 
+        filteredTypes = filteredTypes.filter(type =>
           type.name.toLowerCase().includes(filters.search.toLowerCase()) ||
           type.description?.toLowerCase().includes(filters.search.toLowerCase())
         );
       }
       if (filters.category) {
-        filteredData = filteredData.filter(type => type.category === filters.category);
+        filteredTypes = filteredTypes.filter(type => type.category === filters.category);
       }
       if (filters.isActive !== null) {
-        filteredData = filteredData.filter(type => type.is_active === filters.isActive);
+        filteredTypes = filteredTypes.filter(type => type.is_active === filters.isActive);
       }
-
-      setTypes(filteredData);
+      
+      setTypes(filteredTypes);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors du chargement';
       setError(errorMessage);
@@ -100,19 +132,17 @@ export function useDocumentTypes() {
     }
   }, [filters, toast]);
 
-  // Create document type (mock for now)
+  // Create document type
   const createType = useCallback(async (typeData: Omit<DocumentType, 'id' | 'created_at' | 'updated_at'>) => {
     try {
       setLoading(true);
-      
-      // Mock creation - replace with real API call once tables exist
       const newType: DocumentType = {
         ...typeData,
-        id: Date.now().toString(),
+        id: `new_${Date.now()}`,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
-
+      
       setTypes(prev => [newType, ...prev]);
       toast({
         title: "Succès",
@@ -133,18 +163,17 @@ export function useDocumentTypes() {
     }
   }, [toast]);
 
-  // Update document type (mock for now)
+  // Update document type
   const updateType = useCallback(async (id: string, updates: Partial<DocumentType>) => {
     try {
       setLoading(true);
-      
-      // Mock update - replace with real API call once tables exist
-      const updatedType = { ...updates, updated_at: new Date().toISOString() };
-      
-      setTypes(prev => prev.map(type => 
-        type.id === id ? { ...type, ...updatedType } : type
-      ));
-      
+      const updatedType = {
+        ...types.find(t => t.id === id),
+        ...updates,
+        updated_at: new Date().toISOString(),
+      } as DocumentType;
+
+      setTypes(prev => prev.map(type => type.id === id ? updatedType : type));
       toast({
         title: "Succès",
         description: "Type de document mis à jour",
@@ -162,16 +191,14 @@ export function useDocumentTypes() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [types, toast]);
 
-  // Delete document type (soft delete, mock for now)
+  // Delete document type (soft delete)
   const deleteType = useCallback(async (id: string) => {
     try {
       setLoading(true);
-      
-      // Mock soft delete - replace with real API call once tables exist
       setTypes(prev => prev.map(type => 
-        type.id === id ? { ...type, is_active: false, updated_at: new Date().toISOString() } : type
+        type.id === id ? { ...type, is_active: false } : type
       ));
       
       toast({

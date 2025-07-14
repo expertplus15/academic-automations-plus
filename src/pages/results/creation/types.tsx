@@ -1,33 +1,24 @@
 import React, { useState, useCallback } from 'react';
-import { ArrowLeft, Plus, Edit, Trash2, FileText, Settings, Eye } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, Trash2, Eye, Settings, FileText, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { DocumentTypeManager } from '@/components/documents/types/DocumentTypeManager';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { DocumentTypeEditor } from '@/components/documents/types/DocumentTypeEditor';
+import { EnhancedDocumentTypeManager } from '@/components/documents/enhanced/EnhancedDocumentTypeManager';
+import type { DocumentType } from '@/hooks/useDocumentTypes';
 
-export type DocumentType = {
-  id: string;
-  name: string;
-  code: string;
-  description?: string;
-  icon: string;
-  color: string;
-  category: string;
-  variables: string[];
-  validation_rules: Record<string, any>;
-  is_active: boolean;
-  created_at: string;
-};
+export type { DocumentType };
 
-type ViewMode = 'list' | 'create' | 'edit';
+type ViewMode = 'list' | 'create' | 'edit' | 'details';
 
 export default function DocumentTypesCreation() {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedType, setSelectedType] = useState<DocumentType | null>(null);
-
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
 
   const handleCreateType = useCallback(() => {
     setSelectedType(null);
@@ -37,6 +28,11 @@ export default function DocumentTypesCreation() {
   const handleEditType = useCallback((type: DocumentType) => {
     setSelectedType(type);
     setViewMode('edit');
+  }, []);
+
+  const handleViewDetails = useCallback((type: DocumentType) => {
+    setSelectedType(type);
+    setShowDetailsDialog(true);
   }, []);
 
   const handleViewReturn = useCallback(() => {
@@ -51,7 +47,7 @@ export default function DocumentTypesCreation() {
 
   if (viewMode === 'create' || viewMode === 'edit') {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-in">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={handleViewReturn}>
             <ArrowLeft className="h-4 w-4" />
@@ -124,11 +120,81 @@ export default function DocumentTypesCreation() {
         </CardContent>
       </Card>
 
-      {/* Document Types Manager */}
-      <DocumentTypeManager 
+      {/* Enhanced Document Types Manager */}
+      <EnhancedDocumentTypeManager 
         onEdit={handleEditType}
         onCreateNew={handleCreateType}
+        onViewDetails={handleViewDetails}
       />
+
+      {/* Details Dialog */}
+      <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              {selectedType?.name}
+            </DialogTitle>
+            <DialogDescription>
+              Détails du type de document
+            </DialogDescription>
+          </DialogHeader>
+          {selectedType && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Code</label>
+                  <p className="text-sm text-muted-foreground">{selectedType.code}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Catégorie</label>
+                  <Badge variant="outline">{selectedType.category}</Badge>
+                </div>
+              </div>
+              
+              {selectedType.description && (
+                <div>
+                  <label className="text-sm font-medium">Description</label>
+                  <p className="text-sm text-muted-foreground">{selectedType.description}</p>
+                </div>
+              )}
+              
+              <div>
+                <label className="text-sm font-medium">Variables disponibles</label>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {selectedType.variables.map((variable) => (
+                    <Badge key={variable} variant="secondary" className="text-xs">
+                      {variable}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              
+              {Object.keys(selectedType.validation_rules).length > 0 && (
+                <div>
+                  <label className="text-sm font-medium">Règles de validation</label>
+                  <pre className="text-xs bg-muted p-2 rounded mt-1 overflow-auto">
+                    {JSON.stringify(selectedType.validation_rules, null, 2)}
+                  </pre>
+                </div>
+              )}
+              
+              <div className="flex justify-end gap-2 pt-4 border-t">
+                <Button variant="outline" onClick={() => setShowDetailsDialog(false)}>
+                  Fermer
+                </Button>
+                <Button onClick={() => {
+                  setShowDetailsDialog(false);
+                  handleEditType(selectedType);
+                }}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Modifier
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
