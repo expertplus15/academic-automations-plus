@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import type { DocumentType } from '@/pages/results/creation/types';
+import type { DocumentType } from '@/hooks/useDocumentTypes';
 
 interface DocumentTypeManagerProps {
   onEdit: (type: DocumentType) => void;
@@ -32,7 +32,8 @@ export function DocumentTypeManager({ onEdit, onCreateNew }: DocumentTypeManager
         variables: ['student_name', 'grades', 'semester', 'academic_year'],
         validation_rules: { required_grades: true, min_subjects: 3 },
         is_active: true,
-        created_at: '2024-01-15'
+        created_at: '2024-01-15',
+        updated_at: '2024-01-15'
       },
       {
         id: '2',
@@ -45,7 +46,8 @@ export function DocumentTypeManager({ onEdit, onCreateNew }: DocumentTypeManager
         variables: ['student_name', 'program', 'enrollment_date', 'academic_year'],
         validation_rules: { active_enrollment: true },
         is_active: true,
-        created_at: '2024-01-10'
+        created_at: '2024-01-10',
+        updated_at: '2024-01-10'
       },
       {
         id: '3',
@@ -58,7 +60,8 @@ export function DocumentTypeManager({ onEdit, onCreateNew }: DocumentTypeManager
         variables: ['student_name', 'all_grades', 'credits', 'gpa', 'completion_status'],
         validation_rules: { complete_record: true, verified_grades: true },
         is_active: true,
-        created_at: '2024-01-05'
+        created_at: '2024-01-05',
+        updated_at: '2024-01-05'
       }
     ];
     setTypes(mockTypes);

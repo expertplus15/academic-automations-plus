@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import type { DocumentType } from '@/pages/results/creation/types';
+import type { DocumentType } from '@/hooks/useDocumentTypes';
 
 interface DocumentTypeEditorProps {
   documentType?: DocumentType | null;
@@ -127,7 +127,8 @@ export function DocumentTypeEditor({ documentType, onSave, onCancel }: DocumentT
       variables: formData.variables,
       validation_rules: formData.validation_rules,
       is_active: formData.is_active,
-      created_at: documentType?.created_at || new Date().toISOString()
+      created_at: documentType?.created_at || new Date().toISOString(),
+      updated_at: new Date().toISOString()
     };
 
     onSave(newType);

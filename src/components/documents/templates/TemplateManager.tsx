@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import type { DocumentTemplate } from '@/pages/results/creation/templates';
+import type { DocumentTemplate } from '@/hooks/useDocumentTemplatesEnhanced';
 
 interface TemplateManagerProps {
   onEdit: (template: DocumentTemplate) => void;
@@ -33,19 +33,13 @@ export function TemplateManager({ onEdit, onCreateNew }: TemplateManagerProps) {
         version: 1,
         created_at: '2024-01-15',
         updated_at: '2024-01-15',
-        document_type: {
-          id: '1',
-          name: 'Bulletin de Notes',
-          code: 'BULLETIN',
-          description: 'Bulletin de notes semestriel',
-          icon: 'FileText',
-          color: 'blue',
-          category: 'academique',
-          variables: ['student_name', 'grades', 'semester'],
-          validation_rules: {},
-          is_active: true,
-          created_at: '2024-01-15'
-        }
+          document_type: {
+            id: '1',
+            name: 'Bulletin de Notes',
+            code: 'BULLETIN',
+            category: 'academique',
+            color: 'blue'
+          }
       },
       {
         id: '2',
@@ -59,19 +53,13 @@ export function TemplateManager({ onEdit, onCreateNew }: TemplateManagerProps) {
         version: 2,
         created_at: '2024-01-10',
         updated_at: '2024-01-12',
-        document_type: {
-          id: '2',
-          name: 'Attestation de Scolarité',
-          code: 'ATTESTATION',
-          description: 'Attestation de scolarité',
-          icon: 'Award',
-          color: 'green',
-          category: 'administrative',
-          variables: ['student_name', 'program'],
-          validation_rules: {},
-          is_active: true,
-          created_at: '2024-01-10'
-        }
+          document_type: {
+            id: '2',
+            name: 'Attestation de Scolarité',
+            code: 'ATTESTATION',
+            category: 'administrative',
+            color: 'green'
+          }
       },
       {
         id: '3',
@@ -85,19 +73,13 @@ export function TemplateManager({ onEdit, onCreateNew }: TemplateManagerProps) {
         version: 1,
         created_at: '2024-01-05',
         updated_at: '2024-01-05',
-        document_type: {
-          id: '3',
-          name: 'Relevé de Notes',
-          code: 'TRANSCRIPT',
-          description: 'Relevé complet des notes',
-          icon: 'GraduationCap',
-          color: 'purple',
-          category: 'academique',
-          variables: ['student_name', 'all_grades', 'gpa'],
-          validation_rules: {},
-          is_active: true,
-          created_at: '2024-01-05'
-        }
+          document_type: {
+            id: '3',
+            name: 'Relevé de Notes',
+            code: 'TRANSCRIPT',
+            category: 'academique',
+            color: 'purple'
+          }
       }
     ];
     setTemplates(mockTemplates);
@@ -207,22 +189,16 @@ export function TemplateManager({ onEdit, onCreateNew }: TemplateManagerProps) {
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm">
                   <FileText className="h-4 w-4 text-muted-foreground" />
-                  <span>{template.document_type?.variables.length || 0} variable(s)</span>
+                  <span>Variables disponibles</span>
                 </div>
-                {template.document_type?.variables && (
-                  <div className="flex flex-wrap gap-1">
-                    {template.document_type.variables.slice(0, 3).map((variable, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {variable}
-                      </Badge>
-                    ))}
-                    {template.document_type.variables.length > 3 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{template.document_type.variables.length - 3}
-                      </Badge>
-                    )}
-                  </div>
-                )}
+                <div className="flex flex-wrap gap-1">
+                  <Badge variant="outline" className="text-xs">
+                    Version {template.version}
+                  </Badge>
+                  <Badge variant="outline" className="text-xs">
+                    {template.document_type?.category}
+                  </Badge>
+                </div>
               </div>
 
               <div className="flex items-center justify-between pt-2">

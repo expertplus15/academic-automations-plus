@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import type { DocumentType } from '@/pages/results/creation/types';
+import type { DocumentType } from '@/hooks/useDocumentTypes';
 
 interface TypeSelectorProps {
   onTypeSelected: (type: DocumentType) => void;
@@ -29,7 +29,8 @@ export function TypeSelector({ onTypeSelected, onCancel }: TypeSelectorProps) {
         variables: ['student_name', 'grades', 'semester', 'academic_year', 'gpa'],
         validation_rules: { required_grades: true, min_subjects: 3 },
         is_active: true,
-        created_at: '2024-01-15'
+        created_at: '2024-01-15',
+        updated_at: '2024-01-15'
       },
       {
         id: '2',
@@ -42,7 +43,8 @@ export function TypeSelector({ onTypeSelected, onCancel }: TypeSelectorProps) {
         variables: ['student_name', 'program', 'enrollment_date', 'academic_year', 'student_number'],
         validation_rules: { active_enrollment: true },
         is_active: true,
-        created_at: '2024-01-10'
+        created_at: '2024-01-10',
+        updated_at: '2024-01-10'
       },
       {
         id: '3',
@@ -55,7 +57,8 @@ export function TypeSelector({ onTypeSelected, onCancel }: TypeSelectorProps) {
         variables: ['student_name', 'all_grades', 'credits', 'gpa', 'completion_status', 'honors'],
         validation_rules: { complete_record: true, verified_grades: true },
         is_active: true,
-        created_at: '2024-01-05'
+        created_at: '2024-01-05',
+        updated_at: '2024-01-05'
       },
       {
         id: '4',
@@ -68,7 +71,8 @@ export function TypeSelector({ onTypeSelected, onCancel }: TypeSelectorProps) {
         variables: ['student_name', 'program', 'completion_date', 'final_grade', 'honors'],
         validation_rules: { program_completed: true, minimum_grade: 10 },
         is_active: true,
-        created_at: '2024-01-01'
+        created_at: '2024-01-01',
+        updated_at: '2024-01-01'
       }
     ];
     setTypes(mockTypes);

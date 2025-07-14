@@ -9,8 +9,8 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import type { DocumentType } from '@/pages/results/creation/types';
-import type { DocumentTemplate } from '@/pages/results/creation/templates';
+import type { DocumentType } from '@/hooks/useDocumentTypes';
+import type { DocumentTemplate } from '@/hooks/useDocumentTemplatesEnhanced';
 
 interface TemplateEditorProps {
   documentType?: DocumentType | null;
