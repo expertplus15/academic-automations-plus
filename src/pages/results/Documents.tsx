@@ -10,7 +10,7 @@ import { TemplateEditor } from "@/components/documents/TemplateEditor";
 import { DocumentStats } from "@/components/documents/DocumentStats";
 import { DocumentPreview } from "@/components/documents/DocumentPreview";
 import { AttestationTab } from "@/components/documents/AttestationTab";
-import { SimpleDocumentGeneratorComponent } from "@/components/documents/SimpleDocumentGenerator";
+import { DatabaseDocumentGenerator } from "@/components/DatabaseDocumentGenerator";
 import { useDocuments } from "@/hooks/useDocuments";
 
 export default function Documents() {
@@ -144,7 +144,7 @@ export default function Documents() {
         </div>
 
           <TabsContent value="simple" className="space-y-6">
-            <SimpleDocumentGeneratorComponent />
+            <DatabaseDocumentGenerator />
           </TabsContent>
 
           <TabsContent value="bulletins" className="space-y-6">
