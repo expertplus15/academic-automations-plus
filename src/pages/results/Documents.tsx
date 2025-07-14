@@ -95,9 +95,13 @@ export default function Documents() {
     }
 
     return (
-      <Tabs defaultValue="bulletins" className="space-y-6">
+      <Tabs defaultValue="simple" className="space-y-6">
         <div className="flex items-center justify-between mb-6">
-          <TabsList className="grid grid-cols-5 w-full max-w-3xl">
+          <TabsList className="grid grid-cols-6 w-full max-w-4xl">
+            <TabsTrigger value="simple" className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              Simple
+            </TabsTrigger>
             <TabsTrigger value="bulletins" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               Bulletins
@@ -138,6 +142,10 @@ export default function Documents() {
             </Button>
           </div>
         </div>
+
+          <TabsContent value="simple" className="space-y-6">
+            <SimpleDocumentGeneratorComponent />
+          </TabsContent>
 
           <TabsContent value="bulletins" className="space-y-6">
             <div className="flex justify-between items-center">
