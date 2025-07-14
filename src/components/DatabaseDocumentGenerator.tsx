@@ -50,7 +50,7 @@ export function DatabaseDocumentGenerator() {
     return students.filter(student => {
       const matchesSearch = student.profile.full_name.toLowerCase().includes(studentSearch.toLowerCase()) ||
                           student.student_number.toLowerCase().includes(studentSearch.toLowerCase());
-      const matchesProgram = !form.programId || student.program_id === form.programId;
+      const matchesProgram = !form.programId || form.programId === 'all' || student.program_id === form.programId;
       return matchesSearch && matchesProgram;
     });
   }, [students, studentSearch, form.programId]);
@@ -244,7 +244,7 @@ export function DatabaseDocumentGenerator() {
               <SelectValue placeholder={programsLoading ? "Chargement..." : "Sélectionner un programme (optionnel)"} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tous les programmes</SelectItem>
+              <SelectItem value="all">Tous les programmes</SelectItem>
               {programs.map(program => (
                 <SelectItem key={program.id} value={program.id}>
                   {program.name} ({program.code})
