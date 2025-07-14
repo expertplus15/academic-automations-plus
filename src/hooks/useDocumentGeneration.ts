@@ -43,11 +43,14 @@ export function useDocumentGeneration() {
 
       // Sauvegarder le document généré en base
       const documentNumber = `DOC${Date.now()}`;
+      const documentId = crypto.randomUUID(); // Générer un UUID valide
+      
       const { data: documentRecord, error: saveError } = await supabase
         .from('generated_documents')
         .insert({
+          id: documentId,
           document_number: documentNumber,
-          request_id: documentNumber, // Utiliser documentNumber comme request_id
+          request_id: documentId, // Utiliser l'UUID comme request_id
           file_path: fileName,
           generated_at: new Date().toISOString(),
           is_valid: true,

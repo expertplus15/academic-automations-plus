@@ -40,6 +40,11 @@ interface TemplateData {
 
 export class DocumentPDFGenerator {
   private static async getStudentData(studentId: string): Promise<StudentData> {
+    // Valider l'UUID de l'étudiant
+    if (!studentId || studentId === 'none' || typeof studentId !== 'string' || !studentId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      throw new Error(`ID étudiant invalide: ${studentId}`);
+    }
+
     const { data, error } = await supabase
       .from('students')
       .select(`
@@ -51,6 +56,7 @@ export class DocumentPDFGenerator {
       .single();
 
     if (error) throw new Error(`Erreur récupération étudiant: ${error.message}`);
+    if (!data) throw new Error('Étudiant non trouvé');
 
     return data;
   }
@@ -77,6 +83,11 @@ export class DocumentPDFGenerator {
   }
 
   private static async getTemplate(templateId: string): Promise<TemplateData> {
+    // Valider l'UUID du template
+    if (!templateId || typeof templateId !== 'string' || !templateId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      throw new Error(`ID template invalide: ${templateId}`);
+    }
+
     const { data, error } = await supabase
       .from('document_templates')
       .select('*')
@@ -84,9 +95,23 @@ export class DocumentPDFGenerator {
       .single();
 
     if (error) throw new Error(`Erreur récupération template: ${error.message}`);
+    if (!data) throw new Error('Template non trouvé');
+
+    // Extraire le contenu du template selon son format
+    let templateContent = '';
+    if (typeof data.template_content === 'string') {
+      templateContent = data.template_content;
+    } else if (data.template_content && typeof data.template_content === 'object' && !Array.isArray(data.template_content)) {
+      // Si c'est un objet JSON avec une clé 'template'
+      const contentObj = data.template_content as Record<string, any>;
+      templateContent = contentObj.template || JSON.stringify(data.template_content);
+    } else {
+      templateContent = 'Template vide';
+    }
+
     return {
       ...data,
-      template_content: String(data.template_content || 'Template vide')
+      template_content: templateContent
     };
   }
 

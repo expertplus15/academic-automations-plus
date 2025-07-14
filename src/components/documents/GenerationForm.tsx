@@ -78,10 +78,26 @@ export function GenerationForm({ type, templateId, onGenerate, onCancel }: Gener
       return;
     }
 
+    // Validation supplémentaire pour un étudiant spécifique
+    if (config.student_id && config.student_id !== "none") {
+      const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(config.student_id);
+      if (!isValidUUID) {
+        toast({
+          title: "Erreur",
+          description: "L'ID de l'étudiant sélectionné n'est pas valide",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
     try {
+      // Utiliser un étudiant valide ou undefined si "none"
+      const studentId = config.student_id === "none" || !config.student_id ? undefined : config.student_id;
+      
       const previewData = await previewDocument(
         config.template,
-        config.student_id === "none" ? undefined : config.student_id,
+        studentId,
         config
       );
       
@@ -89,9 +105,10 @@ export function GenerationForm({ type, templateId, onGenerate, onCancel }: Gener
       setShowPreview(true);
     } catch (error) {
       console.error('Preview error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
       toast({
         title: "Erreur d'aperçu",
-        description: "Impossible de générer l'aperçu",
+        description: `Impossible de générer l'aperçu: ${errorMessage}`,
         variant: "destructive"
       });
     }
@@ -341,7 +358,10 @@ export function GenerationForm({ type, templateId, onGenerate, onCancel }: Gener
               </Button>
             </div>
             <div className="bg-white p-6 rounded border min-h-[400px]">
-              <pre className="whitespace-pre-wrap text-sm text-black">{preview}</pre>
+              <div 
+                className="text-sm text-black"
+                dangerouslySetInnerHTML={{ __html: preview || '' }}
+              />
             </div>
           </div>
         </div>
