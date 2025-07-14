@@ -1,19 +1,36 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { DocumentCreationManager } from "@/components/documents/DocumentCreationManager";
 import { TemplateEditor } from "@/components/documents/TemplateEditor";
 import { DocumentPreview } from "@/components/documents/DocumentPreview";
 import { useDocuments } from "@/hooks/useDocuments";
+import { cn } from "@/lib/utils";
+
+// Types pour améliorer la type safety
+type WorkflowMode = 'list' | 'editor' | 'preview';
+
+interface AppState {
+  mode: WorkflowMode;
+  selectedTemplate: string | null;
+  searchQuery: string;
+  previewData: any;
+}
 
 export default function DocumentsCreation() {
   const navigate = useNavigate();
-  const [showTemplateEditor, setShowTemplateEditor] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
-  const [previewData, setPreviewData] = useState<any>(null);
+  
+  // État unifié pour simplifier la gestion
+  const [state, setState] = useState<AppState>({
+    mode: 'list',
+    selectedTemplate: null,
+    searchQuery: '',
+    previewData: null
+  });
 
   const { 
     templates, 
@@ -23,44 +40,116 @@ export default function DocumentsCreation() {
     getDocumentsByType
   } = useDocuments();
 
-  // Handle preview
-  const handlePreview = async (templateId: string, type: string) => {
+  // Optimisation : mémoriser les templates filtrés
+  const filteredTemplates = useMemo(() => {
+    if (!state.searchQuery) return templates;
+    return templates.filter(template => 
+      template.name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+      template.description?.toLowerCase().includes(state.searchQuery.toLowerCase())
+    );
+  }, [templates, state.searchQuery]);
+
+  // Callbacks optimisés avec useCallback
+  const handleModeChange = useCallback((mode: WorkflowMode, data?: any) => {
+    setState(prev => ({ 
+      ...prev, 
+      mode, 
+      ...(data && { ...data })
+    }));
+  }, []);
+
+  const handlePreview = useCallback(async (templateId: string, type: string) => {
     try {
       const preview = await previewDocument(templateId);
-      setPreviewData({
-        title: `Aperçu ${type}`,
-        type,
-        ...preview
-      });
-      setShowPreview(true);
+      setState(prev => ({
+        ...prev,
+        mode: 'preview',
+        previewData: {
+          title: `Aperçu ${type}`,
+          type,
+          ...preview
+        }
+      }));
     } catch (error) {
       console.error('Preview error:', error);
     }
-  };
+  }, [previewDocument]);
 
-  // Handle template save
-  const handleTemplateSave = async (template: any) => {
+  const handleTemplateSave = useCallback(async (template: any) => {
     try {
       await saveTemplate(template);
-      setShowTemplateEditor(false);
+      handleModeChange('list');
     } catch (error) {
       console.error('Save error:', error);
     }
-  };
+  }, [saveTemplate, handleModeChange]);
 
-  if (showTemplateEditor) {
+  const handleEdit = useCallback((templateId: string) => {
+    handleModeChange('editor', { selectedTemplate: templateId });
+  }, [handleModeChange]);
+
+  const handleNewTemplate = useCallback(() => {
+    handleModeChange('editor', { selectedTemplate: null });
+  }, [handleModeChange]);
+
+  const handleBackToList = useCallback(() => {
+    handleModeChange('list');
+  }, [handleModeChange]);
+
+  // Optimisation : fonction de téléchargement externalisée
+  const handleDownload = useCallback(() => {
+    const { previewData } = state;
+    if (previewData?.pdf_url) {
+      const link = document.createElement('a');
+      link.href = previewData.pdf_url;
+      link.download = `${previewData.title || 'document'}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else if (previewData?.html) {
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>${previewData.title || 'Document'}</title>
+              <style>
+                body { font-family: Arial, sans-serif; margin: 40px; }
+                .document-header { text-align: center; margin-bottom: 30px; }
+                .document-body { margin: 20px 0; }
+                .document-footer { margin-top: 30px; text-align: center; }
+              </style>
+            </head>
+            <body>
+              ${previewData.html}
+              <script>
+                window.onload = function() {
+                  window.print();
+                  window.close();
+                }
+              </script>
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+      }
+    }
+  }, [state.previewData]);
+
+  // Rendu conditionnel optimisé pour l'éditeur
+  if (state.mode === 'editor') {
     return (
       <ModuleLayout 
         title="Éditeur de Templates" 
         subtitle="Créer et modifier les templates de documents"
         showHeader={true}
       >
-        <div className="p-6">
+        <div className="p-6 animate-fade-in">
           <div className="mb-6">
             <Button 
               variant="outline" 
-              onClick={() => setShowTemplateEditor(false)}
-              className="mb-4"
+              onClick={handleBackToList}
+              className="mb-4 hover-scale"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Retour à la gestion
@@ -68,96 +157,106 @@ export default function DocumentsCreation() {
           </div>
           
           <TemplateEditor
-            templateId={selectedTemplate || undefined}
+            templateId={state.selectedTemplate || undefined}
             onSave={handleTemplateSave}
-            onCancel={() => setShowTemplateEditor(false)}
+            onCancel={handleBackToList}
           />
         </div>
       </ModuleLayout>
     );
   }
 
+  // Interface principale optimisée
   return (
     <ModuleLayout 
       title="Création de Documents et Templates" 
       subtitle="Gérer les templates et créer de nouveaux documents"
       showHeader={true}
     >
-      <div className="p-6">
-        <div className="mb-6">
+      <div className="p-6 animate-fade-in">
+        {/* Header avec navigation et recherche optimisés */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <Button 
             variant="outline" 
             onClick={() => navigate("/results/documents")}
-            className="mb-4"
+            className="w-fit hover-scale"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour aux modules
           </Button>
+
+          <div className="flex-1 max-w-md">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Input
+                placeholder="Rechercher un template..."
+                value={state.searchQuery}
+                onChange={(e) => setState(prev => ({ ...prev, searchQuery: e.target.value }))}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          <Button 
+            onClick={handleNewTemplate}
+            className="w-fit hover-scale"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Nouveau Template
+          </Button>
         </div>
 
+        {/* Statistiques rapides */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <Card className="hover-scale">
+            <CardContent className="p-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary">{templates.length}</div>
+                <div className="text-sm text-muted-foreground">Templates disponibles</div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="hover-scale">
+            <CardContent className="p-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">{templates.filter(t => t.is_active).length}</div>
+                <div className="text-sm text-muted-foreground">Templates actifs</div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="hover-scale">
+            <CardContent className="p-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">{filteredTemplates.length}</div>
+                <div className="text-sm text-muted-foreground">Résultats de recherche</div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Gestionnaire de création optimisé */}
         <DocumentCreationManager
-          templates={templates}
+          templates={filteredTemplates}
           loading={loading}
           getDocumentsByType={getDocumentsByType}
           onPreview={handlePreview}
           onGenerate={(templateId, type) => {
             console.log('Generate document:', templateId, type);
           }}
-          onEdit={(templateId) => {
-            setSelectedTemplate(templateId);
-            setShowTemplateEditor(true);
-          }}
-          onNewTemplate={() => {
-            setSelectedTemplate(null);
-            setShowTemplateEditor(true);
-          }}
+          onEdit={handleEdit}
+          onNewTemplate={handleNewTemplate}
         />
       </div>
       
+      {/* Aperçu optimisé */}
       <DocumentPreview
-        isOpen={showPreview}
-        onClose={() => setShowPreview(false)}
-        title={previewData?.title || "Aperçu"}
-        type={previewData?.type}
-        previewData={previewData}
+        isOpen={state.mode === 'preview'}
+        onClose={handleBackToList}
+        title={state.previewData?.title || "Aperçu"}
+        type={state.previewData?.type}
+        previewData={state.previewData}
         loading={loading}
-        onDownload={() => {
-          if (previewData?.pdf_url) {
-            const link = document.createElement('a');
-            link.href = previewData.pdf_url;
-            link.download = `${previewData.title || 'document'}.pdf`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          } else if (previewData?.html) {
-            const printWindow = window.open('', '_blank');
-            if (printWindow) {
-              printWindow.document.write(`
-                <html>
-                  <head>
-                    <title>${previewData.title || 'Document'}</title>
-                    <style>
-                      body { font-family: Arial, sans-serif; margin: 40px; }
-                      .document-header { text-align: center; margin-bottom: 30px; }
-                      .document-body { margin: 20px 0; }
-                      .document-footer { margin-top: 30px; text-align: center; }
-                    </style>
-                  </head>
-                  <body>
-                    ${previewData.html}
-                    <script>
-                      window.onload = function() {
-                        window.print();
-                        window.close();
-                      }
-                    </script>
-                  </body>
-                </html>
-              `);
-              printWindow.document.close();
-            }
-          }
-        }}
+        onDownload={handleDownload}
         onPrint={() => window.print()}
       />
     </ModuleLayout>

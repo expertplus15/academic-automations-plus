@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useMemo, useCallback } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Award, Shield, Layout, Plus, Eye, Edit } from 'lucide-react';
+import { FileText, Award, Shield, Layout, Plus } from 'lucide-react';
 import { DocumentCard } from './DocumentCard';
 import { AttestationTab } from './AttestationTab';
 
@@ -16,6 +15,38 @@ interface DocumentCreationManagerProps {
   onNewTemplate: (type: string) => void;
 }
 
+// Configuration des catégories optimisée et externalisée
+const CATEGORIES = [
+  { 
+    id: 'bulletins', 
+    label: 'Bulletins', 
+    icon: FileText, 
+    description: 'Créer et gérer les bulletins de notes',
+    color: 'bg-blue-500'
+  },
+  { 
+    id: 'transcripts', 
+    label: 'Relevés', 
+    icon: Award, 
+    description: 'Créer et gérer les relevés de notes',
+    color: 'bg-purple-500' 
+  },
+  { 
+    id: 'attestations', 
+    label: 'Attestations', 
+    icon: Shield, 
+    description: 'Créer et gérer les attestations',
+    color: 'bg-green-500'
+  },
+  { 
+    id: 'templates', 
+    label: 'Templates', 
+    icon: Layout, 
+    description: 'Gérer tous les templates personnalisés',
+    color: 'bg-orange-500'
+  }
+] as const;
+
 export function DocumentCreationManager({
   templates,
   loading,
@@ -27,38 +58,31 @@ export function DocumentCreationManager({
 }: DocumentCreationManagerProps) {
   const [selectedCategory, setSelectedCategory] = useState('bulletins');
 
-  const categories = [
-    { 
-      id: 'bulletins', 
-      label: 'Bulletins', 
-      icon: FileText, 
-      description: 'Créer et gérer les bulletins de notes',
-      color: 'blue'
-    },
-    { 
-      id: 'transcripts', 
-      label: 'Relevés', 
-      icon: Award, 
-      description: 'Créer et gérer les relevés de notes',
-      color: 'purple' 
-    },
-    { 
-      id: 'attestations', 
-      label: 'Attestations', 
-      icon: Shield, 
-      description: 'Créer et gérer les attestations',
-      color: 'green'
-    },
-    { 
-      id: 'templates', 
-      label: 'Templates', 
-      icon: Layout, 
-      description: 'Gérer tous les templates personnalisés',
-      color: 'orange'
-    }
-  ];
+  // Optimisation : mémoriser les données par catégorie
+  const categoryData = useMemo(() => {
+    return CATEGORIES.reduce((acc, category) => {
+      const documents = category.id === 'templates' 
+        ? templates 
+        : getDocumentsByType(category.id.slice(0, -1));
+      
+      acc[category.id] = {
+        ...category,
+        documents,
+        count: documents.length
+      };
+      return acc;
+    }, {} as Record<string, any>);
+  }, [templates, getDocumentsByType]);
 
-  const renderCategoryContent = (categoryId: string) => {
+  // Optimisation : callback pour changer de catégorie
+  const handleCategoryChange = useCallback((categoryId: string) => {
+    setSelectedCategory(categoryId);
+  }, []);
+
+  // Composant pour le contenu d'une catégorie optimisé
+  const CategoryContent = useCallback(({ categoryId }: { categoryId: string }) => {
+    const category = categoryData[categoryId];
+    
     if (categoryId === 'attestations') {
       return (
         <AttestationTab
@@ -70,110 +94,106 @@ export function DocumentCreationManager({
       );
     }
 
-    const documentsOfType = categoryId === 'templates' ? templates : getDocumentsByType(categoryId.slice(0, -1));
+    const { documents, label } = category;
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-in">
         <div className="flex justify-between items-center">
           <div>
-            <h3 className="text-lg font-semibold">
-              {categories.find(c => c.id === categoryId)?.label}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {categories.find(c => c.id === categoryId)?.description}
-            </p>
+            <h3 className="text-lg font-semibold">{label}</h3>
+            <p className="text-sm text-muted-foreground">{category.description}</p>
           </div>
-          <Button onClick={() => onNewTemplate(categoryId)}>
+          <Button onClick={() => onNewTemplate(categoryId)} className="hover-scale">
             <Plus className="w-4 h-4 mr-2" />
-            Nouveau {categories.find(c => c.id === categoryId)?.label.slice(0, -1)}
+            Nouveau {label.slice(0, -1)}
           </Button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {documentsOfType.map((template) => (
-            <DocumentCard
-              key={template.id}
-              title={template.name}
-              description={template.description || `${categories.find(c => c.id === categoryId)?.label.slice(0, -1)} personnalisable`}
-              type={categoryId === 'templates' ? 'template' : categoryId === 'transcripts' ? 'transcript' : categoryId === 'attestations' ? 'attestation' : 'bulletin'}
-              status={template.is_active ? "ready" : "draft"}
-              templateId={template.id}
-              onPreview={() => onPreview(template.id, categoryId === 'templates' ? 'template' : categoryId === 'transcripts' ? 'transcript' : categoryId === 'attestations' ? 'attestation' : 'bulletin')}
-              onGenerate={() => onGenerate(template.id, categoryId === 'templates' ? 'template' : categoryId === 'transcripts' ? 'transcript' : categoryId === 'attestations' ? 'attestation' : 'bulletin')}
-              onEdit={() => onEdit(template.id)}
-            />
-          ))}
-          
-          {documentsOfType.length === 0 && (
-            <div className="col-span-full text-center py-12">
-              <div className="text-muted-foreground space-y-2">
-                <div className="w-16 h-16 mx-auto bg-muted rounded-full flex items-center justify-center">
-                  {React.createElement(categories.find(c => c.id === categoryId)?.icon || FileText, {
-                    className: "w-8 h-8"
-                  })}
-                </div>
-                <p className="text-lg font-medium">Aucun template disponible</p>
-                <p className="text-sm">
-                  Créez votre premier template pour commencer
-                </p>
-                <Button 
-                  onClick={() => onNewTemplate(categoryId)}
-                  className="mt-4"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Créer un template
-                </Button>
+        {documents.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {documents.map((template: any) => (
+              <DocumentCard
+                key={template.id}
+                title={template.name}
+                description={template.description || `${label.slice(0, -1)} personnalisable`}
+                type={categoryId === 'templates' ? 'template' : 
+                      categoryId === 'transcripts' ? 'transcript' : 
+                      categoryId === 'attestations' ? 'attestation' : 'bulletin'}
+                status={template.is_active ? "ready" : "draft"}
+                templateId={template.id}
+                onPreview={() => onPreview(template.id, categoryId === 'templates' ? 'template' : 
+                  categoryId === 'transcripts' ? 'transcript' : 
+                  categoryId === 'attestations' ? 'attestation' : 'bulletin')}
+                onGenerate={() => onGenerate(template.id, categoryId === 'templates' ? 'template' : 
+                  categoryId === 'transcripts' ? 'transcript' : 
+                  categoryId === 'attestations' ? 'attestation' : 'bulletin')}
+                onEdit={() => onEdit(template.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <div className="text-muted-foreground space-y-4">
+              <div className="w-16 h-16 mx-auto bg-muted rounded-full flex items-center justify-center">
+                {React.createElement(category.icon, { className: "w-8 h-8" })}
               </div>
+              <div>
+                <p className="text-lg font-medium">Aucun template disponible</p>
+                <p className="text-sm">Créez votre premier template pour commencer</p>
+              </div>
+              <Button 
+                onClick={() => onNewTemplate(categoryId)}
+                className="mt-4 hover-scale"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Créer un template
+              </Button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     );
-  };
+  }, [categoryData, templates, onPreview, onGenerate, onEdit, onNewTemplate]);
 
   return (
     <div className="space-y-6">
-      <div className="border-b">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-2xl font-bold">Création de Documents</h2>
-            <p className="text-muted-foreground">
-              Créez et gérez vos templates de documents personnalisés
-            </p>
-          </div>
+      {/* En-tête simplifié */}
+      <div className="border-b pb-6">
+        <div>
+          <h2 className="text-2xl font-bold">Création de Documents</h2>
+          <p className="text-muted-foreground">
+            Créez et gérez vos templates de documents personnalisés
+          </p>
         </div>
 
-        {/* Navigation par catégories */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          {categories.map((category) => {
+        {/* Navigation par catégories optimisée */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+          {CATEGORIES.map((category) => {
             const Icon = category.icon;
             const isSelected = selectedCategory === category.id;
+            const data = categoryData[category.id];
             
             return (
               <Card 
                 key={category.id}
-                className={`cursor-pointer transition-all hover:shadow-md ${
+                className={`cursor-pointer transition-all hover:shadow-md hover-scale ${
                   isSelected ? 'ring-2 ring-primary shadow-md' : ''
                 }`}
-                onClick={() => setSelectedCategory(category.id)}
+                onClick={() => handleCategoryChange(category.id)}
               >
                 <CardContent className="p-4 text-center">
                   <div className={`w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center ${
                     isSelected 
                       ? 'bg-primary text-primary-foreground' 
-                      : 'bg-muted text-muted-foreground'
+                      : `${category.color} text-white`
                   }`}>
                     <Icon className="w-6 h-6" />
                   </div>
-                  <h3 className={`font-medium ${isSelected ? 'text-primary' : ''}`}>
+                  <h3 className={`font-medium text-sm ${isSelected ? 'text-primary' : ''}`}>
                     {category.label}
                   </h3>
                   <p className="text-xs text-muted-foreground mt-1">
-                    {getDocumentsByType(category.id === 'templates' ? '' : category.id.slice(0, -1)).length || 
-                     (category.id === 'templates' ? templates.length : 0)} template{
-                      (getDocumentsByType(category.id === 'templates' ? '' : category.id.slice(0, -1)).length || 
-                       (category.id === 'templates' ? templates.length : 0)) > 1 ? 's' : ''
-                    }
+                    {data?.count || 0} template{(data?.count || 0) > 1 ? 's' : ''}
                   </p>
                 </CardContent>
               </Card>
@@ -184,7 +204,7 @@ export function DocumentCreationManager({
 
       {/* Contenu de la catégorie sélectionnée */}
       <div className="min-h-[400px]">
-        {renderCategoryContent(selectedCategory)}
+        <CategoryContent categoryId={selectedCategory} />
       </div>
     </div>
   );
