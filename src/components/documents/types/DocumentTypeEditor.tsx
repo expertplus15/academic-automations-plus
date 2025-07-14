@@ -21,6 +21,7 @@ interface DocumentTypeEditorProps {
 const AVAILABLE_VARIABLES = [
   { name: 'student_name', label: 'Nom de l\'étudiant', type: 'string' },
   { name: 'student_number', label: 'Numéro étudiant', type: 'string' },
+  { name: 'student_mention', label: 'Mention de l\'étudiant', type: 'string', description: 'Très bien, Bien, Assez bien, Passable' },
   { name: 'program', label: 'Programme d\'études', type: 'string' },
   { name: 'academic_year', label: 'Année académique', type: 'string' },
   { name: 'semester', label: 'Semestre', type: 'string' },
@@ -297,6 +298,9 @@ export function DocumentTypeEditor({ documentType, onSuccess, onCancel }: Docume
                         <div>
                           <div className="font-medium">{variable.label}</div>
                           <div className="text-xs text-muted-foreground">{variable.name}</div>
+                          {variable.description && (
+                            <div className="text-xs text-blue-600 italic">{variable.description}</div>
+                          )}
                         </div>
                         <Badge variant="outline" className="text-xs">
                           {variable.type}
