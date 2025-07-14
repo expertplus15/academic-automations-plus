@@ -152,21 +152,24 @@ export function useDocumentTemplatesEnhanced() {
       const updatedTemplates = [newTemplate, ...allTemplates];
       localStorage.setItem('document_templates', JSON.stringify(updatedTemplates));
       
-      setTemplates(prev => [newTemplate, ...prev]);
-      
       // Clear filters to show the new template
       setFilters({ search: '', documentTypeId: '', isActive: null, isDefault: null });
       
+      // Force refresh to show the new template immediately
+      setTimeout(() => {
+        fetchTemplates();
+      }, 100);
+      
       toast({
-        title: "Succès",
-        description: "Template créé avec succès",
+        title: "✅ Succès",
+        description: `Template "${templateData.name}" créé avec succès`,
       });
       
       return { data: newTemplate, error: null };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la création';
       toast({
-        title: "Erreur",
+        title: "❌ Erreur",
         description: errorMessage,
         variant: "destructive",
       });
@@ -174,7 +177,7 @@ export function useDocumentTemplatesEnhanced() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, fetchTemplates]);
 
   // Update template
   const updateTemplate = useCallback(async (id: string, updates: Partial<DocumentTemplate>) => {

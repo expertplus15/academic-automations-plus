@@ -150,21 +150,24 @@ export function useDocumentTypes() {
       const updatedTypes = [newType, ...allTypes];
       localStorage.setItem('document_types', JSON.stringify(updatedTypes));
       
-      setTypes(prev => [newType, ...prev]);
-      
       // Clear filters to show the new type
       setFilters({ search: '', category: '', isActive: null });
       
+      // Force refresh to show the new type immediately
+      setTimeout(() => {
+        fetchTypes();
+      }, 100);
+      
       toast({
-        title: "Succès",
-        description: "Type de document créé avec succès",
+        title: "✅ Succès",
+        description: `Type de document "${typeData.name}" créé avec succès`,
       });
       
       return { data: newType, error: null };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la création';
       toast({
-        title: "Erreur",
+        title: "❌ Erreur",
         description: errorMessage,
         variant: "destructive",
       });
@@ -172,7 +175,7 @@ export function useDocumentTypes() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, fetchTypes]);
 
   // Update document type
   const updateType = useCallback(async (id: string, updates: Partial<DocumentType>) => {
