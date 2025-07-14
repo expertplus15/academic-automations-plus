@@ -28,8 +28,8 @@ import {
 const resultsItems = [
   { title: "Saisie Matricielle", url: "/results/matrix", icon: Grid },
   { title: "Calculs & Traitements", url: "/results/calculations", icon: Calculator },
-  { title: "Création de Templates", url: "/results/documents/creation", icon: Layout },
-  { title: "Génération de Documents", url: "/results/documents/generation", icon: FileOutput },
+  { title: "Création de Templates", url: "/results/creation", icon: Layout },
+  { title: "Génération de Documents", url: "/results/generation", icon: FileOutput },
   { title: "Validation & Contrôle", url: "/results/validation", icon: Shield },
   { title: "Analytics & Insights", url: "/results/analytics", icon: TrendingUp },
   { title: "Configuration", url: "/results/config", icon: Settings }

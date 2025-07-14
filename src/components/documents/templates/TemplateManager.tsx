@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import type { DocumentTemplate } from '@/pages/results/documents/creation/templates';
+import type { DocumentTemplate } from '@/pages/results/creation/templates';
 
 interface TemplateManagerProps {
   onEdit: (template: DocumentTemplate) => void;

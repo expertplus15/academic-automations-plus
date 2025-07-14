@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import type { DocumentType } from '@/pages/results/documents/creation/types';
+import type { DocumentType } from '@/pages/results/creation/types';
 
 interface TypeSelectorProps {
   onTypeSelected: (type: DocumentType) => void;

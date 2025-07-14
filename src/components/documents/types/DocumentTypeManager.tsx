@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import type { DocumentType } from '@/pages/results/documents/creation/types';
+import type { DocumentType } from '@/pages/results/creation/types';
 
 interface DocumentTypeManagerProps {
   onEdit: (type: DocumentType) => void;

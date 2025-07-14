@@ -104,11 +104,10 @@ import ResultsImport from '@/pages/results/Import';
 import ResultsValidation from '@/pages/results/Validation';
 import ResultsCalculations from '@/pages/results/Calculations';
 import ResultsProcessing from '@/pages/results/Processing';
-import ResultsDocuments from '@/pages/results/documents/index';
-import ResultsDocumentsCreation from '@/pages/results/documents/creation';
-import ResultsDocumentsTypesCreation from '@/pages/results/documents/creation/types';
-import ResultsDocumentsTemplatesCreation from '@/pages/results/documents/creation/templates';
-import ResultsDocumentsGeneration from '@/pages/results/documents/generation';
+import ResultsCreation from '@/pages/results/creation';
+import ResultsCreationTypes from '@/pages/results/creation/types';
+import ResultsCreationTemplates from '@/pages/results/creation/templates';
+import ResultsGeneration from '@/pages/results/generation';
 import ResultsAnalytics from '@/pages/results/Analytics';
 import ResultsConfig from '@/pages/results/Config';
 import ResultsHistory from '@/pages/results/History';
@@ -323,11 +322,10 @@ export function ModuleRoutes() {
       <Route path="/results" element={<Results />} />
       <Route path="/results/matrix" element={<ResultsMatrix />} />
       <Route path="/results/calculations" element={<ResultsCalculations />} />
-      <Route path="/results/documents" element={<ResultsDocuments />} />
-      <Route path="/results/documents/creation" element={<ResultsDocumentsCreation />} />
-      <Route path="/results/documents/creation/types" element={<ResultsDocumentsTypesCreation />} />
-      <Route path="/results/documents/creation/templates" element={<ResultsDocumentsTemplatesCreation />} />
-      <Route path="/results/documents/generation" element={<ResultsDocumentsGeneration />} />
+      <Route path="/results/creation" element={<ResultsCreation />} />
+      <Route path="/results/creation/types" element={<ResultsCreationTypes />} />
+      <Route path="/results/creation/templates" element={<ResultsCreationTemplates />} />
+      <Route path="/results/generation" element={<ResultsGeneration />} />
       <Route path="/results/validation" element={<ResultsValidation />} />
       <Route path="/results/analytics" element={<ResultsAnalytics />} />
       <Route path="/results/config" element={<ResultsConfig />} />

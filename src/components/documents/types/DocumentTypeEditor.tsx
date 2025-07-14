@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import type { DocumentType } from '@/pages/results/documents/creation/types';
+import type { DocumentType } from '@/pages/results/creation/types';
 
 interface DocumentTypeEditorProps {
   documentType?: DocumentType | null;
