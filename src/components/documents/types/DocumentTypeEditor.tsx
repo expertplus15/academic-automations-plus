@@ -10,11 +10,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import type { DocumentType } from '@/hooks/useDocumentTypes';
+import { useDocumentTypes, type DocumentType } from '@/hooks/useDocumentTypes';
 
 interface DocumentTypeEditorProps {
   documentType?: DocumentType | null;
-  onSave: (type: DocumentType) => void;
+  onSuccess: () => void;
   onCancel: () => void;
 }
 
@@ -50,8 +50,10 @@ const COLORS = [
   { value: 'orange', label: 'Orange', class: 'bg-orange-500' }
 ];
 
-export function DocumentTypeEditor({ documentType, onSave, onCancel }: DocumentTypeEditorProps) {
+export function DocumentTypeEditor({ documentType, onSuccess, onCancel }: DocumentTypeEditorProps) {
   const { toast } = useToast();
+  const { createType, updateType } = useDocumentTypes();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: documentType?.name || '',
     code: documentType?.code || '',
@@ -106,7 +108,7 @@ export function DocumentTypeEditor({ documentType, onSave, onCancel }: DocumentT
     });
   }, []);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     if (!formData.name || !formData.code) {
       toast({
         title: "Erreur de validation",
@@ -116,28 +118,53 @@ export function DocumentTypeEditor({ documentType, onSave, onCancel }: DocumentT
       return;
     }
 
-    const newType: DocumentType = {
-      id: documentType?.id || crypto.randomUUID(),
-      name: formData.name,
-      code: formData.code.toUpperCase(),
-      description: formData.description,
-      icon: 'FileText',
-      color: formData.color,
-      category: formData.category,
-      variables: formData.variables,
-      validation_rules: formData.validation_rules,
-      is_active: formData.is_active,
-      created_at: documentType?.created_at || new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
+    setIsLoading(true);
+    console.log('🔄 DocumentTypeEditor: Sauvegarde démarrée', { isEdit: !!documentType, formData });
 
-    onSave(newType);
-    
-    toast({
-      title: "Type de document sauvegardé",
-      description: `Le type "${formData.name}" a été sauvegardé avec succès`
-    });
-  }, [formData, documentType, onSave, toast]);
+    try {
+      const typeData = {
+        name: formData.name,
+        code: formData.code.toUpperCase(),
+        description: formData.description,
+        icon: 'FileText',
+        color: formData.color,
+        category: formData.category,
+        variables: formData.variables,
+        validation_rules: formData.validation_rules,
+        is_active: formData.is_active
+      };
+
+      if (documentType) {
+        // Mode édition
+        console.log('📝 DocumentTypeEditor: Mise à jour du type', { id: documentType.id, typeData });
+        await updateType(documentType.id, typeData);
+        toast({
+          title: "Type de document modifié",
+          description: `Le type "${formData.name}" a été modifié avec succès`
+        });
+      } else {
+        // Mode création
+        console.log('🆕 DocumentTypeEditor: Création du type', typeData);
+        await createType(typeData);
+        toast({
+          title: "Type de document créé",
+          description: `Le type "${formData.name}" a été créé avec succès`
+        });
+      }
+
+      console.log('✅ DocumentTypeEditor: Sauvegarde réussie, appel de onSuccess');
+      onSuccess();
+    } catch (error) {
+      console.error('❌ DocumentTypeEditor: Erreur de sauvegarde', error);
+      toast({
+        title: "Erreur de sauvegarde",
+        description: "Une erreur est survenue lors de la sauvegarde",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [formData, documentType, createType, updateType, onSuccess, toast]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -380,9 +407,9 @@ export function DocumentTypeEditor({ documentType, onSave, onCancel }: DocumentT
           <X className="h-4 w-4 mr-2" />
           Annuler
         </Button>
-        <Button onClick={handleSave}>
+        <Button onClick={handleSave} disabled={isLoading}>
           <Save className="h-4 w-4 mr-2" />
-          Sauvegarder
+          {isLoading ? 'Sauvegarde...' : 'Sauvegarder'}
         </Button>
       </div>
     </div>

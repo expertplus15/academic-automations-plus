@@ -21,11 +21,13 @@ export default function DocumentTypesCreation() {
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
 
   const handleCreateType = useCallback(() => {
+    console.log('🆕 DocumentTypesCreation: Création d\'un nouveau type');
     setSelectedType(null);
     setViewMode('create');
   }, []);
 
   const handleEditType = useCallback((type: DocumentType) => {
+    console.log('✏️ DocumentTypesCreation: Édition du type', type.name);
     setSelectedType(type);
     setViewMode('edit');
   }, []);
@@ -41,6 +43,7 @@ export default function DocumentTypesCreation() {
   }, []);
 
   const handleSaveSuccess = useCallback(() => {
+    console.log('✅ DocumentTypesCreation: Sauvegarde réussie - retour à la liste');
     setViewMode('list');
     setSelectedType(null);
   }, []);
@@ -67,7 +70,7 @@ export default function DocumentTypesCreation() {
 
         <DocumentTypeEditor 
           documentType={selectedType}
-          onSave={handleSaveSuccess}
+          onSuccess={handleSaveSuccess}
           onCancel={handleViewReturn}
         />
       </div>
