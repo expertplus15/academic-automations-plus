@@ -146,7 +146,17 @@ export function useDocumentTemplatesEnhanced() {
         updated_at: new Date().toISOString(),
       };
       
+      // Save to localStorage
+      const savedTemplates = localStorage.getItem('document_templates');
+      const allTemplates = savedTemplates ? JSON.parse(savedTemplates) : [...mockTemplates];
+      const updatedTemplates = [newTemplate, ...allTemplates];
+      localStorage.setItem('document_templates', JSON.stringify(updatedTemplates));
+      
       setTemplates(prev => [newTemplate, ...prev]);
+      
+      // Clear filters to show the new template
+      setFilters({ search: '', documentTypeId: '', isActive: null, isDefault: null });
+      
       toast({
         title: "Succès",
         description: "Template créé avec succès",
@@ -170,13 +180,25 @@ export function useDocumentTemplatesEnhanced() {
   const updateTemplate = useCallback(async (id: string, updates: Partial<DocumentTemplate>) => {
     try {
       setLoading(true);
-      const currentTemplate = templates.find(t => t.id === id);
-      const updatedTemplate = {
-        ...currentTemplate,
-        ...updates,
-        version: currentTemplate ? currentTemplate.version + 1 : 1,
-        updated_at: new Date().toISOString(),
-      } as DocumentTemplate;
+      
+      // Update in localStorage
+      const savedTemplates = localStorage.getItem('document_templates');
+      const allTemplates = savedTemplates ? JSON.parse(savedTemplates) : [...mockTemplates];
+      
+      const updatedTemplates = allTemplates.map((template: DocumentTemplate) => {
+        if (template.id === id) {
+          return {
+            ...template,
+            ...updates,
+            version: template.version + 1,
+            updated_at: new Date().toISOString(),
+          };
+        }
+        return template;
+      });
+      
+      localStorage.setItem('document_templates', JSON.stringify(updatedTemplates));
+      const updatedTemplate = updatedTemplates.find((template: DocumentTemplate) => template.id === id);
 
       setTemplates(prev => prev.map(template => template.id === id ? updatedTemplate : template));
       toast({
@@ -196,12 +218,23 @@ export function useDocumentTemplatesEnhanced() {
     } finally {
       setLoading(false);
     }
-  }, [templates, toast]);
+  }, [toast]);
 
   // Delete template
   const deleteTemplate = useCallback(async (id: string) => {
     try {
       setLoading(true);
+      
+      // Update in localStorage
+      const savedTemplates = localStorage.getItem('document_templates');
+      const allTemplates = savedTemplates ? JSON.parse(savedTemplates) : [...mockTemplates];
+      
+      const updatedTemplates = allTemplates.map((template: DocumentTemplate) => 
+        template.id === id ? { ...template, is_active: false } : template
+      );
+      
+      localStorage.setItem('document_templates', JSON.stringify(updatedTemplates));
+      
       setTemplates(prev => prev.map(template => 
         template.id === id ? { ...template, is_active: false } : template
       ));

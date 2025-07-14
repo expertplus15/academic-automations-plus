@@ -151,6 +151,10 @@ export function useDocumentTypes() {
       localStorage.setItem('document_types', JSON.stringify(updatedTypes));
       
       setTypes(prev => [newType, ...prev]);
+      
+      // Clear filters to show the new type
+      setFilters({ search: '', category: '', isActive: null });
+      
       toast({
         title: "Succès",
         description: "Type de document créé avec succès",
