@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Badge } from '@/components/ui/badge';
 import { TypeSelector } from '@/components/documents/templates/TypeSelector';
 import { TemplateEditor } from '@/components/documents/templates/TemplateEditor';
+import { SectionBasedTemplateEditor } from '@/components/documents/templates/SectionBasedTemplateEditor';
 import { EnhancedTemplateManager } from '@/components/documents/enhanced/EnhancedTemplateManager';
 import type { DocumentType } from './types';
 import type { DocumentTemplate } from '@/hooks/useDocumentTemplatesEnhanced';
@@ -107,7 +108,7 @@ export default function DocumentTemplatesCreation() {
           </div>
         </div>
 
-        <TemplateEditor 
+        <SectionBasedTemplateEditor 
           documentType={selectedType}
           template={selectedTemplate}
           onSave={handleSaveSuccess}

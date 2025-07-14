@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 
 export interface DocumentTemplate {
   id: string;
@@ -87,7 +86,7 @@ export function useDocumentTemplatesEnhanced() {
   });
   const { toast } = useToast();
 
-  // Fetch templates (with persistent storage)
+  // Fetch templates from localStorage
   const fetchTemplates = useCallback(async () => {
     try {
       setLoading(true);
@@ -121,9 +120,11 @@ export function useDocumentTemplatesEnhanced() {
       }
       
       setTemplates(allTemplates);
+      console.log('✅ Templates chargés depuis localStorage:', allTemplates.length);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors du chargement';
       setError(errorMessage);
+      console.error('❌ Erreur chargement templates:', err);
       toast({
         title: "Erreur",
         description: errorMessage,
@@ -142,7 +143,7 @@ export function useDocumentTemplatesEnhanced() {
       
       const newTemplate: DocumentTemplate = {
         ...templateData,
-        id: `new_${Date.now()}`,
+        id: `template_${Date.now()}`,
         version: 1,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -156,10 +157,7 @@ export function useDocumentTemplatesEnhanced() {
       console.log('💾 Sauvegardé dans localStorage:', updatedTemplates.length, 'templates');
       
       // Clear filters and update state immediately
-      const clearedFilters = { search: '', documentTypeId: '', isActive: null, isDefault: null };
-      setFilters(clearedFilters);
-      
-      // Update state directly
+      setFilters({ search: '', documentTypeId: '', isActive: null, isDefault: null });
       setTemplates(updatedTemplates);
       console.log('✅ État mis à jour directement avec', updatedTemplates.length, 'templates');
       
@@ -332,18 +330,15 @@ export function useDocumentTemplatesEnhanced() {
     return { total, active, inactive: total - active, defaults, byType };
   }, [templates]);
 
-  // Separate useEffect for filters to avoid circular dependency
+  // Effect to refetch when filters change
   useEffect(() => {
     console.log('🔄 Filtres templates changés:', filters);
     fetchTemplates();
-  }, [filters.search, filters.documentTypeId, filters.isActive, filters.isDefault, toast]);
+  }, [filters.search, filters.documentTypeId, filters.isActive, filters.isDefault]);
 
   // Initial load
   useEffect(() => {
-    const savedTemplates = localStorage.getItem('document_templates');
-    const allTemplates = savedTemplates ? JSON.parse(savedTemplates) : [...mockTemplates];
-    console.log('🔄 Chargement initial templates:', allTemplates.length, 'templates depuis localStorage');
-    setTemplates(allTemplates);
+    fetchTemplates();
   }, []);
 
   return {
