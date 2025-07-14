@@ -32,9 +32,6 @@ export default function DocumentTemplatesCreation() {
   const [selectedType, setSelectedType] = useState<DocumentType | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(null);
 
-  const handleBack = useCallback(() => {
-    navigate('/results/documents');
-  }, [navigate]);
 
   const handleCreateTemplate = useCallback(() => {
     setSelectedTemplate(null);
@@ -121,16 +118,11 @@ export default function DocumentTemplatesCreation() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={handleBack}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">Templates de Documents</h1>
-            <p className="text-muted-foreground">
-              Créez et gérez les templates pour chaque type de document
-            </p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold">Templates de Documents</h1>
+          <p className="text-muted-foreground">
+            Créez et gérez les templates pour chaque type de document
+          </p>
         </div>
         <Button onClick={handleCreateTemplate}>
           <Plus className="h-4 w-4 mr-2" />

@@ -28,9 +28,6 @@ export default function DocumentTypesCreation() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedType, setSelectedType] = useState<DocumentType | null>(null);
 
-  const handleBack = useCallback(() => {
-    navigate('/results/documents');
-  }, [navigate]);
 
   const handleCreateType = useCallback(() => {
     setSelectedType(null);
@@ -85,16 +82,11 @@ export default function DocumentTypesCreation() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={handleBack}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">Types de Documents</h1>
-            <p className="text-muted-foreground">
-              Gérez les types de documents et leurs configurations
-            </p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold">Types de Documents</h1>
+          <p className="text-muted-foreground">
+            Gérez les types de documents et leurs configurations
+          </p>
         </div>
         <Button onClick={handleCreateType}>
           <Plus className="h-4 w-4 mr-2" />
