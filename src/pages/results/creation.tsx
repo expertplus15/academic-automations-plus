@@ -1,10 +1,11 @@
 import { useState, useCallback, useMemo } from "react";
 import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Search } from "lucide-react";
+import { ArrowLeft, Plus, Search, FileText, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DocumentCreationManager } from "@/components/documents/DocumentCreationManager";
 import { TemplateEditor } from "@/components/documents/TemplateEditor";
 import { DocumentPreview } from "@/components/documents/DocumentPreview";
@@ -169,83 +170,154 @@ export default function DocumentsCreation() {
   // Interface principale optimisée
   return (
     <ModuleLayout 
-      title="Création de Documents et Templates" 
-      subtitle="Gérer les templates et créer de nouveaux documents"
+      title="Création" 
+      subtitle="Créer des documents et gérer les templates"
       showHeader={true}
     >
       <div className="p-6 animate-fade-in">
-        {/* Header avec navigation et recherche optimisés */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        {/* Header avec navigation */}
+        <div className="flex items-center gap-4 mb-6">
           <Button 
             variant="outline" 
-            onClick={() => navigate("/results/documents")}
+            onClick={() => navigate("/results")}
             className="w-fit hover-scale"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour aux modules
           </Button>
+        </div>
 
-          <div className="flex-1 max-w-md">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Rechercher un template..."
-                value={state.searchQuery}
-                onChange={(e) => setState(prev => ({ ...prev, searchQuery: e.target.value }))}
-                className="pl-10"
-              />
+        <Tabs defaultValue="documents" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="documents" className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              Création de Documents
+            </TabsTrigger>
+            <TabsTrigger value="templates" className="flex items-center gap-2">
+              <Settings className="w-4 h-4" />
+              Gestion des Templates
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="documents" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Types de documents disponibles */}
+              <Card className="hover-scale cursor-pointer">
+                <CardContent className="p-6 text-center">
+                  <FileText className="w-12 h-12 mx-auto mb-4 text-primary" />
+                  <h3 className="font-semibold mb-2">Bulletins de Notes</h3>
+                  <p className="text-sm text-muted-foreground">Générer les bulletins de notes semestriels</p>
+                </CardContent>
+              </Card>
+
+              <Card className="hover-scale cursor-pointer">
+                <CardContent className="p-6 text-center">
+                  <FileText className="w-12 h-12 mx-auto mb-4 text-primary" />
+                  <h3 className="font-semibold mb-2">Relevés de Notes</h3>
+                  <p className="text-sm text-muted-foreground">Créer des relevés détaillés</p>
+                </CardContent>
+              </Card>
+
+              <Card className="hover-scale cursor-pointer">
+                <CardContent className="p-6 text-center">
+                  <FileText className="w-12 h-12 mx-auto mb-4 text-primary" />
+                  <h3 className="font-semibold mb-2">Attestations</h3>
+                  <p className="text-sm text-muted-foreground">Attestations diverses</p>
+                </CardContent>
+              </Card>
+
+              <Card className="hover-scale cursor-pointer">
+                <CardContent className="p-6 text-center">
+                  <FileText className="w-12 h-12 mx-auto mb-4 text-primary" />
+                  <h3 className="font-semibold mb-2">Certificats de Scolarité</h3>
+                  <p className="text-sm text-muted-foreground">Certificats officiels de scolarité</p>
+                </CardContent>
+              </Card>
+
+              <Card className="hover-scale cursor-pointer">
+                <CardContent className="p-6 text-center">
+                  <FileText className="w-12 h-12 mx-auto mb-4 text-primary" />
+                  <h3 className="font-semibold mb-2">Attestations de Réussite</h3>
+                  <p className="text-sm text-muted-foreground">Attestations de réussite aux examens</p>
+                </CardContent>
+              </Card>
+
+              <Card className="hover-scale cursor-pointer border-dashed border-2">
+                <CardContent className="p-6 text-center">
+                  <Plus className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="font-semibold mb-2">Autre Document</h3>
+                  <p className="text-sm text-muted-foreground">Créer un nouveau type de document</p>
+                </CardContent>
+              </Card>
             </div>
-          </div>
+          </TabsContent>
 
-          <Button 
-            onClick={handleNewTemplate}
-            className="w-fit hover-scale"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Nouveau Template
-          </Button>
-        </div>
+          <TabsContent value="templates" className="space-y-6">
+            {/* Header avec recherche et actions */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 max-w-md">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                  <Input
+                    placeholder="Rechercher un template..."
+                    value={state.searchQuery}
+                    onChange={(e) => setState(prev => ({ ...prev, searchQuery: e.target.value }))}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
 
-        {/* Statistiques rapides */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card className="hover-scale">
-            <CardContent className="p-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">{templates.length}</div>
-                <div className="text-sm text-muted-foreground">Templates disponibles</div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="hover-scale">
-            <CardContent className="p-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{templates.filter(t => t.is_active).length}</div>
-                <div className="text-sm text-muted-foreground">Templates actifs</div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="hover-scale">
-            <CardContent className="p-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{filteredTemplates.length}</div>
-                <div className="text-sm text-muted-foreground">Résultats de recherche</div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              <Button 
+                onClick={handleNewTemplate}
+                className="w-fit hover-scale"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Nouveau Template
+              </Button>
+            </div>
 
-        {/* Gestionnaire de création optimisé */}
-        <DocumentCreationManager
-          templates={filteredTemplates}
-          loading={loading}
-          getDocumentsByType={getDocumentsByType}
-          onPreview={handlePreview}
-          onGenerate={(templateId, type) => {
-            console.log('Generate document:', templateId, type);
-          }}
-          onEdit={handleEdit}
-          onNewTemplate={handleNewTemplate}
-        />
+            {/* Statistiques */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card className="hover-scale">
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">{templates.length}</div>
+                    <div className="text-sm text-muted-foreground">Templates disponibles</div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="hover-scale">
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-accent">{templates.filter(t => t.is_active).length}</div>
+                    <div className="text-sm text-muted-foreground">Templates actifs</div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="hover-scale">
+                <CardContent className="p-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-secondary">{filteredTemplates.length}</div>
+                    <div className="text-sm text-muted-foreground">Résultats de recherche</div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Gestionnaire de templates */}
+            <DocumentCreationManager
+              templates={filteredTemplates}
+              loading={loading}
+              getDocumentsByType={getDocumentsByType}
+              onPreview={handlePreview}
+              onGenerate={(templateId, type) => {
+                console.log('Generate document:', templateId, type);
+              }}
+              onEdit={handleEdit}
+              onNewTemplate={handleNewTemplate}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
       
       {/* Aperçu optimisé */}
