@@ -157,54 +157,37 @@ export function DocumentCreationManager({
 
   return (
     <div className="space-y-6">
-      {/* En-tête simplifié */}
-      <div className="border-b pb-6">
-        <div>
-          <h2 className="text-2xl font-bold">Création de Documents</h2>
-          <p className="text-muted-foreground">
-            Créez et gérez vos templates de documents personnalisés
-          </p>
-        </div>
-
-        {/* Navigation par catégories optimisée */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-          {CATEGORIES.map((category) => {
-            const Icon = category.icon;
-            const isSelected = selectedCategory === category.id;
-            const data = categoryData[category.id];
-            
-            return (
-              <Card 
-                key={category.id}
-                className={`cursor-pointer transition-all hover:shadow-md hover-scale ${
-                  isSelected ? 'ring-2 ring-primary shadow-md' : ''
-                }`}
-                onClick={() => handleCategoryChange(category.id)}
-              >
-                <CardContent className="p-4 text-center">
-                  <div className={`w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center ${
-                    isSelected 
-                      ? 'bg-primary text-primary-foreground' 
-                      : `${category.color} text-white`
-                  }`}>
-                    <Icon className="w-6 h-6" />
-                  </div>
-                  <h3 className={`font-medium text-sm ${isSelected ? 'text-primary' : ''}`}>
-                    {category.label}
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {data?.count || 0} template{(data?.count || 0) > 1 ? 's' : ''}
-                  </p>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Contenu de la catégorie sélectionnée */}
-      <div className="min-h-[400px]">
-        <CategoryContent categoryId={selectedCategory} />
+      {/* Liste simple des templates */}
+      <div className="space-y-4">
+        {templates.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {templates.map((template: any) => (
+              <DocumentCard
+                key={template.id}
+                title={template.name}
+                description={template.description || 'Template personnalisable'}
+                type="template"
+                status={template.is_active ? "ready" : "draft"}
+                templateId={template.id}
+                onPreview={() => onPreview(template.id, 'template')}
+                onGenerate={() => onGenerate(template.id, 'template')}
+                onEdit={() => onEdit(template.id)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <div className="text-muted-foreground space-y-4">
+              <div className="w-16 h-16 mx-auto bg-muted rounded-full flex items-center justify-center">
+                <Layout className="w-8 h-8" />
+              </div>
+              <div>
+                <p className="text-lg font-medium">Aucun template disponible</p>
+                <p className="text-sm">Créez votre premier template pour commencer</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
