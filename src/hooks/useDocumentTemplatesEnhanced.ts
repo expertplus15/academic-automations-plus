@@ -1,27 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import type { DocumentType } from './useDocumentTypes';
 
 export interface DocumentTemplate {
   id: string;
   name: string;
-  document_type_id: string;
   description?: string;
+  document_type_id: string;
   content: any;
   variables: Record<string, any>;
-  preview_url?: string;
   is_active: boolean;
   is_default: boolean;
   version: number;
   created_at: string;
   updated_at: string;
-  document_type?: {
-    id: string;
-    name: string;
-    code: string;
-    category: string;
-    color: string;
-  };
+  preview_url?: string;
+  document_type?: DocumentType;
 }
 
 export interface TemplateFilters {
@@ -43,38 +37,89 @@ export function useDocumentTemplatesEnhanced() {
   });
   const { toast } = useToast();
 
-  // Fetch templates with document type info
+  // Mock data for now until tables are created
   const fetchTemplates = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      let query = supabase
-        .from('document_templates')
-        .select(`
-          *,
-          document_type:document_types(id, name, code, category, color)
-        `)
-        .order('created_at', { ascending: false });
+      // Mock data - replace with real data once tables exist
+      const mockData: DocumentTemplate[] = [
+        {
+          id: '1',
+          name: 'Template Certificat Standard',
+          description: 'Template standard pour les certificats de scolarité',
+          document_type_id: '1',
+          content: '<html><body><h1>Certificat de Scolarité</h1><p>{{nom_etudiant}}</p></body></html>',
+          variables: { nom_etudiant: '', programme: '', annee_academique: '' },
+          is_active: true,
+          is_default: true,
+          version: 1,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          document_type: {
+            id: '1',
+            name: 'Certificat de Scolarité',
+            code: 'CERT_SCOL',
+            description: 'Certificat attestant de la scolarité d\'un étudiant',
+            icon: 'FileText',
+            color: '#3B82F6',
+            category: 'Certificats',
+            variables: ['nom_etudiant', 'programme', 'annee_academique'],
+            validation_rules: {},
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          }
+        },
+        {
+          id: '2',
+          name: 'Template Relevé de Notes',
+          description: 'Template pour les relevés de notes',
+          document_type_id: '2',
+          content: '<html><body><h1>Relevé de Notes</h1><p>{{nom_etudiant}}</p><p>{{notes}}</p></body></html>',
+          variables: { nom_etudiant: '', notes: '', moyenne: '' },
+          is_active: true,
+          is_default: true,
+          version: 1,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          document_type: {
+            id: '2',
+            name: 'Relevé de Notes',
+            code: 'RELEVE_NOTES',
+            description: 'Relevé officiel des notes d\'un étudiant',
+            icon: 'Award',
+            color: '#10B981',
+            category: 'Académique',
+            variables: ['nom_etudiant', 'notes', 'moyenne'],
+            validation_rules: {},
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          }
+        }
+      ];
 
       // Apply filters
+      let filteredData = mockData;
       if (filters.search) {
-        query = query.or(`name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
+        filteredData = filteredData.filter(template => 
+          template.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+          template.description?.toLowerCase().includes(filters.search.toLowerCase())
+        );
       }
       if (filters.documentTypeId) {
-        query = query.eq('document_type_id', filters.documentTypeId);
+        filteredData = filteredData.filter(template => template.document_type_id === filters.documentTypeId);
       }
       if (filters.isActive !== null) {
-        query = query.eq('is_active', filters.isActive);
+        filteredData = filteredData.filter(template => template.is_active === filters.isActive);
       }
       if (filters.isDefault !== null) {
-        query = query.eq('is_default', filters.isDefault);
+        filteredData = filteredData.filter(template => template.is_default === filters.isDefault);
       }
 
-      const { data, error } = await query;
-
-      if (error) throw error;
-      setTemplates(data || []);
+      setTemplates(filteredData);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors du chargement';
       setError(errorMessage);
@@ -88,28 +133,26 @@ export function useDocumentTemplatesEnhanced() {
     }
   }, [filters, toast]);
 
-  // Create template
-  const createTemplate = useCallback(async (templateData: Omit<DocumentTemplate, 'id' | 'created_at' | 'updated_at' | 'version'>) => {
+  // Create template (mock for now)
+  const createTemplate = useCallback(async (templateData: Omit<DocumentTemplate, 'id' | 'created_at' | 'updated_at'>) => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('document_templates')
-        .insert([{ ...templateData, version: 1 }])
-        .select(`
-          *,
-          document_type:document_types(id, name, code, category, color)
-        `)
-        .single();
+      
+      // Mock creation - replace with real API call once tables exist
+      const newTemplate: DocumentTemplate = {
+        ...templateData,
+        id: Date.now().toString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
 
-      if (error) throw error;
-
-      setTemplates(prev => [data, ...prev]);
+      setTemplates(prev => [newTemplate, ...prev]);
       toast({
         title: "Succès",
         description: "Template créé avec succès",
       });
       
-      return { data, error: null };
+      return { data: newTemplate, error: null };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la création';
       toast({
@@ -123,36 +166,24 @@ export function useDocumentTemplatesEnhanced() {
     }
   }, [toast]);
 
-  // Update template
+  // Update template (mock for now)
   const updateTemplate = useCallback(async (id: string, updates: Partial<DocumentTemplate>) => {
     try {
       setLoading(true);
-      const currentTemplate = templates.find(t => t.id === id);
-      const newVersion = currentTemplate ? currentTemplate.version + 1 : 1;
-
-      const { data, error } = await supabase
-        .from('document_templates')
-        .update({ 
-          ...updates, 
-          version: newVersion,
-          updated_at: new Date().toISOString() 
-        })
-        .eq('id', id)
-        .select(`
-          *,
-          document_type:document_types(id, name, code, category, color)
-        `)
-        .single();
-
-      if (error) throw error;
-
-      setTemplates(prev => prev.map(template => template.id === id ? data : template));
+      
+      // Mock update - replace with real API call once tables exist
+      const updatedTemplate = { ...updates, updated_at: new Date().toISOString() };
+      
+      setTemplates(prev => prev.map(template => 
+        template.id === id ? { ...template, ...updatedTemplate } : template
+      ));
+      
       toast({
         title: "Succès",
         description: "Template mis à jour",
       });
       
-      return { data, error: null };
+      return { data: updatedTemplate, error: null };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la mise à jour';
       toast({
@@ -164,21 +195,16 @@ export function useDocumentTemplatesEnhanced() {
     } finally {
       setLoading(false);
     }
-  }, [templates, toast]);
+  }, [toast]);
 
-  // Delete template
+  // Delete template (soft delete, mock for now)
   const deleteTemplate = useCallback(async (id: string) => {
     try {
       setLoading(true);
-      const { error } = await supabase
-        .from('document_templates')
-        .update({ is_active: false, updated_at: new Date().toISOString() })
-        .eq('id', id);
-
-      if (error) throw error;
-
+      
+      // Mock soft delete - replace with real API call once tables exist
       setTemplates(prev => prev.map(template => 
-        template.id === id ? { ...template, is_active: false } : template
+        template.id === id ? { ...template, is_active: false, updated_at: new Date().toISOString() } : template
       ));
       
       toast({
@@ -203,42 +229,30 @@ export function useDocumentTemplatesEnhanced() {
       ...originalTemplate,
       name: `${originalTemplate.name} (Copie)`,
       is_default: false,
+      version: 1,
     };
     delete (duplicatedData as any).id;
     delete (duplicatedData as any).created_at;
     delete (duplicatedData as any).updated_at;
-    delete (duplicatedData as any).version;
     delete (duplicatedData as any).document_type;
 
     return createTemplate(duplicatedData);
   }, [createTemplate]);
 
-  // Set as default
+  // Set default template (mock for now)
   const setAsDefault = useCallback(async (id: string) => {
     try {
       setLoading(true);
+      
+      // Mock set default - replace with real API call once tables exist
       const template = templates.find(t => t.id === id);
-      if (!template) throw new Error('Template non trouvé');
+      if (!template) return;
 
-      // Remove default from other templates of same type
-      await supabase
-        .from('document_templates')
-        .update({ is_default: false })
-        .eq('document_type_id', template.document_type_id);
-
-      // Set this template as default
-      const { error } = await supabase
-        .from('document_templates')
-        .update({ is_default: true })
-        .eq('id', id);
-
-      if (error) throw error;
-
+      // Update local state
       setTemplates(prev => prev.map(t => ({
         ...t,
-        is_default: t.document_type_id === template.document_type_id 
-          ? t.id === id 
-          : t.is_default
+        is_default: t.document_type_id === template.document_type_id ? t.id === id : t.is_default,
+        updated_at: t.id === id ? new Date().toISOString() : t.updated_at
       })));
 
       toast({

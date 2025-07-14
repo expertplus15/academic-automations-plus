@@ -88,7 +88,7 @@ export function TemplateCard({
                   {template.name}
                 </h3>
                 {template.is_default && (
-                  <Crown className="w-4 h-4 text-yellow-500 flex-shrink-0" title="Template par défaut" />
+                  <Crown className="w-4 h-4 text-yellow-500 flex-shrink-0" />
                 )}
               </div>
               {documentType && (

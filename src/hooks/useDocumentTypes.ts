@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export interface DocumentType {
@@ -34,32 +33,60 @@ export function useDocumentTypes() {
   });
   const { toast } = useToast();
 
-  // Fetch document types
+  // Mock data for now until tables are created
   const fetchTypes = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      let query = supabase
-        .from('document_types')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Mock data - replace with real data once tables exist
+      const mockData: DocumentType[] = [
+        {
+          id: '1',
+          name: 'Certificat de Scolarité',
+          code: 'CERT_SCOL',
+          description: 'Certificat attestant de la scolarité d\'un étudiant',
+          icon: 'FileText',
+          color: '#3B82F6',
+          category: 'Certificats',
+          variables: ['nom_etudiant', 'programme', 'annee_academique'],
+          validation_rules: {},
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        {
+          id: '2',
+          name: 'Relevé de Notes',
+          code: 'RELEVE_NOTES',
+          description: 'Relevé officiel des notes d\'un étudiant',
+          icon: 'Award',
+          color: '#10B981',
+          category: 'Académique',
+          variables: ['nom_etudiant', 'notes', 'moyenne'],
+          validation_rules: {},
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }
+      ];
 
       // Apply filters
+      let filteredData = mockData;
       if (filters.search) {
-        query = query.or(`name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`);
+        filteredData = filteredData.filter(type => 
+          type.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+          type.description?.toLowerCase().includes(filters.search.toLowerCase())
+        );
       }
       if (filters.category) {
-        query = query.eq('category', filters.category);
+        filteredData = filteredData.filter(type => type.category === filters.category);
       }
       if (filters.isActive !== null) {
-        query = query.eq('is_active', filters.isActive);
+        filteredData = filteredData.filter(type => type.is_active === filters.isActive);
       }
 
-      const { data, error } = await query;
-
-      if (error) throw error;
-      setTypes(data || []);
+      setTypes(filteredData);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors du chargement';
       setError(errorMessage);
@@ -73,25 +100,26 @@ export function useDocumentTypes() {
     }
   }, [filters, toast]);
 
-  // Create document type
+  // Create document type (mock for now)
   const createType = useCallback(async (typeData: Omit<DocumentType, 'id' | 'created_at' | 'updated_at'>) => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('document_types')
-        .insert([typeData])
-        .select()
-        .single();
+      
+      // Mock creation - replace with real API call once tables exist
+      const newType: DocumentType = {
+        ...typeData,
+        id: Date.now().toString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
 
-      if (error) throw error;
-
-      setTypes(prev => [data, ...prev]);
+      setTypes(prev => [newType, ...prev]);
       toast({
         title: "Succès",
         description: "Type de document créé avec succès",
       });
       
-      return { data, error: null };
+      return { data: newType, error: null };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la création';
       toast({
@@ -105,26 +133,24 @@ export function useDocumentTypes() {
     }
   }, [toast]);
 
-  // Update document type
+  // Update document type (mock for now)
   const updateType = useCallback(async (id: string, updates: Partial<DocumentType>) => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('document_types')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      setTypes(prev => prev.map(type => type.id === id ? data : type));
+      
+      // Mock update - replace with real API call once tables exist
+      const updatedType = { ...updates, updated_at: new Date().toISOString() };
+      
+      setTypes(prev => prev.map(type => 
+        type.id === id ? { ...type, ...updatedType } : type
+      ));
+      
       toast({
         title: "Succès",
         description: "Type de document mis à jour",
       });
       
-      return { data, error: null };
+      return { data: updatedType, error: null };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la mise à jour';
       toast({
@@ -138,19 +164,14 @@ export function useDocumentTypes() {
     }
   }, [toast]);
 
-  // Delete document type (soft delete)
+  // Delete document type (soft delete, mock for now)
   const deleteType = useCallback(async (id: string) => {
     try {
       setLoading(true);
-      const { error } = await supabase
-        .from('document_types')
-        .update({ is_active: false, updated_at: new Date().toISOString() })
-        .eq('id', id);
-
-      if (error) throw error;
-
+      
+      // Mock soft delete - replace with real API call once tables exist
       setTypes(prev => prev.map(type => 
-        type.id === id ? { ...type, is_active: false } : type
+        type.id === id ? { ...type, is_active: false, updated_at: new Date().toISOString() } : type
       ));
       
       toast({
