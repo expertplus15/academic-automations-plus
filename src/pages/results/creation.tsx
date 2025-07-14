@@ -248,74 +248,199 @@ export default function DocumentsCreation() {
           </TabsList>
 
           <TabsContent value="documents" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Types de documents disponibles */}
-              <Card 
-                className="hover-scale cursor-pointer transition-all hover:shadow-lg"
-                onClick={() => handleDocumentTypeClick('bulletins')}
-              >
-                <CardContent className="p-6 text-center">
-                  <FileText className="w-12 h-12 mx-auto mb-4 text-primary" />
-                  <h3 className="font-semibold mb-2">Bulletins de Notes</h3>
-                  <p className="text-sm text-muted-foreground">Générer les bulletins de notes semestriels</p>
+            {/* En-tête avec statistiques rapides */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+                <CardContent className="p-4 text-center">
+                  <FileText className="w-8 h-8 mx-auto mb-2 text-primary" />
+                  <div className="text-2xl font-bold text-primary">6</div>
+                  <div className="text-sm text-muted-foreground">Types de documents</div>
                 </CardContent>
               </Card>
-
-              <Card 
-                className="hover-scale cursor-pointer transition-all hover:shadow-lg"
-                onClick={() => handleDocumentTypeClick('releves')}
-              >
-                <CardContent className="p-6 text-center">
-                  <FileText className="w-12 h-12 mx-auto mb-4 text-primary" />
-                  <h3 className="font-semibold mb-2">Relevés de Notes</h3>
-                  <p className="text-sm text-muted-foreground">Créer des relevés détaillés</p>
+              <Card className="bg-gradient-to-r from-accent/10 to-accent/5 border-accent/20">
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-accent">256</div>
+                  <div className="text-sm text-muted-foreground">Documents générés</div>
                 </CardContent>
               </Card>
-
-              <Card 
-                className="hover-scale cursor-pointer transition-all hover:shadow-lg"
-                onClick={() => handleDocumentTypeClick('attestations')}
-              >
-                <CardContent className="p-6 text-center">
-                  <FileText className="w-12 h-12 mx-auto mb-4 text-primary" />
-                  <h3 className="font-semibold mb-2">Attestations</h3>
-                  <p className="text-sm text-muted-foreground">Attestations diverses</p>
+              <Card className="bg-gradient-to-r from-secondary/10 to-secondary/5 border-secondary/20">
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-secondary">{templates.length}</div>
+                  <div className="text-sm text-muted-foreground">Templates disponibles</div>
                 </CardContent>
               </Card>
-
-              <Card 
-                className="hover-scale cursor-pointer transition-all hover:shadow-lg"
-                onClick={() => handleDocumentTypeClick('certificats')}
-              >
-                <CardContent className="p-6 text-center">
-                  <FileText className="w-12 h-12 mx-auto mb-4 text-primary" />
-                  <h3 className="font-semibold mb-2">Certificats de Scolarité</h3>
-                  <p className="text-sm text-muted-foreground">Certificats officiels de scolarité</p>
-                </CardContent>
-              </Card>
-
-              <Card 
-                className="hover-scale cursor-pointer transition-all hover:shadow-lg"
-                onClick={() => handleDocumentTypeClick('reussite')}
-              >
-                <CardContent className="p-6 text-center">
-                  <FileText className="w-12 h-12 mx-auto mb-4 text-primary" />
-                  <h3 className="font-semibold mb-2">Attestations de Réussite</h3>
-                  <p className="text-sm text-muted-foreground">Attestations de réussite aux examens</p>
-                </CardContent>
-              </Card>
-
-              <Card 
-                className="hover-scale cursor-pointer border-dashed border-2 transition-all hover:shadow-lg"
-                onClick={() => handleDocumentTypeClick('autre')}
-              >
-                <CardContent className="p-6 text-center">
-                  <Plus className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="font-semibold mb-2">Autre Document</h3>
-                  <p className="text-sm text-muted-foreground">Créer un nouveau type de document</p>
+              <Card className="bg-gradient-to-r from-destructive/10 to-destructive/5 border-destructive/20">
+                <CardContent className="p-4 text-center">
+                  <div className="text-2xl font-bold text-destructive">24h</div>
+                  <div className="text-sm text-muted-foreground">Dernière génération</div>
                 </CardContent>
               </Card>
             </div>
+
+            {/* Types de documents disponibles avec design amélioré */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Card 
+                className="group hover-scale cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 border-2 hover:border-primary/30 bg-gradient-to-br from-primary/5 to-transparent"
+                onClick={() => handleDocumentTypeClick('bulletins')}
+              >
+                <CardContent className="p-6 text-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="relative z-10">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <FileText className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="font-semibold mb-2 text-lg group-hover:text-primary transition-colors">Bulletins de Notes</h3>
+                    <p className="text-sm text-muted-foreground">Générer les bulletins de notes semestriels avec moyennes et appréciations</p>
+                    <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                      <span className="px-2 py-1 bg-primary/10 rounded-full">PDF</span>
+                      <span className="px-2 py-1 bg-accent/10 rounded-full">Personnalisable</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card 
+                className="group hover-scale cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-accent/10 border-2 hover:border-accent/30 bg-gradient-to-br from-accent/5 to-transparent"
+                onClick={() => handleDocumentTypeClick('releves')}
+              >
+                <CardContent className="p-6 text-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="relative z-10">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+                      <FileText className="w-8 h-8 text-accent" />
+                    </div>
+                    <h3 className="font-semibold mb-2 text-lg group-hover:text-accent transition-colors">Relevés de Notes</h3>
+                    <p className="text-sm text-muted-foreground">Créer des relevés détaillés avec historique complet des notes</p>
+                    <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                      <span className="px-2 py-1 bg-accent/10 rounded-full">PDF</span>
+                      <span className="px-2 py-1 bg-secondary/10 rounded-full">Officiel</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card 
+                className="group hover-scale cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-secondary/10 border-2 hover:border-secondary/30 bg-gradient-to-br from-secondary/5 to-transparent"
+                onClick={() => handleDocumentTypeClick('attestations')}
+              >
+                <CardContent className="p-6 text-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="relative z-10">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
+                      <FileText className="w-8 h-8 text-secondary" />
+                    </div>
+                    <h3 className="font-semibold mb-2 text-lg group-hover:text-secondary transition-colors">Attestations</h3>
+                    <p className="text-sm text-muted-foreground">Attestations diverses pour démarches administratives</p>
+                    <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                      <span className="px-2 py-1 bg-secondary/10 rounded-full">PDF</span>
+                      <span className="px-2 py-1 bg-primary/10 rounded-full">Rapide</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card 
+                className="group hover-scale cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/10 border-2 hover:border-emerald-500/30 bg-gradient-to-br from-emerald-50 to-transparent"
+                onClick={() => handleDocumentTypeClick('certificats')}
+              >
+                <CardContent className="p-6 text-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="relative z-10">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-emerald-100 flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
+                      <FileText className="w-8 h-8 text-emerald-600" />
+                    </div>
+                    <h3 className="font-semibold mb-2 text-lg group-hover:text-emerald-600 transition-colors">Certificats de Scolarité</h3>
+                    <p className="text-sm text-muted-foreground">Certificats officiels de scolarité avec cachet établissement</p>
+                    <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                      <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">PDF</span>
+                      <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full">Officiel</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card 
+                className="group hover-scale cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 border-2 hover:border-purple-500/30 bg-gradient-to-br from-purple-50 to-transparent"
+                onClick={() => handleDocumentTypeClick('reussite')}
+              >
+                <CardContent className="p-6 text-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="relative z-10">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-100 flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                      <FileText className="w-8 h-8 text-purple-600" />
+                    </div>
+                    <h3 className="font-semibold mb-2 text-lg group-hover:text-purple-600 transition-colors">Attestations de Réussite</h3>
+                    <p className="text-sm text-muted-foreground">Attestations de réussite aux examens et certifications</p>
+                    <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                      <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full">PDF</span>
+                      <span className="px-2 py-1 bg-gold-100 text-gold-700 rounded-full">Diplôme</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card 
+                className="group hover-scale cursor-pointer border-dashed border-2 transition-all duration-300 hover:shadow-xl hover:shadow-muted/20 hover:border-muted-foreground/50 bg-gradient-to-br from-muted/5 to-transparent"
+                onClick={() => handleDocumentTypeClick('autre')}
+              >
+                <CardContent className="p-6 text-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-muted/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="relative z-10">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted/10 flex items-center justify-center group-hover:bg-muted/20 transition-colors border-2 border-dashed border-muted-foreground/30">
+                      <Plus className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="font-semibold mb-2 text-lg group-hover:text-muted-foreground transition-colors">Autre Document</h3>
+                    <p className="text-sm text-muted-foreground">Créer un nouveau type de document personnalisé</p>
+                    <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                      <span className="px-2 py-1 bg-muted/10 rounded-full">Personnalisé</span>
+                      <span className="px-2 py-1 bg-muted/10 rounded-full">Flexible</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Actions rapides */}
+            <Card className="mt-8 bg-gradient-to-r from-primary/5 via-transparent to-accent/5">
+              <CardContent className="p-6">
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <Settings className="w-5 h-5" />
+                  Actions Rapides
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Button 
+                    variant="outline" 
+                    className="h-auto p-4 justify-start"
+                    onClick={() => handleDocumentTypeClick('bulletins')}
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">Bulletins en lot</div>
+                      <div className="text-sm text-muted-foreground">Générer pour une classe entière</div>
+                    </div>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-auto p-4 justify-start"
+                    onClick={() => setDocumentState(prev => ({ ...prev, showStudentSelector: true, selectedDocumentType: 'express' }))}
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">Mode Express</div>
+                      <div className="text-sm text-muted-foreground">Génération rapide sans configuration</div>
+                    </div>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="h-auto p-4 justify-start"
+                    onClick={() => handleModeChange('preview', { selectedTemplate: templates[0]?.id })}
+                  >
+                    <div className="text-left">
+                      <div className="font-medium">Aperçu Template</div>
+                      <div className="text-sm text-muted-foreground">Prévisualiser un template existant</div>
+                    </div>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="templates" className="space-y-6">
