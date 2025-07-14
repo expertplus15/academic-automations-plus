@@ -8,19 +8,21 @@ import { Badge } from '@/components/ui/badge';
 import { TypeSelector } from '@/components/documents/templates/TypeSelector';
 import { TemplateEditor } from '@/components/documents/templates/TemplateEditor';
 import { SectionBasedTemplateEditor } from '@/components/documents/templates/SectionBasedTemplateEditor';
+import { SimpleTemplateCustomizer } from '@/components/documents/templates/SimpleTemplateCustomizer';
 import { EnhancedTemplateManager } from '@/components/documents/templates/EnhancedTemplateManager';
 import { TemplateChoiceSelector } from '@/components/documents/templates/TemplateChoiceSelector';
 import { PredefinedTemplateSelector } from '@/components/documents/templates/PredefinedTemplateSelector';
 import type { DocumentType } from './types';
 import type { DocumentTemplate } from '@/hooks/useDocumentTemplatesEnhanced';
 
-type ViewMode = 'choice' | 'predefined-selector' | 'manage-existing' | 'select-type' | 'create' | 'edit' | 'preview';
+type ViewMode = 'choice' | 'predefined-selector' | 'manage-existing' | 'select-type' | 'create' | 'edit' | 'customize' | 'preview';
 
 export default function DocumentTemplatesCreation() {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<ViewMode>('choice');
   const [selectedType, setSelectedType] = useState<DocumentType | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(null);
+  const [baseTemplate, setBaseTemplate] = useState<DocumentTemplate | null>(null);
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
 
   // Nouveau: gestion des choix simplifiés
@@ -66,8 +68,9 @@ export default function DocumentTemplatesCreation() {
     };
     
     setSelectedType(mockType);
-    setSelectedTemplate(null); // Nouveau template basé sur le prédéfini
-    setViewMode('create');
+    setBaseTemplate(template); // Template de base pour personnalisation
+    setSelectedTemplate(null);
+    setViewMode('customize'); // Mode personnalisation simplifié
   }, []);
 
   const handleEditTemplate = useCallback((template: DocumentTemplate) => {
@@ -96,12 +99,14 @@ export default function DocumentTemplatesCreation() {
     setViewMode('choice');
     setSelectedType(null);
     setSelectedTemplate(null);
+    setBaseTemplate(null);
   }, []);
 
   const handleSaveSuccess = useCallback(() => {
     setViewMode('choice');
     setSelectedType(null);
     setSelectedTemplate(null);
+    setBaseTemplate(null);
   }, []);
 
   // Vue principale: choix entre personnaliser ou créer de zéro
@@ -174,6 +179,34 @@ export default function DocumentTemplatesCreation() {
           onSave={handleSaveSuccess}
           onCancel={handleViewReturn}
         />
+      </div>
+    );
+  }
+
+  // Vue de personnalisation simplifiée
+  if (viewMode === 'customize') {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={handleViewReturn}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">Personnaliser le Template</h1>
+            <p className="text-muted-foreground">
+              Personnalisation de: {baseTemplate?.name}
+            </p>
+          </div>
+        </div>
+
+        {baseTemplate && (
+          <SimpleTemplateCustomizer 
+            documentType={selectedType}
+            baseTemplate={baseTemplate}
+            onSave={handleSaveSuccess}
+            onCancel={handleViewReturn}
+          />
+        )}
       </div>
     );
   }
