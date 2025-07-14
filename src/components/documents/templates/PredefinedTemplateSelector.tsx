@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Eye, Edit, FileText, Award, Users, GraduationCap } from 'lucide-react';
+import { ArrowLeft, Eye, Edit, FileText, Award, Users, GraduationCap, School } from 'lucide-react';
+import { PredefinedTemplatePreview } from './predefined/PredefinedTemplatePreview';
 import type { DocumentTemplate } from '@/hooks/useDocumentTemplatesEnhanced';
 
 interface PredefinedTemplateSelectorProps {
@@ -11,8 +12,21 @@ interface PredefinedTemplateSelectorProps {
   onPreviewTemplate: (template: any) => void;
 }
 
-// Templates prédéfinis simulés pour la démo
+// Templates prédéfinis avec le modèle EMD
 const PREDEFINED_TEMPLATES = [
+  {
+    id: 'releve-notes-emd',
+    name: 'Relevé de Notes EMD',
+    description: 'Modèle officiel École de Management de Djibouti avec tableaux par semestre',
+    category: 'Académique',
+    icon: School,
+    preview_image: '/api/placeholder/300/200',
+    sections: ['En-tête officiel bilingue', 'Informations étudiant', 'Tableau Semestre 1', 'Tableau Semestre 2', 'Moyennes et mentions', 'Signatures officielles'],
+    variables: ['nom', 'niveau', 'annee_academique', 'session', 'moyenne_generale', 'mention', 'decision'],
+    is_popular: true,
+    difficulty: 'Avancé',
+    template_type: 'emd_releve'
+  },
   {
     id: 'relevé-notes',
     name: 'Relevé de Notes Universitaire',
@@ -89,6 +103,8 @@ const PREDEFINED_TEMPLATES = [
 
 export function PredefinedTemplateSelector({ onBack, onSelectTemplate, onPreviewTemplate }: PredefinedTemplateSelectorProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [previewTemplate, setPreviewTemplate] = useState<any>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   const categories = ['all', ...Array.from(new Set(PREDEFINED_TEMPLATES.map(t => t.category)))];
   
@@ -96,11 +112,21 @@ export function PredefinedTemplateSelector({ onBack, onSelectTemplate, onPreview
     ? PREDEFINED_TEMPLATES 
     : PREDEFINED_TEMPLATES.filter(t => t.category === selectedCategory);
 
+  const handlePreviewClick = (template: any) => {
+    setPreviewTemplate(template);
+    setShowPreview(true);
+  };
+
+  const handleSelectFromPreview = (template: any) => {
+    onSelectTemplate(template);
+  };
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Facile': return 'bg-green-100 text-green-800';
       case 'Moyen': return 'bg-yellow-100 text-yellow-800';
       case 'Difficile': return 'bg-red-100 text-red-800';
+      case 'Avancé': return 'bg-purple-100 text-purple-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -224,7 +250,7 @@ export function PredefinedTemplateSelector({ onBack, onSelectTemplate, onPreview
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => onPreviewTemplate(template)}
+                    onClick={() => handlePreviewClick(template)}
                   >
                     <Eye className="h-3 w-3" />
                   </Button>
@@ -244,6 +270,14 @@ export function PredefinedTemplateSelector({ onBack, onSelectTemplate, onPreview
           </p>
         </div>
       )}
+
+      {/* Preview Dialog */}
+      <PredefinedTemplatePreview
+        template={previewTemplate}
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+        onSelect={handleSelectFromPreview}
+      />
     </div>
   );
 }
