@@ -1,6 +1,7 @@
 import React from 'react';
 import { ModuleDashboard, DashboardWidget } from './ModuleDashboard';
 import { useNavigate } from 'react-router-dom';
+import { useResultsStats } from '@/hooks/useResultsStats';
 import { 
   BarChart3, 
   Calculator, 
@@ -17,18 +18,23 @@ import {
 
 export function ResultsDashboard() {
   const navigate = useNavigate();
+  const { stats, loading, error } = useResultsStats();
 
-  // Real-time data with enhanced statistics
-  const stats = {
-    totalGrades: 0,
-    generatedReports: 0,
-    averageGenerationTime: 0, // Improved performance
-    matrixSessions: 0, // Active collaborative sessions
-    autoCalculations: 0, // Enhanced accuracy
-    pendingGrades: 0, // Reduced pending items
-    realTimeUsers: 0, // Currently active users
-    averageAccuracy: 0 // Grade validation accuracy
-  };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-red-600 p-4">
+        <p>Erreur lors du chargement: {error}</p>
+      </div>
+    );
+  }
 
   const widgets: DashboardWidget[] = [
     // Stats widgets
@@ -130,11 +136,7 @@ export function ResultsDashboard() {
       description: 'Aucune activité récente',
       icon: Clock,
       data: [
-        {
-          title: 'Système initialisé',
-          subtitle: 'Prêt pour la saisie de notes',
-          badge: 'Nouveau'
-        }
+        ...stats.recentActivities
       ],
       actions: [
         {
