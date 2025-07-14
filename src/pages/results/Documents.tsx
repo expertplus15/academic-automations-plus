@@ -11,6 +11,7 @@ import { DocumentStats } from "@/components/documents/DocumentStats";
 import { DocumentPreview } from "@/components/documents/DocumentPreview";
 import { AttestationTab } from "@/components/documents/AttestationTab";
 import { DatabaseDocumentGenerator } from "@/components/DatabaseDocumentGenerator";
+import { DocumentCreationManager } from "@/components/documents/DocumentCreationManager";
 import { useDocuments } from "@/hooks/useDocuments";
 
 export default function Documents() {
@@ -95,32 +96,16 @@ export default function Documents() {
     }
 
     return (
-      <Tabs defaultValue="simple" className="space-y-6">
+      <Tabs defaultValue="generation" className="space-y-6">
         <div className="flex items-center justify-between mb-6">
-          <TabsList className="grid grid-cols-6 w-full max-w-4xl">
-            <TabsTrigger value="simple" className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              Simple
-            </TabsTrigger>
-            <TabsTrigger value="bulletins" className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              Bulletins
-            </TabsTrigger>
-            <TabsTrigger value="transcripts" className="flex items-center gap-2">
-              <Award className="w-4 h-4" />
-              Relevés
-            </TabsTrigger>
-            <TabsTrigger value="attestations" className="flex items-center gap-2">
-              <Shield className="w-4 h-4" />
-              Attestations
-            </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
-              <Layout className="w-4 h-4" />
-              Templates
-            </TabsTrigger>
+          <TabsList className="grid grid-cols-2 w-full max-w-2xl">
             <TabsTrigger value="generation" className="flex items-center gap-2">
-              <FileDown className="w-4 h-4" />
-              Génération
+              <FileText className="w-4 h-4" />
+              Génération de Documents
+            </TabsTrigger>
+            <TabsTrigger value="creation" className="flex items-center gap-2">
+              <Layout className="w-4 h-4" />
+              Création de Documents
             </TabsTrigger>
           </TabsList>
 
@@ -143,213 +128,38 @@ export default function Documents() {
           </div>
         </div>
 
-          <TabsContent value="simple" className="space-y-6">
-            <DatabaseDocumentGenerator />
-          </TabsContent>
-
-          <TabsContent value="bulletins" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">Bulletins Personnalisables</h3>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Nouveau Bulletin
-              </Button>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {getDocumentsByType('bulletin').map((template) => (
-                <DocumentCard
-                  key={template.id}
-                  title={template.name}
-                  description={template.description || "Bulletin personnalisable"}
-                  type="bulletin"
-                  status="ready"
-                  templateId={template.id}
-                  onPreview={() => handlePreview(template.id, 'bulletin')}
-                  onGenerate={() => {
-                    setGenerationType("bulletin");
-                    setSelectedTemplate(template.id);
-                    setShowGenerationForm(true);
-                  }}
-                  onEdit={() => {
-                    setSelectedTemplate(template.id);
-                    setShowTemplateEditor(true);
-                  }}
-                />
-              ))}
-              
-              {getDocumentsByType('bulletin').length === 0 && (
-                <div className="col-span-full text-center py-8 text-muted-foreground">
-                  Aucun template de bulletin disponible
-                </div>
-              )}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="transcripts" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">Relevés de Notes</h3>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Nouveau Relevé
-              </Button>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {getDocumentsByType('transcript').map((template) => (
-                <DocumentCard
-                  key={template.id}
-                  title={template.name}
-                  description={template.description || "Relevé de notes personnalisable"}
-                  type="transcript"
-                  status="ready"
-                  templateId={template.id}
-                  onPreview={() => handlePreview(template.id, 'transcript')}
-                  onGenerate={() => {
-                    setGenerationType("transcript");
-                    setSelectedTemplate(template.id);
-                    setShowGenerationForm(true);
-                  }}
-                  onEdit={() => {
-                    setSelectedTemplate(template.id);
-                    setShowTemplateEditor(true);
-                  }}
-                />
-              ))}
-              
-              {getDocumentsByType('transcript').length === 0 && (
-                <div className="col-span-full text-center py-8 text-muted-foreground">
-                  Aucun template de relevé disponible
-                </div>
-              )}
-            </div>
-          </TabsContent>
-
-          <AttestationTab
-            templates={templates}
-            onPreview={handlePreview}
-            onGenerate={(templateId, type) => {
-              setGenerationType(type as any);
-              setSelectedTemplate(templateId);
-              setShowGenerationForm(true);
-            }}
-            onEdit={(templateId) => {
-              setSelectedTemplate(templateId);
-              setShowTemplateEditor(true);
-            }}
-          />
-
-          <TabsContent value="templates" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">Templates & Modèles</h3>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Nouveau Template
-              </Button>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {templates.map((template) => (
-                <DocumentCard
-                  key={template.id}
-                  title={template.name}
-                  description={template.description || "Template personnalisable"}
-                  type="template"
-                  status={template.is_active ? "ready" : "draft"}
-                  templateId={template.id}
-                  onPreview={() => handlePreview(template.id, 'template')}
-                  onGenerate={() => {
-                    setSelectedTemplate(template.id);
-                    setShowGenerationForm(true);
-                  }}
-                  onEdit={() => {
-                    setSelectedTemplate(template.id);
-                    setShowTemplateEditor(true);
-                  }}
-                />
-              ))}
-              
-              {templates.length === 0 && (
-                <div className="col-span-full text-center py-8 text-muted-foreground">
-                  Aucun template disponible
-                </div>
-              )}
-            </div>
-          </TabsContent>
-
           <TabsContent value="generation" className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">Génération de Documents</h3>
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold">Génération de Documents</h2>
+                <p className="text-muted-foreground">
+                  Interface simplifiée pour générer rapidement vos documents
+                </p>
+              </div>
+              <DatabaseDocumentGenerator />
             </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Génération Rapide</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-muted-foreground text-sm">
-                    Générer rapidement des documents avec les paramètres par défaut
-                  </p>
-                  <div className="space-y-3">
-                    <Button 
-                      className="w-full" 
-                      onClick={() => {
-                        setGenerationType("bulletin");
-                        setShowGenerationForm(true);
-                      }}
-                    >
-                      <FileText className="w-4 h-4 mr-2" />
-                      Bulletin Standard
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="w-full"
-                      onClick={() => {
-                        setGenerationType("transcript");
-                        setShowGenerationForm(true);
-                      }}
-                    >
-                      <Award className="w-4 h-4 mr-2" />
-                      Relevé de Notes
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="w-full"
-                      onClick={() => {
-                        setGenerationType("attestation");
-                        setShowGenerationForm(true);
-                      }}
-                    >
-                      <Shield className="w-4 h-4 mr-2" />
-                      Attestation
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+          </TabsContent>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Génération Personnalisée</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-muted-foreground text-sm">
-                    Configurer précisément les paramètres de génération
-                  </p>
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => {
-                      setGenerationType("batch");
-                      setShowGenerationForm(true);
-                    }}
-                  >
-                    <Settings className="w-4 h-4 mr-2" />
-                    Configuration Avancée
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
+          <TabsContent value="creation" className="space-y-6">
+            <DocumentCreationManager
+              templates={templates}
+              loading={loading}
+              getDocumentsByType={getDocumentsByType}
+              onPreview={handlePreview}
+              onGenerate={(templateId, type) => {
+                setGenerationType(type as any);
+                setSelectedTemplate(templateId);
+                setShowGenerationForm(true);
+              }}
+              onEdit={(templateId) => {
+                setSelectedTemplate(templateId);
+                setShowTemplateEditor(true);
+              }}
+              onNewTemplate={(type) => {
+                setSelectedTemplate(null);
+                setShowTemplateEditor(true);
+              }}
+            />
           </TabsContent>
         </Tabs>
     );
