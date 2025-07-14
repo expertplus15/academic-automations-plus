@@ -1,4 +1,3 @@
-import { TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { DocumentCard } from "./DocumentCard";
@@ -14,7 +13,7 @@ export function AttestationTab({ templates, onPreview, onGenerate, onEdit }: Att
   const attestationTemplates = templates.filter(t => t.type === 'attestation');
 
   return (
-    <TabsContent value="attestations" className="space-y-6">
+    <div className="space-y-6">{/* Replaced TabsContent with div */}
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Attestations</h3>
         <Button onClick={() => onEdit("")}>
@@ -103,6 +102,6 @@ export function AttestationTab({ templates, onPreview, onGenerate, onEdit }: Att
           </>
         )}
       </div>
-    </TabsContent>
+    </div>
   );
 }
