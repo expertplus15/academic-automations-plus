@@ -10,6 +10,7 @@ import { TemplateEditor } from "@/components/documents/TemplateEditor";
 import { DocumentStats } from "@/components/documents/DocumentStats";
 import { DocumentPreview } from "@/components/documents/DocumentPreview";
 import { AttestationTab } from "@/components/documents/AttestationTab";
+import { SimpleDocumentGeneratorComponent } from "@/components/documents/SimpleDocumentGenerator";
 import { useDocuments } from "@/hooks/useDocuments";
 
 export default function Documents() {
