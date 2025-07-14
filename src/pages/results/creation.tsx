@@ -9,6 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DocumentCreationManager } from "@/components/documents/DocumentCreationManager";
 import { TemplateEditor } from "@/components/documents/TemplateEditor";
 import { DocumentPreview } from "@/components/documents/DocumentPreview";
+import { StudentSelector } from "@/components/documents/StudentSelector";
+import { DocumentConfiguration } from "@/components/documents/DocumentConfiguration";
 import { useDocuments } from "@/hooks/useDocuments";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +24,14 @@ interface AppState {
   previewData: any;
 }
 
+interface DocumentCreationState {
+  showStudentSelector: boolean;
+  showDocumentConfig: boolean;
+  selectedDocumentType: string;
+  selectedStudentIds: string[];
+  selectedStudents: any[];
+}
+
 export default function DocumentsCreation() {
   const navigate = useNavigate();
   
@@ -31,6 +41,15 @@ export default function DocumentsCreation() {
     selectedTemplate: null,
     searchQuery: '',
     previewData: null
+  });
+
+  // État pour la création de documents
+  const [documentState, setDocumentState] = useState<DocumentCreationState>({
+    showStudentSelector: false,
+    showDocumentConfig: false,
+    selectedDocumentType: '',
+    selectedStudentIds: [],
+    selectedStudents: []
   });
 
   const { 
@@ -96,6 +115,35 @@ export default function DocumentsCreation() {
   const handleBackToList = useCallback(() => {
     handleModeChange('list');
   }, [handleModeChange]);
+
+  // Handlers pour la création de documents
+  const handleDocumentTypeClick = useCallback((documentType: string) => {
+    setDocumentState(prev => ({
+      ...prev,
+      selectedDocumentType: documentType,
+      showStudentSelector: true
+    }));
+  }, []);
+
+  const handleStudentSelection = useCallback((studentIds: string[], students: any[]) => {
+    setDocumentState(prev => ({
+      ...prev,
+      selectedStudentIds: studentIds,
+      selectedStudents: students,
+      showStudentSelector: false,
+      showDocumentConfig: true
+    }));
+  }, []);
+
+  const handleCloseDocumentCreation = useCallback(() => {
+    setDocumentState({
+      showStudentSelector: false,
+      showDocumentConfig: false,
+      selectedDocumentType: '',
+      selectedStudentIds: [],
+      selectedStudents: []
+    });
+  }, []);
 
   // Optimisation : fonction de téléchargement externalisée
   const handleDownload = useCallback(() => {
@@ -202,7 +250,10 @@ export default function DocumentsCreation() {
           <TabsContent value="documents" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Types de documents disponibles */}
-              <Card className="hover-scale cursor-pointer">
+              <Card 
+                className="hover-scale cursor-pointer transition-all hover:shadow-lg"
+                onClick={() => handleDocumentTypeClick('bulletins')}
+              >
                 <CardContent className="p-6 text-center">
                   <FileText className="w-12 h-12 mx-auto mb-4 text-primary" />
                   <h3 className="font-semibold mb-2">Bulletins de Notes</h3>
@@ -210,7 +261,10 @@ export default function DocumentsCreation() {
                 </CardContent>
               </Card>
 
-              <Card className="hover-scale cursor-pointer">
+              <Card 
+                className="hover-scale cursor-pointer transition-all hover:shadow-lg"
+                onClick={() => handleDocumentTypeClick('releves')}
+              >
                 <CardContent className="p-6 text-center">
                   <FileText className="w-12 h-12 mx-auto mb-4 text-primary" />
                   <h3 className="font-semibold mb-2">Relevés de Notes</h3>
@@ -218,7 +272,10 @@ export default function DocumentsCreation() {
                 </CardContent>
               </Card>
 
-              <Card className="hover-scale cursor-pointer">
+              <Card 
+                className="hover-scale cursor-pointer transition-all hover:shadow-lg"
+                onClick={() => handleDocumentTypeClick('attestations')}
+              >
                 <CardContent className="p-6 text-center">
                   <FileText className="w-12 h-12 mx-auto mb-4 text-primary" />
                   <h3 className="font-semibold mb-2">Attestations</h3>
@@ -226,7 +283,10 @@ export default function DocumentsCreation() {
                 </CardContent>
               </Card>
 
-              <Card className="hover-scale cursor-pointer">
+              <Card 
+                className="hover-scale cursor-pointer transition-all hover:shadow-lg"
+                onClick={() => handleDocumentTypeClick('certificats')}
+              >
                 <CardContent className="p-6 text-center">
                   <FileText className="w-12 h-12 mx-auto mb-4 text-primary" />
                   <h3 className="font-semibold mb-2">Certificats de Scolarité</h3>
@@ -234,7 +294,10 @@ export default function DocumentsCreation() {
                 </CardContent>
               </Card>
 
-              <Card className="hover-scale cursor-pointer">
+              <Card 
+                className="hover-scale cursor-pointer transition-all hover:shadow-lg"
+                onClick={() => handleDocumentTypeClick('reussite')}
+              >
                 <CardContent className="p-6 text-center">
                   <FileText className="w-12 h-12 mx-auto mb-4 text-primary" />
                   <h3 className="font-semibold mb-2">Attestations de Réussite</h3>
@@ -242,7 +305,10 @@ export default function DocumentsCreation() {
                 </CardContent>
               </Card>
 
-              <Card className="hover-scale cursor-pointer border-dashed border-2">
+              <Card 
+                className="hover-scale cursor-pointer border-dashed border-2 transition-all hover:shadow-lg"
+                onClick={() => handleDocumentTypeClick('autre')}
+              >
                 <CardContent className="p-6 text-center">
                   <Plus className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                   <h3 className="font-semibold mb-2">Autre Document</h3>
@@ -330,6 +396,24 @@ export default function DocumentsCreation() {
         loading={loading}
         onDownload={handleDownload}
         onPrint={() => window.print()}
+      />
+
+      {/* Student Selector Dialog */}
+      <StudentSelector
+        isOpen={documentState.showStudentSelector}
+        onClose={handleCloseDocumentCreation}
+        onStudentSelect={handleStudentSelection}
+        documentType={documentState.selectedDocumentType}
+        allowMultiple={true}
+      />
+
+      {/* Document Configuration Dialog */}
+      <DocumentConfiguration
+        isOpen={documentState.showDocumentConfig}
+        onClose={handleCloseDocumentCreation}
+        documentType={documentState.selectedDocumentType}
+        studentIds={documentState.selectedStudentIds}
+        students={documentState.selectedStudents}
       />
     </ModuleLayout>
   );
