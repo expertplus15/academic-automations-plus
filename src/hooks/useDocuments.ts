@@ -121,25 +121,55 @@ export function useDocuments() {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase.functions.invoke('generate-document', {
-        body: {
-          template_id: templateId,
-          student_id: studentId,
-          request_data: additionalData
-        }
-      });
+      // Import DocumentPDFGenerator dynamically
+      const { DocumentPDFGenerator } = await import('@/services/DocumentPDFGenerator');
+      
+      if (!studentId) {
+        throw new Error('Student ID is required for document generation');
+      }
 
-      if (error) throw error;
+      const { pdfBlob, fileName } = await DocumentPDFGenerator.generatePDF(
+        templateId, 
+        studentId, 
+        additionalData
+      );
+
+      // Save document record to database
+      const documentNumber = `DOC${Date.now()}`;
+      const { data: documentRecord, error: saveError } = await supabase
+        .from('generated_documents')
+        .insert({
+          document_number: documentNumber,
+          request_id: documentNumber,
+          file_path: fileName,
+          generated_at: new Date().toISOString(),
+          is_valid: true,
+          expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+        })
+        .select()
+        .single();
+
+      if (saveError) throw saveError;
+
+      // Auto-download the PDF
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
 
       toast({
         title: "Document généré",
-        description: "Le document a été généré avec succès"
+        description: `Le document ${fileName} a été téléchargé avec succès`
       });
 
       // Refresh documents list
       await fetchDocuments();
       
-      return data;
+      return { document: documentRecord, fileName, success: true };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la génération';
       setError(errorMessage);
@@ -157,16 +187,20 @@ export function useDocuments() {
   // Preview document
   const previewDocument = async (templateId: string, studentId?: string, data?: any) => {
     try {
-      const { data: previewData, error } = await supabase.functions.invoke('preview-document', {
-        body: {
-          template_id: templateId,
-          student_id: studentId,
-          preview_data: data
-        }
-      });
+      // Import DocumentPDFGenerator dynamically
+      const { DocumentPDFGenerator } = await import('@/services/DocumentPDFGenerator');
+      
+      if (!studentId) {
+        throw new Error('Student ID is required for document preview');
+      }
 
-      if (error) throw error;
-      return previewData;
+      const previewHTML = await DocumentPDFGenerator.previewHTML(
+        templateId, 
+        studentId, 
+        data
+      );
+
+      return { html: previewHTML, success: true };
     } catch (err) {
       toast({
         title: "Erreur d'aperçu",
@@ -211,9 +245,19 @@ export function useDocuments() {
   // Get document statistics
   const getStats = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('get-document-stats');
+      const { data, error } = await supabase
+        .from('generated_documents')
+        .select('*');
+      
       if (error) throw error;
-      return data;
+      
+      return {
+        total_documents: data?.length || 0,
+        recent_documents: data?.filter(doc => 
+          new Date(doc.generated_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+        ).length || 0,
+        valid_documents: data?.filter(doc => doc.is_valid).length || 0
+      };
     } catch (err) {
       console.error('Error fetching document stats:', err);
       return null;

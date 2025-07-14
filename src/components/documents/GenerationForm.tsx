@@ -85,7 +85,7 @@ export function GenerationForm({ type, templateId, onGenerate, onCancel }: Gener
         config
       );
       
-      setPreview(previewData.content);
+      setPreview(previewData.html);
       setShowPreview(true);
     } catch (error) {
       console.error('Preview error:', error);

@@ -46,12 +46,31 @@ export function useDocumentTemplates() {
   const fetchTemplates = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.functions.invoke('get-document-templates');
+      const { data, error } = await supabase
+        .from('document_templates')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
 
       if (error) {
         setError(error.message);
       } else {
-        setTemplates(data || []);
+        // Transform Supabase data to match DocumentTemplate interface
+        const transformedTemplates: DocumentTemplate[] = (data || []).map((template: any) => ({
+          id: template.id,
+          name: template.name,
+          code: template.code || '',
+          description: template.description,
+          template_type: template.template_type,
+          template_content: typeof template.template_content === 'object' && template.template_content !== null
+            ? template.template_content as { title: string; fields: string[]; template: string; }
+            : { title: '', fields: [], template: String(template.template_content || '') },
+          is_active: template.is_active,
+          requires_approval: template.requires_approval || false,
+          created_at: template.created_at,
+          updated_at: template.updated_at
+        }));
+        setTemplates(transformedTemplates);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
@@ -63,9 +82,11 @@ export function useDocumentTemplates() {
   const createTemplate = async (templateData: Omit<DocumentTemplate, 'id' | 'created_at' | 'updated_at'>) => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.functions.invoke('create-document-template', {
-        body: templateData
-      });
+      const { data, error } = await supabase
+        .from('document_templates')
+        .insert(templateData)
+        .select()
+        .single();
 
       if (error) throw error;
       
@@ -83,9 +104,12 @@ export function useDocumentTemplates() {
   const updateTemplate = async (id: string, updates: Partial<DocumentTemplate>) => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.functions.invoke('update-document-template', {
-        body: { id, ...updates }
-      });
+      const { data, error } = await supabase
+        .from('document_templates')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
 
       if (error) throw error;
       
@@ -103,9 +127,10 @@ export function useDocumentTemplates() {
   const deleteTemplate = async (id: string) => {
     try {
       setLoading(true);
-      const { error } = await supabase.functions.invoke('delete-document-template', {
-        body: { id }
-      });
+      const { error } = await supabase
+        .from('document_templates')
+        .update({ is_active: false })
+        .eq('id', id);
 
       if (error) throw error;
       
