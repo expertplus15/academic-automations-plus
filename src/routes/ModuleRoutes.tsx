@@ -104,7 +104,9 @@ import ResultsImport from '@/pages/results/Import';
 import ResultsValidation from '@/pages/results/Validation';
 import ResultsCalculations from '@/pages/results/Calculations';
 import ResultsProcessing from '@/pages/results/Processing';
-import ResultsDocuments from '@/pages/results/Documents';
+import ResultsDocuments from '@/pages/results/documents/index';
+import ResultsDocumentsCreation from '@/pages/results/documents/creation';
+import ResultsDocumentsGeneration from '@/pages/results/documents/generation';
 import ResultsAnalytics from '@/pages/results/Analytics';
 import ResultsConfig from '@/pages/results/Config';
 import ResultsHistory from '@/pages/results/History';
@@ -320,6 +322,8 @@ export function ModuleRoutes() {
       <Route path="/results/matrix" element={<ResultsMatrix />} />
       <Route path="/results/calculations" element={<ResultsCalculations />} />
       <Route path="/results/documents" element={<ResultsDocuments />} />
+      <Route path="/results/documents/creation" element={<ResultsDocumentsCreation />} />
+      <Route path="/results/documents/generation" element={<ResultsDocumentsGeneration />} />
       <Route path="/results/validation" element={<ResultsValidation />} />
       <Route path="/results/analytics" element={<ResultsAnalytics />} />
       <Route path="/results/config" element={<ResultsConfig />} />
