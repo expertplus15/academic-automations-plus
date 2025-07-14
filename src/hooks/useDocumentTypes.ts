@@ -152,13 +152,12 @@ export function useDocumentTypes() {
       localStorage.setItem('document_types', JSON.stringify(updatedTypes));
       console.log('💾 Sauvegardé dans localStorage:', updatedTypes.length, 'types');
       
-      // Clear filters and update state immediately
-      const clearedFilters = { search: '', category: '', isActive: null };
-      setFilters(clearedFilters);
+      // Clear all filters first to ensure the new type is visible
+      setFilters({ search: '', category: '', isActive: null });
       
-      // Apply cleared filters and update state directly
+      // Update state with all types (no filters applied)
       setTypes(updatedTypes);
-      console.log('✅ État mis à jour directement avec', updatedTypes.length, 'types');
+      console.log('✅ État mis à jour avec tous les types:', updatedTypes.length);
       
       toast({
         title: "✅ Succès",
@@ -285,11 +284,31 @@ export function useDocumentTypes() {
     return { total, active, inactive: total - active, byCategory };
   }, [types]);
 
-  // Separate useEffect for filters to avoid circular dependency
+  // Apply filters when they change
   useEffect(() => {
     console.log('🔄 Filtres changés:', filters);
-    fetchTypes();
-  }, [filters.search, filters.category, filters.isActive, toast]);
+    
+    // Get all types from localStorage
+    const savedTypes = localStorage.getItem('document_types');
+    let allTypes = savedTypes ? JSON.parse(savedTypes) : [...mockDocumentTypes];
+    
+    // Apply current filters
+    if (filters.search) {
+      allTypes = allTypes.filter((type: DocumentType) =>
+        type.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+        type.description?.toLowerCase().includes(filters.search.toLowerCase())
+      );
+    }
+    if (filters.category) {
+      allTypes = allTypes.filter((type: DocumentType) => type.category === filters.category);
+    }
+    if (filters.isActive !== null) {
+      allTypes = allTypes.filter((type: DocumentType) => type.is_active === filters.isActive);
+    }
+    
+    setTypes(allTypes);
+    console.log('🔍 Filtres appliqués:', allTypes.length, 'types affichés');
+  }, [filters.search, filters.category, filters.isActive]);
 
   // Initial load
   useEffect(() => {
