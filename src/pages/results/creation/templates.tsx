@@ -121,7 +121,6 @@ export default function DocumentTemplatesCreation() {
       <PredefinedTemplateSelector
         onBack={handleViewReturn}
         onSelectTemplate={handleSelectPredefinedTemplate}
-        onPreviewTemplate={handlePreviewTemplate}
       />
     );
   }
