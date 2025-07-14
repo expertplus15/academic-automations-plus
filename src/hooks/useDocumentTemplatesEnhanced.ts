@@ -138,6 +138,8 @@ export function useDocumentTemplatesEnhanced() {
   const createTemplate = useCallback(async (templateData: Omit<DocumentTemplate, 'id' | 'created_at' | 'updated_at' | 'version'>) => {
     try {
       setLoading(true);
+      console.log('🔨 Création du template:', templateData);
+      
       const newTemplate: DocumentTemplate = {
         ...templateData,
         id: `new_${Date.now()}`,
@@ -151,14 +153,15 @@ export function useDocumentTemplatesEnhanced() {
       const allTemplates = savedTemplates ? JSON.parse(savedTemplates) : [...mockTemplates];
       const updatedTemplates = [newTemplate, ...allTemplates];
       localStorage.setItem('document_templates', JSON.stringify(updatedTemplates));
+      console.log('💾 Sauvegardé dans localStorage:', updatedTemplates.length, 'templates');
       
-      // Clear filters to show the new template
-      setFilters({ search: '', documentTypeId: '', isActive: null, isDefault: null });
+      // Clear filters and update state immediately
+      const clearedFilters = { search: '', documentTypeId: '', isActive: null, isDefault: null };
+      setFilters(clearedFilters);
       
-      // Force refresh to show the new template immediately
-      setTimeout(() => {
-        fetchTemplates();
-      }, 100);
+      // Update state directly
+      setTemplates(updatedTemplates);
+      console.log('✅ État mis à jour directement avec', updatedTemplates.length, 'templates');
       
       toast({
         title: "✅ Succès",
@@ -168,6 +171,7 @@ export function useDocumentTemplatesEnhanced() {
       return { data: newTemplate, error: null };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la création';
+      console.error('❌ Erreur création template:', err);
       toast({
         title: "❌ Erreur",
         description: errorMessage,
@@ -177,7 +181,7 @@ export function useDocumentTemplatesEnhanced() {
     } finally {
       setLoading(false);
     }
-  }, [toast, fetchTemplates]);
+  }, [toast]);
 
   // Update template
   const updateTemplate = useCallback(async (id: string, updates: Partial<DocumentTemplate>) => {
@@ -328,9 +332,19 @@ export function useDocumentTemplatesEnhanced() {
     return { total, active, inactive: total - active, defaults, byType };
   }, [templates]);
 
+  // Separate useEffect for filters to avoid circular dependency
   useEffect(() => {
+    console.log('🔄 Filtres templates changés:', filters);
     fetchTemplates();
-  }, [fetchTemplates]);
+  }, [filters.search, filters.documentTypeId, filters.isActive, filters.isDefault, toast]);
+
+  // Initial load
+  useEffect(() => {
+    const savedTemplates = localStorage.getItem('document_templates');
+    const allTemplates = savedTemplates ? JSON.parse(savedTemplates) : [...mockTemplates];
+    console.log('🔄 Chargement initial templates:', allTemplates.length, 'templates depuis localStorage');
+    setTemplates(allTemplates);
+  }, []);
 
   return {
     templates,

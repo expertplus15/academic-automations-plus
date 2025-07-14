@@ -136,6 +136,7 @@ export function useDocumentTypes() {
   const createType = useCallback(async (typeData: Omit<DocumentType, 'id' | 'created_at' | 'updated_at'>) => {
     try {
       setLoading(true);
+      console.log('🔨 Création du type:', typeData);
       
       const newType: DocumentType = {
         ...typeData,
@@ -149,14 +150,15 @@ export function useDocumentTypes() {
       const allTypes = savedTypes ? JSON.parse(savedTypes) : [...mockDocumentTypes];
       const updatedTypes = [newType, ...allTypes];
       localStorage.setItem('document_types', JSON.stringify(updatedTypes));
+      console.log('💾 Sauvegardé dans localStorage:', updatedTypes.length, 'types');
       
-      // Clear filters to show the new type
-      setFilters({ search: '', category: '', isActive: null });
+      // Clear filters and update state immediately
+      const clearedFilters = { search: '', category: '', isActive: null };
+      setFilters(clearedFilters);
       
-      // Force refresh to show the new type immediately
-      setTimeout(() => {
-        fetchTypes();
-      }, 100);
+      // Apply cleared filters and update state directly
+      setTypes(updatedTypes);
+      console.log('✅ État mis à jour directement avec', updatedTypes.length, 'types');
       
       toast({
         title: "✅ Succès",
@@ -166,6 +168,7 @@ export function useDocumentTypes() {
       return { data: newType, error: null };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la création';
+      console.error('❌ Erreur création type:', err);
       toast({
         title: "❌ Erreur",
         description: errorMessage,
@@ -175,7 +178,7 @@ export function useDocumentTypes() {
     } finally {
       setLoading(false);
     }
-  }, [toast, fetchTypes]);
+  }, [toast]);
 
   // Update document type
   const updateType = useCallback(async (id: string, updates: Partial<DocumentType>) => {
@@ -282,9 +285,19 @@ export function useDocumentTypes() {
     return { total, active, inactive: total - active, byCategory };
   }, [types]);
 
+  // Separate useEffect for filters to avoid circular dependency
   useEffect(() => {
+    console.log('🔄 Filtres changés:', filters);
     fetchTypes();
-  }, [fetchTypes]);
+  }, [filters.search, filters.category, filters.isActive, toast]);
+
+  // Initial load
+  useEffect(() => {
+    const savedTypes = localStorage.getItem('document_types');
+    const allTypes = savedTypes ? JSON.parse(savedTypes) : [...mockDocumentTypes];
+    console.log('🔄 Chargement initial:', allTypes.length, 'types depuis localStorage');
+    setTypes(allTypes);
+  }, []);
 
   return {
     types,
