@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { DocumentsPageHeader } from "@/components/DocumentsPageHeader";
-import { DocumentsDashboard } from "@/components/documents/DocumentsDashboard";
+import { IntelligentDashboard } from "@/components/documents/intelligent/IntelligentDashboard";
 import { SignatureManager } from "@/components/documents/SignatureManager";
 import { DocumentGenerator } from "@/components/documents/DocumentGenerator";
 import { AcademicDocumentGenerator } from "@/components/documents/AcademicDocumentGenerator";
@@ -56,8 +56,8 @@ export default function Documents() {
       return <DocumentSettings />;
     }
     
-    // Default to dashboard for /documents
-    return <DocumentsDashboard />;
+    // Default to intelligent dashboard for /documents
+    return <IntelligentDashboard />;
   };
 
   return (
