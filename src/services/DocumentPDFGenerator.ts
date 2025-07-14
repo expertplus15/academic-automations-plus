@@ -45,22 +45,14 @@ export class DocumentPDFGenerator {
       .select(`
         *,
         profiles:profile_id(full_name, email),
-        programs:program_id(name, code),
-        academic_levels:level_id(name)
+        programs:program_id(name, code)
       `)
       .eq('id', studentId)
       .single();
 
     if (error) throw new Error(`Erreur récupération étudiant: ${error.message}`);
-    
-    const safeData = {
-      ...data,
-      academic_levels: null as { name: string } | null
-    };
 
-    // Keep it simple - ignore academic_levels to avoid complex type issues
-
-    return safeData;
+    return data;
   }
 
   private static async getStudentGrades(studentId: string, academicYearId?: string): Promise<GradeData[]> {
