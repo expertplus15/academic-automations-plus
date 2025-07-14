@@ -176,43 +176,49 @@ export class SimpleDocumentGenerator {
     }
   }
 
-  // Génère un PDF (optionnel, nécessite html2canvas)
+  // Génère un PDF (version simplifiée)
   static async generatePDF(templateId: string, studentData?: Partial<SimpleStudentData>): Promise<Blob> {
-    const htmlContent = this.generateHTML(templateId, studentData);
-    
-    // Créer un élément temporaire pour le rendu
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = htmlContent;
-    tempDiv.style.position = 'absolute';
-    tempDiv.style.left = '-9999px';
-    tempDiv.style.width = '800px';
-    document.body.appendChild(tempDiv);
-
     try {
-      const canvas = await html2canvas(tempDiv);
+      const htmlContent = this.generateHTML(templateId, studentData);
+      
+      // Créer un élément temporaire pour le rendu
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = htmlContent;
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.width = '800px';
+      tempDiv.style.backgroundColor = 'white';
+      tempDiv.style.padding = '20px';
+      document.body.appendChild(tempDiv);
+
+      // Attendre un peu pour que le rendu soit complet
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      const canvas = await html2canvas(tempDiv, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        width: 800,
+        height: tempDiv.scrollHeight
+      });
+      
       const imgData = canvas.toDataURL('image/png');
       
       const pdf = new jsPDF('p', 'mm', 'a4');
       const imgWidth = 210;
       const pageHeight = 295;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
 
       let position = 0;
-
       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
 
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
+      // Nettoyer l'élément temporaire
+      document.body.removeChild(tempDiv);
 
       return pdf.output('blob');
-    } finally {
-      document.body.removeChild(tempDiv);
+    } catch (error) {
+      console.error('Erreur lors de la génération PDF:', error);
+      throw new Error('Impossible de générer le PDF');
     }
   }
 
