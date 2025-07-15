@@ -10,9 +10,13 @@ export default function GradeEntry() {
       subtitle="Interface matricielle collaborative et saisie manuelle des notes"
       showHeader={true}
     >
-      <div className="p-4 animate-fade-in">
-        <GradeEntryHeader />
-        <GradeEntryTabs />
+      <div className="flex flex-col h-full animate-fade-in">
+        <div className="px-6 py-4 border-b border-border/50">
+          <GradeEntryHeader />
+        </div>
+        <div className="flex-1 p-6">
+          <GradeEntryTabs />
+        </div>
       </div>
     </ModuleLayout>
   );
