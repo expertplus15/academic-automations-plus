@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 export interface AcademicYear {
   id: string;
@@ -25,11 +26,23 @@ export function useAcademicYear() {
           .from('academic_years')
           .select('*')
           .eq('is_current', true)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error('Academic year fetch error:', error);
           throw error;
+        }
+
+        if (!data) {
+          const fallbackMessage = 'Aucune année académique courante définie';
+          console.warn(fallbackMessage);
+          setError(fallbackMessage);
+          toast({
+            title: "Attention",
+            description: "Aucune année académique courante. Contactez l'administrateur.",
+            variant: "destructive",
+          });
+          return;
         }
 
         setCurrentYear(data);
@@ -38,6 +51,12 @@ export function useAcademicYear() {
         console.error('Academic year loading error:', err);
         setError(message);
         setCurrentYear(null);
+        
+        toast({
+          title: "Erreur",
+          description: message,
+          variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }
