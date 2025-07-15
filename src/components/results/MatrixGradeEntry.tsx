@@ -300,12 +300,12 @@ export function MatrixGradeEntry() {
       <Card>
         <CardContent className="p-4">
           <div className="space-y-4">
-            {/* First row: Main selectors */}
-            <div className="flex items-center gap-4 flex-wrap">
+            {/* Unified selector grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Programme</label>
                 <Select value={selectedProgram} onValueChange={setSelectedProgram} disabled={programsLoading}>
-                  <SelectTrigger className="w-64">
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder={programsLoading ? "Chargement..." : "Sélectionner un programme"} />
                   </SelectTrigger>
                   <SelectContent>
@@ -325,11 +325,11 @@ export function MatrixGradeEntry() {
                   onValueChange={setSelectedSpecialization}
                   disabled={!selectedProgram || specializationsLoading}
                 >
-                  <SelectTrigger className="w-64">
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder={
-                      !selectedProgram ? "Sélectionner d'abord un programme" :
+                      !selectedProgram ? "Programme requis" :
                       specializationsLoading ? "Chargement..." :
-                      "Sélectionner une spécialisation"
+                      "Sélectionner spécialisation"
                     } />
                   </SelectTrigger>
                   <SelectContent>
@@ -349,8 +349,8 @@ export function MatrixGradeEntry() {
                   onValueChange={setSelectedLevel}
                   disabled={levelsLoading}
                 >
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder={levelsLoading ? "Chargement..." : "Sélectionner un niveau"} />
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={levelsLoading ? "Chargement..." : "Sélectionner niveau"} />
                   </SelectTrigger>
                   <SelectContent>
                     {academicLevels?.map((level) => (
@@ -370,26 +370,23 @@ export function MatrixGradeEntry() {
                   academicYearId={currentYear?.id}
                 />
               </div>
-            </div>
 
-            {/* Second row: Subject, semester and options */}
-            <div className="flex items-center gap-4 flex-wrap">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Matière</label>
-                 <Select 
-                   value={selectedSubject} 
-                   onValueChange={setSelectedSubject}
-                   disabled={!selectedProgram || !selectedSpecialization || !selectedLevel || !selectedGroup || subjectsLoading}
+                <Select 
+                  value={selectedSubject} 
+                  onValueChange={setSelectedSubject}
+                  disabled={!selectedProgram || !selectedSpecialization || !selectedLevel || !selectedGroup || subjectsLoading}
                 >
-                  <SelectTrigger className="w-64">
-                     <SelectValue placeholder={
-                       !selectedProgram ? "Sélectionner d'abord un programme" :
-                       !selectedSpecialization ? "Sélectionner d'abord une spécialisation" :
-                       !selectedLevel ? "Sélectionner d'abord un niveau" :
-                       !selectedGroup ? "Sélectionner d'abord une classe" :
-                       subjectsLoading ? "Chargement..." :
-                       "Sélectionner une matière"
-                     } />
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={
+                      !selectedProgram ? "Programme requis" :
+                      !selectedSpecialization ? "Spécialisation requise" :
+                      !selectedLevel ? "Niveau requis" :
+                      !selectedGroup ? "Classe requise" :
+                      subjectsLoading ? "Chargement..." :
+                      "Sélectionner matière"
+                    } />
                   </SelectTrigger>
                   <SelectContent>
                     {subjects.map((subject) => (
@@ -404,25 +401,26 @@ export function MatrixGradeEntry() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">Semestre</label>
                 <Select value={selectedSemester.toString()} onValueChange={(v) => setSelectedSemester(Number(v))}>
-                  <SelectTrigger className="w-32">
+                  <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1">S1</SelectItem>
-                    <SelectItem value="2">S2</SelectItem>
+                    <SelectItem value="1">Semestre 1</SelectItem>
+                    <SelectItem value="2">Semestre 2</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              <div className="flex items-center gap-2 ml-auto">
+              <div className="md:col-span-2 lg:col-span-1 flex items-center gap-2 pt-6">
                 <input
                   type="checkbox"
                   id="auto-save"
                   checked={autoSave}
                   onChange={(e) => setAutoSave(e.target.checked)}
+                  className="rounded border-border"
                 />
-                <label htmlFor="auto-save" className="text-sm">Sauvegarde automatique</label>
-                <Zap className="w-4 h-4 text-yellow-500" />
+                <label htmlFor="auto-save" className="text-sm font-medium">Sauvegarde auto</label>
+                <Zap className="w-4 h-4 text-amber-500" />
               </div>
             </div>
 
