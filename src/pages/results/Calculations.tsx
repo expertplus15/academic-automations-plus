@@ -155,9 +155,10 @@ export default function Calculations() {
           <span className="text-foreground font-medium">Calculs & Traitements</span>
         </div>
 
-        {/* Header avec indicateurs en temps réel */}
+        {/* Header unifié avec navigation et actions */}
         <div className="bg-gradient-to-r from-background to-muted/20 border border-border rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
+          {/* Section principale */}
+          <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-3xl font-bold text-foreground mb-2">Centre de Calculs Avancés</h1>
               <p className="text-muted-foreground">Orchestration intelligente des traitements de données académiques</p>
@@ -165,119 +166,157 @@ export default function Calculations() {
             
             <div className="flex items-center gap-4">
               {/* Indicateur d'état global */}
-              <Card className="min-w-0">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                      <span className="text-sm font-medium">Système Actif</span>
-                    </div>
-                    <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">
-                      Opérationnel
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="flex items-center gap-3 p-3 bg-background/50 rounded-lg border border-border/50">
+                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium">Système Actif</span>
+                <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">
+                  Opérationnel
+                </Badge>
+              </div>
 
               {/* Actions principales */}
-              <div className="flex gap-2">
-                <DropdownRecalculate
-                  variant="default"
-                  size="default"
-                  onCalculationComplete={(type, success) => {
-                    if (success) {
-                      toast({
-                        title: "Calcul terminé",
-                        description: `${type} exécuté avec succès`,
-                      });
-                      setLastExecution({
-                        time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-                        success: true,
-                        duration: "3m 24s",
-                        recordsProcessed: Math.floor(Math.random() * 1000) + 2000
-                      });
-                      if (type === 'averages') updateCalculationState('averages', 'completed');
-                      if (type === 'ects') updateCalculationState('ects', 'completed');
-                      if (type === 'all') {
-                        updateCalculationState('averages', 'completed');
-                        updateCalculationState('ects', 'completed');
-                        updateCalculationState('batch', 'completed');
-                      }
+              <DropdownRecalculate
+                variant="default"
+                size="default"
+                onCalculationComplete={(type, success) => {
+                  if (success) {
+                    toast({
+                      title: "Calcul terminé",
+                      description: `${type} exécuté avec succès`,
+                    });
+                    setLastExecution({
+                      time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                      success: true,
+                      duration: "3m 24s",
+                      recordsProcessed: Math.floor(Math.random() * 1000) + 2000
+                    });
+                    if (type === 'averages') updateCalculationState('averages', 'completed');
+                    if (type === 'ects') updateCalculationState('ects', 'completed');
+                    if (type === 'all') {
+                      updateCalculationState('averages', 'completed');
+                      updateCalculationState('ects', 'completed');
+                      updateCalculationState('batch', 'completed');
                     }
-                  }}
-                />
-              </div>
+                  }
+                }}
+              />
             </div>
           </div>
 
-          {/* Métriques de dernière exécution */}
-          <div className="grid grid-cols-4 gap-4">
-            <div className="flex items-center gap-3 p-3 bg-background/50 rounded-lg border border-border/50">
-              <Clock className="w-5 h-5 text-blue-500" />
-              <div>
-                <div className="text-sm text-muted-foreground">Dernière Exécution</div>
-                <div className="font-semibold">{lastExecution.time}</div>
+          {/* Navigation rapide et actions suggérées fusionnées */}
+          <div className="space-y-4">
+            {/* Navigation rapide */}
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground mb-3">Navigation rapide</h3>
+              <div className="grid grid-cols-4 gap-3">
+                <Button 
+                  variant="outline" 
+                  className="h-auto p-4 justify-start bg-background/50 border-border/50 hover:bg-muted/50"
+                >
+                  <div className="flex items-center gap-3 w-full">
+                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <FileText className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div className="text-left min-w-0">
+                      <div className="font-medium text-sm text-foreground">Saisie des Notes</div>
+                      <div className="text-xs text-muted-foreground truncate">Interface matricielle collaborative</div>
+                    </div>
+                  </div>
+                </Button>
+
+                <Button 
+                  variant="outline" 
+                  className="h-auto p-4 justify-start bg-accent/30 border-accent/50 hover:bg-accent/40"
+                >
+                  <div className="flex items-center gap-3 w-full">
+                    <div className="w-8 h-8 bg-accent/50 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Calculator className="w-4 h-4 text-accent-foreground" />
+                    </div>
+                    <div className="text-left min-w-0">
+                      <div className="font-medium text-sm text-foreground">Calculs Avancés</div>
+                      <div className="text-xs text-muted-foreground truncate">Interface administrative complète</div>
+                    </div>
+                  </div>
+                </Button>
+
+                <Button 
+                  variant="outline" 
+                  className="h-auto p-4 justify-start bg-background/50 border-border/50 hover:bg-muted/50"
+                >
+                  <div className="flex items-center gap-3 w-full">
+                    <div className="w-8 h-8 bg-green-100 dark:bg-green-900/50 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <BarChart3 className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div className="text-left min-w-0">
+                      <div className="font-medium text-sm text-foreground">Analyses & Rapports</div>
+                      <div className="text-xs text-muted-foreground truncate">Tableaux de bord et statistiques</div>
+                    </div>
+                  </div>
+                </Button>
+
+                <Button 
+                  variant="outline" 
+                  className="h-auto p-4 justify-start bg-background/50 border-border/50 hover:bg-muted/50"
+                >
+                  <div className="flex items-center gap-3 w-full">
+                    <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/50 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <FileText className="w-4 h-4 text-purple-600" />
+                    </div>
+                    <div className="text-left min-w-0">
+                      <div className="font-medium text-sm text-foreground">Documents & Export</div>
+                      <div className="text-xs text-muted-foreground truncate">Relevés, attestations et rapports</div>
+                    </div>
+                  </div>
+                </Button>
               </div>
             </div>
-            
-            <div className="flex items-center gap-3 p-3 bg-background/50 rounded-lg border border-border/50">
-              <CheckCircle className="w-5 h-5 text-green-500" />
-              <div>
-                <div className="text-sm text-muted-foreground">Statut</div>
-                <div className="font-semibold text-green-600">
-                  {lastExecution.success ? "Succès" : "Erreur"}
+
+            {/* Actions suggérées et métriques */}
+            <div className="flex items-center justify-between">
+              {/* Métriques compactes */}
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 text-sm">
+                  <Clock className="w-4 h-4 text-blue-500" />
+                  <span className="text-muted-foreground">Dernière:</span>
+                  <span className="font-medium">{lastExecution.time}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span className="text-muted-foreground">Statut:</span>
+                  <span className="font-medium text-green-600">Succès</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Activity className="w-4 h-4 text-purple-500" />
+                  <span className="text-muted-foreground">Durée:</span>
+                  <span className="font-medium">{lastExecution.duration}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Users className="w-4 h-4 text-orange-500" />
+                  <span className="text-muted-foreground">Traités:</span>
+                  <span className="font-medium">{lastExecution.recordsProcessed.toLocaleString()}</span>
                 </div>
               </div>
-            </div>
-            
-            <div className="flex items-center gap-3 p-3 bg-background/50 rounded-lg border border-border/50">
-              <Activity className="w-5 h-5 text-purple-500" />
-              <div>
-                <div className="text-sm text-muted-foreground">Durée</div>
-                <div className="font-semibold">{lastExecution.duration}</div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3 p-3 bg-background/50 rounded-lg border border-border/50">
-              <Users className="w-5 h-5 text-orange-500" />
-              <div>
-                <div className="text-sm text-muted-foreground">Enregistrements</div>
-                <div className="font-semibold">{lastExecution.recordsProcessed.toLocaleString()}</div>
+
+              {/* Actions suggérées compactes */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
+                  <Brain className="w-4 h-4" />
+                  <span>Recalcul recommandé après les dernières saisies</span>
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline">
+                    <ArrowRight className="w-4 h-4 mr-1" />
+                    Retour à la saisie
+                  </Button>
+                  <Button size="sm" variant="outline">
+                    <BarChart3 className="w-4 h-4 mr-1" />
+                    Analyser les résultats
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Navigation fluide */}
-        <NavigationQuickLinks currentContext="calculations" />
-
-        {/* Actions suggérées contextuelles */}
-        <Card className="border-dashed border-2 border-blue-200 bg-blue-50/50 dark:bg-blue-950/20 dark:border-blue-800">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/50 rounded-lg flex items-center justify-center">
-                  <Brain className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <div className="font-semibold text-blue-900 dark:text-blue-100">Suggestions Intelligentes</div>
-                  <div className="text-sm text-blue-700 dark:text-blue-300">
-                    Le système recommande un recalcul des moyennes après les dernières saisies
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button size="sm" variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-100">
-                  Plus tard
-                </Button>
-                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-                  <Play className="w-4 h-4 mr-2" />
-                  Exécuter maintenant
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
           <TabsList className="grid grid-cols-4 w-full max-w-2xl bg-background border border-border">
