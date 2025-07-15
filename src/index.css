@@ -52,6 +52,18 @@
     --services: 16 185 129;       /* #10B981 - Vert */
     --health: 239 68 68;          /* #EF4444 - Rouge */
 
+    /* Calculation-specific colors */
+    --calculation-primary: 139 92 246;     /* #8B5CF6 - Violet */
+    --calculation-success: 16 185 129;     /* #10B981 - Vert */
+    --calculation-warning: 245 158 11;     /* #F59E0B - Orange */
+    --calculation-error: 239 68 68;        /* #EF4444 - Rouge */
+    --calculation-processing: 59 130 246;  /* #3B82F6 - Bleu */
+    
+    /* Gradients for calculations */
+    --gradient-calculation: linear-gradient(135deg, hsl(var(--calculation-primary) / 0.1), hsl(var(--calculation-primary) / 0.05));
+    --gradient-success: linear-gradient(135deg, hsl(var(--calculation-success) / 0.1), hsl(var(--calculation-success) / 0.05));
+    --gradient-processing: linear-gradient(135deg, hsl(var(--calculation-processing) / 0.1), hsl(var(--calculation-processing) / 0.05));
+
     /* Text colors */
     --text-secondary: 203 19% 56%; /* #64748B */
 
