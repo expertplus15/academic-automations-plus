@@ -99,17 +99,10 @@ import ExamsMonitoring from '@/pages/exams/Monitoring';
 
 // New ACADEMIC+ modules
 import Results from '@/pages/Results';
-import ResultsMatrix from '@/pages/results/Matrix';
-import ResultsImport from '@/pages/results/Import';
-import ResultsValidation from '@/pages/results/Validation';
-import ResultsCalculations from '@/pages/results/Calculations';
-import ResultsProcessing from '@/pages/results/Processing';
 import ResultsGradeEntry from '@/pages/results/GradeEntry';
 import ResultsDocuments from '@/pages/results/Documents';
-import ResultsGeneration from '@/pages/results/generation';
+import ResultsCalculations from '@/pages/results/Calculations';
 import ResultsAnalytics from '@/pages/results/Analytics';
-import ResultsConfig from '@/pages/results/Config';
-import ResultsHistory from '@/pages/results/History';
 import Services from '@/pages/Services';
 
 // eLearning module pages
@@ -319,15 +312,11 @@ export function ModuleRoutes() {
 
       {/* New ACADEMIC+ Module Routes */}
       <Route path="/results" element={<Results />} />
-      <Route path="/results/matrix" element={<ResultsMatrix />} />
-      <Route path="/results/calculations" element={<ResultsCalculations />} />
+      <Route path="/results/grading-system" element={<Results />} />
       <Route path="/results/grade-entry" element={<ResultsGradeEntry />} />
+      <Route path="/results/calculations" element={<ResultsCalculations />} />
       <Route path="/results/documents" element={<ResultsDocuments />} />
-      <Route path="/results/generation" element={<ResultsGeneration />} />
-      <Route path="/results/validation" element={<ResultsValidation />} />
       <Route path="/results/analytics" element={<ResultsAnalytics />} />
-      <Route path="/results/config" element={<ResultsConfig />} />
-      <Route path="/results/history" element={<ResultsHistory />} />
       <Route path="/services" element={<Services />} />
 
       {/* HR Module Routes */}
