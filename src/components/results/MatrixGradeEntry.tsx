@@ -15,6 +15,7 @@ import { useSpecializations } from '@/hooks/useSupabase';
 import { useAcademicLevels } from '@/hooks/useSupabase';
 import { GroupSelector } from '@/components/academic/timetable/GroupSelector';
 import { MoteurCalculAcademique, DEFAULT_GRADING_CONFIG } from '@/lib/gradingEngine';
+import { SemesterMatrixView } from './SemesterMatrixView';
 
 export function MatrixGradeEntry() {
   const [matrixData, setMatrixData] = useState<StudentWithGrades[]>([]);
@@ -24,6 +25,7 @@ export function MatrixGradeEntry() {
   const [selectedGroup, setSelectedGroup] = useState<string>('');
   const [selectedSubject, setSelectedSubject] = useState<string>('');
   const [selectedSemester, setSelectedSemester] = useState<number>(1);
+  const [viewMode, setViewMode] = useState<'subject' | 'semester'>('subject');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [autoSave, setAutoSave] = useState(true);
@@ -268,6 +270,22 @@ export function MatrixGradeEntry() {
           <p className="text-muted-foreground">Interface collaborative type Google Sheets - Calculs automatiques</p>
         </div>
         <div className="flex gap-2">
+          <div className="flex border border-border rounded-md p-1">
+            <Button 
+              variant={viewMode === 'subject' ? 'default' : 'ghost'} 
+              size="sm"
+              onClick={() => setViewMode('subject')}
+            >
+              Mode Matière
+            </Button>
+            <Button 
+              variant={viewMode === 'semester' ? 'default' : 'ghost'} 
+              size="sm"
+              onClick={() => setViewMode('semester')}
+            >
+              Mode Semestre
+            </Button>
+          </div>
           <Button variant="outline" size="sm" onClick={importFromExcel}>
             <FileUp className="w-4 h-4 mr-2" />
             Import Excel
@@ -449,7 +467,14 @@ export function MatrixGradeEntry() {
       </Card>
 
       {/* Matrix Grid */}
-      <Card>
+      {viewMode === 'semester' ? (
+        <SemesterMatrixView 
+          selectedProgram={selectedProgram}
+          selectedGroup={selectedGroup}
+          selectedSemester={selectedSemester}
+        />
+      ) : (
+        <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Grid className="w-5 h-5" />
@@ -581,6 +606,7 @@ export function MatrixGradeEntry() {
           </div>
         </CardContent>
       </Card>
+      )}
     </div>
   );
 }
