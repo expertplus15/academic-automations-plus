@@ -1,47 +1,44 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export interface DocumentTemplate {
   id: string;
   name: string;
   code: string;
-  description?: string;
-  template_type: string; // Changed from literal type to string
-  template_content: {
-    title: string;
-    fields: string[];
-    template: string;
-  };
+  description: string | null;
+  template_type: string;
+  template_content: any;
+  variables: any;
   is_active: boolean;
   requires_approval: boolean;
+  category_id: string | null;
+  program_id: string | null;
+  level_id: string | null;
+  academic_year_id: string | null;
+  auto_generate: boolean;
+  target_audience: any;
   created_at: string;
   updated_at: string;
 }
 
-export interface DocumentRequest {
+export interface DocumentVariable {
   id: string;
-  student_id: string;
-  template_id: string;
-  status: string; // Changed from literal type to string
-  request_data?: any;
-  requested_by?: string;
-  approved_by?: string;
-  approved_at?: string;
-  rejection_reason?: string;
-  created_at: string;
-  updated_at: string;
-  template?: DocumentTemplate;
-  student?: {
-    student_number: string;
-    profiles: { full_name: string };
-  };
+  name: string;
+  label: string;
+  variable_type: string;
+  category: string;
+  description: string | null;
+  default_value: string | null;
+  is_required: boolean;
 }
 
 export function useDocumentTemplates() {
   const [templates, setTemplates] = useState<DocumentTemplate[]>([]);
+  const [variables, setVariables] = useState<DocumentVariable[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchTemplates = async () => {
     try {
@@ -49,61 +46,64 @@ export function useDocumentTemplates() {
       const { data, error } = await supabase
         .from('document_templates')
         .select('*')
-        .eq('is_active', true)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        setError(error.message);
-      } else {
-        // Transform Supabase data to match DocumentTemplate interface
-        const transformedTemplates: DocumentTemplate[] = (data || []).map((template: any) => ({
-          id: template.id,
-          name: template.name,
-          code: template.code || '',
-          description: template.description,
-          template_type: template.template_type,
-          template_content: typeof template.template_content === 'object' && template.template_content !== null
-            ? template.template_content as { title: string; fields: string[]; template: string; }
-            : { title: '', fields: [], template: String(template.template_content || '') },
-          is_active: template.is_active,
-          requires_approval: template.requires_approval || false,
-          created_at: template.created_at,
-          updated_at: template.updated_at
-        }));
-        setTemplates(transformedTemplates);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+      if (error) throw error;
+      setTemplates(data || []);
+    } catch (err: any) {
+      setError(err.message);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les templates",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const createTemplate = async (templateData: Omit<DocumentTemplate, 'id' | 'created_at' | 'updated_at'>) => {
+  const fetchVariables = async () => {
     try {
-      setLoading(true);
+      const { data, error } = await supabase
+        .from('document_variables')
+        .select('*')
+        .order('category', { ascending: true });
+
+      if (error) throw error;
+      setVariables(data || []);
+    } catch (err: any) {
+      console.error('Error fetching variables:', err);
+    }
+  };
+
+  const createTemplate = async (template: Omit<DocumentTemplate, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
       const { data, error } = await supabase
         .from('document_templates')
-        .insert(templateData)
+        .insert([template])
         .select()
         .single();
 
       if (error) throw error;
-      
-      await fetchTemplates(); // Refresh list
+
+      setTemplates(prev => [data, ...prev]);
+      toast({
+        title: "Succès",
+        description: "Template créé avec succès"
+      });
       return data;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la création';
-      setError(errorMessage);
+    } catch (err: any) {
+      toast({
+        title: "Erreur",
+        description: err.message,
+        variant: "destructive"
+      });
       throw err;
-    } finally {
-      setLoading(false);
     }
   };
 
   const updateTemplate = async (id: string, updates: Partial<DocumentTemplate>) => {
     try {
-      setLoading(true);
       const { data, error } = await supabase
         .from('document_templates')
         .update(updates)
@@ -112,149 +112,87 @@ export function useDocumentTemplates() {
         .single();
 
       if (error) throw error;
-      
-      await fetchTemplates(); // Refresh list
+
+      setTemplates(prev => prev.map(t => t.id === id ? data : t));
+      toast({
+        title: "Succès",
+        description: "Template mis à jour"
+      });
       return data;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la mise à jour';
-      setError(errorMessage);
+    } catch (err: any) {
+      toast({
+        title: "Erreur",
+        description: err.message,
+        variant: "destructive"
+      });
       throw err;
-    } finally {
-      setLoading(false);
     }
   };
 
   const deleteTemplate = async (id: string) => {
     try {
-      setLoading(true);
       const { error } = await supabase
         .from('document_templates')
-        .update({ is_active: false })
+        .delete()
         .eq('id', id);
 
       if (error) throw error;
-      
-      await fetchTemplates(); // Refresh list
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la suppression';
-      setError(errorMessage);
+
+      setTemplates(prev => prev.filter(t => t.id !== id));
+      toast({
+        title: "Succès",
+        description: "Template supprimé"
+      });
+    } catch (err: any) {
+      toast({
+        title: "Erreur",
+        description: err.message,
+        variant: "destructive"
+      });
       throw err;
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  const duplicateTemplate = async (id: string) => {
+    try {
+      const original = templates.find(t => t.id === id);
+      if (!original) throw new Error('Template non trouvé');
+
+      const duplicate = {
+        ...original,
+        name: `${original.name} (Copie)`,
+        code: `${original.code}_copy_${Date.now()}`,
+        requires_approval: false
+      };
+      delete (duplicate as any).id;
+      delete (duplicate as any).created_at;
+      delete (duplicate as any).updated_at;
+
+      return await createTemplate(duplicate);
+    } catch (err: any) {
+      toast({
+        title: "Erreur",
+        description: err.message,
+        variant: "destructive"
+      });
+      throw err;
     }
   };
 
   useEffect(() => {
     fetchTemplates();
-  }, []);
-
-  return { 
-    templates, 
-    loading, 
-    error, 
-    refetch: fetchTemplates,
-    createTemplate,
-    updateTemplate,
-    deleteTemplate
-  };
-}
-
-export function useDocumentRequests() {
-  const [requests, setRequests] = useState<DocumentRequest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchRequests = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('document_requests')
-        .select(`
-          *,
-          template:document_templates(*),
-          student:students(
-            student_number,
-            profiles(full_name)
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        setError(error.message);
-      } else {
-        // Transform the data to match our DocumentRequest interface
-        const transformedRequests = (data || []).map((request: any) => ({
-          ...request,
-          template: request.template ? {
-            ...request.template,
-            template_content: typeof request.template.template_content === 'object' && 
-                            request.template.template_content !== null
-              ? request.template.template_content as { title: string; fields: string[]; template: string; }
-              : { title: '', fields: [], template: '' }
-          } : undefined
-        }));
-        setRequests(transformedRequests as DocumentRequest[]);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const createRequest = async (templateId: string, studentId: string, requestData?: any) => {
-    const user = await supabase.auth.getUser();
-    
-    const { data, error } = await supabase
-      .from('document_requests')
-      .insert({
-        template_id: templateId,
-        student_id: studentId,
-        request_data: requestData,
-        requested_by: user.data.user?.id
-      })
-      .select()
-      .single();
-
-    if (!error) {
-      fetchRequests(); // Refresh data
-    }
-    return { data, error };
-  };
-
-  const updateRequestStatus = async (requestId: string, status: string, rejectionReason?: string) => {
-    const user = await supabase.auth.getUser();
-    
-    const updateData: any = { status };
-    if (status === 'approved') {
-      updateData.approved_by = user.data.user?.id;
-      updateData.approved_at = new Date().toISOString();
-    }
-    if (rejectionReason) {
-      updateData.rejection_reason = rejectionReason;
-    }
-
-    const { error } = await supabase
-      .from('document_requests')
-      .update(updateData)
-      .eq('id', requestId);
-
-    if (!error) {
-      fetchRequests(); // Refresh data
-    }
-    return { error };
-  };
-
-  useEffect(() => {
-    fetchRequests();
+    fetchVariables();
   }, []);
 
   return {
-    requests,
+    templates,
+    variables,
     loading,
     error,
-    refetch: fetchRequests,
-    createRequest,
-    updateRequestStatus
+    createTemplate,
+    updateTemplate,
+    deleteTemplate,
+    duplicateTemplate,
+    refetch: fetchTemplates
   };
 }
