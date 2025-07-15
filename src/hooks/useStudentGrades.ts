@@ -41,6 +41,14 @@ export function useStudentGrades() {
   const getMatriceGrades = useCallback(async (subjectId: string, semester: number) => {
     setLoading(true);
     try {
+      // Get evaluation types first to map codes
+      const { data: evalTypes, error: evalError } = await supabase
+        .from('evaluation_types')
+        .select('id, code')
+        .eq('is_active', true);
+
+      if (evalError) throw evalError;
+
       const { data, error } = await supabase
         .from('student_grades')
         .select(`
@@ -59,6 +67,9 @@ export function useStudentGrades() {
       // Transform data for matrix display
       const matrixData: StudentWithGrades[] = [];
       const studentMap = new Map();
+      
+      // Create evaluation type lookup map
+      const evalTypeMap = new Map(evalTypes?.map(et => [et.id, et.code]) || []);
 
       data?.forEach((grade) => {
         const studentId = grade.students.id;
@@ -72,10 +83,11 @@ export function useStudentGrades() {
         }
 
         const student = studentMap.get(studentId);
-        // Assume evaluation_type_id determines if it's CC or exam
-        if (grade.evaluation_type_id === 'cc-type') {
+        const evalCode = evalTypeMap.get(grade.evaluation_type_id);
+        
+        if (evalCode === 'CC') {
           student.grades.cc = grade.grade;
-        } else if (grade.evaluation_type_id === 'exam-type') {
+        } else if (evalCode === 'EF') {
           student.grades.examen = grade.grade;
         }
       });
