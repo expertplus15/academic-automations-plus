@@ -10,7 +10,7 @@ export default function GradeEntry() {
       subtitle="Interface matricielle collaborative et saisie manuelle des notes"
       showHeader={true}
     >
-      <div className="p-6 animate-fade-in">
+      <div className="p-4 animate-fade-in">
         <GradeEntryHeader />
         <GradeEntryTabs />
       </div>
