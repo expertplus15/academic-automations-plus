@@ -3,176 +3,89 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 export interface StudentGrade {
-  id: string;
-  student_id: string;
-  subject_id: string;
-  evaluation_type_id: string;
-  grade: number;
-  max_grade: number;
-  evaluation_date: string;
-  semester: number;
-  academic_year_id: string;
-  teacher_id?: string;
-  is_published: boolean;
-  comments?: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface GradeEntry {
+  id?: string;
   student_id: string;
   subject_id: string;
   evaluation_type_id: string;
   grade: number;
   max_grade?: number;
-  evaluation_date: string;
   semester: number;
   academic_year_id: string;
+  evaluation_date: string;
+  is_published?: boolean;
   teacher_id?: string;
   comments?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
-export interface GradeValidation {
-  valid: boolean;
-  errors: string[];
-  warnings: string[];
-  validated_at: string;
+export interface StudentWithGrades {
+  id: string;
+  student_number: string;
+  profiles: {
+    full_name: string;
+  };
+  grades: {
+    cc?: number;
+    examen?: number;
+    moyenne?: number;
+    coefficient?: number;
+    mention?: string;
+  };
 }
 
 export function useStudentGrades() {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Get grades for a specific student
-  const getStudentGrades = useCallback(async (
-    studentId: string,
-    academicYearId?: string,
-    semester?: number
-  ): Promise<StudentGrade[]> => {
+  const getMatriceGrades = useCallback(async (subjectId: string, semester: number) => {
     setLoading(true);
-    setError(null);
-
     try {
-      let query = supabase
+      const { data, error } = await supabase
         .from('student_grades')
         .select(`
           *,
-          students!inner(student_number, profiles!inner(full_name)),
-          subjects!inner(name, code),
-          evaluation_types!inner(name, code, weight_percentage)
-        `)
-        .eq('student_id', studentId);
-
-      if (academicYearId) {
-        query = query.eq('academic_year_id', academicYearId);
-      }
-
-      if (semester !== undefined) {
-        query = query.eq('semester', semester);
-      }
-
-      const { data, error } = await query.order('evaluation_date', { ascending: false });
-
-      if (error) throw error;
-      return data || [];
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erreur lors de la récupération des notes';
-      setError(message);
-      toast({
-        title: "Erreur",
-        description: message,
-        variant: "destructive",
-      });
-      return [];
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
-
-  // Get grades for multiple students (for matricial view)
-  const getMatriceGrades = useCallback(async (
-    subjectId: string,
-    academicYearId: string,
-    semester: number,
-    programId?: string
-  ): Promise<any[]> => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      console.log('Loading matrix data for:', { subjectId, academicYearId, semester, programId });
-
-      // First get all students for the program with simplified query
-      let studentsQuery = supabase
-        .from('students')
-        .select(`
-          id, 
-          student_number, 
-          profile_id,
-          profiles!inner(full_name)
-        `)
-        .eq('status', 'active');
-
-      if (programId && programId !== 'all') {
-        studentsQuery = studentsQuery.eq('program_id', programId);
-      }
-
-      const { data: students, error: studentsError } = await studentsQuery
-        .order('student_number');
-
-      if (studentsError) {
-        console.error('Students query error:', studentsError);
-        throw studentsError;
-      }
-
-      console.log('Found students:', students?.length || 0);
-
-      if (!students || students.length === 0) {
-        console.log('No students found');
-        return [];
-      }
-
-      // Get grades for these students with simplified query
-      const studentIds = students.map(s => s.id);
-      
-      const { data: grades, error: gradesError } = await supabase
-        .from('student_grades')
-        .select(`
-          *,
-          evaluation_types(name, code, weight_percentage)
+          students!inner(
+            id,
+            student_number,
+            profiles!inner(full_name)
+          )
         `)
         .eq('subject_id', subjectId)
-        .eq('academic_year_id', academicYearId)
-        .eq('semester', semester)
-        .in('student_id', studentIds);
+        .eq('semester', semester);
 
-      if (gradesError) {
-        console.error('Grades query error:', gradesError);
-        throw gradesError;
-      }
+      if (error) throw error;
 
-      console.log('Found grades:', grades?.length || 0);
+      // Transform data for matrix display
+      const matrixData: StudentWithGrades[] = [];
+      const studentMap = new Map();
 
-      // Combine students and grades data with safer access
-      const result = students.map(student => ({
-        student: {
-          id: student.id,
-          student_number: student.student_number,
-          profiles: student.profiles // Keep as nested object for compatibility
-        },
-        grades: grades?.filter(g => g.student_id === student.id) || []
-      }));
+      data?.forEach((grade) => {
+        const studentId = grade.students.id;
+        if (!studentMap.has(studentId)) {
+          studentMap.set(studentId, {
+            id: studentId,
+            student_number: grade.students.student_number,
+            profiles: { full_name: grade.students.profiles.full_name },
+            grades: { coefficient: 2 } // Default coefficient
+          });
+        }
 
-      console.log('Matrix result:', result.length, 'students with grades');
-      return result;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erreur lors de la récupération de la matrice';
-      console.error('Matrix loading error:', err);
-      setError(message);
+        const student = studentMap.get(studentId);
+        // Assume evaluation_type_id determines if it's CC or exam
+        if (grade.evaluation_type_id === 'cc-type') {
+          student.grades.cc = grade.grade;
+        } else if (grade.evaluation_type_id === 'exam-type') {
+          student.grades.examen = grade.grade;
+        }
+      });
+
+      return Array.from(studentMap.values());
+    } catch (error) {
+      console.error('Error fetching grades:', error);
       toast({
         title: "Erreur",
-        description: message,
+        description: "Impossible de charger les notes",
         variant: "destructive",
       });
       return [];
@@ -181,203 +94,81 @@ export function useStudentGrades() {
     }
   }, [toast]);
 
-  // Validate grade entry
+  const saveGradesBatch = useCallback(async (grades: StudentGrade[]) => {
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('student_grades')
+        .upsert(grades, { onConflict: 'student_id,subject_id,evaluation_type_id,semester' });
+
+      if (error) throw error;
+
+      toast({
+        title: "Notes sauvegardées",
+        description: `${grades.length} notes ont été enregistrées`,
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Error saving grades:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de sauvegarder les notes",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
+  const calculateStudentAverages = useCallback(async (studentId: string, academicYearId: string, semester?: number) => {
+    try {
+      const { data, error } = await supabase
+        .rpc('calculate_student_averages', {
+          p_student_id: studentId,
+          p_academic_year_id: academicYearId,
+          p_semester: semester
+        });
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error calculating averages:', error);
+      return null;
+    }
+  }, []);
+
   const validateGrade = useCallback(async (
     studentId: string,
     subjectId: string,
     evaluationTypeId: string,
     grade: number,
     maxGrade: number = 20
-  ): Promise<GradeValidation | null> => {
+  ) => {
     try {
-      const { data, error } = await supabase.rpc('validate_grade_entry', {
-        p_student_id: studentId,
-        p_subject_id: subjectId,
-        p_evaluation_type_id: evaluationTypeId,
-        p_grade: grade,
-        p_max_grade: maxGrade
-      });
+      const { data, error } = await supabase
+        .rpc('validate_grade_entry', {
+          p_student_id: studentId,
+          p_subject_id: subjectId,
+          p_evaluation_type_id: evaluationTypeId,
+          p_grade: grade,
+          p_max_grade: maxGrade
+        });
 
       if (error) throw error;
-      return data as unknown as GradeValidation;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erreur de validation';
-      setError(message);
-      return null;
+      return data;
+    } catch (error) {
+      console.error('Error validating grade:', error);
+      return { valid: false, errors: ['Erreur de validation'], warnings: [] };
     }
   }, []);
 
-  // Create or update a grade
-  const saveGrade = useCallback(async (gradeData: GradeEntry): Promise<StudentGrade | null> => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Validate first
-      const validation = await validateGrade(
-        gradeData.student_id,
-        gradeData.subject_id,
-        gradeData.evaluation_type_id,
-        gradeData.grade,
-        gradeData.max_grade
-      );
-
-      if (!validation?.valid) {
-        const errors = validation?.errors || ['Erreur de validation'];
-        throw new Error(errors.join(', '));
-      }
-
-      // Show warnings if any
-      if (validation.warnings && validation.warnings.length > 0) {
-        toast({
-          title: "Attention",
-          description: validation.warnings.join(', '),
-          variant: "default",
-        });
-      }
-
-      const { data, error } = await supabase
-        .from('student_grades')
-        .upsert({
-          ...gradeData,
-          is_published: false // Default to unpublished
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      toast({
-        title: "Succès",
-        description: "Note enregistrée avec succès",
-      });
-
-      return data;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erreur lors de la sauvegarde';
-      setError(message);
-      toast({
-        title: "Erreur",
-        description: message,
-        variant: "destructive",
-      });
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [validateGrade, toast]);
-
-  // Bulk save grades (for matricial interface)
-  const saveGradesBatch = useCallback(async (grades: GradeEntry[]): Promise<boolean> => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const { data, error } = await supabase
-        .from('student_grades')
-        .upsert(grades.map(grade => ({
-          ...grade,
-          is_published: false
-        })))
-        .select();
-
-      if (error) throw error;
-
-      toast({
-        title: "Succès",
-        description: `${grades.length} notes sauvegardées`,
-      });
-
-      return true;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erreur lors de la sauvegarde en lot';
-      setError(message);
-      toast({
-        title: "Erreur",
-        description: message,
-        variant: "destructive",
-      });
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
-
-  // Publish grades
-  const publishGrades = useCallback(async (gradeIds: string[]): Promise<boolean> => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const { error } = await supabase
-        .from('student_grades')
-        .update({ is_published: true })
-        .in('id', gradeIds);
-
-      if (error) throw error;
-
-      toast({
-        title: "Succès",
-        description: `${gradeIds.length} notes publiées`,
-      });
-
-      return true;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erreur lors de la publication';
-      setError(message);
-      toast({
-        title: "Erreur",
-        description: message,
-        variant: "destructive",
-      });
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
-
-  // Delete a grade
-  const deleteGrade = useCallback(async (gradeId: string): Promise<boolean> => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const { error } = await supabase
-        .from('student_grades')
-        .delete()
-        .eq('id', gradeId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Succès",
-        description: "Note supprimée",
-      });
-
-      return true;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erreur lors de la suppression';
-      setError(message);
-      toast({
-        title: "Erreur",
-        description: message,
-        variant: "destructive",
-      });
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
-
   return {
     loading,
-    error,
-    getStudentGrades,
     getMatriceGrades,
-    validateGrade,
-    saveGrade,
     saveGradesBatch,
-    publishGrades,
-    deleteGrade
+    calculateStudentAverages,
+    validateGrade
   };
 }
