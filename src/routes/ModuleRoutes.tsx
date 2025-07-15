@@ -50,7 +50,7 @@ const ResultsGradeEntry = lazyLoad(() => import('@/pages/results/GradeEntry'));
 const ResultsCalculations = lazyLoad(() => import('@/pages/results/Calculations'));
 const ResultsValidation = lazyLoad(() => import('@/pages/results/Validation'));
 const ResultsDocumentation = lazyLoad(() => import('@/pages/results/Documentation'));
-const ResultsPersonalisation = lazyLoad(() => import('@/pages/results/Personalisation'));
+const ResultsPersonalisation = lazyLoad(() => import('@/pages/results/RefactoredPersonalisation'));
 const ResultsProduction = lazyLoad(() => import('@/pages/results/Production'));
 const ResultsAnalytics = lazyLoad(() => import('@/pages/results/Analytics'));
 
