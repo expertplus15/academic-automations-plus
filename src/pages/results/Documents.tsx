@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DocumentsEvaluationInterface } from '@/components/results/documents/DocumentsEvaluationInterface';
+import { MatrixExportInterface } from '@/components/results/documents/MatrixExportInterface';
 import DocumentTypesCreation from './creation/types';
 import DocumentTemplatesCreation from './creation/templates';
 
@@ -62,10 +63,14 @@ export default function Documents() {
         </Card>
 
         <Tabs defaultValue="generation" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="generation" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               Génération
+            </TabsTrigger>
+            <TabsTrigger value="export" className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              Export Matriciel
             </TabsTrigger>
             <TabsTrigger value="templates" className="flex items-center gap-2">
               <Layout className="w-4 h-4" />
@@ -79,6 +84,10 @@ export default function Documents() {
 
           <TabsContent value="generation" className="space-y-6">
             <DocumentsEvaluationInterface />
+          </TabsContent>
+
+          <TabsContent value="export" className="space-y-6">
+            <MatrixExportInterface />
           </TabsContent>
 
           <TabsContent value="templates" className="space-y-6">
