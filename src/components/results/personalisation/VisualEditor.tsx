@@ -5,6 +5,7 @@ import { Layers } from 'lucide-react';
 import { Template } from '@/services/TemplateService';
 import { TemplateRenderer, getDefaultDataForTemplate } from '@/components/documents/templates/predefined/TemplateRenderer';
 import { InteractiveTemplateEditor } from './InteractiveTemplateEditor';
+import { EnhancedVisualEditor } from './editor/EnhancedVisualEditor';
 
 interface VisualEditorProps {
   template?: Template;
@@ -81,17 +82,17 @@ export function VisualEditor({
     );
   }
 
-  // Mode édition - utiliser l'éditeur interactif
+  // Mode édition - utiliser l'éditeur visuel amélioré
   return (
-    <div className={cn("relative w-full h-full", className)}>
-      <InteractiveTemplateEditor
-        data={templateData}
-        onDataChange={onChange}
-      />
-      
-      <div className="absolute top-4 left-4">
-        <Badge variant="secondary">Édition</Badge>
-      </div>
-    </div>
+    <EnhancedVisualEditor
+      template={template}
+      zoomLevel={zoomLevel}
+      showGrid={showGrid}
+      isPreviewMode={false}
+      selectedElement={selectedElement}
+      onElementSelect={onElementSelect}
+      onChange={onChange}
+      className={className}
+    />
   );
 }

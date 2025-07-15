@@ -41,32 +41,38 @@ interface PropertiesPanelProps {
 
 export function PropertiesPanel({ selectedElement, template, onChange }: PropertiesPanelProps) {
   const [elementProperties, setElementProperties] = useState({
-    // Mock element properties
+    // Enhanced element properties with better defaults
     id: selectedElement || '',
-    type: 'text',
+    type: selectedElement?.includes('text') ? 'text' : selectedElement?.includes('variable') ? 'variable' : selectedElement?.includes('image') ? 'image' : 'text',
     content: {
-      text: 'BULLETIN DE NOTES',
-      fontSize: 24,
-      fontWeight: 'bold',
+      text: selectedElement?.includes('title') ? 'BULLETIN DE NOTES' : 'Nouveau texte',
+      fontSize: selectedElement?.includes('title') ? 24 : 16,
+      fontWeight: selectedElement?.includes('title') ? 'bold' : 'normal',
       fontFamily: 'Arial',
-      variable: '',
-      label: '',
+      variable: selectedElement?.includes('student') ? 'student.fullName' : '',
+      label: selectedElement?.includes('student') ? 'Nom de l\'étudiant' : '',
       src: '',
-      alt: ''
+      alt: selectedElement?.includes('logo') ? 'Logo de l\'établissement' : ''
     },
     style: {
       color: '#1F2937',
       backgroundColor: 'transparent',
-      textAlign: 'center',
-      padding: 0,
-      margin: 0,
+      textAlign: selectedElement?.includes('title') ? 'center' : 'left',
+      padding: 8,
+      margin: 4,
       borderWidth: 0,
       borderColor: '#E5E7EB',
-      borderRadius: 0,
+      borderRadius: 4,
       opacity: 100
     },
-    position: { x: 50, y: 50 },
-    size: { width: 400, height: 60 },
+    position: { 
+      x: selectedElement?.includes('title') ? 50 : selectedElement?.includes('logo') ? 450 : 50, 
+      y: selectedElement?.includes('title') ? 50 : selectedElement?.includes('student') ? 130 : 50 
+    },
+    size: { 
+      width: selectedElement?.includes('title') ? 400 : selectedElement?.includes('logo') ? 80 : 300, 
+      height: selectedElement?.includes('title') ? 60 : selectedElement?.includes('logo') ? 80 : 30 
+    },
     locked: false,
     hidden: false
   });

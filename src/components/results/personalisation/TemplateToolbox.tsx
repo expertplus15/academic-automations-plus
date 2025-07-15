@@ -198,14 +198,13 @@ export function TemplateToolbox({ onElementSelect, selectedElement }: TemplateTo
                         <Button
                           key={element.id}
                           variant={selectedElement === element.id ? "default" : "ghost"}
-                          className="w-full justify-start"
+                          className="w-full justify-start hover:bg-accent/50 transition-colors"
                           onClick={() => handleElementClick(element.id)}
                           onMouseDown={() => handleElementDragStart(element)}
                           draggable
                         >
                           <element.icon className="w-4 h-4 mr-3" />
                           {element.name}
-                          <Badge variant="secondary" className="ml-auto text-xs">Pro</Badge>
                         </Button>
                       ))}
                     </div>
@@ -224,14 +223,13 @@ export function TemplateToolbox({ onElementSelect, selectedElement }: TemplateTo
                         <Button
                           key={element.id}
                           variant={selectedElement === element.id ? "default" : "ghost"}
-                          className="w-full justify-start"
+                          className="w-full justify-start hover:bg-accent/50 transition-colors"
                           onClick={() => handleElementClick(element.id)}
                           onMouseDown={() => handleElementDragStart(element)}
                           draggable
                         >
                           <element.icon className="w-4 h-4 mr-3" />
                           {element.name}
-                          <Badge variant="outline" className="ml-auto text-xs">Officiel</Badge>
                         </Button>
                       ))}
                     </div>
