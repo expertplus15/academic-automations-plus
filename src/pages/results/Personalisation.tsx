@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Palette, Layout, Brush } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { TemplateStudio } from '@/components/results/personalisation/TemplateStudio';
+import { AdvancedTemplateStudio } from '@/components/results/personalisation/AdvancedTemplateStudio';
 
 export default function Personalisation() {
   const navigate = useNavigate();
@@ -58,7 +58,7 @@ export default function Personalisation() {
           </CardContent>
         </Card>
 
-        <TemplateStudio />
+        <AdvancedTemplateStudio />
       </div>
     </ModuleLayout>
   );
