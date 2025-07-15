@@ -4,6 +4,10 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { ResultsDashboard } from '@/components/dashboard/ResultsDashboard';
 import { DocumentsEvaluationInterface } from '@/components/results/documents/DocumentsEvaluationInterface';
+import { GradingSystemConfig } from '@/components/results/GradingSystemConfig';
+import { MatrixGradeEntry } from '@/components/results/MatrixGradeEntry';
+import { GradeCalculations } from '@/components/results/GradeCalculations';
+import { ResultsAnalytics } from '@/components/results/ResultsAnalytics';
 
 export default function Results() {
   const location = useLocation();
@@ -12,21 +16,52 @@ export default function Results() {
   const isSubRoute = location.pathname !== '/results';
   
   if (isSubRoute) {
-    // Handle sub-routes - for now just documents
-    if (location.pathname === '/results/documents') {
-      return (
-        <ProtectedRoute allowedRoles={['admin', 'teacher']}>
-          <ModuleLayout 
-            title="Documents & Bulletins" 
-            subtitle="Gestion des documents d'évaluation et génération de bulletins"
-            showHeader={true}
-          >
-            <div className="p-6">
-              <DocumentsEvaluationInterface />
-            </div>
-          </ModuleLayout>
-        </ProtectedRoute>
-      );
+    // Handle all sub-routes with improved routing
+    if (location.pathname.startsWith('/results/')) {
+      const routeMap = {
+        '/results/documents': {
+          title: "Documents & Bulletins",
+          subtitle: "Gestion des documents d'évaluation et génération de bulletins",
+          component: <DocumentsEvaluationInterface />
+        },
+        '/results/grading-system': {
+          title: "Système de Notation",
+          subtitle: "Configuration du barème, pondération et règles de calcul",
+          component: <GradingSystemConfig />
+        },
+        '/results/matrix': {
+          title: "Saisie Matricielle",
+          subtitle: "Interface collaborative pour la saisie des notes en temps réel",
+          component: <MatrixGradeEntry />
+        },
+        '/results/calculations': {
+          title: "Calculs & Moyennes",
+          subtitle: "Moyennes, ECTS, compensations et mentions automatiques",
+          component: <GradeCalculations />
+        },
+        '/results/analytics': {
+          title: "Analyse & Contrôle",
+          subtitle: "Statistiques avancées et validation des données",
+          component: <ResultsAnalytics />
+        }
+      };
+
+      const route = routeMap[location.pathname];
+      if (route) {
+        return (
+          <ProtectedRoute allowedRoles={['admin', 'teacher']}>
+            <ModuleLayout 
+              title={route.title}
+              subtitle={route.subtitle}
+              showHeader={true}
+            >
+              <div className="p-6">
+                {route.component}
+              </div>
+            </ModuleLayout>
+          </ProtectedRoute>
+        );
+      }
     }
   }
 
@@ -35,7 +70,7 @@ export default function Results() {
     <ProtectedRoute allowedRoles={['admin', 'teacher']}>
       <ModuleLayout 
         title="Évaluations & Résultats" 
-        subtitle="Interface matricielle collaborative et bulletins ultra-rapides"
+        subtitle="Système de notation automatisé et interface matricielle collaborative"
         showHeader={true}
       >
         <div className="p-6">

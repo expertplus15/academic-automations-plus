@@ -1506,6 +1506,47 @@ export type Database = {
         }
         Relationships: []
       }
+      calculation_formulas: {
+        Row: {
+          created_at: string | null
+          formula_expression: string
+          formula_type: string
+          grading_system_id: string | null
+          id: string
+          is_active: boolean | null
+          parameters: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          formula_expression: string
+          formula_type: string
+          grading_system_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          parameters?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          formula_expression?: string
+          formula_type?: string
+          grading_system_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          parameters?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calculation_formulas_grading_system_id_fkey"
+            columns: ["grading_system_id"]
+            isOneToOne: false
+            referencedRelation: "grading_systems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       call_participants: {
         Row: {
           call_session_id: string
@@ -4323,6 +4364,50 @@ export type Database = {
         }
         Relationships: []
       }
+      grade_scales: {
+        Row: {
+          created_at: string | null
+          display_order: number | null
+          grading_system_id: string | null
+          id: string
+          max_grade: number
+          mention_color: string | null
+          mention_label: string
+          min_grade: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number | null
+          grading_system_id?: string | null
+          id?: string
+          max_grade: number
+          mention_color?: string | null
+          mention_label: string
+          min_grade: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number | null
+          grading_system_id?: string | null
+          id?: string
+          max_grade?: number
+          mention_color?: string | null
+          mention_label?: string
+          min_grade?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grade_scales_grading_system_id_fkey"
+            columns: ["grading_system_id"]
+            isOneToOne: false
+            referencedRelation: "grading_systems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       grade_simulations: {
         Row: {
           academic_year_id: string
@@ -4511,6 +4596,97 @@ export type Database = {
             columns: ["validator_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      grading_rules: {
+        Row: {
+          created_at: string | null
+          grading_system_id: string | null
+          id: string
+          is_active: boolean | null
+          rule_config: Json | null
+          rule_type: string
+          subject_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          grading_system_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          rule_config?: Json | null
+          rule_type: string
+          subject_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          grading_system_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          rule_config?: Json | null
+          rule_type?: string
+          subject_type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grading_rules_grading_system_id_fkey"
+            columns: ["grading_system_id"]
+            isOneToOne: false
+            referencedRelation: "grading_systems"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      grading_systems: {
+        Row: {
+          academic_year_id: string | null
+          created_at: string | null
+          created_by: string | null
+          decimal_places: number | null
+          default_scale: number | null
+          id: string
+          is_active: boolean | null
+          name: string
+          passing_grade: number | null
+          rounding_method: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          academic_year_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          decimal_places?: number | null
+          default_scale?: number | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          passing_grade?: number | null
+          rounding_method?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          academic_year_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          decimal_places?: number | null
+          default_scale?: number | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          passing_grade?: number | null
+          rounding_method?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grading_systems_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
             referencedColumns: ["id"]
           },
         ]
