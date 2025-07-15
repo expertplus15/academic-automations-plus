@@ -17,13 +17,17 @@ import {
   Layers,
   Settings2,
   Maximize,
-  Minimize
+  Minimize,
+  ExternalLink,
+  RefreshCw
 } from 'lucide-react';
 import { TemplateToolbox } from './TemplateToolbox';
 import { VisualEditor } from './VisualEditor';
 import { PropertiesPanel } from './PropertiesPanel';
 import { TemplateService, Template } from '@/services/TemplateService';
+import { useDocumentTemplates, DocumentTemplate } from '@/hooks/useDocumentTemplates';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface AdvancedTemplateStudioProps {
   className?: string;
@@ -31,7 +35,10 @@ interface AdvancedTemplateStudioProps {
 
 export function AdvancedTemplateStudio({ className }: AdvancedTemplateStudioProps) {
   const { toast } = useToast();
-  const [selectedTemplate, setSelectedTemplate] = useState<string>("1");
+  const navigate = useNavigate();
+  const { templates: documentTemplates, loading, updateTemplate: updateDocumentTemplate } = useDocumentTemplates();
+  
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(100);
   const [showGrid, setShowGrid] = useState(true);
@@ -40,41 +47,30 @@ export function AdvancedTemplateStudio({ className }: AdvancedTemplateStudioProp
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  // Mock templates data - in real app would come from TemplateService
-  const templates: Template[] = [
-    {
-      id: '1',
-      name: 'Bulletin Moderne',
-      type: 'bulletin',
-      description: 'Design épuré avec mise en page moderne',
-      content: {
-        elements: [],
-        layout: { type: 'A4', orientation: 'portrait' },
-        styles: { colors: {}, fonts: {} }
-      },
-      is_active: true,
-      is_default: false,
-      version: 1,
-      created_at: '2024-01-15T10:30:00Z',
-      updated_at: '2024-01-15T10:30:00Z'
-    },
-    {
-      id: '2',
-      name: 'Relevé Classique',
-      type: 'transcript',
-      description: 'Format traditionnel pour documents officiels',
-      content: {
-        elements: [],
-        layout: { type: 'A4', orientation: 'portrait' },
-        styles: { colors: {}, fonts: {} }
-      },
-      is_active: true,
-      is_default: true,
-      version: 1,
-      created_at: '2024-01-14T15:45:00Z',
-      updated_at: '2024-01-14T15:45:00Z'
+  // Set first template as default selection when templates load
+  React.useEffect(() => {
+    if (documentTemplates.length > 0 && !selectedTemplate) {
+      setSelectedTemplate(documentTemplates[0].id);
     }
-  ];
+  }, [documentTemplates, selectedTemplate]);
+
+  // Convert DocumentTemplate to Template format for compatibility
+  const templates: Template[] = documentTemplates.map(dt => ({
+    id: dt.id,
+    name: dt.name,
+    type: dt.template_type as 'bulletin' | 'transcript' | 'report' | 'custom',
+    description: dt.description || '',
+    content: dt.template_content || {
+      elements: [],
+      layout: { type: 'A4', orientation: 'portrait' },
+      styles: { colors: {}, fonts: {} }
+    },
+    is_active: dt.is_active,
+    is_default: false, // DocumentTemplate doesn't have is_default field
+    version: 1,
+    created_at: dt.created_at,
+    updated_at: dt.updated_at
+  }));
 
   const currentTemplate = templates.find(t => t.id === selectedTemplate);
 
@@ -83,11 +79,9 @@ export function AdvancedTemplateStudio({ className }: AdvancedTemplateStudioProp
     
     setIsSaving(true);
     try {
-      await TemplateService.updateTemplate(
-        currentTemplate.id, 
-        currentTemplate.content,
-        'Manual save from studio'
-      );
+      await updateDocumentTemplate(currentTemplate.id, {
+        template_content: currentTemplate.content
+      });
       setHasUnsavedChanges(false);
       toast({
         title: "Template sauvegardé",
@@ -102,7 +96,7 @@ export function AdvancedTemplateStudio({ className }: AdvancedTemplateStudioProp
     } finally {
       setIsSaving(false);
     }
-  }, [currentTemplate, toast]);
+  }, [currentTemplate, updateDocumentTemplate, toast]);
 
   const handleZoomIn = useCallback(() => {
     setZoomLevel(prev => Math.min(prev + 25, 200));
@@ -129,6 +123,40 @@ export function AdvancedTemplateStudio({ className }: AdvancedTemplateStudioProp
     setIsFullscreen(prev => !prev);
   }, []);
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-background">
+        <div className="text-center">
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-lg font-medium">Chargement des templates...</p>
+          <p className="text-sm text-muted-foreground">Récupération des types de documents</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show empty state
+  if (templates.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-background">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center mx-auto mb-4">
+            <ExternalLink className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-semibold mb-2">Aucun template disponible</h3>
+          <p className="text-muted-foreground mb-6">
+            Commencez par créer des types de documents dans le module Documentation
+          </p>
+          <Button onClick={() => navigate('/results/documentation')}>
+            <ExternalLink className="w-4 h-4 mr-2" />
+            Aller à Documentation
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`flex flex-col h-full min-h-screen bg-background ${className}`}>
       {/* Top Toolbar */}
@@ -138,21 +166,35 @@ export function AdvancedTemplateStudio({ className }: AdvancedTemplateStudioProp
             {/* Template Selector */}
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-muted-foreground">Template:</span>
-              <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue />
+              <Select value={selectedTemplate} onValueChange={setSelectedTemplate} disabled={loading}>
+                <SelectTrigger className="w-[280px]">
+                  <SelectValue placeholder={loading ? "Chargement..." : "Sélectionner un template"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {templates.map((template) => (
-                    <SelectItem key={template.id} value={template.id}>
-                      <div className="flex items-center gap-2">
-                        <span>{template.name}</span>
-                        {template.is_default && (
-                          <Badge variant="secondary" className="text-xs">Défaut</Badge>
-                        )}
-                      </div>
-                    </SelectItem>
-                  ))}
+                  {templates.map((template) => {
+                    const docTemplate = documentTemplates.find(dt => dt.id === template.id);
+                    return (
+                      <SelectItem key={template.id} value={template.id}>
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2">
+                            <span>{template.name}</span>
+                            <span className="text-xs text-muted-foreground">({template.type})</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            {!template.is_active && (
+                              <Badge variant="secondary" className="text-xs">Inactif</Badge>
+                            )}
+                            {docTemplate?.requires_approval && (
+                              <Badge variant="outline" className="text-xs">Approbation</Badge>
+                            )}
+                            {docTemplate?.auto_generate && (
+                              <Badge className="text-xs bg-green-100 text-green-700">Auto</Badge>
+                            )}
+                          </div>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
@@ -220,6 +262,16 @@ export function AdvancedTemplateStudio({ className }: AdvancedTemplateStudioProp
             >
               <Save className="w-4 h-4 mr-2" />
               {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/results/documentation')}
+              title="Gérer les types de documents"
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Documentation
             </Button>
 
             <Button
