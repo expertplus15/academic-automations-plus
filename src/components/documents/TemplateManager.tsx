@@ -50,7 +50,14 @@ export function TemplateManager() {
     try {
       await createTemplate({
         ...formData,
-        is_active: true
+        is_active: true,
+        variables: {},
+        category_id: null,
+        program_id: null,
+        level_id: null,
+        academic_year_id: null,
+        auto_generate: false,
+        target_audience: {}
       });
       
       toast({
