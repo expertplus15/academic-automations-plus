@@ -17,6 +17,7 @@ import { useAcademicLevels } from '@/hooks/useSupabase';
 import { GroupSelector } from '@/components/academic/timetable/GroupSelector';
 import { MoteurCalculAcademique, DEFAULT_GRADING_CONFIG } from '@/lib/gradingEngine';
 import { SemesterMatrixView } from './SemesterMatrixView';
+import { NavigationQuickLinks } from './NavigationQuickLinks';
 
 export function MatrixGradeEntry() {
   const [matrixData, setMatrixData] = useState<StudentWithGrades[]>([]);
@@ -264,6 +265,9 @@ export function MatrixGradeEntry() {
 
   return (
     <div className="space-y-6">
+      {/* Navigation fluide */}
+      <NavigationQuickLinks currentContext="entry" />
+
       {/* Header with controls */}
       <div className="flex items-center justify-between">
         <div>

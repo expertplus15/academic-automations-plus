@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calculator, TrendingUp, Award, BookOpen, RefreshCw, CheckCircle, AlertTriangle } from 'lucide-react';
 import { DropdownRecalculate } from './DropdownRecalculate';
 import { useToast } from '@/hooks/use-toast';
+import { NavigationQuickLinks } from './NavigationQuickLinks';
 import { MoteurCalculAcademique, DEFAULT_GRADING_CONFIG } from '@/lib/gradingEngine';
 
 interface StudentResult {
@@ -125,6 +126,9 @@ export function GradeCalculations() {
 
   return (
     <div className="space-y-6">
+      {/* Navigation fluide */}
+      <NavigationQuickLinks currentContext="results" />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

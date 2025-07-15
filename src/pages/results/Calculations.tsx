@@ -6,6 +6,8 @@ import { SimulationForm } from "@/components/calculations/SimulationForm";
 import { StatisticsChart, CalculationStatsCard, PerformanceStatsCard } from "@/components/calculations/StatisticsChart";
 import { ConfigurationPanel } from "@/components/calculations/ConfigurationPanel";
 import { useAdvancedCalculations } from "@/hooks/useAdvancedCalculations";
+import { DropdownRecalculate } from "@/components/results/DropdownRecalculate";
+import { NavigationQuickLinks } from "@/components/results/NavigationQuickLinks";
 import { useGradeCalculations } from "@/hooks/useGradeCalculations";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -25,7 +27,7 @@ import {
 
 export default function Calculations() {
   const [calculationStates, setCalculationStates] = useState<Record<string, "idle" | "running" | "completed" | "error">>({});
-  const [activeTab, setActiveTab] = useState("calculations");
+  const [activeTab, setActiveTab] = useState("auto");
   
   const { 
     calculateStudentAverages,
@@ -138,17 +140,50 @@ export default function Calculations() {
       showHeader={true}
     >
       <div className="p-6">
+        {/* Navigation fluide */}
+        <NavigationQuickLinks currentContext="calculations" />
+
+        {/* Quick Actions Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Calculs & Traitements Avancés</h1>
+            <p className="text-muted-foreground">Interface complète pour les calculs automatiques et l'administration</p>
+          </div>
+          <div className="flex gap-2">
+            <DropdownRecalculate
+              variant="default"
+              size="default"
+              onCalculationComplete={(type, success) => {
+                if (success) {
+                  toast({
+                    title: "Calcul terminé",
+                    description: `${type} exécuté avec succès depuis l'interface avancée`,
+                  });
+                  // Update relevant calculation states
+                  if (type === 'averages') updateCalculationState('averages', 'completed');
+                  if (type === 'ects') updateCalculationState('ects', 'completed');
+                  if (type === 'all') {
+                    updateCalculationState('averages', 'completed');
+                    updateCalculationState('ects', 'completed');
+                    updateCalculationState('batch', 'completed');
+                  }
+                }
+              }}
+            />
+          </div>
+        </div>
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid grid-cols-4 w-full max-w-2xl">
-            <TabsTrigger value="calculations" className="flex items-center gap-2">
-              <Calculator className="w-4 h-4" />
+            <TabsTrigger value="auto" className="flex items-center gap-2">
+              <Zap className="w-4 h-4" />
               Calculs Auto
             </TabsTrigger>
             <TabsTrigger value="processing" className="flex items-center gap-2">
               <Cpu className="w-4 h-4" />
               Traitement
             </TabsTrigger>
-            <TabsTrigger value="dashboard" className="flex items-center gap-2">
+            <TabsTrigger value="statistics" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               Statistiques
             </TabsTrigger>
@@ -158,7 +193,7 @@ export default function Calculations() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="calculations" className="space-y-6">
+          <TabsContent value="auto" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <CalculationCard
                 title="Moyennes & Notes"
@@ -285,7 +320,7 @@ export default function Calculations() {
             </div>
           </TabsContent>
 
-          <TabsContent value="dashboard" className="space-y-6">
+          <TabsContent value="statistics" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <CalculationStatsCard />
               <PerformanceStatsCard />
