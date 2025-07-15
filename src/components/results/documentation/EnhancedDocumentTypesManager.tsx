@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useDocumentTemplates, DocumentTemplate } from '@/hooks/useDocumentTemplates';
+import { useDocumentCategories } from '@/hooks/useDocumentCategories';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export function EnhancedDocumentTypesManager() {
@@ -38,8 +39,16 @@ export function EnhancedDocumentTypesManager() {
     deleteTemplate, 
     duplicateTemplate 
   } = useDocumentTemplates();
+  
+  const { 
+    categories: dynamicCategories, 
+    loading: categoriesLoading 
+  } = useDocumentCategories();
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<DocumentTemplate | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -60,15 +69,25 @@ export function EnhancedDocumentTypesManager() {
     target_audience: {}
   });
 
-  const categories = [
-    { value: 'bulletin', label: 'Bulletin de Notes', color: 'bg-blue-100 text-blue-700' },
-    { value: 'transcript', label: 'Relevé Officiel', color: 'bg-green-100 text-green-700' },
-    { value: 'certificate', label: 'Attestation', color: 'bg-purple-100 text-purple-700' },
-    { value: 'report', label: 'Rapport', color: 'bg-orange-100 text-orange-700' }
-  ];
+  // Convertir les catégories dynamiques au format attendu
+  const categories = dynamicCategories.map(cat => ({
+    value: cat.code,
+    label: cat.name,
+    color: `bg-${cat.color}-100 text-${cat.color}-700`
+  }));
 
   const getCategoryInfo = (templateType: string) => {
     return categories.find(c => c.value === templateType) || { label: templateType, color: 'bg-gray-100 text-gray-700' };
+  };
+
+  const handleViewTemplate = (template: DocumentTemplate) => {
+    setSelectedTemplate(template);
+    setIsViewDialogOpen(true);
+  };
+
+  const handleEditTemplate = (template: DocumentTemplate) => {
+    setSelectedTemplate(template);
+    setIsEditDialogOpen(true);
   };
 
   const filteredTemplates = templates.filter(template => {
@@ -434,7 +453,7 @@ export function EnhancedDocumentTypesManager() {
                       </div>
                       
                       <div className="flex items-center space-x-2">
-                        <Button size="sm" variant="ghost">
+                        <Button size="sm" variant="ghost" onClick={() => handleViewTemplate(template)}>
                           <Eye className="w-4 h-4" />
                         </Button>
                         <Button size="sm" variant="ghost" onClick={() => handleDuplicateType(template.id)}>
@@ -450,7 +469,7 @@ export function EnhancedDocumentTypesManager() {
                             <DropdownMenuItem onClick={() => handleToggleStatus(template)}>
                               {template.is_active ? 'Désactiver' : 'Activer'}
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditTemplate(template)}>
                               <Edit className="w-4 h-4 mr-2" />
                               Modifier
                             </DropdownMenuItem>
@@ -518,6 +537,169 @@ export function EnhancedDocumentTypesManager() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Dialogue de visualisation */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="sm:max-w-[700px]">
+          <DialogHeader>
+            <DialogTitle>Aperçu du Template</DialogTitle>
+            <DialogDescription>
+              Visualisation détaillée du template "{selectedTemplate?.name}"
+            </DialogDescription>
+          </DialogHeader>
+          {selectedTemplate && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Nom</label>
+                  <p className="text-sm text-muted-foreground">{selectedTemplate.name}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Code</label>
+                  <p className="text-sm text-muted-foreground">{selectedTemplate.code}</p>
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium">Description</label>
+                <p className="text-sm text-muted-foreground">{selectedTemplate.description || 'Aucune description'}</p>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium">Catégorie</label>
+                <Badge className={`text-xs ${getCategoryInfo(selectedTemplate.template_type).color}`}>
+                  {getCategoryInfo(selectedTemplate.template_type).label}
+                </Badge>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium">Statut</label>
+                <div className="flex gap-2">
+                  <Badge variant={selectedTemplate.is_active ? "default" : "secondary"}>
+                    {selectedTemplate.is_active ? 'Actif' : 'Inactif'}
+                  </Badge>
+                  {selectedTemplate.requires_approval && (
+                    <Badge variant="outline">Approbation requise</Badge>
+                  )}
+                  {selectedTemplate.auto_generate && (
+                    <Badge className="bg-green-100 text-green-700">Auto-génération</Badge>
+                  )}
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium">Variables</label>
+                <div className="bg-muted p-3 rounded-md">
+                  <pre className="text-xs">{JSON.stringify(selectedTemplate.variables, null, 2)}</pre>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialogue d'édition */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Modifier le Template</DialogTitle>
+            <DialogDescription>
+              Modifiez les propriétés du template "{selectedTemplate?.name}"
+            </DialogDescription>
+          </DialogHeader>
+          {selectedTemplate && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Nom du template</label>
+                  <Input
+                    value={selectedTemplate.name}
+                    onChange={(e) => setSelectedTemplate({...selectedTemplate, name: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Code</label>
+                  <Input
+                    value={selectedTemplate.code}
+                    onChange={(e) => setSelectedTemplate({...selectedTemplate, code: e.target.value})}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Description</label>
+                <Textarea
+                  value={selectedTemplate.description || ''}
+                  onChange={(e) => setSelectedTemplate({...selectedTemplate, description: e.target.value})}
+                  rows={3}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Catégorie</label>
+                <Select 
+                  value={selectedTemplate.template_type} 
+                  onValueChange={(value) => setSelectedTemplate({...selectedTemplate, template_type: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedTemplate.is_active}
+                    onChange={(e) => setSelectedTemplate({...selectedTemplate, is_active: e.target.checked})}
+                    className="rounded"
+                  />
+                  <span className="text-sm">Template actif</span>
+                </label>
+                
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedTemplate.requires_approval}
+                    onChange={(e) => setSelectedTemplate({...selectedTemplate, requires_approval: e.target.checked})}
+                    className="rounded"
+                  />
+                  <span className="text-sm">Nécessite une approbation</span>
+                </label>
+              </div>
+              
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                  Annuler
+                </Button>
+                <Button 
+                  onClick={async () => {
+                    await updateTemplate(selectedTemplate.id, {
+                      name: selectedTemplate.name,
+                      code: selectedTemplate.code,
+                      description: selectedTemplate.description,
+                      template_type: selectedTemplate.template_type,
+                      is_active: selectedTemplate.is_active,
+                      requires_approval: selectedTemplate.requires_approval
+                    });
+                    setIsEditDialogOpen(false);
+                  }}
+                >
+                  Sauvegarder
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
