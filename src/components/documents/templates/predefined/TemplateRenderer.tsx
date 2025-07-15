@@ -43,9 +43,9 @@ export const getDefaultDataForTemplate = (templateType: string) => {
     case 'bulletin':
     case 'transcript':
       return {
-        republique: 'République de Djibouti',
-        ministere: 'Ministère de l\'Enseignement Supérieur et de la Recherche',
-        ecole: 'École de Management De Djibouti',
+        republique: 'République Française',
+        ministere: '',
+        ecole: 'École Supérieure de Management',
         annee_academique: '2023/2024',
         session: 'SESSION 1',
         nom: 'AHMED HASSAN FARAH',
