@@ -105,6 +105,7 @@ import ResultsDocumentation from '@/pages/results/Documentation';
 import ResultsPersonalisation from '@/pages/results/Personalisation';
 import ResultsProduction from '@/pages/results/Production';
 import ResultsCalculations from '@/pages/results/Calculations';
+import ResultsOptimization from '@/pages/results/Optimization';
 import ResultsAnalytics from '@/pages/results/Analytics';
 import Services from '@/pages/Services';
 
@@ -318,6 +319,7 @@ export function ModuleRoutes() {
       <Route path="/results/grading-system" element={<Results />} />
       <Route path="/results/grade-entry" element={<ResultsGradeEntry />} />
       <Route path="/results/calculations" element={<ResultsCalculations />} />
+      <Route path="/results/optimization" element={<ResultsOptimization />} />
       <Route path="/results/validation" element={<ResultsValidation />} />
       <Route path="/results/documentation" element={<ResultsDocumentation />} />
       <Route path="/results/personalisation" element={<ResultsPersonalisation />} />

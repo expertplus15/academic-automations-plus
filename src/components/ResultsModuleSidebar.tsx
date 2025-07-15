@@ -32,11 +32,12 @@ const resultsItems = [
   { title: "Système de Notation", url: "/results/grading-system", icon: Settings },
   { title: "Saisie des Notes", url: "/results/grade-entry", icon: Grid },
   { title: "Calculs & Moyennes", url: "/results/calculations", icon: Calculator },
+  { title: "Optimisation", url: "/results/optimization", icon: TrendingUp },
   { title: "Validation", url: "/results/validation", icon: CheckCircle },
   { title: "Documentation", url: "/results/documentation", icon: FileText },
   { title: "Personnalisation", url: "/results/personalisation", icon: Palette },
   { title: "Production", url: "/results/production", icon: Factory },
-  { title: "Analyse & Contrôle", url: "/results/analytics", icon: TrendingUp }
+  { title: "Analyse & Contrôle", url: "/results/analytics", icon: BarChart3 }
 ];
 
 export function ResultsModuleSidebar() {
