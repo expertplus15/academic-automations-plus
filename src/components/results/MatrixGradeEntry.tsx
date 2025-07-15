@@ -13,6 +13,7 @@ import { useAcademicYear } from '@/hooks/useAcademicYear';
 import { useEvaluationTypes } from '@/hooks/useEvaluationTypes';
 import { useSpecializations } from '@/hooks/useSupabase';
 import { useAcademicLevels } from '@/hooks/useSupabase';
+import { GroupSelector } from '@/components/academic/timetable/GroupSelector';
 import { MoteurCalculAcademique, DEFAULT_GRADING_CONFIG } from '@/lib/gradingEngine';
 
 export function MatrixGradeEntry() {
@@ -20,6 +21,7 @@ export function MatrixGradeEntry() {
   const [selectedProgram, setSelectedProgram] = useState<string>('');
   const [selectedSpecialization, setSelectedSpecialization] = useState<string>('');
   const [selectedLevel, setSelectedLevel] = useState<string>('');
+  const [selectedGroup, setSelectedGroup] = useState<string>('');
   const [selectedSubject, setSelectedSubject] = useState<string>('');
   const [selectedSemester, setSelectedSemester] = useState<number>(1);
   const [loading, setLoading] = useState(false);
@@ -82,6 +84,7 @@ export function MatrixGradeEntry() {
 
   useEffect(() => {
     if (selectedSpecialization) {
+      setSelectedGroup('');
       setSelectedSubject('');
       setMatrixData([]);
       setChangedGrades(new Map());
@@ -90,11 +93,20 @@ export function MatrixGradeEntry() {
 
   useEffect(() => {
     if (selectedLevel) {
+      setSelectedGroup('');
       setSelectedSubject('');
       setMatrixData([]);
       setChangedGrades(new Map());
     }
   }, [selectedLevel]);
+
+  useEffect(() => {
+    if (selectedGroup) {
+      setSelectedSubject('');
+      setMatrixData([]);
+      setChangedGrades(new Map());
+    }
+  }, [selectedGroup]);
 
   const calculateRowValues = useCallback((rowIndex: number) => {
     const data = [...matrixData];
@@ -349,25 +361,35 @@ export function MatrixGradeEntry() {
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="space-y-2">
+                <GroupSelector
+                  value={selectedGroup}
+                  onChange={setSelectedGroup}
+                  programId={selectedProgram}
+                  academicYearId={currentYear?.id}
+                />
+              </div>
             </div>
 
             {/* Second row: Subject, semester and options */}
             <div className="flex items-center gap-4 flex-wrap">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Matière</label>
-                <Select 
-                  value={selectedSubject} 
-                  onValueChange={setSelectedSubject}
-                  disabled={!selectedProgram || !selectedSpecialization || !selectedLevel || subjectsLoading}
+                 <Select 
+                   value={selectedSubject} 
+                   onValueChange={setSelectedSubject}
+                   disabled={!selectedProgram || !selectedSpecialization || !selectedLevel || !selectedGroup || subjectsLoading}
                 >
                   <SelectTrigger className="w-64">
-                    <SelectValue placeholder={
-                      !selectedProgram ? "Sélectionner d'abord un programme" :
-                      !selectedSpecialization ? "Sélectionner d'abord une spécialisation" :
-                      !selectedLevel ? "Sélectionner d'abord un niveau" :
-                      subjectsLoading ? "Chargement..." :
-                      "Sélectionner une matière"
-                    } />
+                     <SelectValue placeholder={
+                       !selectedProgram ? "Sélectionner d'abord un programme" :
+                       !selectedSpecialization ? "Sélectionner d'abord une spécialisation" :
+                       !selectedLevel ? "Sélectionner d'abord un niveau" :
+                       !selectedGroup ? "Sélectionner d'abord une classe" :
+                       subjectsLoading ? "Chargement..." :
+                       "Sélectionner une matière"
+                     } />
                   </SelectTrigger>
                   <SelectContent>
                     {subjects.map((subject) => (
