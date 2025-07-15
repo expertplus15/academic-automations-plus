@@ -116,9 +116,6 @@ export function ReleveNotesEMDTemplate({ data, isEditable = false, onDataChange 
         </div>
         
         <div className="flex-1 text-center text-xs">
-          <div>جمهورية جيبوتي</div>
-          <div>وزارة التعليم العالي والبحث العلمي</div>
-          <div>École de Management De Djibouti</div>
         </div>
       </div>
 
