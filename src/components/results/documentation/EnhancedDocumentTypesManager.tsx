@@ -27,6 +27,8 @@ import { useNavigate } from 'react-router-dom';
 import { useDocumentTemplates, DocumentTemplate } from '@/hooks/useDocumentTemplates';
 import { useDocumentCategories } from '@/hooks/useDocumentCategories';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { UniversalTemplatePreview } from '@/components/documents/preview/UniversalTemplatePreview';
+import { InteractiveTemplateEditor } from '@/components/documents/preview/InteractiveTemplateEditor';
 
 export function EnhancedDocumentTypesManager() {
   const navigate = useNavigate();
@@ -538,165 +540,49 @@ export function EnhancedDocumentTypesManager() {
         </Card>
       </div>
 
-      {/* Dialogue de visualisation */}
+      {/* Dialogue de visualisation avec aperçu complet */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="sm:max-w-[700px]">
+        <DialogContent className="sm:max-w-[1200px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Aperçu du Template</DialogTitle>
+            <DialogTitle>Aperçu du Template: {selectedTemplate?.name}</DialogTitle>
             <DialogDescription>
-              Visualisation détaillée du template "{selectedTemplate?.name}"
+              Prévisualisation complète avec données de test
             </DialogDescription>
           </DialogHeader>
           {selectedTemplate && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium">Nom</label>
-                  <p className="text-sm text-muted-foreground">{selectedTemplate.name}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Code</label>
-                  <p className="text-sm text-muted-foreground">{selectedTemplate.code}</p>
-                </div>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium">Description</label>
-                <p className="text-sm text-muted-foreground">{selectedTemplate.description || 'Aucune description'}</p>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium">Catégorie</label>
-                <Badge className={`text-xs ${getCategoryInfo(selectedTemplate.template_type).color}`}>
-                  {getCategoryInfo(selectedTemplate.template_type).label}
-                </Badge>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium">Statut</label>
-                <div className="flex gap-2">
-                  <Badge variant={selectedTemplate.is_active ? "default" : "secondary"}>
-                    {selectedTemplate.is_active ? 'Actif' : 'Inactif'}
-                  </Badge>
-                  {selectedTemplate.requires_approval && (
-                    <Badge variant="outline">Approbation requise</Badge>
-                  )}
-                  {selectedTemplate.auto_generate && (
-                    <Badge className="bg-green-100 text-green-700">Auto-génération</Badge>
-                  )}
-                </div>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium">Variables</label>
-                <div className="bg-muted p-3 rounded-md">
-                  <pre className="text-xs">{JSON.stringify(selectedTemplate.variables, null, 2)}</pre>
-                </div>
-              </div>
-            </div>
+            <UniversalTemplatePreview
+              template={selectedTemplate}
+              onGeneratePDF={() => {
+                // TODO: Intégrer avec le service de génération PDF
+                console.log('Génération PDF pour template:', selectedTemplate.id);
+              }}
+            />
           )}
         </DialogContent>
       </Dialog>
 
-      {/* Dialogue d'édition */}
+      {/* Dialogue d'édition avec éditeur interactif */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[1400px] max-h-[90vh] overflow-hidden">
           <DialogHeader>
-            <DialogTitle>Modifier le Template</DialogTitle>
+            <DialogTitle>Édition Avancée du Template</DialogTitle>
             <DialogDescription>
-              Modifiez les propriétés du template "{selectedTemplate?.name}"
+              Éditeur interactif avec aperçu en temps réel
             </DialogDescription>
           </DialogHeader>
           {selectedTemplate && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Nom du template</label>
-                  <Input
-                    value={selectedTemplate.name}
-                    onChange={(e) => setSelectedTemplate({...selectedTemplate, name: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Code</label>
-                  <Input
-                    value={selectedTemplate.code}
-                    onChange={(e) => setSelectedTemplate({...selectedTemplate, code: e.target.value})}
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Description</label>
-                <Textarea
-                  value={selectedTemplate.description || ''}
-                  onChange={(e) => setSelectedTemplate({...selectedTemplate, description: e.target.value})}
-                  rows={3}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Catégorie</label>
-                <Select 
-                  value={selectedTemplate.template_type} 
-                  onValueChange={(value) => setSelectedTemplate({...selectedTemplate, template_type: value})}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>
-                        {cat.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedTemplate.is_active}
-                    onChange={(e) => setSelectedTemplate({...selectedTemplate, is_active: e.target.checked})}
-                    className="rounded"
-                  />
-                  <span className="text-sm">Template actif</span>
-                </label>
-                
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedTemplate.requires_approval}
-                    onChange={(e) => setSelectedTemplate({...selectedTemplate, requires_approval: e.target.checked})}
-                    className="rounded"
-                  />
-                  <span className="text-sm">Nécessite une approbation</span>
-                </label>
-              </div>
-              
-              <div className="flex justify-end gap-2 pt-4">
-                <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                  Annuler
-                </Button>
-                <Button 
-                  onClick={async () => {
-                    await updateTemplate(selectedTemplate.id, {
-                      name: selectedTemplate.name,
-                      code: selectedTemplate.code,
-                      description: selectedTemplate.description,
-                      template_type: selectedTemplate.template_type,
-                      is_active: selectedTemplate.is_active,
-                      requires_approval: selectedTemplate.requires_approval
-                    });
-                    setIsEditDialogOpen(false);
-                  }}
-                >
-                  Sauvegarder
-                </Button>
-              </div>
-            </div>
+            <InteractiveTemplateEditor
+              template={selectedTemplate}
+              onSave={async (updatedTemplate) => {
+                try {
+                  await updateTemplate(updatedTemplate.id, updatedTemplate);
+                  setIsEditDialogOpen(false);
+                } catch (error) {
+                  console.error('Error updating template:', error);
+                }
+              }}
+              onCancel={() => setIsEditDialogOpen(false)}
+            />
           )}
         </DialogContent>
       </Dialog>
