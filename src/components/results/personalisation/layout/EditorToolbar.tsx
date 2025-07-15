@@ -53,7 +53,17 @@ export function EditorToolbar() {
             <Button variant="ghost" size="sm" title="Coller (Ctrl+V)">
               <Clipboard className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="sm" title="Supprimer (Suppr)">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              title="Supprimer (Suppr)"
+              disabled={!state.selectedElement}
+              onClick={() => {
+                if (state.selectedElement) {
+                  actions.deleteElement(state.selectedElement);
+                }
+              }}
+            >
               <Trash2 className="w-4 h-4" />
             </Button>
           </div>

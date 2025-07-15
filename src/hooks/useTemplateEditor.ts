@@ -25,6 +25,9 @@ interface TemplateEditorActions {
   toggleGrid: () => void;
   saveTemplate: () => Promise<void>;
   handleTemplateChange: (content: any) => void;
+  addElement: (elementType: string, position?: { x: number; y: number }) => void;
+  updateElement: (elementId: string, updates: any) => void;
+  deleteElement: (elementId: string) => void;
 }
 
 const initialState: EditorState = {
@@ -134,8 +137,60 @@ export function useTemplateEditor() {
 
     handleTemplateChange: useCallback((content: any) => {
       setState(prev => ({ ...prev, hasUnsavedChanges: true }));
-      // Update template content logic here
-    }, []),
+      // Update current template content
+      if (currentTemplate) {
+        currentTemplate.content = content;
+      }
+    }, [currentTemplate]),
+
+    addElement: useCallback((elementType: string, position = { x: 50, y: 50 }) => {
+      if (!currentTemplate) return;
+      
+      const newElement = {
+        id: `${elementType}-${Date.now()}`,
+        type: elementType,
+        x: position.x,
+        y: position.y,
+        width: elementType === 'text' ? 200 : 100,
+        height: elementType === 'text' ? 40 : 100,
+        content: getDefaultContentForType(elementType),
+        style: getDefaultStyleForType(elementType)
+      };
+
+      const updatedContent = {
+        ...currentTemplate.content,
+        elements: [...(currentTemplate.content.elements || []), newElement]
+      };
+
+      setState(prev => ({ ...prev, hasUnsavedChanges: true }));
+      currentTemplate.content = updatedContent;
+    }, [currentTemplate]),
+
+    updateElement: useCallback((elementId: string, updates: any) => {
+      if (!currentTemplate) return;
+
+      const updatedContent = {
+        ...currentTemplate.content,
+        elements: (currentTemplate.content.elements || []).map((el: any) =>
+          el.id === elementId ? { ...el, ...updates } : el
+        )
+      };
+
+      setState(prev => ({ ...prev, hasUnsavedChanges: true }));
+      currentTemplate.content = updatedContent;
+    }, [currentTemplate]),
+
+    deleteElement: useCallback((elementId: string) => {
+      if (!currentTemplate) return;
+
+      const updatedContent = {
+        ...currentTemplate.content,
+        elements: (currentTemplate.content.elements || []).filter((el: any) => el.id !== elementId)
+      };
+
+      setState(prev => ({ ...prev, hasUnsavedChanges: true, selectedElement: null }));
+      currentTemplate.content = updatedContent;
+    }, [currentTemplate]),
   };
 
   return {
@@ -146,4 +201,55 @@ export function useTemplateEditor() {
     currentTemplate,
     loading,
   };
+}
+
+// Helper functions for default content and styles
+function getDefaultContentForType(type: string) {
+  switch (type) {
+    case 'text':
+      return { text: 'Nouveau texte', fontSize: 14, fontWeight: 'normal' };
+    case 'heading':
+      return { text: 'Nouveau titre', fontSize: 20, fontWeight: 'bold' };
+    case 'image':
+      return { src: '', alt: 'Image' };
+    case 'variable':
+      return { variable: 'student.name', label: 'Nom étudiant' };
+    case 'table':
+      return { rows: 3, columns: 3, headers: ['Col 1', 'Col 2', 'Col 3'] };
+    case 'qrcode':
+      return { data: 'student.id', size: 100 };
+    case 'signature':
+      return { signatory: 'Directeur', title: 'Signature' };
+    case 'date':
+      return { format: 'DD/MM/YYYY', type: 'current' };
+    case 'logo':
+      return { src: '', institutionName: 'École' };
+    case 'header':
+      return { title: 'En-tête officiel', subtitle: 'Établissement' };
+    case 'footer':
+      return { text: 'Pied de page officiel' };
+    default:
+      return { content: `Élément ${type}` };
+  }
+}
+
+function getDefaultStyleForType(type: string) {
+  switch (type) {
+    case 'text':
+      return { color: '#374151', textAlign: 'left', fontFamily: 'system-ui' };
+    case 'heading':
+      return { color: '#1F2937', textAlign: 'center', fontFamily: 'system-ui' };
+    case 'image':
+      return { borderRadius: 4, objectFit: 'contain' };
+    case 'variable':
+      return { color: '#6B7280', fontStyle: 'italic', backgroundColor: '#F3F4F6' };
+    case 'logo':
+      return { borderRadius: 8, filter: 'none' };
+    case 'header':
+      return { backgroundColor: '#F9FAFB', borderBottom: '2px solid #E5E7EB', padding: 16 };
+    case 'footer':
+      return { backgroundColor: '#F9FAFB', borderTop: '1px solid #E5E7EB', padding: 12 };
+    default:
+      return { border: '1px solid #E5E7EB', borderRadius: 4 };
+  }
 }

@@ -96,9 +96,10 @@ export function TemplateToolbox({ onElementSelect, selectedElement }: TemplateTo
     element.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleElementDragStart = (element: any) => {
-    // This would be used for drag & drop functionality
+  const handleElementDragStart = (e: React.DragEvent, element: any) => {
     console.log('Dragging element:', element);
+    e.dataTransfer.setData('text/plain', element.id);
+    e.dataTransfer.effectAllowed = 'copy';
   };
 
   const handleElementClick = (elementId: string) => {
@@ -147,7 +148,7 @@ export function TemplateToolbox({ onElementSelect, selectedElement }: TemplateTo
                         variant={selectedElement === element.id ? "default" : "ghost"}
                         className="w-full justify-start h-auto p-3"
                         onClick={() => handleElementClick(element.id)}
-                        onMouseDown={() => handleElementDragStart(element)}
+                        onDragStart={(e) => handleElementDragStart(e, element)}
                         draggable
                       >
                         <element.icon className="w-4 h-4 mr-3 flex-shrink-0" />
@@ -175,7 +176,7 @@ export function TemplateToolbox({ onElementSelect, selectedElement }: TemplateTo
                           variant={selectedElement === element.id ? "default" : "outline"}
                           className="h-16 flex flex-col gap-1"
                           onClick={() => handleElementClick(element.id)}
-                          onMouseDown={() => handleElementDragStart(element)}
+                          onDragStart={(e) => handleElementDragStart(e, element)}
                           draggable
                         >
                           <element.icon className="w-5 h-5" />
@@ -200,7 +201,7 @@ export function TemplateToolbox({ onElementSelect, selectedElement }: TemplateTo
                           variant={selectedElement === element.id ? "default" : "ghost"}
                           className="w-full justify-start hover:bg-accent/50 transition-colors"
                           onClick={() => handleElementClick(element.id)}
-                          onMouseDown={() => handleElementDragStart(element)}
+                          onDragStart={(e) => handleElementDragStart(e, element)}
                           draggable
                         >
                           <element.icon className="w-4 h-4 mr-3" />
@@ -225,7 +226,7 @@ export function TemplateToolbox({ onElementSelect, selectedElement }: TemplateTo
                           variant={selectedElement === element.id ? "default" : "ghost"}
                           className="w-full justify-start hover:bg-accent/50 transition-colors"
                           onClick={() => handleElementClick(element.id)}
-                          onMouseDown={() => handleElementDragStart(element)}
+                          onDragStart={(e) => handleElementDragStart(e, element)}
                           draggable
                         >
                           <element.icon className="w-4 h-4 mr-3" />
@@ -250,7 +251,7 @@ export function TemplateToolbox({ onElementSelect, selectedElement }: TemplateTo
                           variant={selectedElement === element.id ? "default" : "outline"}
                           className="h-12 flex flex-col gap-1"
                           onClick={() => handleElementClick(element.id)}
-                          onMouseDown={() => handleElementDragStart(element)}
+                          onDragStart={(e) => handleElementDragStart(e, element)}
                           draggable
                         >
                           <element.icon className="w-4 h-4" />

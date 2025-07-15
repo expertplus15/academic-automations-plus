@@ -36,6 +36,7 @@ import {
   FlipVertical
 } from 'lucide-react';
 import { Template } from '@/services/TemplateService';
+import { useTemplateEditorContext } from '@/contexts/TemplateEditorContext';
 
 interface EnhancedPropertiesPanelProps {
   selectedElement: string | null;
@@ -43,7 +44,44 @@ interface EnhancedPropertiesPanelProps {
   onChange: (content: any) => void;
 }
 
+interface ElementData {
+  id: string;
+  type: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  content: any;
+  style: any;
+}
+
 export function EnhancedPropertiesPanel({ selectedElement, template, onChange }: EnhancedPropertiesPanelProps) {
+  const { actions } = useTemplateEditorContext();
+  
+  // Get the selected element data from template
+  const elementData = selectedElement 
+    ? template?.content?.elements?.find((el: ElementData) => el.id === selectedElement)
+    : null;
+
+  const updateElement = (property: string, value: any) => {
+    if (selectedElement) {
+      actions.updateElement(selectedElement, { [property]: value });
+    }
+  };
+
+  const updateElementContent = (property: string, value: any) => {
+    if (selectedElement && elementData) {
+      const updatedContent = { ...elementData.content, [property]: value };
+      actions.updateElement(selectedElement, { content: updatedContent });
+    }
+  };
+
+  const updateElementStyle = (property: string, value: any) => {
+    if (selectedElement && elementData) {
+      const updatedStyle = { ...elementData.style, [property]: value };
+      actions.updateElement(selectedElement, { style: updatedStyle });
+    }
+  };
   const [elementProperties, setElementProperties] = useState({
     id: selectedElement || '',
     type: selectedElement?.includes('text') ? 'text' : 

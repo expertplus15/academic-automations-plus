@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Template } from '@/services/TemplateService';
+import { useTemplateEditorContext } from '@/contexts/TemplateEditorContext';
 import { 
   MousePointer2, 
   Move, 
@@ -12,7 +13,13 @@ import {
   Type,
   Image as ImageIcon,
   Grid3X3,
-  Crosshair
+  Crosshair,
+  Table,
+  Calendar,
+  Hash,
+  FileText,
+  Star,
+  Crown
 } from 'lucide-react';
 
 interface EnhancedVisualEditorProps {
@@ -48,13 +55,16 @@ export function EnhancedVisualEditor({
   className
 }: EnhancedVisualEditorProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
+  const { actions } = useTemplateEditorContext();
+  
   const [dragState, setDragState] = useState({
     isDragging: false,
     dragOffset: { x: 0, y: 0 },
     dragElement: null as string | null
   });
   
-  const [elements, setElements] = useState<ElementData[]>([
+  // Get elements from template or use defaults
+  const elements = template?.content?.elements || [
     {
       id: 'title-1',
       type: 'text',
@@ -85,7 +95,7 @@ export function EnhancedVisualEditor({
       content: { src: '', alt: 'Logo de l\'établissement' },
       style: { borderRadius: 4 }
     }
-  ]);
+  ];
 
   const [canvasSize] = useState({ width: 794, height: 1123 }); // A4 format
 
@@ -169,11 +179,10 @@ export function EnhancedVisualEditor({
     newX = Math.max(0, Math.min(newX, canvasSize.width - 50));
     newY = Math.max(0, Math.min(newY, canvasSize.height - 50));
 
-    setElements(prev => prev.map(el => 
-      el.id === dragState.dragElement 
-        ? { ...el, x: newX, y: newY }
-        : el
-    ));
+    // Update element position using context actions
+    if (dragState.dragElement) {
+      actions.updateElement(dragState.dragElement, { x: newX, y: newY });
+    }
   }, [dragState, zoomLevel, showGrid, snapToGrid, canvasSize]);
 
   // Handle mouse up to end dragging
@@ -184,9 +193,9 @@ export function EnhancedVisualEditor({
         dragOffset: { x: 0, y: 0 },
         dragElement: null
       });
-      onChange(elements);
+      // Changes are already saved via actions.updateElement
     }
-  }, [dragState.isDragging, elements, onChange]);
+  }, [dragState.isDragging]);
 
   // Add event listeners for mouse events
   useEffect(() => {
@@ -199,6 +208,25 @@ export function EnhancedVisualEditor({
       };
     }
   }, [dragState.isDragging, handleMouseMove, handleMouseUp]);
+
+  // Handle drop from toolbox
+  const handleCanvasDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    const elementType = e.dataTransfer.getData('text/plain');
+    if (!elementType || isPreviewMode) return;
+
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const x = (e.clientX - rect.left) / (zoomLevel / 100);
+    const y = (e.clientY - rect.top) / (zoomLevel / 100);
+
+    actions.addElement(elementType, { x, y });
+  }, [actions, isPreviewMode, zoomLevel]);
+
+  const handleCanvasDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+  }, []);
 
   // Render element based on type
   const renderElement = (element: ElementData) => {
@@ -253,6 +281,96 @@ export function EnhancedVisualEditor({
             <span className="text-sm text-muted-foreground">
               {element.content.label || element.content.variable}
             </span>
+          </div>
+        );
+
+      case 'table':
+        return (
+          <div
+            key={element.id}
+            style={baseStyle}
+            className={cn(
+              "flex items-center justify-center bg-muted/30 border hover:shadow-md transition-shadow",
+              selectedElement === element.id && "shadow-lg"
+            )}
+            onMouseDown={(e) => handleElementMouseDown(e, element.id)}
+          >
+            <Table className="w-6 h-6 text-muted-foreground" />
+          </div>
+        );
+
+      case 'qrcode':
+        return (
+          <div
+            key={element.id}
+            style={baseStyle}
+            className={cn(
+              "flex items-center justify-center bg-muted/30 border hover:shadow-md transition-shadow",
+              selectedElement === element.id && "shadow-lg"
+            )}
+            onMouseDown={(e) => handleElementMouseDown(e, element.id)}
+          >
+            <Hash className="w-6 h-6 text-muted-foreground" />
+          </div>
+        );
+
+      case 'date':
+        return (
+          <div
+            key={element.id}
+            style={baseStyle}
+            className={cn(
+              "flex items-center justify-center bg-muted/30 border hover:shadow-md transition-shadow",
+              selectedElement === element.id && "shadow-lg"
+            )}
+            onMouseDown={(e) => handleElementMouseDown(e, element.id)}
+          >
+            <Calendar className="w-6 h-6 text-muted-foreground" />
+          </div>
+        );
+
+      case 'signature':
+        return (
+          <div
+            key={element.id}
+            style={baseStyle}
+            className={cn(
+              "flex items-center justify-center bg-muted/30 border hover:shadow-md transition-shadow",
+              selectedElement === element.id && "shadow-lg"
+            )}
+            onMouseDown={(e) => handleElementMouseDown(e, element.id)}
+          >
+            <FileText className="w-6 h-6 text-muted-foreground" />
+          </div>
+        );
+
+      case 'logo':
+        return (
+          <div
+            key={element.id}
+            style={baseStyle}
+            className={cn(
+              "flex items-center justify-center bg-muted/30 border hover:shadow-md transition-shadow",
+              selectedElement === element.id && "shadow-lg"
+            )}
+            onMouseDown={(e) => handleElementMouseDown(e, element.id)}
+          >
+            <Star className="w-6 h-6 text-muted-foreground" />
+          </div>
+        );
+
+      case 'header':
+        return (
+          <div
+            key={element.id}
+            style={baseStyle}
+            className={cn(
+              "flex items-center justify-center bg-accent/10 border hover:shadow-md transition-shadow",
+              selectedElement === element.id && "shadow-lg"
+            )}
+            onMouseDown={(e) => handleElementMouseDown(e, element.id)}
+          >
+            <Crown className="w-6 h-6 text-primary" />
           </div>
         );
 
@@ -343,6 +461,8 @@ export function EnhancedVisualEditor({
               ref={canvasRef}
               className="relative w-full h-full overflow-hidden"
               onClick={() => onElementSelect(null)}
+              onDrop={handleCanvasDrop}
+              onDragOver={handleCanvasDragOver}
               style={{ cursor: isPreviewMode ? 'default' : 'crosshair' }}
             >
               {/* Grid Background */}
