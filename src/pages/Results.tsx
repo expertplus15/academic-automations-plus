@@ -19,25 +19,25 @@ export default function Results() {
     // Handle all sub-routes with improved routing
     if (location.pathname.startsWith('/results/')) {
       const routeMap = {
-        '/results/documents': {
-          title: "Documents & Bulletins",
-          subtitle: "Gestion des documents d'évaluation et génération de bulletins",
-          component: <DocumentsEvaluationInterface />
-        },
         '/results/grading-system': {
           title: "Système de Notation",
           subtitle: "Configuration du barème, pondération et règles de calcul",
           component: <GradingSystemConfig />
         },
-        '/results/matrix': {
-          title: "Saisie Matricielle",
-          subtitle: "Interface collaborative pour la saisie des notes en temps réel",
+        '/results/grade-entry': {
+          title: "Saisie des Notes",
+          subtitle: "Interface matricielle collaborative pour la saisie des notes en temps réel",
           component: <MatrixGradeEntry />
         },
         '/results/calculations': {
           title: "Calculs & Moyennes",
           subtitle: "Moyennes, ECTS, compensations et mentions automatiques",
           component: <GradeCalculations />
+        },
+        '/results/documents': {
+          title: "Documents",
+          subtitle: "Bulletins, relevés, attestations et templates personnalisables",
+          component: <DocumentsEvaluationInterface />
         },
         '/results/analytics': {
           title: "Analyse & Contrôle",

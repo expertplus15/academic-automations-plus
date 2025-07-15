@@ -104,9 +104,8 @@ import ResultsImport from '@/pages/results/Import';
 import ResultsValidation from '@/pages/results/Validation';
 import ResultsCalculations from '@/pages/results/Calculations';
 import ResultsProcessing from '@/pages/results/Processing';
-import ResultsCreation from '@/pages/results/creation';
-import ResultsCreationTypes from '@/pages/results/creation/types';
-import ResultsCreationTemplates from '@/pages/results/creation/templates';
+import ResultsGradeEntry from '@/pages/results/GradeEntry';
+import ResultsDocuments from '@/pages/results/Documents';
 import ResultsGeneration from '@/pages/results/generation';
 import ResultsAnalytics from '@/pages/results/Analytics';
 import ResultsConfig from '@/pages/results/Config';
@@ -322,9 +321,8 @@ export function ModuleRoutes() {
       <Route path="/results" element={<Results />} />
       <Route path="/results/matrix" element={<ResultsMatrix />} />
       <Route path="/results/calculations" element={<ResultsCalculations />} />
-      <Route path="/results/creation" element={<ResultsCreation />} />
-      <Route path="/results/creation/types" element={<ResultsCreationTypes />} />
-      <Route path="/results/creation/templates" element={<ResultsCreationTemplates />} />
+      <Route path="/results/grade-entry" element={<ResultsGradeEntry />} />
+      <Route path="/results/documents" element={<ResultsDocuments />} />
       <Route path="/results/generation" element={<ResultsGeneration />} />
       <Route path="/results/validation" element={<ResultsValidation />} />
       <Route path="/results/analytics" element={<ResultsAnalytics />} />
