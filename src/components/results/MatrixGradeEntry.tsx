@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Grid, Users, Save, FileUp, FileDown, Calculator, Zap, Loader2 } from 'lucide-react';
+import { DropdownRecalculate } from './DropdownRecalculate';
 import { useToast } from '@/hooks/use-toast';
 import { useStudentGrades, StudentWithGrades, StudentGrade } from '@/hooks/useStudentGrades';
 import { usePrograms } from '@/hooks/usePrograms';
@@ -294,10 +295,25 @@ export function MatrixGradeEntry() {
             <FileDown className="w-4 h-4 mr-2" />
             Export Excel
           </Button>
-          <Button variant="outline" size="sm" onClick={handleCalculateAll}>
-            <Calculator className="w-4 h-4 mr-2" />
-            Recalculer Tout
-          </Button>
+          <DropdownRecalculate
+            programId={selectedProgram}
+            academicYearId={currentYear?.id}
+            variant="outline"
+            size="sm"
+            disabled={!selectedProgram || !currentYear}
+            onCalculationComplete={(type, success) => {
+              if (success && type === 'all') {
+                // Refresh matrix data after successful calculation
+                const loadGrades = async () => {
+                  if (selectedSubject && selectedSemester) {
+                    const data = await getMatriceGrades(selectedSubject, selectedSemester);
+                    setMatrixData(data);
+                  }
+                };
+                loadGrades();
+              }
+            }}
+          />
           <Button 
             onClick={handleSaveAll} 
             disabled={saving || changedGrades.size === 0} 

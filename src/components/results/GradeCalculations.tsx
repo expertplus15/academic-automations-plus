@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calculator, TrendingUp, Award, BookOpen, RefreshCw, CheckCircle, AlertTriangle } from 'lucide-react';
+import { DropdownRecalculate } from './DropdownRecalculate';
 import { useToast } from '@/hooks/use-toast';
 import { MoteurCalculAcademique, DEFAULT_GRADING_CONFIG } from '@/lib/gradingEngine';
 
@@ -135,10 +136,16 @@ export function GradeCalculations() {
             <CheckCircle className="w-4 h-4 mr-2" />
             Valider Résultats
           </Button>
-          <Button onClick={handleRecalculateAll} disabled={loading} size="sm">
-            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Recalculer Tout
-          </Button>
+          <DropdownRecalculate
+            variant="default"
+            size="sm"
+            disabled={loading}
+            onCalculationComplete={(type, success) => {
+              if (success) {
+                setLastCalculation(new Date());
+              }
+            }}
+          />
         </div>
       </div>
 
