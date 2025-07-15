@@ -107,6 +107,7 @@ import ResultsProduction from '@/pages/results/Production';
 import ResultsCalculations from '@/pages/results/Calculations';
 import ResultsOptimization from '@/pages/results/Optimization';
 import ResultsAnalytics from '@/pages/results/Analytics';
+import BatchValidationPage from '@/pages/results/validation/BatchValidationPage';
 import Services from '@/pages/Services';
 
 // eLearning module pages
@@ -321,6 +322,7 @@ export function ModuleRoutes() {
       <Route path="/results/calculations" element={<ResultsCalculations />} />
       <Route path="/results/optimization" element={<ResultsOptimization />} />
       <Route path="/results/validation" element={<ResultsValidation />} />
+      <Route path="/results/validation/batch" element={<BatchValidationPage />} />
       <Route path="/results/documentation" element={<ResultsDocumentation />} />
       <Route path="/results/personalisation" element={<ResultsPersonalisation />} />
       <Route path="/results/production" element={<ResultsProduction />} />
