@@ -100,23 +100,6 @@ export function VisualEditor({
     transformOrigin: 'top left'
   }), [zoomLevel]);
 
-  // Si pas de template sélectionné, afficher un placeholder
-  if (!template) {
-    return (
-      <div className={cn("relative w-full h-full bg-gray-50 flex items-center justify-center", className)}>
-        <div className="text-center">
-          <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center mx-auto mb-4">
-            <Layers className="w-8 h-8 text-muted-foreground" />
-          </div>
-          <h3 className="text-lg font-semibold mb-2">Aucun template sélectionné</h3>
-          <p className="text-muted-foreground">
-            Sélectionnez un template dans la liste déroulante pour commencer
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   const handleElementClick = useCallback((elementId: string, event: React.MouseEvent) => {
     event.stopPropagation();
     if (!isPreviewMode) {
@@ -199,6 +182,22 @@ export function VisualEditor({
     ));
   }, []);
 
+  // Si pas de template sélectionné, afficher un placeholder
+  if (!template) {
+    return (
+      <div className={cn("relative w-full h-full bg-gray-50 flex items-center justify-center", className)}>
+        <div className="text-center">
+          <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center mx-auto mb-4">
+            <Layers className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-semibold mb-2">Aucun template sélectionné</h3>
+          <p className="text-muted-foreground">
+            Sélectionnez un template dans la liste déroulante pour commencer
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("relative w-full h-full bg-gray-50", className)}>
