@@ -152,9 +152,19 @@ export const routesConfig: RouteConfig[] = [
     protected: true,
     children: [
       {
+        path: "/results/grading-system",
+        component: "ResultsGradingSystem",
+        title: "Système de Notation",
+      },
+      {
         path: "/results/grade-entry",
         component: "ResultsGradeEntry",
         title: "Saisie des notes",
+      },
+      {
+        path: "/results/calculations",
+        component: "ResultsCalculations",
+        title: "Calculs & Moyennes",
       },
       {
         path: "/results/validation",
@@ -168,14 +178,19 @@ export const routesConfig: RouteConfig[] = [
         description: "Gestion des types de documents d'évaluation",
       },
       {
-        path: "/results/calculations",
-        component: "ResultsCalculations",
-        title: "Calculs",
+        path: "/results/personalisation",
+        component: "ResultsPersonalisation",
+        title: "Personnalisation",
+      },
+      {
+        path: "/results/production",
+        component: "ResultsProduction",
+        title: "Production",
       },
       {
         path: "/results/analytics",
         component: "ResultsAnalytics",
-        title: "Analyses",
+        title: "Analyse & Contrôle",
       },
     ],
   },

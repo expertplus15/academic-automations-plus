@@ -45,10 +45,13 @@ const AcademicTimetables = lazyLoad(() => import('@/pages/academic/Timetables'))
 const AcademicCalendar = lazyLoad(() => import('@/pages/academic/Calendar'));
 
 // Pages du module Résultats
+const ResultsGradingSystem = lazyLoad(() => import('@/pages/results/GradingSystem'));
 const ResultsGradeEntry = lazyLoad(() => import('@/pages/results/GradeEntry'));
+const ResultsCalculations = lazyLoad(() => import('@/pages/results/Calculations'));
 const ResultsValidation = lazyLoad(() => import('@/pages/results/Validation'));
 const ResultsDocumentation = lazyLoad(() => import('@/pages/results/Documentation'));
-const ResultsCalculations = lazyLoad(() => import('@/pages/results/Calculations'));
+const ResultsPersonalisation = lazyLoad(() => import('@/pages/results/Personalisation'));
+const ResultsProduction = lazyLoad(() => import('@/pages/results/Production'));
 const ResultsAnalytics = lazyLoad(() => import('@/pages/results/Analytics'));
 
 // Pages du module Examens
@@ -121,10 +124,13 @@ export function ModuleRoutes() {
 
         {/* Module Résultats */}
         <Route path="/results" element={<Results />} />
+        <Route path="/results/grading-system" element={<ResultsGradingSystem />} />
         <Route path="/results/grade-entry" element={<ResultsGradeEntry />} />
+        <Route path="/results/calculations" element={<ResultsCalculations />} />
         <Route path="/results/validation" element={<ResultsValidation />} />
         <Route path="/results/documentation" element={<ResultsDocumentation />} />
-        <Route path="/results/calculations" element={<ResultsCalculations />} />
+        <Route path="/results/personalisation" element={<ResultsPersonalisation />} />
+        <Route path="/results/production" element={<ResultsProduction />} />
         <Route path="/results/analytics" element={<ResultsAnalytics />} />
 
         {/* Module Examens */}
