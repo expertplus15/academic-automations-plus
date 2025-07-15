@@ -10,7 +10,7 @@ import { GradeCalculations } from '@/components/results/GradeCalculations';
 import { ResultsAnalytics } from '@/components/results/ResultsAnalytics';
 import Validation from "./results/Validation";
 import Documentation from "./results/Documentation";
-import Personalisation from "./results/Personalisation";
+import RefactoredPersonalisation from "./results/RefactoredPersonalisation";
 import Production from "./results/Production";
 
 export default function Results() {
@@ -51,7 +51,7 @@ export default function Results() {
         '/results/personalisation': {
           title: "Personnalisation",
           subtitle: "Studio de création des templates",
-          component: <Personalisation />
+          component: <RefactoredPersonalisation />
         },
         '/results/production': {
           title: "Production",
