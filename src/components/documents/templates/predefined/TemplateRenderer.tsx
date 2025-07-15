@@ -11,6 +11,8 @@ interface TemplateRendererProps {
 export function TemplateRenderer({ templateType, data, isEditable = false, onDataChange }: TemplateRendererProps) {
   switch (templateType) {
     case 'emd_releve':
+    case 'bulletin':  // Mapping pour les types de la base
+    case 'transcript':
       return (
         <ReleveNotesEMDTemplate
           data={data as Partial<ReleveNotesEMDData>}
@@ -24,8 +26,11 @@ export function TemplateRenderer({ templateType, data, isEditable = false, onDat
         <div className="p-8 text-center border-2 border-dashed border-gray-300 rounded-lg">
           <p className="text-gray-500">Template "{templateType}" non trouvé</p>
           <p className="text-sm text-gray-400 mt-2">
-            Données disponibles: {Object.keys(data || {}).join(', ')}
+            Créez d'abord un template pour ce type de document dans le module Documentation
           </p>
+          <div className="mt-4 text-xs text-muted-foreground">
+            Type: {templateType} | Données: {Object.keys(data || {}).length} propriétés
+          </div>
         </div>
       );
   }
@@ -35,6 +40,8 @@ export function TemplateRenderer({ templateType, data, isEditable = false, onDat
 export const getDefaultDataForTemplate = (templateType: string) => {
   switch (templateType) {
     case 'emd_releve':
+    case 'bulletin':
+    case 'transcript':
       return {
         republique: 'République de Djibouti',
         ministere: 'Ministère de l\'Enseignement Supérieur et de la Recherche',

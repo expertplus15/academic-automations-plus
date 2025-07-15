@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Template } from '@/services/TemplateService';
 import { MockDataService } from '@/services/MockDataService';
+import { TemplateRenderer, getDefaultDataForTemplate } from '@/components/documents/templates/predefined/TemplateRenderer';
 
 interface VisualEditorProps {
   template?: Template;
@@ -89,14 +90,32 @@ export function VisualEditor({
     }
   ]);
 
-  const studentData = useMemo(() => {
-    return MockDataService.getStudentMockData();
-  }, []);
+  const templateData = useMemo(() => {
+    if (!template) return {};
+    return getDefaultDataForTemplate(template.type) || {};
+  }, [template]);
 
   const scaleStyle = useMemo(() => ({
     transform: `scale(${zoomLevel / 100})`,
     transformOrigin: 'top left'
   }), [zoomLevel]);
+
+  // Si pas de template sélectionné, afficher un placeholder
+  if (!template) {
+    return (
+      <div className={cn("relative w-full h-full bg-gray-50 flex items-center justify-center", className)}>
+        <div className="text-center">
+          <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center mx-auto mb-4">
+            <Layers className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-semibold mb-2">Aucun template sélectionné</h3>
+          <p className="text-muted-foreground">
+            Sélectionnez un template dans la liste déroulante pour commencer
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const handleElementClick = useCallback((elementId: string, event: React.MouseEvent) => {
     event.stopPropagation();
@@ -180,74 +199,6 @@ export function VisualEditor({
     ));
   }, []);
 
-  const renderElementContent = useCallback((element: EditorElement) => {
-    switch (element.type) {
-      case 'text':
-        return (
-          <div 
-            style={{
-              fontSize: element.content.fontSize || 16,
-              fontWeight: element.content.fontWeight || 'normal',
-              color: element.style.color || '#000000',
-              textAlign: element.style.textAlign || 'left'
-            }}
-          >
-            {element.content.text}
-          </div>
-        );
-
-      case 'image':
-        return (
-          <div className="w-full h-full bg-muted border-2 border-dashed border-muted-foreground/25 flex items-center justify-center rounded-md">
-            <span className="text-xs text-muted-foreground">
-              {element.content.alt || 'Image'}
-            </span>
-          </div>
-        );
-
-      case 'variable':
-        const value = element.content.variable?.split('.').reduce((obj: any, key: string) => obj?.[key], studentData) || element.content.label;
-        return (
-          <div 
-            style={{
-              fontSize: element.content.fontSize || 14,
-              fontWeight: element.content.fontWeight || 'normal',
-              color: element.style.color || '#059669'
-            }}
-            className="bg-emerald-50 border border-emerald-200 rounded px-2 py-1"
-          >
-            {isPreviewMode ? value : `{{${element.content.variable || element.content.label}}}`}
-          </div>
-        );
-
-      case 'table':
-        return (
-          <div className="w-full h-full border border-gray-300 rounded-md overflow-hidden">
-            <div className="bg-gray-50 border-b border-gray-300 p-2">
-              <div className="grid grid-cols-4 gap-2 text-xs font-medium">
-                {element.content.columns?.map((col: string, index: number) => (
-                  <div key={index}>{col}</div>
-                ))}
-              </div>
-            </div>
-            <div className="p-2">
-              <div className="text-xs text-muted-foreground">
-                {isPreviewMode ? 'Données dynamiques' : `Table: ${element.content.dataSource}`}
-              </div>
-            </div>
-          </div>
-        );
-
-      default:
-        return (
-          <div className="w-full h-full bg-muted border-2 border-dashed border-muted-foreground/25 flex items-center justify-center rounded-md">
-            <span className="text-xs text-muted-foreground capitalize">
-              {element.type}
-            </span>
-          </div>
-        );
-    }
-  }, [studentData, isPreviewMode]);
 
   return (
     <div className={cn("relative w-full h-full bg-gray-50", className)}>
@@ -284,91 +235,20 @@ export function VisualEditor({
             ...scaleStyle
           }}
         >
-          {/* Elements */}
-          {elements.map((element) => (
-            <div
-              key={element.id}
-              className={cn(
-                "absolute border-2 transition-all duration-200 cursor-move",
-                selectedElement === element.id && !isPreviewMode
-                  ? "border-blue-500 shadow-lg"
-                  : "border-transparent hover:border-blue-300",
-                element.hidden && "opacity-50",
-                isPreviewMode && "cursor-default"
-              )}
-              style={{
-                left: element.position.x,
-                top: element.position.y,
-                width: element.size.width,
-                height: element.size.height,
-                zIndex: selectedElement === element.id ? 10 : 1
-              }}
-              onClick={(e) => handleElementClick(element.id, e)}
-              onMouseDown={(e) => handleElementMouseDown(element.id, e)}
-            >
-              {renderElementContent(element)}
-
-              {/* Element Controls */}
-              {selectedElement === element.id && !isPreviewMode && (
-                <div className="absolute -top-8 left-0 flex items-center gap-1 bg-blue-500 text-white rounded px-2 py-1 text-xs">
-                  <span className="capitalize">{element.type}</span>
-                  
-                  <div className="flex items-center gap-1 ml-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-5 w-5 p-0 text-white hover:bg-blue-600"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDuplicateElement(element.id);
-                      }}
-                    >
-                      <Copy className="w-3 h-3" />
-                    </Button>
-                    
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-5 w-5 p-0 text-white hover:bg-blue-600"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleVisibility(element.id);
-                      }}
-                    >
-                      {element.hidden ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                    </Button>
-                    
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-5 w-5 p-0 text-white hover:bg-red-600"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteElement(element.id);
-                      }}
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {/* Resize Handles */}
-              {selectedElement === element.id && !isPreviewMode && (
-                <>
-                  <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-blue-500 border border-white rounded-sm cursor-se-resize" />
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 border border-white rounded-sm cursor-ne-resize" />
-                  <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-blue-500 border border-white rounded-sm cursor-sw-resize" />
-                  <div className="absolute -top-1 -left-1 w-3 h-3 bg-blue-500 border border-white rounded-sm cursor-nw-resize" />
-                </>
-              )}
-            </div>
-          ))}
+          {/* Template Renderer */}
+          <div className="w-full h-full overflow-hidden">
+            <TemplateRenderer
+              templateType={template.type}
+              data={templateData}
+              isEditable={!isPreviewMode}
+              onDataChange={onChange}
+            />
+          </div>
 
           {/* Canvas Info */}
           {!isPreviewMode && (
             <div className="absolute bottom-4 right-4 bg-black/75 text-white text-xs px-2 py-1 rounded">
-              A4 - 595 × 842 px
+              {template.name} - {template.type}
             </div>
           )}
         </div>
