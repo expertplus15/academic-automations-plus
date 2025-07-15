@@ -228,7 +228,7 @@ export function MatriceInterface({
       const activeEvaluationTypes = evaluationTypes.filter(et => et.is_active);
 
       // Charger les notes existantes pour cette matière
-      const gradesData = await getMatriceGrades(selectedSubject, currentAcademicYear.id, selectedSemester, selectedProgram !== 'all' ? selectedProgram : undefined);
+      const gradesData = await getMatriceGrades(selectedSubject, selectedSemester);
       setStudents(filteredStudents);
       setEvaluations(activeEvaluationTypes);
 

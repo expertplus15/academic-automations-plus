@@ -61,7 +61,7 @@ export function ManualGradeEntry({
   const { toast } = useToast();
   const { evaluationTypes, loading: evalTypesLoading } = useEvaluationTypes();
   const { students, loading: studentsLoading } = useStudents();
-  const { saveGrade } = useStudentGrades();
+  const { saveGradesBatch } = useStudentGrades();
   const { subjects } = useSubjects();
   const { programs } = usePrograms();
 
@@ -108,7 +108,7 @@ export function ManualGradeEntry({
     setSaving(true);
     
     try {
-      await saveGrade({
+      await saveGradesBatch([{
         student_id: formData.studentId,
         subject_id: subjectId,
         evaluation_type_id: formData.evaluationTypeId,
@@ -118,7 +118,7 @@ export function ManualGradeEntry({
         semester,
         academic_year_id: academicYearId,
         comments: formData.comments || undefined
-      });
+      }]);
 
       toast({
         title: "Note enregistrée",
