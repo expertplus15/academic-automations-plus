@@ -4,65 +4,68 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Grid, Users, Save, FileUp, FileDown, Calculator, Zap } from 'lucide-react';
+import { Grid, Users, Save, FileUp, FileDown, Calculator, Zap, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useStudentGrades } from '@/hooks/useStudentGrades';
+import { useStudentGrades, StudentWithGrades, StudentGrade } from '@/hooks/useStudentGrades';
+import { usePrograms } from '@/hooks/usePrograms';
+import { useSubjects } from '@/hooks/useSubjects';
+import { useAcademicYear } from '@/hooks/useAcademicYear';
+import { useEvaluationTypes } from '@/hooks/useEvaluationTypes';
 import { MoteurCalculAcademique, DEFAULT_GRADING_CONFIG } from '@/lib/gradingEngine';
 
-interface MatrixData {
-  student: {
-    id: string;
-    student_number: string;
-    profiles: { full_name: string };
-  };
-  grades: {
-    cc?: number;
-    examen?: number;
-    moyenne?: number;
-    coefficient?: number;
-    mention?: string;
-  };
-}
-
 export function MatrixGradeEntry() {
-  const [matrixData, setMatrixData] = useState<MatrixData[]>([]);
+  const [matrixData, setMatrixData] = useState<StudentWithGrades[]>([]);
+  const [selectedProgram, setSelectedProgram] = useState<string>('');
   const [selectedSubject, setSelectedSubject] = useState<string>('');
   const [selectedSemester, setSelectedSemester] = useState<number>(1);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [autoSave, setAutoSave] = useState(true);
+  const [changedGrades, setChangedGrades] = useState<Map<string, StudentGrade>>(new Map());
+  
   const { toast } = useToast();
+  const { programs, loading: programsLoading } = usePrograms();
+  const { subjects, loading: subjectsLoading } = useSubjects(selectedProgram);
+  const { currentYear } = useAcademicYear();
+  const { evaluationTypes, getEvaluationTypeById } = useEvaluationTypes();
   const { getMatriceGrades, saveGradesBatch } = useStudentGrades();
   const gradingEngine = new MoteurCalculAcademique(DEFAULT_GRADING_CONFIG);
 
-  // Mock data for demonstration
+  // Get evaluation type IDs for CC and Exam
+  const ccEvalType = evaluationTypes.find(et => et.code === 'CC');
+  const examEvalType = evaluationTypes.find(et => et.code === 'EF');
+
+  // Load students and grades when subject and semester change
   useEffect(() => {
-    setMatrixData([
-      {
-        student: {
-          id: '1',
-          student_number: 'ETU001',
-          profiles: { full_name: 'Alice Martin' }
-        },
-        grades: { cc: 15, examen: 16, coefficient: 2 }
-      },
-      {
-        student: {
-          id: '2', 
-          student_number: 'ETU002',
-          profiles: { full_name: 'Bob Dupont' }
-        },
-        grades: { cc: 12, examen: 14, coefficient: 2 }
-      },
-      {
-        student: {
-          id: '3',
-          student_number: 'ETU003', 
-          profiles: { full_name: 'Claire Rousseau' }
-        },
-        grades: { cc: 18, examen: 17, coefficient: 2 }
+    const loadGrades = async () => {
+      if (!selectedSubject || !selectedSemester) return;
+      
+      setLoading(true);
+      try {
+        const data = await getMatriceGrades(selectedSubject, selectedSemester);
+        setMatrixData(data);
+      } catch (error) {
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les données",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
       }
-    ]);
-  }, []);
+    };
+
+    loadGrades();
+  }, [selectedSubject, selectedSemester, getMatriceGrades, toast]);
+
+  // Reset subject when program changes
+  useEffect(() => {
+    if (selectedProgram) {
+      setSelectedSubject('');
+      setMatrixData([]);
+      setChangedGrades(new Map());
+    }
+  }, [selectedProgram]);
 
   const calculateRowValues = useCallback((rowIndex: number) => {
     const data = [...matrixData];
@@ -85,7 +88,7 @@ export function MatrixGradeEntry() {
     }
   }, [matrixData, gradingEngine]);
 
-  const handleCellEdit = (rowIndex: number, field: 'cc' | 'examen', value: string) => {
+  const handleCellEdit = useCallback((rowIndex: number, field: 'cc' | 'examen', value: string) => {
     const numValue = value === '' ? undefined : Number(value);
     
     if (numValue !== undefined && (numValue < 0 || numValue > 20)) {
@@ -98,35 +101,78 @@ export function MatrixGradeEntry() {
     }
     
     const data = [...matrixData];
+    const row = data[rowIndex];
+    
+    // Update the matrix data
     data[rowIndex] = {
-      ...data[rowIndex],
+      ...row,
       grades: {
-        ...data[rowIndex].grades,
+        ...row.grades,
         [field]: numValue
       }
     };
     
     setMatrixData(data);
     
+    // Track changes for batch save
+    const gradeKey = `${row.id}-${field}`;
+    if (numValue !== undefined && currentYear) {
+      const evalTypeId = field === 'cc' ? ccEvalType?.id : examEvalType?.id;
+      
+      if (!evalTypeId) {
+        toast({
+          title: "Erreur de configuration",
+          description: `Type d'évaluation ${field === 'cc' ? 'CC' : 'EF'} non trouvé`,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      const gradeData: StudentGrade = {
+        student_id: row.id,
+        subject_id: selectedSubject,
+        evaluation_type_id: evalTypeId,
+        grade: numValue,
+        semester: selectedSemester,
+        academic_year_id: currentYear.id,
+        evaluation_date: new Date().toISOString().split('T')[0]
+      };
+      
+      const newChanges = new Map(changedGrades);
+      newChanges.set(gradeKey, gradeData);
+      setChangedGrades(newChanges);
+    }
+    
     // Auto-calculate when both CC and exam are filled
     setTimeout(() => calculateRowValues(rowIndex), 100);
     
-    if (autoSave) {
+    if (autoSave && changedGrades.size > 0) {
       // Auto-save after 2 seconds of inactivity
       setTimeout(() => handleSaveAll(), 2000);
     }
-  };
+  }, [matrixData, selectedSubject, selectedSemester, changedGrades, autoSave, toast]);
 
   const handleSaveAll = async () => {
-    setLoading(true);
-    try {
-      // TODO: Save to database
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+    if (changedGrades.size === 0) {
       toast({
-        title: "Notes sauvegardées",
-        description: `${matrixData.length} notes ont été enregistrées`,
+        title: "Aucune modification",
+        description: "Aucune note à sauvegarder",
       });
+      return;
+    }
+    
+    setSaving(true);
+    try {
+      const gradesToSave = Array.from(changedGrades.values());
+      const success = await saveGradesBatch(gradesToSave);
+      
+      if (success) {
+        setChangedGrades(new Map()); // Clear changes after successful save
+        toast({
+          title: "Notes sauvegardées",
+          description: `${gradesToSave.length} notes ont été enregistrées`,
+        });
+      }
     } catch (error) {
       toast({
         title: "Erreur",
@@ -134,7 +180,7 @@ export function MatrixGradeEntry() {
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
@@ -193,9 +239,18 @@ export function MatrixGradeEntry() {
             <Calculator className="w-4 h-4 mr-2" />
             Recalculer Tout
           </Button>
-          <Button onClick={handleSaveAll} disabled={loading} size="sm">
-            <Save className="w-4 h-4 mr-2" />
-            Sauvegarder
+          <Button 
+            onClick={handleSaveAll} 
+            disabled={saving || changedGrades.size === 0} 
+            size="sm"
+            variant={changedGrades.size > 0 ? "default" : "outline"}
+          >
+            {saving ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4 mr-2" />
+            )}
+            Sauvegarder {changedGrades.size > 0 && `(${changedGrades.size})`}
           </Button>
         </div>
       </div>
@@ -205,15 +260,41 @@ export function MatrixGradeEntry() {
         <CardContent className="p-4">
           <div className="flex items-center gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Matière</label>
-              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Sélectionner une matière" />
+              <label className="text-sm font-medium">Programme</label>
+              <Select value={selectedProgram} onValueChange={setSelectedProgram} disabled={programsLoading}>
+                <SelectTrigger className="w-64">
+                  <SelectValue placeholder={programsLoading ? "Chargement..." : "Sélectionner un programme"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="math">Mathématiques</SelectItem>
-                  <SelectItem value="physics">Physique</SelectItem>
-                  <SelectItem value="chemistry">Chimie</SelectItem>
+                  {programs.map((program) => (
+                    <SelectItem key={program.id} value={program.id}>
+                      {program.code} - {program.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Matière</label>
+              <Select 
+                value={selectedSubject} 
+                onValueChange={setSelectedSubject}
+                disabled={!selectedProgram || subjectsLoading}
+              >
+                <SelectTrigger className="w-64">
+                  <SelectValue placeholder={
+                    !selectedProgram ? "Sélectionner d'abord un programme" :
+                    subjectsLoading ? "Chargement..." :
+                    "Sélectionner une matière"
+                  } />
+                </SelectTrigger>
+                <SelectContent>
+                  {subjects.map((subject) => (
+                    <SelectItem key={subject.id} value={subject.id}>
+                      {subject.code} - {subject.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -269,10 +350,27 @@ export function MatrixGradeEntry() {
                 </tr>
               </thead>
               <tbody>
-                {matrixData.map((row, index) => (
-                  <tr key={row.student.id} className="border-b border-border hover:bg-muted/30 transition-colors">
-                    <td className="p-3 font-mono text-sm">{row.student.student_number}</td>
-                    <td className="p-3 font-medium">{row.student.profiles.full_name}</td>
+                {loading ? (
+                  <tr>
+                    <td colSpan={8} className="p-8 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Chargement des données...
+                      </div>
+                    </td>
+                  </tr>
+                ) : matrixData.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="p-8 text-center text-muted-foreground">
+                      {!selectedProgram ? "Sélectionnez un programme pour commencer" :
+                       !selectedSubject ? "Sélectionnez une matière pour voir les étudiants" :
+                       "Aucun étudiant trouvé pour cette matière"}
+                    </td>
+                  </tr>
+                ) : matrixData.map((row, index) => (
+                  <tr key={row.id} className="border-b border-border hover:bg-muted/30 transition-colors">
+                    <td className="p-3 font-mono text-sm">{row.student_number}</td>
+                    <td className="p-3 font-medium">{row.profiles.full_name}</td>
                     <td className="p-3">
                       <Input
                         type="number"
