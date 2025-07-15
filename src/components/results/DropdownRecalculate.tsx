@@ -14,11 +14,10 @@ import {
   Zap, 
   Settings, 
   ChevronDown, 
-  Loader2 
+  Loader2,
+  ExternalLink
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
-import { useGradeCalculations } from '@/hooks/useGradeCalculations';
+import { useCalculationContext } from '@/contexts/CalculationContext';
 
 interface DropdownRecalculateProps {
   programId?: string;
@@ -38,116 +37,59 @@ export function DropdownRecalculate({
   onCalculationComplete
 }: DropdownRecalculateProps) {
   const [loading, setLoading] = useState<string | null>(null);
-  const navigate = useNavigate();
-  const { toast } = useToast();
   const { 
-    calculateClassAverages, 
-    recalculateClassProgress 
-  } = useGradeCalculations();
+    state, 
+    executeCalculation, 
+    executeCalculationWithNavigation,
+    navigateToCalculations 
+  } = useCalculationContext();
 
   const handleCalculateAverages = async () => {
-    if (!programId || !academicYearId) {
-      toast({
-        title: "Paramètres manquants",
-        description: "Programme et année académique requis",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!programId || !academicYearId) return;
 
     setLoading('averages');
     try {
-      const averages = await calculateClassAverages(programId, academicYearId);
-      
-      toast({
-        title: "Moyennes calculées",
-        description: `${averages.length} moyennes étudiantes recalculées`,
-      });
-      
-      onCalculationComplete?.('averages', true);
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de calculer les moyennes",
-        variant: "destructive",
-      });
-      onCalculationComplete?.('averages', false);
+      const success = await executeCalculation('averages', { programId, academicYearId });
+      onCalculationComplete?.('averages', success);
     } finally {
       setLoading(null);
     }
   };
 
   const handleCalculateECTS = async () => {
-    if (!programId || !academicYearId) {
-      toast({
-        title: "Paramètres manquants",
-        description: "Programme et année académique requis",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!programId || !academicYearId) return;
 
     setLoading('ects');
     try {
-      // Simulate ECTS calculation
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      toast({
-        title: "ECTS calculés",
-        description: "Crédits et compensations mis à jour",
-      });
-      
-      onCalculationComplete?.('ects', true);
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de calculer les ECTS",
-        variant: "destructive",
-      });
-      onCalculationComplete?.('ects', false);
+      const success = await executeCalculation('ects', { programId, academicYearId });
+      onCalculationComplete?.('ects', success);
     } finally {
       setLoading(null);
     }
   };
 
   const handleRecalculateAll = async () => {
-    if (!programId || !academicYearId) {
-      toast({
-        title: "Paramètres manquants",
-        description: "Programme et année académique requis",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!programId || !academicYearId) return;
 
     setLoading('all');
     try {
-      const success = await recalculateClassProgress(programId, academicYearId);
-      
-      if (success) {
-        toast({
-          title: "Recalcul terminé",
-          description: "Moyennes, ECTS et mentions mis à jour",
-        });
-        onCalculationComplete?.('all', true);
-      }
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de recalculer les données",
-        variant: "destructive",
-      });
-      onCalculationComplete?.('all', false);
+      const success = await executeCalculation('all', { programId, academicYearId });
+      onCalculationComplete?.('all', success);
     } finally {
       setLoading(null);
     }
   };
 
   const handleAdvancedCalculations = () => {
-    navigate('/results/calculations');
+    navigateToCalculations();
   };
 
-  const isLoading = loading !== null;
+  const handleAdvancedCalculationsWithContext = () => {
+    const currentTab = state.lastCalculationType === 'ects' ? 'processing' : 'auto';
+    navigateToCalculations(currentTab);
+  };
+
+  const isLoading = loading !== null || state.activeCalculations.size > 0;
   const currentOperation = loading;
 
   return (
@@ -215,7 +157,7 @@ export function DropdownRecalculate({
         <DropdownMenuSeparator />
         
         <DropdownMenuItem 
-          onClick={handleAdvancedCalculations}
+          onClick={handleAdvancedCalculationsWithContext}
           disabled={isLoading}
           className="cursor-pointer"
         >
@@ -224,6 +166,7 @@ export function DropdownRecalculate({
             <div className="font-medium">Calculs avancés</div>
             <div className="text-xs text-muted-foreground">Interface complète et paramètres</div>
           </div>
+          <ExternalLink className="w-3 h-3 ml-2 text-muted-foreground" />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalculationCard } from "@/components/calculations/CalculationCard";
@@ -8,7 +9,7 @@ import { ConfigurationPanel } from "@/components/calculations/ConfigurationPanel
 import { useAdvancedCalculations } from "@/hooks/useAdvancedCalculations";
 import { DropdownRecalculate } from "@/components/results/DropdownRecalculate";
 import { NavigationQuickLinks } from "@/components/results/NavigationQuickLinks";
-import { useGradeCalculations } from "@/hooks/useGradeCalculations";
+import { useCalculationContext } from "@/contexts/CalculationContext";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Calculator, 
@@ -26,17 +27,11 @@ import {
 } from "lucide-react";
 
 export default function Calculations() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [calculationStates, setCalculationStates] = useState<Record<string, "idle" | "running" | "completed" | "error">>({});
-  const [activeTab, setActiveTab] = useState("auto");
+  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || "auto");
   
-  const { 
-    calculateStudentAverages,
-    calculateClassAverages,
-    getClassStatistics,
-    recalculateClassProgress,
-    calculateWeightedAverage,
-    generateStudentTranscript
-  } = useGradeCalculations();
+  const { state, executeCalculation } = useCalculationContext();
   
   const {
     calculateECTSWithCompensation,
@@ -51,6 +46,22 @@ export default function Calculations() {
   
   const { toast } = useToast();
 
+  // Sync URL params with tab state
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && ['auto', 'processing', 'statistics', 'config'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (newTab: string) => {
+    setActiveTab(newTab);
+    setSearchParams(prev => {
+      prev.set('tab', newTab);
+      return prev;
+    });
+  };
+
   const updateCalculationState = (id: string, state: "idle" | "running" | "completed" | "error") => {
     setCalculationStates(prev => ({ ...prev, [id]: state }));
   };
@@ -58,58 +69,30 @@ export default function Calculations() {
   const handleCalculateAverages = async () => {
     updateCalculationState("averages", "running");
     try {
-      // Simulation d'un calcul de moyennes
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      updateCalculationState("averages", "completed");
-      toast({
-        title: "Calcul terminé",
-        description: "Les moyennes ont été recalculées avec succès."
-      });
+      const success = await executeCalculation('averages', {});
+      updateCalculationState("averages", success ? "completed" : "error");
     } catch (error) {
       updateCalculationState("averages", "error");
-      toast({
-        title: "Erreur",
-        description: "Échec du calcul des moyennes.",
-        variant: "destructive"
-      });
     }
   };
 
   const handleValidateECTS = async () => {
     updateCalculationState("ects", "running");
     try {
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      updateCalculationState("ects", "completed");
-      toast({
-        title: "Validation terminée",
-        description: "Les crédits ECTS ont été validés avec compensation."
-      });
+      const success = await executeCalculation('ects', {});
+      updateCalculationState("ects", success ? "completed" : "error");
     } catch (error) {
       updateCalculationState("ects", "error");
-      toast({
-        title: "Erreur",
-        description: "Échec de la validation ECTS.",
-        variant: "destructive"
-      });
     }
   };
 
   const handleBatchProcessing = async () => {
     updateCalculationState("batch", "running");
     try {
-      await new Promise(resolve => setTimeout(resolve, 5000));
-      updateCalculationState("batch", "completed");
-      toast({
-        title: "Traitement terminé",
-        description: "Le traitement par lots a été effectué avec succès."
-      });
+      const success = await executeCalculation('all', {});
+      updateCalculationState("batch", success ? "completed" : "error");
     } catch (error) {
       updateCalculationState("batch", "error");
-      toast({
-        title: "Erreur",
-        description: "Échec du traitement par lots.",
-        variant: "destructive"
-      });
     }
   };
 
@@ -173,7 +156,7 @@ export default function Calculations() {
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
           <TabsList className="grid grid-cols-4 w-full max-w-2xl">
             <TabsTrigger value="auto" className="flex items-center gap-2">
               <Zap className="w-4 h-4" />

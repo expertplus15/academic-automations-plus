@@ -9,10 +9,12 @@ import {
   Settings, 
   TrendingUp,
   Zap,
-  Clock
+  Clock,
+  BarChart3,
+  FileText
 } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useCalculationNotifications } from '@/hooks/useCalculationNotifications';
+import { useLocation } from 'react-router-dom';
+import { useCalculationContext } from '@/contexts/CalculationContext';
 
 interface NavigationQuickLinksProps {
   currentContext?: 'entry' | 'calculations' | 'results';
@@ -23,9 +25,15 @@ export function NavigationQuickLinks({
   currentContext, 
   showNotifications = true 
 }: NavigationQuickLinksProps) {
-  const navigate = useNavigate();
   const location = useLocation();
-  const { notifications, hasActiveCalculations, getPendingNotifications } = useCalculationNotifications();
+  const { 
+    state, 
+    notifications,
+    navigateToCalculations,
+    navigateToEntry,
+    navigateToResults,
+    executeCalculationWithNavigation
+  } = useCalculationContext();
 
   const quickLinks = [
     {
@@ -33,7 +41,7 @@ export function NavigationQuickLinks({
       title: 'Saisie des Notes',
       description: 'Interface matricielle collaborative',
       icon: <Grid className="w-4 h-4" />,
-      path: '/results/grade-entry',
+      action: navigateToEntry,
       badge: null,
       active: location.pathname === '/results/grade-entry'
     },
@@ -42,45 +50,47 @@ export function NavigationQuickLinks({
       title: 'Calculs Avancés',
       description: 'Interface administrative complète',
       icon: <Calculator className="w-4 h-4" />,
-      path: '/results/calculations',
-      badge: hasActiveCalculations ? {
-        text: getPendingNotifications().length.toString(),
+      action: () => navigateToCalculations(),
+      badge: notifications.hasActiveCalculations ? {
+        text: notifications.getPendingNotifications().length.toString(),
         variant: 'default' as const
       } : null,
       active: location.pathname === '/results/calculations'
     },
     {
-      id: 'system',
-      title: 'Système de Notation',
-      description: 'Configuration et paramètres',
-      icon: <Settings className="w-4 h-4" />,
-      path: '/results/grading-system',
+      id: 'analytics',
+      title: 'Analyses & Rapports',
+      description: 'Tableaux de bord et statistiques',
+      icon: <BarChart3 className="w-4 h-4" />,
+      action: navigateToResults,
       badge: null,
-      active: location.pathname === '/results/grading-system'
+      active: location.pathname.includes('/results/analytics')
     },
     {
-      id: 'analytics',
-      title: 'Analyse & Contrôle',
-      description: 'Tableaux de bord et rapports',
-      icon: <TrendingUp className="w-4 h-4" />,
-      path: '/results/analytics',
+      id: 'documents',
+      title: 'Documents & Export',
+      description: 'Relevés, attestations et rapports',
+      icon: <FileText className="w-4 h-4" />,
+      action: () => navigateToResults(),
       badge: null,
-      active: location.pathname === '/results/analytics'
+      active: location.pathname.includes('/results/documents')
     }
   ];
 
   const contextualSuggestions = React.useMemo(() => {
-    switch (currentContext) {
+    const detectedContext = currentContext || state.currentContext;
+    
+    switch (detectedContext) {
       case 'entry':
         return [
           { 
-            text: 'Recalculer après saisie', 
-            path: '/results/calculations',
+            text: 'Recalculer automatiquement', 
+            action: () => navigateToCalculations('auto'),
             icon: <Zap className="w-3 h-3" />
           },
           { 
-            text: 'Voir les résultats', 
-            path: '/results/analytics',
+            text: 'Voir les analyses', 
+            action: navigateToResults,
             icon: <TrendingUp className="w-3 h-3" />
           }
         ];
@@ -88,32 +98,32 @@ export function NavigationQuickLinks({
         return [
           { 
             text: 'Retour à la saisie', 
-            path: '/results/grade-entry',
+            action: navigateToEntry,
             icon: <Grid className="w-3 h-3" />
           },
           { 
             text: 'Analyser les résultats', 
-            path: '/results/analytics',
-            icon: <TrendingUp className="w-3 h-3" />
+            action: navigateToResults,
+            icon: <BarChart3 className="w-3 h-3" />
           }
         ];
       case 'results':
         return [
           { 
             text: 'Modifier les notes', 
-            path: '/results/grade-entry',
+            action: navigateToEntry,
             icon: <Grid className="w-3 h-3" />
           },
           { 
-            text: 'Recalculer', 
-            path: '/results/calculations',
+            text: 'Recalculer données', 
+            action: () => navigateToCalculations('auto'),
             icon: <Calculator className="w-3 h-3" />
           }
         ];
       default:
         return [];
     }
-  }, [currentContext]);
+  }, [currentContext, state.currentContext, navigateToCalculations, navigateToEntry, navigateToResults]);
 
   return (
     <Card className="mb-6">
@@ -128,7 +138,7 @@ export function NavigationQuickLinks({
                   key={link.id}
                   variant={link.active ? "default" : "ghost"}
                   size="sm"
-                  onClick={() => navigate(link.path)}
+                  onClick={link.action}
                   className="justify-start h-auto p-3"
                 >
                   <div className="flex items-center gap-2 w-full">
@@ -158,7 +168,7 @@ export function NavigationQuickLinks({
                     key={index}
                     variant="outline"
                     size="sm"
-                    onClick={() => navigate(suggestion.path)}
+                    onClick={suggestion.action}
                     className="gap-1 text-xs"
                   >
                     {suggestion.icon}
@@ -171,11 +181,11 @@ export function NavigationQuickLinks({
           )}
 
           {/* Notifications de calculs actifs */}
-          {showNotifications && hasActiveCalculations && (
+          {showNotifications && notifications.hasActiveCalculations && (
             <div>
               <h3 className="text-sm font-medium text-muted-foreground mb-2">Calculs en cours</h3>
               <div className="space-y-1">
-                {getPendingNotifications().slice(0, 3).map((notification) => (
+                {notifications.getPendingNotifications().slice(0, 3).map((notification) => (
                   <div key={notification.id} className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Clock className="w-3 h-3 animate-pulse" />
                     <span>{notification.message}</span>
