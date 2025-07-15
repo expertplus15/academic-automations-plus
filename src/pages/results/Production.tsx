@@ -5,7 +5,7 @@ import { ArrowLeft, Factory, FileOutput, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DocumentsEvaluationInterface } from '@/components/results/documents/DocumentsEvaluationInterface';
+import { ProductionBatchInterface } from '@/components/results/production/ProductionBatchInterface';
 import { MatrixExportInterface } from '@/components/results/documents/MatrixExportInterface';
 
 export default function Production() {
@@ -73,7 +73,7 @@ export default function Production() {
           </TabsList>
 
           <TabsContent value="generation" className="space-y-6">
-            <DocumentsEvaluationInterface />
+            <ProductionBatchInterface />
           </TabsContent>
 
           <TabsContent value="export" className="space-y-6">

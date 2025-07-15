@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, FileText, Plus, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import DocumentTypesCreation from './creation/types';
+import { DocumentTypesManager } from '@/components/results/documentation/DocumentTypesManager';
 
 export default function Documentation() {
   const navigate = useNavigate();
@@ -58,7 +58,7 @@ export default function Documentation() {
           </CardContent>
         </Card>
 
-        <DocumentTypesCreation />
+        <DocumentTypesManager />
       </div>
     </ModuleLayout>
   );

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, CheckCircle, Eye, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { DocumentsEvaluationInterface } from '@/components/results/documents/DocumentsEvaluationInterface';
+import { ValidationDashboard } from '@/components/results/validation/ValidationDashboard';
 
 export default function Validation() {
   const navigate = useNavigate();
@@ -58,7 +58,7 @@ export default function Validation() {
           </CardContent>
         </Card>
 
-        <DocumentsEvaluationInterface />
+        <ValidationDashboard />
       </div>
     </ModuleLayout>
   );
