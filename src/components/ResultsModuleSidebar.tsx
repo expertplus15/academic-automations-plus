@@ -16,7 +16,10 @@ import {
   BarChart3,
   Grid,
   Calculator,
+  CheckCircle,
   FileText,
+  Palette,
+  Factory,
   Shield,
   TrendingUp,
   ArrowLeft,
@@ -29,7 +32,10 @@ const resultsItems = [
   { title: "Système de Notation", url: "/results/grading-system", icon: Settings },
   { title: "Saisie des Notes", url: "/results/grade-entry", icon: Grid },
   { title: "Calculs & Moyennes", url: "/results/calculations", icon: Calculator },
-  { title: "Documents", url: "/results/documents", icon: FileText },
+  { title: "Validation", url: "/results/validation", icon: CheckCircle },
+  { title: "Documentation", url: "/results/documentation", icon: FileText },
+  { title: "Personnalisation", url: "/results/personalisation", icon: Palette },
+  { title: "Production", url: "/results/production", icon: Factory },
   { title: "Analyse & Contrôle", url: "/results/analytics", icon: TrendingUp }
 ];
 

@@ -100,7 +100,10 @@ import ExamsMonitoring from '@/pages/exams/Monitoring';
 // New ACADEMIC+ modules
 import Results from '@/pages/Results';
 import ResultsGradeEntry from '@/pages/results/GradeEntry';
-import ResultsDocuments from '@/pages/results/Documents';
+import ResultsValidation from '@/pages/results/Validation';
+import ResultsDocumentation from '@/pages/results/Documentation';
+import ResultsPersonalisation from '@/pages/results/Personalisation';
+import ResultsProduction from '@/pages/results/Production';
 import ResultsCalculations from '@/pages/results/Calculations';
 import ResultsAnalytics from '@/pages/results/Analytics';
 import Services from '@/pages/Services';
@@ -315,7 +318,10 @@ export function ModuleRoutes() {
       <Route path="/results/grading-system" element={<Results />} />
       <Route path="/results/grade-entry" element={<ResultsGradeEntry />} />
       <Route path="/results/calculations" element={<ResultsCalculations />} />
-      <Route path="/results/documents" element={<ResultsDocuments />} />
+      <Route path="/results/validation" element={<ResultsValidation />} />
+      <Route path="/results/documentation" element={<ResultsDocumentation />} />
+      <Route path="/results/personalisation" element={<ResultsPersonalisation />} />
+      <Route path="/results/production" element={<ResultsProduction />} />
       <Route path="/results/analytics" element={<ResultsAnalytics />} />
       <Route path="/services" element={<Services />} />
 

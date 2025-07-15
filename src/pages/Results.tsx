@@ -8,6 +8,10 @@ import { GradingSystemConfig } from '@/components/results/GradingSystemConfig';
 import { MatrixGradeEntry } from '@/components/results/MatrixGradeEntry';
 import { GradeCalculations } from '@/components/results/GradeCalculations';
 import { ResultsAnalytics } from '@/components/results/ResultsAnalytics';
+import Validation from "./results/Validation";
+import Documentation from "./results/Documentation";
+import Personalisation from "./results/Personalisation";
+import Production from "./results/Production";
 
 export default function Results() {
   const location = useLocation();
@@ -34,10 +38,25 @@ export default function Results() {
           subtitle: "Moyennes, ECTS, compensations et mentions automatiques",
           component: <GradeCalculations />
         },
-        '/results/documents': {
-          title: "Documents",
-          subtitle: "Bulletins, relevés, attestations et templates personnalisables",
-          component: <DocumentsEvaluationInterface />
+        '/results/validation': {
+          title: "Validation",
+          subtitle: "Consultation et validation des résultats",
+          component: <Validation />
+        },
+        '/results/documentation': {
+          title: "Documentation",
+          subtitle: "Création et gestion des types de documents",
+          component: <Documentation />
+        },
+        '/results/personalisation': {
+          title: "Personnalisation",
+          subtitle: "Studio de création des templates",
+          component: <Personalisation />
+        },
+        '/results/production': {
+          title: "Production",
+          subtitle: "Centre de production et export en masse",
+          component: <Production />
         },
         '/results/analytics': {
           title: "Analyse & Contrôle",
