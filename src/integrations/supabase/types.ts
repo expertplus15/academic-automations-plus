@@ -1547,6 +1547,48 @@ export type Database = {
           },
         ]
       }
+      calculation_history: {
+        Row: {
+          affected_records: number | null
+          completed_at: string | null
+          created_at: string | null
+          execution_time_ms: number | null
+          id: string
+          metadata: Json | null
+          parameters: Json | null
+          started_at: string
+          status: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          affected_records?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          metadata?: Json | null
+          parameters?: Json | null
+          started_at?: string
+          status?: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          affected_records?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          metadata?: Json | null
+          parameters?: Json | null
+          started_at?: string
+          status?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       call_participants: {
         Row: {
           call_session_id: string
@@ -9230,6 +9272,23 @@ export type Database = {
           category: string
           description: string
         }[]
+      }
+      record_calculation_complete: {
+        Args: {
+          history_id: string
+          success?: boolean
+          affected_count?: number
+          error_message?: string
+        }
+        Returns: undefined
+      }
+      record_calculation_start: {
+        Args: {
+          calculation_type: string
+          calculation_params?: Json
+          user_id_param?: string
+        }
+        Returns: string
       }
       trigger_module_sync: {
         Args: {

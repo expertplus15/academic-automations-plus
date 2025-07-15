@@ -49,25 +49,45 @@ export function useCalculationMonitoring() {
         .gte('started_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()) // Last 24 hours
         .order('started_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        // If table doesn't exist yet, provide default metrics
+        console.warn('Calculation history table not available:', error);
+        setMetrics({
+          totalCalculations: 0,
+          successRate: 100,
+          averageExecutionTime: 0,
+          errorRate: 0,
+          cacheHitRate: 0,
+          queueLength: 0
+        });
+        return;
+      }
 
       if (recentCalculations && recentCalculations.length > 0) {
         const total = recentCalculations.length;
         const successful = recentCalculations.filter(c => c.status === 'success').length;
-        const totalTime = recentCalculations
-          .filter(c => c.execution_time_ms)
-          .reduce((sum, c) => sum + (c.execution_time_ms || 0), 0);
+        const calculationsWithTime = recentCalculations.filter(c => c.execution_time_ms);
+        const totalTime = calculationsWithTime.reduce((sum, c) => sum + (c.execution_time_ms || 0), 0);
         
         const newMetrics: CalculationMetrics = {
           totalCalculations: total,
-          successRate: (successful / total) * 100,
-          averageExecutionTime: totalTime / total,
-          errorRate: ((total - successful) / total) * 100,
+          successRate: total > 0 ? (successful / total) * 100 : 100,
+          averageExecutionTime: calculationsWithTime.length > 0 ? totalTime / calculationsWithTime.length : 0,
+          errorRate: total > 0 ? ((total - successful) / total) * 100 : 0,
           cacheHitRate: 0, // Would be calculated from cache stats
           queueLength: 0 // Would be from queue service
         };
 
         setMetrics(newMetrics);
+      } else {
+        setMetrics({
+          totalCalculations: 0,
+          successRate: 100,
+          averageExecutionTime: 0,
+          errorRate: 0,
+          cacheHitRate: 0,
+          queueLength: 0
+        });
       }
     } catch (error) {
       console.error('Failed to update calculation metrics:', error);
@@ -98,13 +118,14 @@ export function useCalculationMonitoring() {
           table: 'calculation_history'
         },
         (payload) => {
-          if (payload.new.status === 'error') {
+          const newRecord = payload.new as any;
+          if (newRecord.status === 'error') {
             logError({
-              id: payload.new.id,
+              id: newRecord.id,
               type: 'calculation',
-              message: payload.new.metadata?.error_message || 'Calculation failed',
-              timestamp: new Date(payload.new.started_at),
-              context: payload.new.parameters
+              message: newRecord.metadata?.error_message || 'Calculation failed',
+              timestamp: new Date(newRecord.started_at),
+              context: newRecord.parameters
             });
           }
           updateMetrics();

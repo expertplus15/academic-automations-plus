@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { calculationCache } from '@/services/CalculationCache';
 
 export interface StudentAverages {
   student_id: string;
@@ -52,16 +53,31 @@ export function useGradeCalculations() {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Calculate averages for a student
+  // Calculate averages for a student with caching
   const calculateStudentAverages = useCallback(async (
     studentId: string,
     academicYearId: string,
     semester?: number
   ): Promise<StudentAverages | null> => {
+    const cacheKey = 'student_averages';
+    const params = { studentId, academicYearId, semester: semester || 'all' };
+
+    // Check cache first
+    const cached = calculationCache.get<StudentAverages>(cacheKey, params);
+    if (cached) {
+      return cached;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
+      // Record calculation start
+      const historyId = await supabase.rpc('record_calculation_start', {
+        calculation_type: 'student_averages',
+        calculation_params: params
+      });
+
       const { data, error } = await supabase.rpc('calculate_student_averages', {
         p_student_id: studentId,
         p_academic_year_id: academicYearId,
@@ -69,7 +85,22 @@ export function useGradeCalculations() {
       });
 
       if (error) throw error;
-      return data as unknown as StudentAverages;
+
+      const result = data as unknown as StudentAverages;
+      
+      // Cache the result
+      calculationCache.set(cacheKey, params, result, 5 * 60 * 1000); // 5 minutes TTL
+      
+      // Record calculation completion
+      if (historyId.data) {
+        await supabase.rpc('record_calculation_complete', {
+          history_id: historyId.data,
+          success: true,
+          affected_count: 1
+        });
+      }
+
+      return result;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erreur lors du calcul des moyennes';
       setError(message);
@@ -114,7 +145,7 @@ export function useGradeCalculations() {
     }
   }, [toast]);
 
-  // Calculate averages for multiple students (class averages)
+  // Calculate averages for multiple students (class averages) with batch optimization
   const calculateClassAverages = useCallback(async (
     programId: string,
     academicYearId: string,
@@ -124,6 +155,12 @@ export function useGradeCalculations() {
     setError(null);
 
     try {
+      // Record batch calculation start
+      const historyId = await supabase.rpc('record_calculation_start', {
+        calculation_type: 'class_averages',
+        calculation_params: { programId, academicYearId, semester }
+      });
+
       // Get all students from the program
       const { data: students, error: studentsError } = await supabase
         .from('students')
@@ -133,13 +170,46 @@ export function useGradeCalculations() {
 
       if (studentsError) throw studentsError;
 
-      // Calculate averages for each student
-      const averagesPromises = students.map(student =>
-        calculateStudentAverages(student.id, academicYearId, semester)
-      );
+      const results: StudentAverages[] = [];
+      const uncachedStudents: string[] = [];
 
-      const averages = await Promise.all(averagesPromises);
-      return averages.filter(avg => avg !== null) as StudentAverages[];
+      // Check cache for each student first
+      for (const student of students) {
+        const params = { studentId: student.id, academicYearId, semester: semester || 'all' };
+        const cached = calculationCache.get<StudentAverages>('student_averages', params);
+        
+        if (cached) {
+          results.push(cached);
+        } else {
+          uncachedStudents.push(student.id);
+        }
+      }
+
+      // Calculate only uncached students
+      if (uncachedStudents.length > 0) {
+        const averagesPromises = uncachedStudents.map(studentId =>
+          calculateStudentAverages(studentId, academicYearId, semester)
+        );
+
+        const newAverages = await Promise.all(averagesPromises);
+        results.push(...newAverages.filter(avg => avg !== null) as StudentAverages[]);
+      }
+
+      // Record calculation completion
+      if (historyId.data) {
+        await supabase.rpc('record_calculation_complete', {
+          history_id: historyId.data,
+          success: true,
+          affected_count: results.length
+        });
+      }
+
+      toast({
+        title: "Calcul terminé",
+        description: `${results.length} moyennes calculées (${students.length - uncachedStudents.length} depuis le cache)`,
+      });
+
+      return results;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erreur lors du calcul des moyennes de classe';
       setError(message);
