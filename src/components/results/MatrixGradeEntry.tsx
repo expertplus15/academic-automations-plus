@@ -11,11 +11,15 @@ import { usePrograms } from '@/hooks/usePrograms';
 import { useSubjects } from '@/hooks/useSubjects';
 import { useAcademicYear } from '@/hooks/useAcademicYear';
 import { useEvaluationTypes } from '@/hooks/useEvaluationTypes';
+import { useSpecializations } from '@/hooks/useSupabase';
+import { useAcademicLevels } from '@/hooks/useSupabase';
 import { MoteurCalculAcademique, DEFAULT_GRADING_CONFIG } from '@/lib/gradingEngine';
 
 export function MatrixGradeEntry() {
   const [matrixData, setMatrixData] = useState<StudentWithGrades[]>([]);
   const [selectedProgram, setSelectedProgram] = useState<string>('');
+  const [selectedSpecialization, setSelectedSpecialization] = useState<string>('');
+  const [selectedLevel, setSelectedLevel] = useState<string>('');
   const [selectedSubject, setSelectedSubject] = useState<string>('');
   const [selectedSemester, setSelectedSemester] = useState<number>(1);
   const [loading, setLoading] = useState(false);
@@ -25,11 +29,18 @@ export function MatrixGradeEntry() {
   
   const { toast } = useToast();
   const { programs, loading: programsLoading } = usePrograms();
+  const { data: specializations, loading: specializationsLoading } = useSpecializations();
+  const { data: academicLevels, loading: levelsLoading } = useAcademicLevels();
   const { subjects, loading: subjectsLoading } = useSubjects(selectedProgram);
   const { currentYear } = useAcademicYear();
-  const { evaluationTypes, getEvaluationTypeById } = useEvaluationTypes();
+  const { evaluationTypes } = useEvaluationTypes();
   const { getMatriceGrades, saveGradesBatch } = useStudentGrades();
   const gradingEngine = new MoteurCalculAcademique(DEFAULT_GRADING_CONFIG);
+
+  // Filter specializations by selected program
+  const filteredSpecializations = specializations?.filter(spec => 
+    !selectedProgram || spec.program_id === selectedProgram
+  ) || [];
 
   // Get evaluation type IDs for CC and Exam
   const ccEvalType = evaluationTypes.find(et => et.code === 'CC');
@@ -58,14 +69,32 @@ export function MatrixGradeEntry() {
     loadGrades();
   }, [selectedSubject, selectedSemester, getMatriceGrades, toast]);
 
-  // Reset subject when program changes
+  // Reset cascade when selections change
   useEffect(() => {
     if (selectedProgram) {
+      setSelectedSpecialization('');
+      setSelectedLevel('');
       setSelectedSubject('');
       setMatrixData([]);
       setChangedGrades(new Map());
     }
   }, [selectedProgram]);
+
+  useEffect(() => {
+    if (selectedSpecialization) {
+      setSelectedSubject('');
+      setMatrixData([]);
+      setChangedGrades(new Map());
+    }
+  }, [selectedSpecialization]);
+
+  useEffect(() => {
+    if (selectedLevel) {
+      setSelectedSubject('');
+      setMatrixData([]);
+      setChangedGrades(new Map());
+    }
+  }, [selectedLevel]);
 
   const calculateRowValues = useCallback((rowIndex: number) => {
     const data = [...matrixData];
@@ -258,70 +287,143 @@ export function MatrixGradeEntry() {
       {/* Filters */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Programme</label>
-              <Select value={selectedProgram} onValueChange={setSelectedProgram} disabled={programsLoading}>
-                <SelectTrigger className="w-64">
-                  <SelectValue placeholder={programsLoading ? "Chargement..." : "Sélectionner un programme"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {programs.map((program) => (
-                    <SelectItem key={program.id} value={program.id}>
-                      {program.code} - {program.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <div className="space-y-4">
+            {/* First row: Main selectors */}
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Programme</label>
+                <Select value={selectedProgram} onValueChange={setSelectedProgram} disabled={programsLoading}>
+                  <SelectTrigger className="w-64">
+                    <SelectValue placeholder={programsLoading ? "Chargement..." : "Sélectionner un programme"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {programs.map((program) => (
+                      <SelectItem key={program.id} value={program.id}>
+                        {program.code} - {program.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Spécialisation</label>
+                <Select 
+                  value={selectedSpecialization} 
+                  onValueChange={setSelectedSpecialization}
+                  disabled={!selectedProgram || specializationsLoading}
+                >
+                  <SelectTrigger className="w-64">
+                    <SelectValue placeholder={
+                      !selectedProgram ? "Sélectionner d'abord un programme" :
+                      specializationsLoading ? "Chargement..." :
+                      "Sélectionner une spécialisation"
+                    } />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {filteredSpecializations.map((specialization) => (
+                      <SelectItem key={specialization.id} value={specialization.id}>
+                        {specialization.code} - {specialization.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Niveau</label>
+                <Select 
+                  value={selectedLevel} 
+                  onValueChange={setSelectedLevel}
+                  disabled={levelsLoading}
+                >
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder={levelsLoading ? "Chargement..." : "Sélectionner un niveau"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {academicLevels?.map((level) => (
+                      <SelectItem key={level.id} value={level.id}>
+                        {level.code} - {level.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Matière</label>
-              <Select 
-                value={selectedSubject} 
-                onValueChange={setSelectedSubject}
-                disabled={!selectedProgram || subjectsLoading}
-              >
-                <SelectTrigger className="w-64">
-                  <SelectValue placeholder={
-                    !selectedProgram ? "Sélectionner d'abord un programme" :
-                    subjectsLoading ? "Chargement..." :
-                    "Sélectionner une matière"
-                  } />
-                </SelectTrigger>
-                <SelectContent>
-                  {subjects.map((subject) => (
-                    <SelectItem key={subject.id} value={subject.id}>
-                      {subject.code} - {subject.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Semestre</label>
-              <Select value={selectedSemester.toString()} onValueChange={(v) => setSelectedSemester(Number(v))}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">S1</SelectItem>
-                  <SelectItem value="2">S2</SelectItem>
-                </SelectContent>
-              </Select>
+            {/* Second row: Subject, semester and options */}
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Matière</label>
+                <Select 
+                  value={selectedSubject} 
+                  onValueChange={setSelectedSubject}
+                  disabled={!selectedProgram || !selectedSpecialization || !selectedLevel || subjectsLoading}
+                >
+                  <SelectTrigger className="w-64">
+                    <SelectValue placeholder={
+                      !selectedProgram ? "Sélectionner d'abord un programme" :
+                      !selectedSpecialization ? "Sélectionner d'abord une spécialisation" :
+                      !selectedLevel ? "Sélectionner d'abord un niveau" :
+                      subjectsLoading ? "Chargement..." :
+                      "Sélectionner une matière"
+                    } />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subjects.map((subject) => (
+                      <SelectItem key={subject.id} value={subject.id}>
+                        {subject.code} - {subject.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Semestre</label>
+                <Select value={selectedSemester.toString()} onValueChange={(v) => setSelectedSemester(Number(v))}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">S1</SelectItem>
+                    <SelectItem value="2">S2</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center gap-2 ml-auto">
+                <input
+                  type="checkbox"
+                  id="auto-save"
+                  checked={autoSave}
+                  onChange={(e) => setAutoSave(e.target.checked)}
+                />
+                <label htmlFor="auto-save" className="text-sm">Sauvegarde automatique</label>
+                <Zap className="w-4 h-4 text-yellow-500" />
+              </div>
             </div>
 
-            <div className="flex items-center gap-2 ml-auto">
-              <input
-                type="checkbox"
-                id="auto-save"
-                checked={autoSave}
-                onChange={(e) => setAutoSave(e.target.checked)}
-              />
-              <label htmlFor="auto-save" className="text-sm">Sauvegarde automatique</label>
-              <Zap className="w-4 h-4 text-yellow-500" />
-            </div>
+            {/* Selection summary */}
+            {(selectedProgram || selectedSpecialization || selectedLevel || selectedSubject) && (
+              <div className="p-3 bg-muted/50 rounded-md">
+                <div className="text-sm text-muted-foreground">
+                  <span className="font-medium">Sélection active :</span>
+                  {selectedProgram && <span className="ml-2 px-2 py-1 bg-primary/10 rounded text-primary">
+                    {programs.find(p => p.id === selectedProgram)?.name}
+                  </span>}
+                  {selectedSpecialization && <span className="ml-2 px-2 py-1 bg-blue-100 rounded text-blue-800">
+                    {filteredSpecializations.find(s => s.id === selectedSpecialization)?.name}
+                  </span>}
+                  {selectedLevel && <span className="ml-2 px-2 py-1 bg-green-100 rounded text-green-800">
+                    {academicLevels?.find(l => l.id === selectedLevel)?.name}
+                  </span>}
+                  {selectedSubject && <span className="ml-2 px-2 py-1 bg-orange-100 rounded text-orange-800">
+                    {subjects.find(s => s.id === selectedSubject)?.name}
+                  </span>}
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
