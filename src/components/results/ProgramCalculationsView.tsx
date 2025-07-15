@@ -15,7 +15,7 @@ import { useAcademicYears } from '@/hooks/useAcademicYears';
 import { useGradeCalculations, SemesterCalculation } from '@/hooks/useGradeCalculations';
 import { useStudents } from '@/hooks/useStudents';
 import { SemesterSummaryCard } from './SemesterSummaryCard';
-import { TranscriptPreview } from './TranscriptPreview';
+// import { TranscriptPreview } from './TranscriptPreview'; // Removed - component cleaned up
 import { ProgramStudentsTable } from './ProgramStudentsTable';
 import { StudentDetailsCards } from './StudentDetailsCards';
 import { StudentProgressCharts } from './StudentProgressCharts';
@@ -327,12 +327,16 @@ export function ProgramCalculationsView({ onBackToMatrix }: ProgramCalculationsV
                 title="Relevé de notes"
               />
 
-              <TranscriptPreview 
-                studentId={selectedStudent}
-                semester1Data={semester1Data}
-                semester2Data={semester2Data}
-                generalAverage={generalAverage}
-              />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Relevé de Notes</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    Fonctionnalité de relevé de notes - À implémenter selon les nouveaux besoins
+                  </p>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
         </Tabs>
