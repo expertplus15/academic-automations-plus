@@ -17,6 +17,54 @@ export function CanvasWorkspace() {
     }
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const elementType = e.dataTransfer.getData('text/plain');
+    if (!elementType) return;
+
+    const canvasRect = e.currentTarget.getBoundingClientRect();
+    const canvasElement = e.currentTarget.querySelector('[style*="scale"]') as HTMLElement;
+    if (!canvasElement) return;
+
+    const canvasElementRect = canvasElement.getBoundingClientRect();
+    const scale = state.zoomLevel / 100;
+    
+    const x = (e.clientX - canvasElementRect.left) / scale;
+    const y = (e.clientY - canvasElementRect.top) / scale;
+
+    actions.addElement(elementType, { x: Math.max(0, x - 50), y: Math.max(0, y - 25) });
+  };
+
+  const handleElementDragStart = (e: React.DragEvent, elementId: string) => {
+    e.dataTransfer.setData('application/element-move', elementId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleElementDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const elementId = e.dataTransfer.getData('application/element-move');
+    if (!elementId || !currentTemplate) return;
+
+    const canvasElement = e.currentTarget.querySelector('[style*="scale"]') as HTMLElement;
+    if (!canvasElement) return;
+
+    const canvasElementRect = canvasElement.getBoundingClientRect();
+    const scale = state.zoomLevel / 100;
+    
+    const x = (e.clientX - canvasElementRect.left) / scale;
+    const y = (e.clientY - canvasElementRect.top) / scale;
+
+    actions.updateElement(elementId, { 
+      x: Math.max(0, x - 50), 
+      y: Math.max(0, y - 25) 
+    });
+  };
+
   if (!currentTemplate) {
     return (
       <div className="flex-1 bg-muted/20 relative overflow-hidden flex items-center justify-center">
@@ -35,7 +83,12 @@ export function CanvasWorkspace() {
 
   return (
     <div className="flex-1 bg-muted/20 relative overflow-hidden">
-      <div className="relative w-full h-full overflow-auto" onClick={handleCanvasClick}>
+      <div 
+        className="relative w-full h-full overflow-auto" 
+        onClick={handleCanvasClick}
+        onDragOver={handleDragOver}
+        onDrop={handleElementDrop}
+      >
         <div 
           className="relative bg-white shadow-lg mx-auto my-8"
           style={{
@@ -45,6 +98,8 @@ export function CanvasWorkspace() {
             transform: `scale(${state.zoomLevel / 100})`,
             transformOrigin: 'top center'
           }}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
         >
           {/* Grid overlay */}
           {state.showGrid && (
@@ -64,11 +119,13 @@ export function CanvasWorkspace() {
           {currentTemplate.content.elements?.map((element) => (
             <div
               key={element.id}
+              draggable={!state.isPreviewMode}
               className={cn(
                 "absolute border-2 cursor-pointer transition-all duration-200",
                 state.selectedElement === element.id 
                   ? "border-primary bg-primary/5" 
-                  : "border-transparent hover:border-muted-foreground/30"
+                  : "border-transparent hover:border-muted-foreground/30",
+                !state.isPreviewMode && "cursor-move"
               )}
               style={{
                 left: element.x,
@@ -84,6 +141,10 @@ export function CanvasWorkspace() {
               onClick={(e) => {
                 e.stopPropagation();
                 handleElementClick(element.id);
+              }}
+              onDragStart={(e) => {
+                e.stopPropagation();
+                handleElementDragStart(e, element.id);
               }}
             >
               {/* Element content based on type */}
