@@ -10,7 +10,7 @@ import { GradeCalculations } from '@/components/results/GradeCalculations';
 import { ResultsAnalytics } from '@/components/results/ResultsAnalytics';
 import Validation from "./results/Validation";
 import Documentation from "./results/Documentation";
-import RefactoredPersonalisation from "./results/RefactoredPersonalisation";
+import { default as RefactoredPersonalisation } from "./results/RefactoredPersonalisation";
 import Production from "./results/Production";
 
 export default function Results() {
