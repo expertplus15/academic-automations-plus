@@ -100,43 +100,59 @@ export function SimpleDocumentEditor() {
     }
   }, [templates, selectedTemplate]);
 
-  // Phase 1: Enhanced template content loading
+  // Phase 1: Enhanced template content loading - CORRECTED
   useEffect(() => {
     if (selectedTemplate && templates.length > 0) {
       setIsLoadingTemplate(true);
       const template = templates.find(t => t.id === selectedTemplate);
       
       if (template) {
-        // Try to load from SimpleDocumentGenerator first
-        try {
-          const generatedHtml = SimpleDocumentGenerator.generateHTML(template.id);
-          if (generatedHtml) {
-            // If we have generated content, create elements from it
+        // Check if template has stored content
+        if (template.template_content?.elements && Array.isArray(template.template_content.elements)) {
+          const templateElements = template.template_content.elements.map((el: any) => ({
+            id: el.id || `element_${Date.now()}`,
+            type: el.type || 'text',
+            label: el.content?.label || el.label || 'Élément',
+            content: el.content?.text || el.content || '',
+            style: el.style || { fontSize: 14, fontWeight: 'normal', color: '#374151', textAlign: 'left' }
+          }));
+          setElements(templateElements);
+        } else {
+          // Try to match with SimpleDocumentGenerator templates
+          const availableTemplates = SimpleDocumentGenerator.getAvailableTemplates();
+          const matchingTemplate = availableTemplates.find(t => 
+            template.name.toLowerCase().includes(t.name.toLowerCase()) ||
+            t.name.toLowerCase().includes(template.name.toLowerCase())
+          );
+          
+          if (matchingTemplate) {
+            try {
+              const generatedHtml = SimpleDocumentGenerator.generateHTML(matchingTemplate.id);
+              setElements([
+                {
+                  id: 'generated_content',
+                  type: 'html',
+                  label: 'Contenu généré',
+                  content: generatedHtml,
+                  style: { fontSize: 14, fontWeight: 'normal', color: '#374151', textAlign: 'left' }
+                }
+              ]);
+            } catch (error) {
+              console.log('Erreur génération:', error);
+              setElements(defaultElements);
+            }
+          } else {
+            // Use default elements with template name
             setElements([
+              ...defaultElements,
               {
-                id: 'generated_content',
-                type: 'html',
-                label: 'Contenu généré',
-                content: generatedHtml,
-                style: { fontSize: 14, fontWeight: 'normal', color: '#374151', textAlign: 'left' }
+                id: 'template_title',
+                type: 'title',
+                label: 'Titre du template',
+                content: template.name,
+                style: { fontSize: 18, fontWeight: 'bold', color: '#1f2937', textAlign: 'center' }
               }
             ]);
-          } else {
-            throw new Error('No generated content');
-          }
-        } catch (error) {
-          // Fallback to template content or default elements
-          if (template.template_content?.elements) {
-            const templateElements = template.template_content.elements.map((el: any) => ({
-              id: el.id || `element_${Date.now()}`,
-              type: el.type || 'text',
-              label: el.content?.label || el.label || 'Élément',
-              content: el.content?.text || el.content || '',
-              style: el.style || { fontSize: 14, fontWeight: 'normal', color: '#374151', textAlign: 'left' }
-            }));
-            setElements(templateElements);
-          } else {
-            setElements(defaultElements);
           }
         }
       }
