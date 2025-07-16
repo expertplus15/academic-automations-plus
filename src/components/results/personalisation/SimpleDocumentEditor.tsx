@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useDocumentTemplates } from '@/hooks/useDocumentTemplates';
+import { useNavigate } from 'react-router-dom';
 import { 
   Save,
   Eye,
@@ -17,7 +18,8 @@ import {
   Palette,
   Type,
   Image,
-  Settings
+  Settings,
+  ArrowLeft
 } from 'lucide-react';
 
 interface DocumentElement {
@@ -67,18 +69,39 @@ const defaultElements: DocumentElement[] = [
 export function SimpleDocumentEditor() {
   const { toast } = useToast();
   const { templates, loading, updateTemplate } = useDocumentTemplates();
+  const navigate = useNavigate();
   
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [elements, setElements] = useState<DocumentElement[]>(defaultElements);
   const [activeTab, setActiveTab] = useState('edit');
   const [hasChanges, setHasChanges] = useState(false);
 
-  // Auto-select first template
+  // Auto-select first template and load its content
   useEffect(() => {
     if (templates.length > 0 && !selectedTemplate) {
       setSelectedTemplate(templates[0].id);
     }
   }, [templates, selectedTemplate]);
+
+  // Load template content when selected template changes
+  useEffect(() => {
+    if (selectedTemplate && templates.length > 0) {
+      const template = templates.find(t => t.id === selectedTemplate);
+      if (template?.template_content?.elements) {
+        const templateElements = template.template_content.elements.map((el: any) => ({
+          id: el.id || `element_${Date.now()}`,
+          type: el.type || 'text',
+          label: el.content?.label || el.label || 'Élément',
+          content: el.content?.text || el.content || '',
+          style: el.style || { fontSize: 14, fontWeight: 'normal', color: '#374151', textAlign: 'left' }
+        }));
+        setElements(templateElements);
+      } else {
+        setElements(defaultElements);
+      }
+      setHasChanges(false);
+    }
+  }, [selectedTemplate, templates]);
 
   const updateElement = (elementId: string, updates: Partial<DocumentElement>) => {
     setElements(prev => prev.map(el => 
@@ -160,6 +183,15 @@ export function SimpleDocumentEditor() {
       <div className="border-b bg-card/50 p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Retour
+            </Button>
             <div className="flex items-center gap-2">
               <FileText className="w-5 h-5 text-primary" />
               <h1 className="text-xl font-semibold">Éditeur de Documents</h1>
