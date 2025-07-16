@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTemplateEditorContext } from '@/contexts/TemplateEditorContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,7 +37,6 @@ import {
   FlipVertical
 } from 'lucide-react';
 import { Template } from '@/services/TemplateService';
-import { useTemplateEditorContext } from '@/contexts/TemplateEditorContext';
 
 interface EnhancedPropertiesPanelProps {
   selectedElement: string | null;
