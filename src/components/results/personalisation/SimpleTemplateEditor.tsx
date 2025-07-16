@@ -8,24 +8,27 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Save, Eye, RotateCcw, FileText, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useDocumentTemplates } from '@/hooks/useDocumentTemplates';
+import { useDocumentTemplates, DocumentVariable } from '@/hooks/useDocumentTemplates';
 
 
-// Variables disponibles pour les templates
-const AVAILABLE_VARIABLES = [
-  { category: 'Étudiant', variables: [
-    '{{student_name}}', '{{student_number}}', '{{student_email}}',
-    '{{student_program}}', '{{student_level}}', '{{enrollment_date}}'
-  ]},
-  { category: 'Académique', variables: [
-    '{{academic_year}}', '{{semester}}', '{{institution_name}}',
-    '{{program_name}}', '{{level_name}}', '{{session_date}}'
-  ]},
-  { category: 'Notes', variables: [
-    '{{grades_table}}', '{{overall_average}}', '{{total_credits}}',
-    '{{semester_average}}', '{{attendance_rate}}', '{{ranking}}'
-  ]}
-];
+// Fonction pour grouper les variables par catégorie
+const groupVariablesByCategory = (variables: DocumentVariable[]) => {
+  if (!Array.isArray(variables)) return [];
+  
+  const grouped = variables.reduce((acc, variable) => {
+    const category = variable.category || 'Autres';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(`{{${variable.name}}}`);
+    return acc;
+  }, {} as Record<string, string[]>);
+  
+  return Object.entries(grouped).map(([category, vars]) => ({
+    category,
+    variables: vars
+  }));
+};
 
 interface SimpleTemplateEditorProps {
   className?: string;
@@ -33,14 +36,14 @@ interface SimpleTemplateEditorProps {
 
 export function SimpleTemplateEditor({ className }: SimpleTemplateEditorProps) {
   const { toast } = useToast();
-  const { templates, loading, updateTemplate } = useDocumentTemplates();
+  const { templates, variables, loading, updateTemplate } = useDocumentTemplates();
   
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
   const [templateContent, setTemplateContent] = useState('');
   const [isPreview, setIsPreview] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
+  const selectedTemplate = (templates || []).find((t: any) => t.id === selectedTemplateId);
 
   useEffect(() => {
     if (selectedTemplate) {
@@ -111,6 +114,45 @@ export function SimpleTemplateEditor({ className }: SimpleTemplateEditorProps) {
     }
   };
 
+  const generatePreview = () => {
+    let preview = templateContent;
+    
+    // Remplacer les variables par des exemples de données
+    const sampleData: Record<string, string> = {
+      'institution_name': 'Université de Paris',
+      'student_name': 'Martin Dupont',
+      'student_number': '20241234',
+      'student_email': 'martin.dupont@univ-paris.fr',
+      'student_program': 'Master Informatique',
+      'student_level': 'M2',
+      'academic_year': '2024-2025',
+      'semester': '1',
+      'program_name': 'Master en Informatique',
+      'level_name': 'Master 2',
+      'enrollment_date': '15/09/2024',
+      'session_date': new Date().toLocaleDateString('fr-FR'),
+      'overall_average': '14.5',
+      'semester_average': '15.2',
+      'total_credits': '120',
+      'attendance_rate': '95',
+      'ranking': '3',
+      'grades_table': `Mathématiques: 16/20 - 6 ECTS
+Algorithmique: 15/20 - 6 ECTS  
+Base de données: 13/20 - 4 ECTS
+Projet: 14/20 - 4 ECTS`
+    };
+
+    Object.entries(sampleData).forEach(([key, value]) => {
+      const regex = new RegExp(`{{${key}}}`, 'g');
+      preview = preview.replace(regex, value);
+    });
+
+    return preview;
+  };
+
+  // Grouper les variables par catégorie
+  const availableVariables = groupVariablesByCategory(variables || []);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -138,7 +180,7 @@ export function SimpleTemplateEditor({ className }: SimpleTemplateEditorProps) {
               <SelectValue placeholder="Choisir un template à personnaliser" />
             </SelectTrigger>
             <SelectContent>
-              {templates.map((template) => (
+              {(templates || []).map((template: any) => (
                 <SelectItem key={template.id} value={template.id}>
                   {template.name} - {template.template_type}
                 </SelectItem>
@@ -177,11 +219,11 @@ export function SimpleTemplateEditor({ className }: SimpleTemplateEditorProps) {
                 {isPreview ? (
                   <div className="border rounded-md p-4 h-full overflow-auto bg-background">
                     <div 
-                      className="prose prose-sm max-w-none"
-                      dangerouslySetInnerHTML={{ 
-                        __html: templateContent.replace(/\n/g, '<br>') 
-                      }}
-                    />
+                      className="prose prose-sm max-w-none whitespace-pre-line"
+                      style={{ fontFamily: 'Arial, sans-serif' }}
+                    >
+                      {generatePreview()}
+                    </div>
                   </div>
                 ) : (
                   <Textarea
@@ -202,7 +244,7 @@ export function SimpleTemplateEditor({ className }: SimpleTemplateEditorProps) {
                 <CardTitle>Variables Disponibles</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {AVAILABLE_VARIABLES.map((category) => (
+                {availableVariables.map((category) => (
                   <div key={category.category}>
                     <Label className="text-sm font-medium">{category.category}</Label>
                     <div className="flex flex-wrap gap-1 mt-2">
@@ -220,6 +262,11 @@ export function SimpleTemplateEditor({ className }: SimpleTemplateEditorProps) {
                     </div>
                   </div>
                 ))}
+                {availableVariables.length === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    Aucune variable disponible
+                  </p>
+                )}
                 <div className="pt-4 border-t">
                   <p className="text-xs text-muted-foreground">
                     Cliquez sur une variable pour l'insérer dans le template
