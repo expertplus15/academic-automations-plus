@@ -23,28 +23,18 @@ import {
 import { useTemplateEditorContext } from '../providers/TemplateEditorProvider';
 
 export function PropertiesInspector() {
-  const { state, actions } = useTemplateEditorContext();
+  const { state, actions, currentTemplate } = useTemplateEditorContext();
 
-  // Mock element data - in real app, this would come from selected element
-  const selectedElement = state.selectedElement ? {
-    id: state.selectedElement,
-    type: 'header',
-    name: 'En-tête Principal',
-    x: 50,
-    y: 50,
-    width: 694,
-    height: 120,
-    opacity: 100,
-    rotation: 0,
-    visible: true,
-    locked: false,
-    properties: {
-      institution: "ÉTABLISSEMENT SCOLAIRE",
-      style: 'modern',
-      backgroundColor: '#ffffff',
-      textColor: '#1f2937'
+  // Get the actual selected element from the template
+  const selectedElement = currentTemplate && state.selectedElement 
+    ? currentTemplate.content.elements?.find(el => el.id === state.selectedElement)
+    : null;
+
+  const handleElementUpdate = (updates: any) => {
+    if (selectedElement) {
+      actions.updateElement(selectedElement.id, updates);
     }
-  } : null;
+  };
 
   if (!selectedElement) {
     return (
@@ -69,10 +59,24 @@ export function PropertiesInspector() {
         <div className="flex items-center justify-between mb-2">
           <h2 className="font-semibold text-lg">Propriétés</h2>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => {
+                // TODO: Implement copy functionality
+              }}
+            >
               <Copy className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="sm">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => {
+                if (selectedElement) {
+                  actions.deleteElement(selectedElement.id);
+                }
+              }}
+            >
               <Trash2 className="w-4 h-4" />
             </Button>
           </div>
@@ -82,7 +86,7 @@ export function PropertiesInspector() {
             {selectedElement.type}
           </Badge>
           <span className="text-sm font-medium truncate">
-            {selectedElement.name}
+            {selectedElement.content?.name || selectedElement.type}
           </span>
         </div>
       </div>
@@ -106,9 +110,7 @@ export function PropertiesInspector() {
                     type="number" 
                     value={selectedElement.x} 
                     className="h-8 text-xs"
-                    onChange={(e) => {
-                      // Handle position change
-                    }}
+                    onChange={(e) => handleElementUpdate({ x: parseInt(e.target.value) || 0 })}
                   />
                 </div>
                 <div className="space-y-2">
@@ -117,6 +119,7 @@ export function PropertiesInspector() {
                     type="number" 
                     value={selectedElement.y} 
                     className="h-8 text-xs"
+                    onChange={(e) => handleElementUpdate({ y: parseInt(e.target.value) || 0 })}
                   />
                 </div>
               </div>
@@ -128,6 +131,7 @@ export function PropertiesInspector() {
                     type="number" 
                     value={selectedElement.width} 
                     className="h-8 text-xs"
+                    onChange={(e) => handleElementUpdate({ width: parseInt(e.target.value) || 0 })}
                   />
                 </div>
                 <div className="space-y-2">
@@ -136,6 +140,7 @@ export function PropertiesInspector() {
                     type="number" 
                     value={selectedElement.height} 
                     className="h-8 text-xs"
+                    onChange={(e) => handleElementUpdate({ height: parseInt(e.target.value) || 0 })}
                   />
                 </div>
               </div>
@@ -144,15 +149,17 @@ export function PropertiesInspector() {
                 <Label className="text-xs text-muted-foreground">Rotation</Label>
                 <div className="flex items-center gap-2">
                   <Slider
-                    value={[selectedElement.rotation]}
-                    onValueChange={() => {}}
+                    value={[selectedElement.style?.rotation || 0]}
+                    onValueChange={(value) => handleElementUpdate({ 
+                      style: { ...selectedElement.style, rotation: value[0] }
+                    })}
                     min={-180}
                     max={180}
                     step={1}
                     className="flex-1"
                   />
                   <span className="text-xs font-mono w-10 text-center">
-                    {selectedElement.rotation}°
+                    {selectedElement.style?.rotation || 0}°
                   </span>
                 </div>
               </div>
@@ -172,22 +179,29 @@ export function PropertiesInspector() {
                 <Label className="text-xs text-muted-foreground">Opacité</Label>
                 <div className="flex items-center gap-2">
                   <Slider
-                    value={[selectedElement.opacity]}
-                    onValueChange={() => {}}
+                    value={[selectedElement.style?.opacity || 100]}
+                    onValueChange={(value) => handleElementUpdate({ 
+                      style: { ...selectedElement.style, opacity: value[0] }
+                    })}
                     min={0}
                     max={100}
                     step={1}
                     className="flex-1"
                   />
                   <span className="text-xs font-mono w-10 text-center">
-                    {selectedElement.opacity}%
+                    {selectedElement.style?.opacity || 100}%
                   </span>
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label className="text-xs text-muted-foreground">Style</Label>
-                <Select value={selectedElement.properties.style}>
+                <Select 
+                  value={selectedElement.content?.style || 'modern'}
+                  onValueChange={(value) => handleElementUpdate({
+                    content: { ...selectedElement.content, style: value }
+                  })}
+                >
                   <SelectTrigger className="h-8 text-xs">
                     <SelectValue />
                   </SelectTrigger>
@@ -205,11 +219,14 @@ export function PropertiesInspector() {
                   <div className="flex items-center gap-2">
                     <div 
                       className="w-8 h-8 rounded border border-border"
-                      style={{ backgroundColor: selectedElement.properties.backgroundColor }}
+                      style={{ backgroundColor: selectedElement.style?.backgroundColor || '#ffffff' }}
                     />
                     <Input 
-                      value={selectedElement.properties.backgroundColor}
+                      value={selectedElement.style?.backgroundColor || '#ffffff'}
                       className="h-8 text-xs flex-1"
+                      onChange={(e) => handleElementUpdate({
+                        style: { ...selectedElement.style, backgroundColor: e.target.value }
+                      })}
                     />
                   </div>
                 </div>
@@ -218,11 +235,14 @@ export function PropertiesInspector() {
                   <div className="flex items-center gap-2">
                     <div 
                       className="w-8 h-8 rounded border border-border"
-                      style={{ backgroundColor: selectedElement.properties.textColor }}
+                      style={{ backgroundColor: selectedElement.style?.textColor || '#1f2937' }}
                     />
                     <Input 
-                      value={selectedElement.properties.textColor}
+                      value={selectedElement.style?.textColor || '#1f2937'}
                       className="h-8 text-xs flex-1"
+                      onChange={(e) => handleElementUpdate({
+                        style: { ...selectedElement.style, textColor: e.target.value }
+                      })}
                     />
                   </div>
                 </div>
@@ -243,9 +263,12 @@ export function PropertiesInspector() {
                 <div className="space-y-2">
                   <Label className="text-xs text-muted-foreground">Institution</Label>
                   <Input 
-                    value={selectedElement.properties.institution}
+                    value={selectedElement.content?.institution || ''}
                     className="h-8 text-xs"
                     placeholder="Nom de l'institution..."
+                    onChange={(e) => handleElementUpdate({
+                      content: { ...selectedElement.content, institution: e.target.value }
+                    })}
                   />
                 </div>
               </CardContent>
@@ -267,8 +290,11 @@ export function PropertiesInspector() {
                   variant="ghost" 
                   size="sm"
                   className="h-8 w-8 p-0"
+                  onClick={() => handleElementUpdate({
+                    style: { ...selectedElement.style, visible: !(selectedElement.style?.visible !== false) }
+                  })}
                 >
-                  {selectedElement.visible ? (
+                  {selectedElement.style?.visible !== false ? (
                     <Eye className="w-4 h-4" />
                   ) : (
                     <EyeOff className="w-4 h-4" />

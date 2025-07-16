@@ -40,6 +40,58 @@ export function useTemplateEditor() {
     }
   }, [templates, state.selectedTemplate]);
 
+  // Initialize template with sample elements if empty
+  useEffect(() => {
+    if (currentTemplate && (!currentTemplate.content.elements || currentTemplate.content.elements.length === 0)) {
+      const sampleElements = [
+        {
+          id: 'header-1',
+          type: 'header',
+          x: 50,
+          y: 50,
+          width: 495,
+          height: 80,
+          content: {
+            name: 'En-tête Principal',
+            institution: 'ÉTABLISSEMENT SCOLAIRE',
+            style: 'modern'
+          },
+          style: {
+            backgroundColor: '#ffffff',
+            textColor: '#1f2937',
+            opacity: 100,
+            rotation: 0,
+            visible: true
+          }
+        },
+        {
+          id: 'logo-1',
+          type: 'logo',
+          x: 450,
+          y: 60,
+          width: 60,
+          height: 60,
+          content: {
+            name: 'Logo',
+            url: '',
+            alt: 'Logo de l\'établissement'
+          },
+          style: {
+            opacity: 100,
+            rotation: 0,
+            visible: true
+          }
+        }
+      ];
+      
+      currentTemplate.content = {
+        ...currentTemplate.content,
+        elements: sampleElements
+      };
+      setState(prev => ({ ...prev, hasUnsavedChanges: true }));
+    }
+  }, [currentTemplate]);
+
   const actions: TemplateEditorActions = {
     // Template operations
     setSelectedTemplate: useCallback((id: string) => {
