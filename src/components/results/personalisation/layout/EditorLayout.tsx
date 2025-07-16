@@ -6,7 +6,7 @@ import { ToolboxPanel } from '../panels/ToolboxPanel';
 import { PropertiesPanel } from '../panels/PropertiesPanel';
 import { EditorCanvas } from '../editor/EditorCanvas';
 import { FullscreenToggle } from '../components/FullscreenToggle';
-import { useTemplateEditorContext } from '@/contexts/TemplateEditorContext';
+import { useTemplateEditorContext } from '../providers/TemplateEditorProvider';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 
 interface EditorLayoutProps {

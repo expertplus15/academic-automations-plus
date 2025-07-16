@@ -13,7 +13,7 @@ import {
   Maximize2,
   MousePointer2
 } from 'lucide-react';
-import { useTemplateEditorContext } from '@/contexts/TemplateEditorContext';
+import { useTemplateEditorContext } from '../providers/TemplateEditorProvider';
 import { BlockLibrary } from '../blocks/BlockLibrary';
 
 export function CanvasWorkspace() {

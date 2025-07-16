@@ -1,14 +1,6 @@
 import React, { createContext, useContext, ReactNode } from 'react';
-import { useTemplateEditor } from '@/hooks/useTemplateEditor';
-
-interface TemplateEditorContextType {
-  state: ReturnType<typeof useTemplateEditor>['state'];
-  actions: ReturnType<typeof useTemplateEditor>['actions'];
-  templates: ReturnType<typeof useTemplateEditor>['templates'];
-  documentTemplates: ReturnType<typeof useTemplateEditor>['documentTemplates'];
-  currentTemplate: ReturnType<typeof useTemplateEditor>['currentTemplate'];
-  loading: ReturnType<typeof useTemplateEditor>['loading'];
-}
+import { useTemplateEditor } from '../hooks/useTemplateEditor';
+import { TemplateEditorContextType } from '../types';
 
 const TemplateEditorContext = createContext<TemplateEditorContextType | undefined>(undefined);
 

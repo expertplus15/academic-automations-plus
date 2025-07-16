@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Minimize } from 'lucide-react';
-import { useTemplateEditorContext } from '@/contexts/TemplateEditorContext';
+import { useTemplateEditorContext } from '../providers/TemplateEditorProvider';
 
 export function FullscreenToggle() {
   const { state, actions } = useTemplateEditorContext();

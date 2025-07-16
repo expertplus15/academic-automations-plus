@@ -19,7 +19,7 @@ import {
   Clock,
   CheckCircle
 } from 'lucide-react';
-import { useTemplateEditorContext } from '@/contexts/TemplateEditorContext';
+import { useTemplateEditorContext } from '../providers/TemplateEditorProvider';
 import { BlockLibrary } from '../blocks/BlockLibrary';
 import { cn } from '@/lib/utils';
 

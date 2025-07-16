@@ -1,6 +1,6 @@
 import React from 'react';
 import { VisualEditor } from '../VisualEditor';
-import { useTemplateEditorContext } from '@/contexts/TemplateEditorContext';
+import { useTemplateEditorContext } from '../providers/TemplateEditorProvider';
 
 export function EditorCanvas() {
   const { state, actions, currentTemplate } = useTemplateEditorContext();

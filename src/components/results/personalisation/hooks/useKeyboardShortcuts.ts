@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useTemplateEditorContext } from '@/contexts/TemplateEditorContext';
+import { useTemplateEditorContext } from '../providers/TemplateEditorProvider';
 
 export function useKeyboardShortcuts() {
   const { actions } = useTemplateEditorContext();

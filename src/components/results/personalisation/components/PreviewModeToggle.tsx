@@ -15,7 +15,7 @@ import {
   Play,
   Pause
 } from 'lucide-react';
-import { useTemplateEditorContext } from '@/contexts/TemplateEditorContext';
+import { useTemplateEditorContext } from '../providers/TemplateEditorProvider';
 import { cn } from '@/lib/utils';
 
 interface PreviewModeToggleProps {

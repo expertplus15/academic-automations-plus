@@ -1,5 +1,5 @@
 import React from 'react';
-import { TemplateEditorProvider } from '@/contexts/TemplateEditorContext';
+import { TemplateEditorProvider } from './providers/TemplateEditorProvider';
 import { EditorLayout } from './layout/EditorLayout';
 import { LoadingState } from './states/LoadingState';
 import { EmptyState } from './states/EmptyState';

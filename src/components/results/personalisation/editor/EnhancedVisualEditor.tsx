@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Template } from '@/services/TemplateService';
-import { useTemplateEditorContext } from '@/contexts/TemplateEditorContext';
+import { useTemplateEditorContext } from '../providers/TemplateEditorProvider';
 import { FormattingToolbar } from './FormattingToolbar';
 import { InlineTextEditor } from './InlineTextEditor';
 import { useInlineEditor } from '@/hooks/useInlineEditor';

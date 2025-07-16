@@ -31,7 +31,7 @@ import {
   Plus,
   ChevronDown
 } from 'lucide-react';
-import { useTemplateEditorContext } from '@/contexts/TemplateEditorContext';
+import { useTemplateEditorContext } from '../providers/TemplateEditorProvider';
 import { blockMetadata } from '../blocks/BlockLibrary';
 
 interface ToolCategory {

@@ -11,7 +11,7 @@ import {
   FileText,
   Save
 } from 'lucide-react';
-import { useTemplateEditorContext } from '@/contexts/TemplateEditorContext';
+import { useTemplateEditorContext } from '../providers/TemplateEditorProvider';
 
 export function StatusFooter() {
   const { state } = useTemplateEditorContext();
