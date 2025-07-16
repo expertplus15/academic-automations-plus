@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Palette, Layout, Brush } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { RefactoredTemplateStudio } from '@/components/results/personalisation/RefactoredTemplateStudio';
+import { SimpleTemplateEditor } from '@/components/results/personalisation/SimpleTemplateEditor';
 
 export default function RefactoredPersonalisation() {
   const navigate = useNavigate();
@@ -50,9 +50,9 @@ export default function RefactoredPersonalisation() {
           </div>
         </div>
 
-        {/* Studio principal */}
+        {/* Éditeur simplifié */}
         <div className="flex-1">
-          <RefactoredTemplateStudio />
+          <SimpleTemplateEditor />
         </div>
       </div>
     </ModuleLayout>
