@@ -1,6 +1,6 @@
 import React from 'react';
-import ModernEditorInterface from '@/components/results/personalisation/core/ModernEditorInterface';
+import { SimpleDocumentEditor } from '@/components/results/personalisation/SimpleDocumentEditor';
 
 export default function RefactoredPersonalisation() {
-  return <ModernEditorInterface />;
+  return <SimpleDocumentEditor />;
 }
