@@ -26,4 +26,5 @@ export interface BlockProps {
   onSelect?: (id: string) => void;
   onUpdate?: (id: string, data: any) => void;
   className?: string;
+  isPreview?: boolean;
 }

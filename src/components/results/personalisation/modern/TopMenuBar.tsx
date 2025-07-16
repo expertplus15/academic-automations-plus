@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useNavigate } from 'react-router-dom';
 import { useTemplateEditorContext } from '@/contexts/TemplateEditorContext';
+import { PreviewModeToggle } from './PreviewModeToggle';
 
 export function TopMenuBar() {
   const navigate = useNavigate();
@@ -109,15 +110,7 @@ export function TopMenuBar() {
         
         <Separator orientation="vertical" className="h-6 mx-2" />
         
-        <Button 
-          variant={state.isPreviewMode ? "default" : "ghost"} 
-          size="sm"
-          onClick={() => actions.togglePreviewMode()}
-          className="gap-2"
-        >
-          {state.isPreviewMode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-          {state.isPreviewMode ? 'Édition' : 'Aperçu'}
-        </Button>
+        <PreviewModeToggle />
       </div>
 
       {/* Right Section - View & User */}

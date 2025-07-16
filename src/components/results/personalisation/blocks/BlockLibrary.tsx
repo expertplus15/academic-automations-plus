@@ -21,6 +21,7 @@ interface BlockLibraryProps {
   onSelect?: (id: string) => void;
   onUpdate?: (id: string, data: any) => void;
   className?: string;
+  isPreview?: boolean;
 }
 
 export const BlockLibrary: React.FC<BlockLibraryProps> = ({ type, ...props }) => {
