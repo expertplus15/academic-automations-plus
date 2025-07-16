@@ -4,6 +4,9 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Template } from '@/services/TemplateService';
 import { useTemplateEditorContext } from '@/contexts/TemplateEditorContext';
+import { FormattingToolbar } from './FormattingToolbar';
+import { InlineTextEditor } from './InlineTextEditor';
+import { useInlineEditor } from '@/hooks/useInlineEditor';
 import { 
   MousePointer2, 
   Move, 
@@ -56,6 +59,7 @@ export function EnhancedVisualEditor({
 }: EnhancedVisualEditorProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const { actions } = useTemplateEditorContext();
+  const { editingState, startEditing, stopEditing, isElementEditing } = useInlineEditor();
   
   const [dragState, setDragState] = useState({
     isDragging: false,
@@ -228,6 +232,44 @@ export function EnhancedVisualEditor({
     e.preventDefault();
   }, []);
 
+  // Handle formatting changes
+  const handleFormatChange = useCallback((elementId: string, property: string, value: any) => {
+    const element = elements.find(el => el.id === elementId);
+    if (!element) return;
+
+    const updatedElement = { ...element };
+    
+    if (['fontWeight', 'fontStyle', 'textDecoration', 'fontSize'].includes(property)) {
+      updatedElement.content = { ...updatedElement.content, [property]: value };
+    } else {
+      updatedElement.style = { ...updatedElement.style, [property]: value };
+    }
+    
+    actions.updateElement(elementId, updatedElement);
+  }, [elements, actions]);
+
+  const handleFontSizeChange = useCallback((elementId: string, delta: number) => {
+    const element = elements.find(el => el.id === elementId);
+    if (!element) return;
+
+    const currentSize = element.content?.fontSize || 16;
+    const newSize = Math.max(8, Math.min(72, currentSize + delta));
+    
+    handleFormatChange(elementId, 'fontSize', newSize);
+  }, [elements, handleFormatChange]);
+
+  const handleContentChange = useCallback((elementId: string, newContent: string) => {
+    const element = elements.find(el => el.id === elementId);
+    if (!element) return;
+
+    const updatedElement = {
+      ...element,
+      content: { ...element.content, text: newContent }
+    };
+    
+    actions.updateElement(elementId, updatedElement);
+  }, [elements, actions]);
+
   // Render element based on type
   const renderElement = (element: ElementData) => {
     const baseStyle = {
@@ -236,10 +278,10 @@ export function EnhancedVisualEditor({
       top: element.y,
       width: element.width,
       height: element.height,
-      cursor: isPreviewMode ? 'default' : 'move',
+      cursor: isPreviewMode ? 'default' : isElementEditing(element.id) ? 'text' : 'move',
       border: selectedElement === element.id ? '2px solid hsl(var(--primary))' : '1px solid transparent',
       borderRadius: '2px',
-      ...element.style
+      zIndex: selectedElement === element.id ? 10 : 1
     };
 
     switch (element.type) {
@@ -249,21 +291,31 @@ export function EnhancedVisualEditor({
             key={element.id}
             style={baseStyle}
             className={cn(
-              "flex items-center justify-center p-2 hover:shadow-md transition-shadow",
-              selectedElement === element.id && "shadow-lg"
+              "hover:shadow-md transition-shadow relative",
+              selectedElement === element.id && "shadow-lg",
+              isElementEditing(element.id) && "z-20"
             )}
-            onMouseDown={(e) => handleElementMouseDown(e, element.id)}
+            onMouseDown={(e) => {
+              if (!isElementEditing(element.id)) {
+                handleElementMouseDown(e, element.id);
+              }
+            }}
+            onDoubleClick={() => {
+              if (!isPreviewMode) {
+                startEditing(element.id);
+              }
+            }}
           >
-            <span 
-              style={{ 
-                fontSize: element.content.fontSize,
-                fontWeight: element.content.fontWeight,
-                color: element.style.color,
-                textAlign: element.style.textAlign
+            <InlineTextEditor
+              element={element}
+              isEditing={isElementEditing(element.id)}
+              onContentChange={(content) => handleContentChange(element.id, content)}
+              onEditingChange={(isEditing) => {
+                if (!isEditing) {
+                  stopEditing();
+                }
               }}
-            >
-              {element.content.text}
-            </span>
+            />
           </div>
         );
 
@@ -414,6 +466,8 @@ export function EnhancedVisualEditor({
     }
   };
 
+  const selectedElementData = selectedElement ? elements.find(el => el.id === selectedElement) : null;
+
   return (
     <div className={cn("flex-1 flex flex-col bg-muted/20", className)}>
       {/* Canvas Header */}
@@ -443,6 +497,18 @@ export function EnhancedVisualEditor({
           </div>
         </div>
       </div>
+
+      {/* Formatting Toolbar */}
+      {selectedElementData && selectedElementData.type === 'text' && !isPreviewMode && (
+        <div className="p-2 border-b bg-background/80 backdrop-blur">
+          <FormattingToolbar
+            selectedElement={selectedElementData}
+            onFormatChange={(property, value) => handleFormatChange(selectedElement!, property, value)}
+            onFontSizeChange={(delta) => handleFontSizeChange(selectedElement!, delta)}
+            className="formatting-toolbar"
+          />
+        </div>
+      )}
 
       {/* Canvas Container */}
       <div className="flex-1 overflow-auto p-8">
