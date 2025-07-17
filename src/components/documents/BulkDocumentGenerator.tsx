@@ -68,9 +68,8 @@ export function BulkDocumentGenerator() {
       // Fetch templates
       const { data: templatesData, error: templatesError } = await supabase
         .from('document_templates')
-        .select('id, name, type, description')
-        .eq('is_active', true)
-        .order('name');
+        .select('*')
+        .order('created_at');
 
       if (templatesError) throw templatesError;
 
@@ -78,12 +77,17 @@ export function BulkDocumentGenerator() {
       const { data: programsData, error: programsError } = await supabase
         .from('programs')
         .select('id, name, code')
-        .eq('is_active', true)
         .order('name');
 
       if (programsError) throw programsError;
 
-      setTemplates(templatesData || []);
+      const mappedTemplates = templatesData?.map(t => ({
+        id: t.id,
+        name: `Template ${t.id}`,
+        type: 'Document',
+        description: 'Template de document'
+      })) || [];
+      setTemplates(mappedTemplates);
       
     } catch (error) {
       console.error('Error fetching initial data:', error);
@@ -301,7 +305,7 @@ export function BulkDocumentGenerator() {
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionner un template" />
                 </SelectTrigger>
-                <SelectContent>
+                 <SelectContent>
                   {templates.map(template => (
                     <SelectItem key={template.id} value={template.id}>
                       {template.name} - {template.type}

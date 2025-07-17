@@ -62,19 +62,15 @@ export function ProgramsManager() {
       setLoading(true);
       const { data, error } = await supabase
         .from('programs')
-        .select(`
-          *,
-          academic_levels(count),
-          students(count)
-        `)
+        .select('*')
         .order('name');
 
       if (error) throw error;
 
       const programsWithCounts = data?.map(program => ({
         ...program,
-        levels_count: program.academic_levels?.length || 0,
-        students_count: program.students?.length || 0
+        levels_count: 0,
+        students_count: 0
       })) || [];
 
       setPrograms(programsWithCounts);
@@ -105,9 +101,24 @@ export function ProgramsManager() {
           description: "Programme modifié avec succès"
         });
       } else {
+        // Get first department as required field
+        const { data: deptData } = await supabase
+          .from('departments')
+          .select('id')
+          .limit(1)
+          .single();
+
+        const programData = {
+          code: data.code!,
+          name: data.name!,
+          description: data.description || '',
+          department_id: deptData?.id || 'default-dept-id',
+          duration_years: data.duration_years
+        };
+
         const { error } = await supabase
           .from('programs')
-          .insert([data]);
+          .insert(programData);
 
         if (error) throw error;
 

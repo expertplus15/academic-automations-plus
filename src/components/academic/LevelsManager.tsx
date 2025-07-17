@@ -117,9 +117,19 @@ export function LevelsManager() {
           description: "Niveau modifié avec succès"
         });
       } else {
+        const levelData = {
+          code: data.code!,
+          name: data.name!,
+          education_cycle: data.education_cycle!,
+          order_index: data.order_index!,
+          duration_years: data.duration_years,
+          semesters: data.semesters,
+          ects_credits: data.ects_credits
+        };
+
         const { error } = await supabase
           .from('academic_levels')
-          .insert([data]);
+          .insert(levelData);
 
         if (error) throw error;
 

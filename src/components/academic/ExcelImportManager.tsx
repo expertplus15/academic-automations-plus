@@ -74,11 +74,27 @@ export function ExcelImportManager() {
       setProgress(((i + 1) / total) * 100);
 
       try {
-        // Créer l'étudiant directement
+        // First create profile with required ID
+        const profileId = crypto.randomUUID();
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: profileId,
+            email: row.Email || `${row.Matricule}@etu.univ.fr`,
+            full_name: `${row.Prénom || ''} ${row.Nom || ''}`.trim(),
+            role: 'student'
+          })
+          .select()
+          .single();
+
+        if (profileError) throw profileError;
+
+        // Then create student linked to profile
         const { error: studentError } = await supabase
           .from('students')
           .insert({
             student_number: row.Matricule,
+            profile_id: profileData.id,
             program_id: row.Programme || 'default-program-id',
             enrollment_date: new Date().toISOString().split('T')[0],
             status: 'active'
