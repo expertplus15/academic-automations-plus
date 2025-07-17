@@ -339,11 +339,11 @@ export function SimpleTemplateCustomizer({
                           {variable}
                         </code>
                          <span className="text-sm text-muted-foreground">
-                           = {(() => {
-                             const value = previewData[variable as keyof typeof previewData];
-                             if (Array.isArray(value)) return `${value.length} éléments`;
-                             return String(value || 'Non défini');
-                           })()}
+                            = {(() => {
+                              const value = previewData[variable as keyof typeof previewData] as any;
+                              if (Array.isArray(value)) return `${value.length} éléments`;
+                              return String(value || 'Non défini');
+                            })()}
                          </span>
                       </div>
                     ))}
@@ -356,14 +356,14 @@ export function SimpleTemplateCustomizer({
                     {editingBlock.variables.map((variable) => (
                       <div key={variable} className="space-y-1">
                         <Label className="text-xs">{variable}</Label>
-                         {(() => {
-                           const value = previewData[variable as keyof typeof previewData];
-                           if (Array.isArray(value)) {
-                             return (
-                               <div className="text-xs text-muted-foreground p-2 bg-muted rounded">
-                                 {variable} (tableau avec {value.length} éléments)
-                               </div>
-                             );
+                          {(() => {
+                            const value = previewData[variable as keyof typeof previewData] as any;
+                            if (Array.isArray(value)) {
+                              return (
+                                <div className="text-xs text-muted-foreground p-2 bg-muted rounded">
+                                  {variable} (tableau avec {value.length} éléments)
+                                </div>
+                              );
                            }
                            return (
                              <Input
