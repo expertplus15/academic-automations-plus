@@ -39,11 +39,11 @@ export function useTemplateEditor() {
     if (templates.length > 0 && !state.selectedTemplate) {
       setState(prev => ({ ...prev, selectedTemplate: templates[0].id }));
     }
-  }, [templates, state.selectedTemplate]);
+  }, [templates.length, state.selectedTemplate]);
 
-  // Initialize template with sample elements if empty
+  // Initialize template with sample elements if empty - fixed dependencies
   useEffect(() => {
-    if (currentTemplate && (!currentTemplate.content.elements || currentTemplate.content.elements.length === 0)) {
+    if (state.selectedTemplate && currentTemplate && (!currentTemplate.content.elements || currentTemplate.content.elements.length === 0)) {
       const sampleElements = [
         {
           id: 'header-1',
@@ -91,7 +91,7 @@ export function useTemplateEditor() {
       };
       setState(prev => ({ ...prev, hasUnsavedChanges: true }));
     }
-  }, [currentTemplate]);
+  }, [state.selectedTemplate]); // Only depend on selectedTemplate, not currentTemplate
 
   const actions: TemplateEditorActions = {
     // Template operations

@@ -231,7 +231,10 @@ export function SimpleDocumentEditor() {
   }, [selectedTemplate, templates]);
 
   // Simple variable replacement for preview
-  const replaceVariables = (content: string) => {
+  const replaceVariables = useCallback((content: string) => {
+    if (typeof content !== 'string') {
+      content = String(content || '');
+    }
     return content
       .replace(/{{student\.full_name}}/g, mockStudentData.full_name)
       .replace(/{{student\.student_number}}/g, mockStudentData.student_number)
@@ -239,7 +242,7 @@ export function SimpleDocumentEditor() {
       .replace(/{{student\.program_name}}/g, mockStudentData.program_name)
       .replace(/{{academic_year}}/g, mockStudentData.academic_year)
       .replace(/{{current_date}}/g, new Date().toLocaleDateString('fr-FR'));
-  };
+  }, [mockStudentData]);
 
   const updateElement = (elementId: string, updates: Partial<DocumentElement>) => {
     setElements(prev => prev.map(el => 
