@@ -1,11 +1,6 @@
 import React from 'react';
-import { TemplateEditorProvider } from '@/components/results/personalisation/providers/TemplateEditorProvider';
-import { SimpleDocumentEditor } from '@/components/results/personalisation/SimpleDocumentEditor';
+import { UnifiedDocumentEditor } from '@/components/results/personalisation/UnifiedDocumentEditor';
 
 export default function RefactoredPersonalisation() {
-  return (
-    <TemplateEditorProvider>
-      <SimpleDocumentEditor />
-    </TemplateEditorProvider>
-  );
+  return <UnifiedDocumentEditor />;
 }
