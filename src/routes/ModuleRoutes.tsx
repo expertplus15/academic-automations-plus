@@ -2,88 +2,57 @@ import React, { Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { FullPageLoader } from '@/components/LoadingSpinner';
 
-// Lazy loading pour optimiser les performances
-const lazyLoad = (componentImport: () => Promise<{ default: React.ComponentType<any> }>) =>
-  React.lazy(componentImport);
+// Imports organisés par modules
+import {
+  FinancePage,
+  StudentsPage,
+  AcademicPage,
+  ResultsPage,
+  ExamsPage,
+  ElearningPage,
+  HrPage,
+  ResourcesPage,
+  ServicesPage,
+  CommunicationPage,
+  SettingsPage,
+  DocumentsPage,
+  PartnershipsPage,
+} from './lazy';
 
-// Pages principales des modules
-const Finance = lazyLoad(() => import('@/pages/Finance'));
-const Students = lazyLoad(() => import('@/pages/Students'));
-const Academic = lazyLoad(() => import('@/pages/Academic'));
-const Results = lazyLoad(() => import('@/pages/Results'));
-const Exams = lazyLoad(() => import('@/pages/Exams'));
-const Elearning = lazyLoad(() => import('@/pages/Elearning'));
-const Hr = lazyLoad(() => import('@/pages/Hr'));
-const Resources = lazyLoad(() => import('@/pages/Resources'));
-const Services = lazyLoad(() => import('@/pages/Services'));
-const Communication = lazyLoad(() => import('@/pages/Communication'));
-const Settings = lazyLoad(() => import('@/pages/Settings'));
-const Documents = lazyLoad(() => import('@/pages/Documents'));
-const Partnerships = lazyLoad(() => import('@/pages/Partnerships'));
+// Lazy loaded modules
+import * as FinanceModules from './lazy/modules/finance';
+import * as StudentsModules from './lazy/modules/students';
+import * as ResultsModules from './lazy/modules/results';
 
-// Pages du module Finance
-const FinanceDashboard = lazyLoad(() => import('@/pages/finance/Dashboard'));
-const FinanceInvoices = lazyLoad(() => import('@/pages/finance/Invoices'));
-const FinancePayments = lazyLoad(() => import('@/pages/finance/Payments'));
-const FinanceBudgetOverview = lazyLoad(() => import('@/pages/finance/BudgetOverview'));
-const FinanceReports = lazyLoad(() => import('@/pages/finance/Reports'));
-const FinanceAnalytics = lazyLoad(() => import('@/pages/finance/Analytics'));
-const FinanceCommercial = lazyLoad(() => import('@/pages/finance/Commercial'));
-const FinanceConfig = lazyLoad(() => import('@/pages/finance/Config'));
+// Autres modules chargés de manière lazy
+const AcademicPrograms = React.lazy(() => import('@/pages/academic/Programs'));
+const AcademicSubjects = React.lazy(() => import('@/pages/academic/Subjects'));
+const AcademicTimetables = React.lazy(() => import('@/pages/academic/Timetables'));
+const AcademicCalendar = React.lazy(() => import('@/pages/academic/Calendar'));
 
-// Pages du module Étudiants
-const StudentsRegistration = lazyLoad(() => import('@/pages/students/Registration'));
-const StudentsProfiles = lazyLoad(() => import('@/pages/students/Profiles'));
-const StudentsTracking = lazyLoad(() => import('@/pages/students/Tracking'));
-const StudentsCards = lazyLoad(() => import('@/pages/students/Cards'));
-const StudentsAnalytics = lazyLoad(() => import('@/pages/students/Analytics'));
+const ExamCreation = React.lazy(() => import('@/pages/exams/creation'));
+const ExamsPlanning = React.lazy(() => import('@/pages/exams/Planning'));
+const ExamsMonitoring = React.lazy(() => import('@/pages/exams/Monitoring'));
 
-// Pages du module Académique
-const AcademicPrograms = lazyLoad(() => import('@/pages/academic/Programs'));
-const AcademicSubjects = lazyLoad(() => import('@/pages/academic/Subjects'));
-const AcademicTimetables = lazyLoad(() => import('@/pages/academic/Timetables'));
-const AcademicCalendar = lazyLoad(() => import('@/pages/academic/Calendar'));
+const ElearningCourses = React.lazy(() => import('@/pages/elearning/Courses'));
+const ElearningVirtualClasses = React.lazy(() => import('@/pages/elearning/VirtualClasses'));
+const ElearningAnalytics = React.lazy(() => import('@/pages/elearning/Analytics'));
 
-// Pages du module Résultats
-const ResultsGradingSystem = lazyLoad(() => import('@/pages/results/GradingSystem'));
-const ResultsGradeEntry = lazyLoad(() => import('@/pages/results/GradeEntry'));
-const ResultsCalculations = lazyLoad(() => import('@/pages/results/Calculations'));
-const ResultsValidation = lazyLoad(() => import('@/pages/results/Validation'));
-const ResultsDocumentation = lazyLoad(() => import('@/pages/results/Documentation'));
-const ResultsPersonalisation = lazyLoad(() => import('@/pages/results/RefactoredPersonalisation'));
-const ResultsProduction = lazyLoad(() => import('@/pages/results/Production'));
-const ResultsAnalytics = lazyLoad(() => import('@/pages/results/Analytics'));
+const HrTeachers = React.lazy(() => import('@/pages/hr/Teachers'));
+const HrContracts = React.lazy(() => import('@/pages/hr/Contracts'));
 
-// Pages du module Examens
-const ExamCreation = lazyLoad(() => import('@/pages/exams/creation'));
-const ExamsPlanning = lazyLoad(() => import('@/pages/exams/Planning'));
-const ExamsMonitoring = lazyLoad(() => import('@/pages/exams/Monitoring'));
+const ResourcesInventory = React.lazy(() => import('@/pages/resources/Inventory'));
+const ResourcesBookings = React.lazy(() => import('@/pages/resources/Bookings'));
 
-// Pages du module e-Learning
-const ElearningCourses = lazyLoad(() => import('@/pages/elearning/Courses'));
-const ElearningVirtualClasses = lazyLoad(() => import('@/pages/elearning/VirtualClasses'));
-const ElearningAnalytics = lazyLoad(() => import('@/pages/elearning/Analytics'));
+const Transport = React.lazy(() => import('@/pages/services/Transport'));
+const Catering = React.lazy(() => import('@/pages/services/Catering'));
+const Accommodation = React.lazy(() => import('@/pages/services/Accommodation'));
 
-// Pages du module RH
-const HrTeachers = lazyLoad(() => import('@/pages/hr/Teachers'));
-const HrContracts = lazyLoad(() => import('@/pages/hr/Contracts'));
+const Messaging = React.lazy(() => import('@/pages/communication/Messaging'));
+const Announcements = React.lazy(() => import('@/pages/communication/Announcements'));
 
-// Pages du module Ressources
-const ResourcesInventory = lazyLoad(() => import('@/pages/resources/Inventory'));
-const ResourcesBookings = lazyLoad(() => import('@/pages/resources/Bookings'));
-
-// Pages du module Services
-const Transport = lazyLoad(() => import('@/pages/services/Transport'));
-const Catering = lazyLoad(() => import('@/pages/services/Catering'));
-const Accommodation = lazyLoad(() => import('@/pages/services/Accommodation'));
-
-// Pages du module Communication  
-const Messaging = lazyLoad(() => import('@/pages/communication/Messaging'));
-const Announcements = lazyLoad(() => import('@/pages/communication/Announcements'));
-
-// Pages du module Paramètres
-const SettingsGeneral = lazyLoad(() => import('@/pages/settings/General'));
-const SettingsUsers = lazyLoad(() => import('@/pages/settings/Users'));
+const SettingsGeneral = React.lazy(() => import('@/pages/settings/General'));
+const SettingsUsers = React.lazy(() => import('@/pages/settings/Users'));
 
 // Composant de chargement
 const SuspenseWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -97,83 +66,83 @@ export function ModuleRoutes() {
     <SuspenseWrapper>
       <Routes>
         {/* Module Finance */}
-        <Route path="/finance" element={<Finance />} />
-        <Route path="/finance/dashboard" element={<FinanceDashboard />} />
-        <Route path="/finance/invoices" element={<FinanceInvoices />} />
-        <Route path="/finance/payments" element={<FinancePayments />} />
-        <Route path="/finance/budgets" element={<FinanceBudgetOverview />} />
-        <Route path="/finance/reports" element={<FinanceReports />} />
-        <Route path="/finance/analytics" element={<FinanceAnalytics />} />
-        <Route path="/finance/commercial" element={<FinanceCommercial />} />
-        <Route path="/finance/config" element={<FinanceConfig />} />
+        <Route path="/finance" element={<FinancePage />} />
+        <Route path="/finance/dashboard" element={<FinanceModules.FinanceDashboard />} />
+        <Route path="/finance/invoices" element={<FinanceModules.FinanceInvoices />} />
+        <Route path="/finance/payments" element={<FinanceModules.FinancePayments />} />
+        <Route path="/finance/budgets" element={<FinanceModules.FinanceBudgetOverview />} />
+        <Route path="/finance/reports" element={<FinanceModules.FinanceReports />} />
+        <Route path="/finance/analytics" element={<FinanceModules.FinanceAnalytics />} />
+        <Route path="/finance/commercial" element={<FinanceModules.FinanceCommercial />} />
+        <Route path="/finance/config" element={<FinanceModules.FinanceConfig />} />
 
         {/* Module Étudiants */}
-        <Route path="/students" element={<Students />} />
-        <Route path="/students/registration" element={<StudentsRegistration />} />
-        <Route path="/students/profiles" element={<StudentsProfiles />} />
-        <Route path="/students/tracking" element={<StudentsTracking />} />
-        <Route path="/students/cards" element={<StudentsCards />} />
-        <Route path="/students/analytics" element={<StudentsAnalytics />} />
+        <Route path="/students" element={<StudentsPage />} />
+        <Route path="/students/registration" element={<StudentsModules.StudentsRegistration />} />
+        <Route path="/students/profiles" element={<StudentsModules.StudentsProfiles />} />
+        <Route path="/students/tracking" element={<StudentsModules.StudentsTracking />} />
+        <Route path="/students/cards" element={<StudentsModules.StudentsCards />} />
+        <Route path="/students/analytics" element={<StudentsModules.StudentsAnalytics />} />
 
         {/* Module Académique */}
-        <Route path="/academic" element={<Academic />} />
+        <Route path="/academic" element={<AcademicPage />} />
         <Route path="/academic/programs" element={<AcademicPrograms />} />
         <Route path="/academic/subjects" element={<AcademicSubjects />} />
         <Route path="/academic/timetables" element={<AcademicTimetables />} />
         <Route path="/academic/calendar" element={<AcademicCalendar />} />
 
         {/* Module Résultats */}
-        <Route path="/results" element={<Results />} />
-        <Route path="/results/grading-system" element={<ResultsGradingSystem />} />
-        <Route path="/results/grade-entry" element={<ResultsGradeEntry />} />
-        <Route path="/results/calculations" element={<ResultsCalculations />} />
-        <Route path="/results/validation" element={<ResultsValidation />} />
-        <Route path="/results/documentation" element={<ResultsDocumentation />} />
-        <Route path="/results/personalisation" element={<ResultsPersonalisation />} />
-        <Route path="/results/production" element={<ResultsProduction />} />
-        <Route path="/results/analytics" element={<ResultsAnalytics />} />
+        <Route path="/results" element={<ResultsPage />} />
+        <Route path="/results/grading-system" element={<ResultsModules.ResultsGradingSystem />} />
+        <Route path="/results/grade-entry" element={<ResultsModules.ResultsGradeEntry />} />
+        <Route path="/results/calculations" element={<ResultsModules.ResultsCalculations />} />
+        <Route path="/results/validation" element={<ResultsModules.ResultsValidation />} />
+        <Route path="/results/documentation" element={<ResultsModules.ResultsDocumentation />} />
+        <Route path="/results/personalisation" element={<ResultsModules.ResultsPersonalisation />} />
+        <Route path="/results/production" element={<ResultsModules.ResultsProduction />} />
+        <Route path="/results/analytics" element={<ResultsModules.ResultsAnalytics />} />
 
         {/* Module Examens */}
-        <Route path="/exams" element={<Exams />} />
+        <Route path="/exams" element={<ExamsPage />} />
         <Route path="/exams/creation" element={<ExamCreation />} />
         <Route path="/exams/planning" element={<ExamsPlanning />} />
         <Route path="/exams/monitoring" element={<ExamsMonitoring />} />
 
         {/* Module e-Learning */}
-        <Route path="/elearning" element={<Elearning />} />
+        <Route path="/elearning" element={<ElearningPage />} />
         <Route path="/elearning/courses" element={<ElearningCourses />} />
         <Route path="/elearning/virtual-classes" element={<ElearningVirtualClasses />} />
         <Route path="/elearning/analytics" element={<ElearningAnalytics />} />
 
         {/* Module RH */}
-        <Route path="/hr" element={<Hr />} />
+        <Route path="/hr" element={<HrPage />} />
         <Route path="/hr/teachers" element={<HrTeachers />} />
         <Route path="/hr/contracts" element={<HrContracts />} />
 
         {/* Module Ressources */}
-        <Route path="/resources" element={<Resources />} />
+        <Route path="/resources" element={<ResourcesPage />} />
         <Route path="/resources/inventory" element={<ResourcesInventory />} />
         <Route path="/resources/bookings" element={<ResourcesBookings />} />
 
         {/* Module Services */}
-        <Route path="/services" element={<Services />} />
+        <Route path="/services" element={<ServicesPage />} />
         <Route path="/services/transport" element={<Transport />} />
         <Route path="/services/catering" element={<Catering />} />
         <Route path="/services/accommodation" element={<Accommodation />} />
 
         {/* Module Communication */}
-        <Route path="/communication" element={<Communication />} />
+        <Route path="/communication" element={<CommunicationPage />} />
         <Route path="/communication/messaging" element={<Messaging />} />
         <Route path="/communication/announcements" element={<Announcements />} />
 
         {/* Module Paramètres */}
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route path="/settings/general" element={<SettingsGeneral />} />
         <Route path="/settings/users" element={<SettingsUsers />} />
 
         {/* Autres modules */}
-        <Route path="/documents" element={<Documents />} />
-        <Route path="/partnerships" element={<Partnerships />} />
+        <Route path="/documents" element={<DocumentsPage />} />
+        <Route path="/partnerships" element={<PartnershipsPage />} />
       </Routes>
     </SuspenseWrapper>
   );
