@@ -442,59 +442,113 @@ export function SimpleDocumentEditor() {
     }
   };
 
-  // Phase 2: Enhanced element creation with types
+  // Enhanced element creation with comprehensive types
   const addNewElement = (type: string = 'text') => {
     const elementTypes = {
       text: {
-        label: 'Texte',
+        label: 'Texte libre',
         content: 'Nouveau texte',
-        style: { fontSize: 14, fontWeight: 'normal', color: '#374151', textAlign: 'left' }
+        style: { fontSize: 14, fontWeight: 'normal', color: '#374151', textAlign: 'left' },
+        description: 'Texte libre éditable'
       },
       header: {
-        label: 'En-tête',
-        content: 'EN-TÊTE DU DOCUMENT',
-        style: { fontSize: 24, fontWeight: 'bold', color: '#1f2937', textAlign: 'center' }
+        label: 'En-tête institutionnel',
+        content: 'MINISTÈRE DE L\'ÉDUCATION NATIONALE\nÉTABLISSEMENT SCOLAIRE',
+        style: { fontSize: 18, fontWeight: 'bold', color: '#1f2937', textAlign: 'center' },
+        description: 'En-tête officiel du document'
       },
       title: {
-        label: 'Titre',
-        content: 'TITRE DU DOCUMENT',
-        style: { fontSize: 20, fontWeight: 'bold', color: '#1f2937', textAlign: 'center' }
+        label: 'Titre principal',
+        content: 'ATTESTATION DE SCOLARITÉ',
+        style: { fontSize: 24, fontWeight: 'bold', color: '#1f2937', textAlign: 'center' },
+        description: 'Titre principal du document'
+      },
+      subtitle: {
+        label: 'Sous-titre',
+        content: 'Année académique {{academic_year}}',
+        style: { fontSize: 16, fontWeight: 'normal', color: '#6b7280', textAlign: 'center' },
+        description: 'Sous-titre ou information secondaire'
       },
       variable: {
-        label: 'Variable',
+        label: 'Variable étudiant',
         content: '{{student.full_name}}',
-        style: { fontSize: 16, fontWeight: 'normal', color: '#374151', textAlign: 'left' }
+        style: { fontSize: 16, fontWeight: 'normal', color: '#374151', textAlign: 'left' },
+        description: 'Données dynamiques de l\'étudiant'
+      },
+      institution_info: {
+        label: 'Informations établissement',
+        content: 'Adresse : {{institution.address}}\nTéléphone : {{institution.phone}}\nEmail : {{institution.email}}',
+        style: { fontSize: 12, fontWeight: 'normal', color: '#6b7280', textAlign: 'left' },
+        description: 'Coordonnées de l\'établissement'
+      },
+      academic_info: {
+        label: 'Informations académiques',
+        content: 'Programme : {{student.program_name}}\nNiveau : {{student.level}}\nStatut : {{student.status}}',
+        style: { fontSize: 14, fontWeight: 'normal', color: '#374151', textAlign: 'left' },
+        description: 'Détails du parcours académique'
+      },
+      grades_section: {
+        label: 'Section notes',
+        content: 'Moyenne générale : {{student.gpa}}\nMention : {{student.mention}}\nRang : {{student.rank}}',
+        style: { fontSize: 14, fontWeight: 'normal', color: '#374151', textAlign: 'left' },
+        description: 'Résultats et évaluations'
       },
       signature: {
-        label: 'Zone de signature',
-        content: 'Signature et cachet\n\n_________________________',
-        style: { fontSize: 14, fontWeight: 'normal', color: '#374151', textAlign: 'right' }
+        label: 'Bloc signature',
+        content: 'Le Directeur\n\n\n_________________________\nNom et cachet officiel',
+        style: { fontSize: 14, fontWeight: 'normal', color: '#374151', textAlign: 'right' },
+        description: 'Zone de signature officielle'
       },
       date: {
-        label: 'Date',
-        content: '{{current_date}}',
-        style: { fontSize: 14, fontWeight: 'normal', color: '#6b7280', textAlign: 'right' }
+        label: 'Date du document',
+        content: 'Fait à {{institution.city}}, le {{current_date}}',
+        style: { fontSize: 14, fontWeight: 'normal', color: '#6b7280', textAlign: 'right' },
+        description: 'Date et lieu d\'établissement'
       },
       separator: {
-        label: 'Séparateur',
+        label: 'Ligne de séparation',
         content: '_______________________________________________',
-        style: { fontSize: 14, fontWeight: 'normal', color: '#6b7280', textAlign: 'center' }
+        style: { fontSize: 14, fontWeight: 'normal', color: '#d1d5db', textAlign: 'center' },
+        description: 'Séparateur visuel'
+      },
+      footer_note: {
+        label: 'Note de bas de page',
+        content: 'Ce document est établi conformément à la réglementation en vigueur.',
+        style: { fontSize: 10, fontWeight: 'normal', color: '#9ca3af', textAlign: 'center' },
+        description: 'Mention légale ou note'
+      },
+      qr_code: {
+        label: 'Code QR de vérification',
+        content: 'QR Code: {{document.verification_url}}',
+        style: { fontSize: 12, fontWeight: 'normal', color: '#6b7280', textAlign: 'center' },
+        description: 'Code QR pour vérification'
+      },
+      logo_placeholder: {
+        label: 'Emplacement logo',
+        content: '[LOGO DE L\'ÉTABLISSEMENT]',
+        style: { fontSize: 12, fontWeight: 'normal', color: '#9ca3af', textAlign: 'center' },
+        description: 'Zone réservée au logo'
       }
     };
 
     const elementConfig = elementTypes[type as keyof typeof elementTypes] || elementTypes.text;
     
     const newElement: DocumentElement = {
-      id: `element_${Date.now()}`,
+      id: `element_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       type: type,
       label: elementConfig.label,
       content: elementConfig.content,
-      style: elementConfig.style
+      style: { ...elementConfig.style, marginTop: 8, marginBottom: 8 }
     };
     
     setElements(prev => [...prev, newElement]);
     setHasChanges(true);
     setShowElementMenu(false);
+    
+    toast({
+      title: "Élément ajouté",
+      description: `${elementConfig.label} a été ajouté au document.`,
+    });
   };
 
   const removeElement = (elementId: string) => {
@@ -636,81 +690,241 @@ export function SimpleDocumentEditor() {
                     Ajouter un élément
                   </Button>
                   
-                  {/* Enhanced element menu */}
+                  {/* Enhanced comprehensive element menu */}
                   {showElementMenu && (
-                    <div className="absolute right-0 top-full mt-2 w-64 bg-card border border-border rounded-lg shadow-lg z-10 p-2">
-                      <div className="space-y-1">
-                        <h3 className="text-sm font-medium px-2 py-1 text-muted-foreground">Types d'éléments</h3>
+                    <div className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-lg shadow-lg z-10 p-3 max-h-96 overflow-y-auto">
+                      <div className="space-y-3">
+                        <h3 className="text-sm font-semibold px-2 py-1 text-foreground border-b">Éléments de document</h3>
                         
-                        <Button 
-                          onClick={() => addNewElement('header')} 
-                          variant="ghost" 
-                          size="sm" 
-                          className="w-full justify-start"
-                        >
-                          <Type className="w-4 h-4 mr-2" />
-                          En-tête
-                        </Button>
-                        
-                        <Button 
-                          onClick={() => addNewElement('title')} 
-                          variant="ghost" 
-                          size="sm" 
-                          className="w-full justify-start"
-                        >
-                          <FileText className="w-4 h-4 mr-2" />
-                          Titre
-                        </Button>
-                        
-                        <Button 
-                          onClick={() => addNewElement('text')} 
-                          variant="ghost" 
-                          size="sm" 
-                          className="w-full justify-start"
-                        >
-                          <Type className="w-4 h-4 mr-2" />
-                          Texte
-                        </Button>
-                        
-                        <Button 
-                          onClick={() => addNewElement('variable')} 
-                          variant="ghost" 
-                          size="sm" 
-                          className="w-full justify-start"
-                        >
-                          <Variable className="w-4 h-4 mr-2" />
-                          Variable
-                        </Button>
-                        
-                        <Button 
-                          onClick={() => addNewElement('date')} 
-                          variant="ghost" 
-                          size="sm" 
-                          className="w-full justify-start"
-                        >
-                          <Calendar className="w-4 h-4 mr-2" />
-                          Date
-                        </Button>
-                        
-                        <Button 
-                          onClick={() => addNewElement('signature')} 
-                          variant="ghost" 
-                          size="sm" 
-                          className="w-full justify-start"
-                        >
-                          <FileSignature className="w-4 h-4 mr-2" />
-                          Signature
-                        </Button>
-                        
-                        <Button 
-                          onClick={() => addNewElement('separator')} 
-                          variant="ghost" 
-                          size="sm" 
-                          className="w-full justify-start"
-                        >
-                          <Separator className="w-4 h-4 mr-2" />
-                          Séparateur
-                        </Button>
+                        {/* En-têtes et titres */}
+                        <div className="space-y-1">
+                          <h4 className="text-xs font-medium text-muted-foreground px-2">Structure</h4>
+                          <Button 
+                            onClick={() => addNewElement('header')} 
+                            variant="ghost" 
+                            size="sm" 
+                            className="w-full justify-start text-left p-2 h-auto"
+                          >
+                            <div className="flex items-start gap-2 w-full">
+                              <Type className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium">En-tête institutionnel</div>
+                                <div className="text-xs text-muted-foreground">En-tête officiel du document</div>
+                              </div>
+                            </div>
+                          </Button>
+                          
+                          <Button 
+                            onClick={() => addNewElement('title')} 
+                            variant="ghost" 
+                            size="sm" 
+                            className="w-full justify-start text-left p-2 h-auto"
+                          >
+                            <div className="flex items-start gap-2 w-full">
+                              <FileText className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium">Titre principal</div>
+                                <div className="text-xs text-muted-foreground">Titre principal du document</div>
+                              </div>
+                            </div>
+                          </Button>
+                          
+                          <Button 
+                            onClick={() => addNewElement('subtitle')} 
+                            variant="ghost" 
+                            size="sm" 
+                            className="w-full justify-start text-left p-2 h-auto"
+                          >
+                            <div className="flex items-start gap-2 w-full">
+                              <Type className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium">Sous-titre</div>
+                                <div className="text-xs text-muted-foreground">Information secondaire</div>
+                              </div>
+                            </div>
+                          </Button>
+                        </div>
+
+                        {/* Contenu dynamique */}
+                        <div className="space-y-1">
+                          <h4 className="text-xs font-medium text-muted-foreground px-2">Données dynamiques</h4>
+                          <Button 
+                            onClick={() => addNewElement('variable')} 
+                            variant="ghost" 
+                            size="sm" 
+                            className="w-full justify-start text-left p-2 h-auto"
+                          >
+                            <div className="flex items-start gap-2 w-full">
+                              <Variable className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium">Variable étudiant</div>
+                                <div className="text-xs text-muted-foreground">Données de l'étudiant</div>
+                              </div>
+                            </div>
+                          </Button>
+                          
+                          <Button 
+                            onClick={() => addNewElement('academic_info')} 
+                            variant="ghost" 
+                            size="sm" 
+                            className="w-full justify-start text-left p-2 h-auto"
+                          >
+                            <div className="flex items-start gap-2 w-full">
+                              <FileText className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium">Infos académiques</div>
+                                <div className="text-xs text-muted-foreground">Programme et niveau</div>
+                              </div>
+                            </div>
+                          </Button>
+                          
+                          <Button 
+                            onClick={() => addNewElement('grades_section')} 
+                            variant="ghost" 
+                            size="sm" 
+                            className="w-full justify-start text-left p-2 h-auto"
+                          >
+                            <div className="flex items-start gap-2 w-full">
+                              <FileText className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium">Section notes</div>
+                                <div className="text-xs text-muted-foreground">Résultats et moyennes</div>
+                              </div>
+                            </div>
+                          </Button>
+                        </div>
+
+                        {/* Informations fixes */}
+                        <div className="space-y-1">
+                          <h4 className="text-xs font-medium text-muted-foreground px-2">Informations</h4>
+                          <Button 
+                            onClick={() => addNewElement('institution_info')} 
+                            variant="ghost" 
+                            size="sm" 
+                            className="w-full justify-start text-left p-2 h-auto"
+                          >
+                            <div className="flex items-start gap-2 w-full">
+                              <Home className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium">Infos établissement</div>
+                                <div className="text-xs text-muted-foreground">Coordonnées officielles</div>
+                              </div>
+                            </div>
+                          </Button>
+                          
+                          <Button 
+                            onClick={() => addNewElement('text')} 
+                            variant="ghost" 
+                            size="sm" 
+                            className="w-full justify-start text-left p-2 h-auto"
+                          >
+                            <div className="flex items-start gap-2 w-full">
+                              <Type className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium">Texte libre</div>
+                                <div className="text-xs text-muted-foreground">Contenu personnalisé</div>
+                              </div>
+                            </div>
+                          </Button>
+                        </div>
+
+                        {/* Éléments de fin */}
+                        <div className="space-y-1">
+                          <h4 className="text-xs font-medium text-muted-foreground px-2">Finalisation</h4>
+                          <Button 
+                            onClick={() => addNewElement('date')} 
+                            variant="ghost" 
+                            size="sm" 
+                            className="w-full justify-start text-left p-2 h-auto"
+                          >
+                            <div className="flex items-start gap-2 w-full">
+                              <Calendar className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium">Date du document</div>
+                                <div className="text-xs text-muted-foreground">Date et lieu</div>
+                              </div>
+                            </div>
+                          </Button>
+                          
+                          <Button 
+                            onClick={() => addNewElement('signature')} 
+                            variant="ghost" 
+                            size="sm" 
+                            className="w-full justify-start text-left p-2 h-auto"
+                          >
+                            <div className="flex items-start gap-2 w-full">
+                              <FileSignature className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium">Bloc signature</div>
+                                <div className="text-xs text-muted-foreground">Signature officielle</div>
+                              </div>
+                            </div>
+                          </Button>
+                          
+                          <Button 
+                            onClick={() => addNewElement('footer_note')} 
+                            variant="ghost" 
+                            size="sm" 
+                            className="w-full justify-start text-left p-2 h-auto"
+                          >
+                            <div className="flex items-start gap-2 w-full">
+                              <FileText className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium">Note de bas de page</div>
+                                <div className="text-xs text-muted-foreground">Mention légale</div>
+                              </div>
+                            </div>
+                          </Button>
+                        </div>
+
+                        {/* Éléments spéciaux */}
+                        <div className="space-y-1">
+                          <h4 className="text-xs font-medium text-muted-foreground px-2">Spéciaux</h4>
+                          <Button 
+                            onClick={() => addNewElement('separator')} 
+                            variant="ghost" 
+                            size="sm" 
+                            className="w-full justify-start text-left p-2 h-auto"
+                          >
+                            <div className="flex items-start gap-2 w-full">
+                              <span className="w-4 h-4 mt-0.5 flex-shrink-0 text-center">─</span>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium">Ligne de séparation</div>
+                                <div className="text-xs text-muted-foreground">Séparateur visuel</div>
+                              </div>
+                            </div>
+                          </Button>
+                          
+                          <Button 
+                            onClick={() => addNewElement('qr_code')} 
+                            variant="ghost" 
+                            size="sm" 
+                            className="w-full justify-start text-left p-2 h-auto"
+                          >
+                            <div className="flex items-start gap-2 w-full">
+                              <QrCode className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium">Code QR</div>
+                                <div className="text-xs text-muted-foreground">Vérification numérique</div>
+                              </div>
+                            </div>
+                          </Button>
+                          
+                          <Button 
+                            onClick={() => addNewElement('logo_placeholder')} 
+                            variant="ghost" 
+                            size="sm" 
+                            className="w-full justify-start text-left p-2 h-auto"
+                          >
+                            <div className="flex items-start gap-2 w-full">
+                              <Image className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium">Emplacement logo</div>
+                                <div className="text-xs text-muted-foreground">Zone réservée au logo</div>
+                              </div>
+                            </div>
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   )}
