@@ -56,6 +56,11 @@ export class SimpleDocumentGenerator {
         id: "releve_notes",
         name: "Relevé de Notes EMD",
         html_content: "TEMPLATE_RENDERER:emd_releve"
+      },
+      {
+        id: "cert_scol_v1",
+        name: "Certificat de Scolarité Version 1",
+        html_content: "TEMPLATE_RENDERER:cert_scol_v1"
       }
     ];
   }

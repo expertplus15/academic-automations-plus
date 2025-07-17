@@ -3,6 +3,7 @@ import { ReleveNotesEMDTemplate, type ReleveNotesEMDData } from './ReleveNotesEM
 import { AttestationScolariteTemplate, type AttestationScolariteData } from './AttestationScolariteTemplate';
 import { BulletinNotesTemplate, type BulletinNotesData } from './BulletinNotesTemplate';
 import { CertificatTemplate, type CertificatData } from './CertificatTemplate';
+import { CertificatScolariteV1Template } from './CertificatScolariteV1Template';
 
 interface TemplateRendererProps {
   templateType: string;
@@ -48,6 +49,15 @@ export function TemplateRenderer({ templateType, data, isEditable = false, onDat
       return (
         <CertificatTemplate
           data={data as Partial<CertificatData>}
+          isEditable={isEditable}
+          onDataChange={onDataChange}
+        />
+      );
+    
+    case 'cert_scol_v1':
+      return (
+        <CertificatScolariteV1Template
+          data={data}
           isEditable={isEditable}
           onDataChange={onDataChange}
         />
@@ -207,6 +217,25 @@ export const getDefaultDataForTemplate = (templateType: string) => {
         directeur_general: 'LE DIRECTEUR GÉNÉRAL',
         numero_registre: 'REG2024001'
       } as Partial<CertificatData>;
+    
+    case 'cert_scol_v1':
+      return {
+        institution_country: "RÉPUBLIQUE FRANÇAISE",
+        ministry_name: "MINISTÈRE DE L'ÉDUCATION NATIONALE",
+        institution_name: "INSTITUT SUPÉRIEUR DE TECHNOLOGIE",
+        institution_address: "Avenue de la République, 75000 Paris",
+        student_full_name: "DUPONT Jean",
+        student_birth_date: "15 mars 1995",
+        student_birth_place: "Paris (75)",
+        student_number: "STU2024001",
+        academic_year: "2024-2025",
+        class_level: "Licence 3",
+        program_field: "Informatique et Sciences du Numérique",
+        program_specialty: "Développement Logiciel et Systèmes d'Information",
+        signatory_function: "Le Directeur",
+        signature_place: "Paris",
+        signature_date: new Date().toLocaleDateString('fr-FR')
+      };
     
     default:
       return {};

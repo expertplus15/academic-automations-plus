@@ -69,6 +69,27 @@ const mockDocumentTypes: DocumentType[] = [
   },
   {
     id: '4',
+    name: 'Certificat de Scolarité Version 1',
+    code: 'CERT_SCOL_V1',
+    description: 'Certificat officiel de scolarité - Version 1 conforme au modèle administratif',
+    icon: 'Certificate',
+    color: 'indigo',
+    category: 'certificats_scolarite',
+    variables: [
+      'institution_country', 'ministry_name', 'institution_name', 'institution_address',
+      'student_full_name', 'student_birth_date', 'student_birth_place', 'student_number',
+      'academic_year', 'class_level', 'program_field', 'program_specialty',
+      'signatory_function', 'signature_place', 'signature_date'
+    ],
+    validation_rules: { 
+      required: ['student_full_name', 'student_birth_date', 'academic_year', 'class_level'] 
+    },
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: '5',
     name: 'Certificat de Réussite',
     code: 'CERTIFICAT',
     description: 'Certificat de réussite aux examens',
