@@ -36,6 +36,8 @@ import {
   Variable,
   Trash2
 } from 'lucide-react';
+import { ElementMenuButton } from './ElementMenuButton';
+import { VariableSelector } from './VariableSelector';
 
 interface DocumentElement {
   id: string;
@@ -132,16 +134,30 @@ export function SimpleDocumentEditor() {
     }
   }, [hasChanges, selectedTemplate]);
 
-  // Close element menu when clicking outside
+  // Close element menu when clicking outside - FIXED
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (showElementMenu) {
+      const target = event.target as Element;
+      const menuElement = document.querySelector('[data-element-menu]');
+      const menuButton = document.querySelector('[data-element-menu-button]');
+      
+      if (showElementMenu && 
+          menuElement && 
+          !menuElement.contains(target) && 
+          menuButton &&
+          !menuButton.contains(target)) {
         setShowElementMenu(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    if (showElementMenu) {
+      // Delay to prevent immediate closing
+      setTimeout(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+      }, 100);
+      
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
   }, [showElementMenu]);
 
   // Phase 1: Improved template loading with proper waiting
@@ -442,8 +458,9 @@ export function SimpleDocumentEditor() {
     }
   };
 
-  // Enhanced element creation with comprehensive types
-  const addNewElement = (type: string = 'text') => {
+  // Enhanced element creation with comprehensive types - IMPROVED
+  const addNewElement = useCallback((type: string = 'text') => {
+    console.log('Adding element:', type); // Debug log
     const elementTypes = {
       text: {
         label: 'Texte libre',
@@ -549,7 +566,7 @@ export function SimpleDocumentEditor() {
       title: "Élément ajouté",
       description: `${elementConfig.label} a été ajouté au document.`,
     });
-  };
+  }, [toast]);
 
   const removeElement = (elementId: string) => {
     setElements(prev => prev.filter(el => el.id !== elementId));
@@ -665,7 +682,7 @@ export function SimpleDocumentEditor() {
       {/* Content */}
       <div className="flex-1 flex">
         {/* Editor Panel */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-6 pr-4">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="mb-6">
               <TabsTrigger value="edit" className="flex items-center gap-2">
@@ -683,16 +700,25 @@ export function SimpleDocumentEditor() {
                 <h2 className="text-lg font-medium">Éléments du document</h2>
                 <div className="relative">
                   <Button 
-                    onClick={() => setShowElementMenu(!showElementMenu)} 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowElementMenu(!showElementMenu);
+                    }} 
                     variant="outline"
+                    data-element-menu-button
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Ajouter un élément
                   </Button>
                   
-                  {/* Enhanced comprehensive element menu */}
+                  {/* Enhanced comprehensive element menu - FIXED */}
                   {showElementMenu && (
-                    <div className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-lg shadow-lg z-10 p-3 max-h-96 overflow-y-auto">
+                    <div 
+                      className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-lg shadow-xl z-50 p-3 max-h-96 overflow-y-auto"
+                      data-element-menu
+                      onMouseDown={(e) => e.stopPropagation()}
+                    >
                       <div className="space-y-3">
                         <h3 className="text-sm font-semibold px-2 py-1 text-foreground border-b">Éléments de document</h3>
                         
@@ -700,10 +726,14 @@ export function SimpleDocumentEditor() {
                         <div className="space-y-1">
                           <h4 className="text-xs font-medium text-muted-foreground px-2">Structure</h4>
                           <Button 
-                            onClick={() => addNewElement('header')} 
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              addNewElement('header');
+                            }} 
                             variant="ghost" 
                             size="sm" 
-                            className="w-full justify-start text-left p-2 h-auto"
+                            className="w-full justify-start text-left p-2 h-auto hover:bg-accent transition-colors"
                           >
                             <div className="flex items-start gap-2 w-full">
                               <Type className="w-4 h-4 mt-0.5 flex-shrink-0" />
@@ -715,10 +745,14 @@ export function SimpleDocumentEditor() {
                           </Button>
                           
                           <Button 
-                            onClick={() => addNewElement('title')} 
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              addNewElement('title');
+                            }} 
                             variant="ghost" 
                             size="sm" 
-                            className="w-full justify-start text-left p-2 h-auto"
+                            className="w-full justify-start text-left p-2 h-auto hover:bg-accent transition-colors"
                           >
                             <div className="flex items-start gap-2 w-full">
                               <FileText className="w-4 h-4 mt-0.5 flex-shrink-0" />
@@ -729,162 +763,95 @@ export function SimpleDocumentEditor() {
                             </div>
                           </Button>
                           
-                          <Button 
-                            onClick={() => addNewElement('subtitle')} 
-                            variant="ghost" 
-                            size="sm" 
-                            className="w-full justify-start text-left p-2 h-auto"
-                          >
-                            <div className="flex items-start gap-2 w-full">
-                              <Type className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium">Sous-titre</div>
-                                <div className="text-xs text-muted-foreground">Information secondaire</div>
-                              </div>
-                            </div>
-                          </Button>
+                          {/* Tous les boutons avec gestion d'événements corrigée */}
+                          <ElementMenuButton 
+                            icon={Type}
+                            title="Sous-titre"
+                            description="Information secondaire"
+                            onClick={() => addNewElement('subtitle')}
+                          />
                         </div>
 
                         {/* Contenu dynamique */}
                         <div className="space-y-1">
                           <h4 className="text-xs font-medium text-muted-foreground px-2">Données dynamiques</h4>
-                          <Button 
-                            onClick={() => addNewElement('variable')} 
-                            variant="ghost" 
-                            size="sm" 
-                            className="w-full justify-start text-left p-2 h-auto"
-                          >
-                            <div className="flex items-start gap-2 w-full">
-                              <Variable className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium">Variable étudiant</div>
-                                <div className="text-xs text-muted-foreground">Données de l'étudiant</div>
-                              </div>
-                            </div>
-                          </Button>
+                          <ElementMenuButton 
+                            icon={Variable}
+                            title="Variable étudiant"
+                            description="Données de l'étudiant"
+                            onClick={() => addNewElement('variable')}
+                          />
                           
-                          <Button 
-                            onClick={() => addNewElement('academic_info')} 
-                            variant="ghost" 
-                            size="sm" 
-                            className="w-full justify-start text-left p-2 h-auto"
-                          >
-                            <div className="flex items-start gap-2 w-full">
-                              <FileText className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium">Infos académiques</div>
-                                <div className="text-xs text-muted-foreground">Programme et niveau</div>
-                              </div>
-                            </div>
-                          </Button>
+                          <ElementMenuButton 
+                            icon={FileText}
+                            title="Infos académiques"
+                            description="Programme et niveau"
+                            onClick={() => addNewElement('academic_info')}
+                          />
                           
-                          <Button 
-                            onClick={() => addNewElement('grades_section')} 
-                            variant="ghost" 
-                            size="sm" 
-                            className="w-full justify-start text-left p-2 h-auto"
-                          >
-                            <div className="flex items-start gap-2 w-full">
-                              <FileText className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium">Section notes</div>
-                                <div className="text-xs text-muted-foreground">Résultats et moyennes</div>
-                              </div>
-                            </div>
-                          </Button>
+                          <ElementMenuButton 
+                            icon={FileText}
+                            title="Section notes"
+                            description="Résultats et moyennes"
+                            onClick={() => addNewElement('grades_section')}
+                          />
                         </div>
 
                         {/* Informations fixes */}
                         <div className="space-y-1">
                           <h4 className="text-xs font-medium text-muted-foreground px-2">Informations</h4>
-                          <Button 
-                            onClick={() => addNewElement('institution_info')} 
-                            variant="ghost" 
-                            size="sm" 
-                            className="w-full justify-start text-left p-2 h-auto"
-                          >
-                            <div className="flex items-start gap-2 w-full">
-                              <Home className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium">Infos établissement</div>
-                                <div className="text-xs text-muted-foreground">Coordonnées officielles</div>
-                              </div>
-                            </div>
-                          </Button>
+                          <ElementMenuButton 
+                            icon={Home}
+                            title="Infos établissement"
+                            description="Coordonnées officielles"
+                            onClick={() => addNewElement('institution_info')}
+                          />
                           
-                          <Button 
-                            onClick={() => addNewElement('text')} 
-                            variant="ghost" 
-                            size="sm" 
-                            className="w-full justify-start text-left p-2 h-auto"
-                          >
-                            <div className="flex items-start gap-2 w-full">
-                              <Type className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium">Texte libre</div>
-                                <div className="text-xs text-muted-foreground">Contenu personnalisé</div>
-                              </div>
-                            </div>
-                          </Button>
+                          <ElementMenuButton 
+                            icon={Type}
+                            title="Texte libre"
+                            description="Contenu personnalisé"
+                            onClick={() => addNewElement('text')}
+                          />
                         </div>
 
                         {/* Éléments de fin */}
                         <div className="space-y-1">
                           <h4 className="text-xs font-medium text-muted-foreground px-2">Finalisation</h4>
-                          <Button 
-                            onClick={() => addNewElement('date')} 
-                            variant="ghost" 
-                            size="sm" 
-                            className="w-full justify-start text-left p-2 h-auto"
-                          >
-                            <div className="flex items-start gap-2 w-full">
-                              <Calendar className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium">Date du document</div>
-                                <div className="text-xs text-muted-foreground">Date et lieu</div>
-                              </div>
-                            </div>
-                          </Button>
+                          <ElementMenuButton 
+                            icon={Calendar}
+                            title="Date du document"
+                            description="Date et lieu"
+                            onClick={() => addNewElement('date')}
+                          />
                           
-                          <Button 
-                            onClick={() => addNewElement('signature')} 
-                            variant="ghost" 
-                            size="sm" 
-                            className="w-full justify-start text-left p-2 h-auto"
-                          >
-                            <div className="flex items-start gap-2 w-full">
-                              <FileSignature className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium">Bloc signature</div>
-                                <div className="text-xs text-muted-foreground">Signature officielle</div>
-                              </div>
-                            </div>
-                          </Button>
+                          <ElementMenuButton 
+                            icon={FileSignature}
+                            title="Bloc signature"
+                            description="Signature officielle"
+                            onClick={() => addNewElement('signature')}
+                          />
                           
-                          <Button 
-                            onClick={() => addNewElement('footer_note')} 
-                            variant="ghost" 
-                            size="sm" 
-                            className="w-full justify-start text-left p-2 h-auto"
-                          >
-                            <div className="flex items-start gap-2 w-full">
-                              <FileText className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium">Note de bas de page</div>
-                                <div className="text-xs text-muted-foreground">Mention légale</div>
-                              </div>
-                            </div>
-                          </Button>
+                          <ElementMenuButton 
+                            icon={FileText}
+                            title="Note de bas de page"
+                            description="Mention légale"
+                            onClick={() => addNewElement('footer_note')}
+                          />
                         </div>
 
                         {/* Éléments spéciaux */}
                         <div className="space-y-1">
                           <h4 className="text-xs font-medium text-muted-foreground px-2">Spéciaux</h4>
                           <Button 
-                            onClick={() => addNewElement('separator')} 
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              addNewElement('separator');
+                            }} 
                             variant="ghost" 
                             size="sm" 
-                            className="w-full justify-start text-left p-2 h-auto"
+                            className="w-full justify-start text-left p-2 h-auto hover:bg-accent transition-colors"
                           >
                             <div className="flex items-start gap-2 w-full">
                               <span className="w-4 h-4 mt-0.5 flex-shrink-0 text-center">─</span>
@@ -895,35 +862,19 @@ export function SimpleDocumentEditor() {
                             </div>
                           </Button>
                           
-                          <Button 
-                            onClick={() => addNewElement('qr_code')} 
-                            variant="ghost" 
-                            size="sm" 
-                            className="w-full justify-start text-left p-2 h-auto"
-                          >
-                            <div className="flex items-start gap-2 w-full">
-                              <QrCode className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium">Code QR</div>
-                                <div className="text-xs text-muted-foreground">Vérification numérique</div>
-                              </div>
-                            </div>
-                          </Button>
+                          <ElementMenuButton 
+                            icon={QrCode}
+                            title="Code QR"
+                            description="Vérification numérique"
+                            onClick={() => addNewElement('qr_code')}
+                          />
                           
-                          <Button 
-                            onClick={() => addNewElement('logo_placeholder')} 
-                            variant="ghost" 
-                            size="sm" 
-                            className="w-full justify-start text-left p-2 h-auto"
-                          >
-                            <div className="flex items-start gap-2 w-full">
-                              <Image className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium">Emplacement logo</div>
-                                <div className="text-xs text-muted-foreground">Zone réservée au logo</div>
-                              </div>
-                            </div>
-                          </Button>
+                          <ElementMenuButton 
+                            icon={Image}
+                            title="Emplacement logo"
+                            description="Zone réservée au logo"
+                            onClick={() => addNewElement('logo_placeholder')}
+                          />
                         </div>
                       </div>
                     </div>
@@ -1078,16 +1029,47 @@ export function SimpleDocumentEditor() {
                           )}
                         </div>
                       ))
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </div>
+                     )}
+                   </div>
+                 </CardContent>
+               </Card>
+             </TabsContent>
+           </Tabs>
+         </div>
+         
+         {/* Variables Sidebar */}
+         <div className="w-80 border-l bg-card/30 p-4">
+           <VariableSelector 
+             onVariableSelect={(variable) => {
+               // Add as new variable element
+               const elementConfig = {
+                 label: 'Variable personnalisée',
+                 content: variable,
+                 style: { fontSize: 14, fontWeight: 'normal', color: '#374151', textAlign: 'left' },
+                 description: 'Variable sélectionnée'
+               };
+               
+               const newElement: DocumentElement = {
+                 id: `element_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                 type: 'variable',
+                 label: elementConfig.label,
+                 content: elementConfig.content,
+                 style: { ...elementConfig.style, marginTop: 8, marginBottom: 8 }
+               };
+               
+               setElements(prev => [...prev, newElement]);
+               setHasChanges(true);
+               
+               toast({
+                 title: "Variable ajoutée",
+                 description: "La variable a été ajoutée au document.",
+               });
+             }}
+           />
+         </div>
+       </div>
 
-      {/* Phase 3: Exit confirmation dialog */}
+       {/* Phase 3: Exit confirmation dialog */}
       <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
