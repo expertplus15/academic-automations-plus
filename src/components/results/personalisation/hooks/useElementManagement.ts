@@ -37,37 +37,160 @@ export function useElementManagement(
       case 'heading':
         return { text: 'Nouveau titre', level: 1 };
       case 'variable':
-        return { name: 'nouvelle_variable', defaultValue: 'Valeur par défaut' };
+        return { 
+          name: 'nouvelle_variable', 
+          defaultValue: 'Valeur par défaut',
+          template: '{{nouvelle_variable}}'
+        };
       case 'date':
-        return { format: 'DD/MM/YYYY' };
+        return { format: 'DD/MM/YYYY', locale: 'fr-FR' };
       case 'header':
-        return { institution: 'ÉTABLISSEMENT', name: 'En-tête' };
+        return { 
+          institution: 'NOM DE L\'ÉTABLISSEMENT', 
+          address: 'Adresse complète',
+          phone: 'Téléphone',
+          email: 'contact@etablissement.fr'
+        };
       case 'footer':
-        return { text: 'Pied de page' };
+        return { 
+          text: 'Document généré automatiquement le {{current_date}}',
+          includePageNumber: true
+        };
       case 'logo':
-        return { url: '', alt: 'Logo' };
+        return { 
+          url: '/logo-placeholder.png', 
+          alt: 'Logo de l\'établissement',
+          showBorder: false
+        };
       case 'signature':
-        return { name: 'Signature', title: 'Fonction' };
+        return { 
+          name: 'Nom du signataire', 
+          title: 'Fonction du signataire',
+          includeDate: true,
+          includeStamp: false
+        };
       case 'table':
-        return { rows: 3, cols: 3, data: [] };
+        return { 
+          headers: ['Colonne 1', 'Colonne 2', 'Colonne 3'],
+          rows: [
+            ['Ligne 1 Col 1', 'Ligne 1 Col 2', 'Ligne 1 Col 3'],
+            ['Ligne 2 Col 1', 'Ligne 2 Col 2', 'Ligne 2 Col 3']
+          ],
+          showBorders: true,
+          alternateRows: true
+        };
       case 'qrcode':
-        return { text: 'https://exemple.com' };
+        return { 
+          text: 'https://exemple.com',
+          size: 'medium',
+          errorCorrection: 'M'
+        };
+      case 'seal':
+        return {
+          type: 'official',
+          text: 'SCEAU OFFICIEL',
+          shape: 'circle'
+        };
+      case 'rectangle':
+        return {
+          fillColor: '#f3f4f6',
+          borderColor: '#d1d5db',
+          borderWidth: 1
+        };
+      case 'circle':
+        return {
+          fillColor: '#f3f4f6',
+          borderColor: '#d1d5db',
+          borderWidth: 1
+        };
+      case 'line':
+        return {
+          color: '#374151',
+          thickness: 1,
+          style: 'solid'
+        };
       default:
-        return { text: `Élément ${elementType}` };
+        return { text: `Nouvel élément ${elementType}` };
     }
   };
 
   const getDefaultStyle = (elementType: string) => {
-    return {
-      fontSize: elementType === 'heading' ? 18 : 14,
-      fontWeight: elementType === 'heading' ? 'bold' : 'normal',
+    const baseStyle = {
+      fontSize: 14,
+      fontWeight: 'normal',
       color: '#374151',
-      textAlign: 'left',
+      textAlign: 'left' as const,
       backgroundColor: 'transparent',
       opacity: 100,
       rotation: 0,
-      visible: true
+      visible: true,
+      borderColor: '#d1d5db',
+      borderWidth: 0,
+      padding: 8,
+      margin: 0
     };
+
+    switch (elementType) {
+      case 'heading':
+        return {
+          ...baseStyle,
+          fontSize: 20,
+          fontWeight: 'bold',
+          textAlign: 'center' as const
+        };
+      case 'header':
+        return {
+          ...baseStyle,
+          fontSize: 18,
+          fontWeight: 'bold',
+          textAlign: 'center' as const,
+          borderWidth: 1,
+          borderColor: '#374151',
+          padding: 16
+        };
+      case 'footer':
+        return {
+          ...baseStyle,
+          fontSize: 12,
+          textAlign: 'center' as const,
+          color: '#6b7280'
+        };
+      case 'table':
+        return {
+          ...baseStyle,
+          borderWidth: 1,
+          fontSize: 12,
+          padding: 4
+        };
+      case 'signature':
+        return {
+          ...baseStyle,
+          textAlign: 'center' as const,
+          fontSize: 12
+        };
+      case 'variable':
+        return {
+          ...baseStyle,
+          fontWeight: 'bold',
+          backgroundColor: '#fef3c7',
+          padding: 4
+        };
+      case 'rectangle':
+      case 'circle':
+        return {
+          ...baseStyle,
+          borderWidth: 1,
+          backgroundColor: '#f9fafb'
+        };
+      case 'line':
+        return {
+          ...baseStyle,
+          borderWidth: 1,
+          borderColor: '#374151'
+        };
+      default:
+        return baseStyle;
+    }
   };
 
   const updateElement = useCallback((elementId: string, updates: any) => {

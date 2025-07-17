@@ -49,6 +49,7 @@ export interface TemplateEditorActions {
   // Template operations
   setSelectedTemplate: (id: string) => void;
   saveTemplate: () => Promise<void>;
+  duplicateTemplate: (templateId?: string) => Promise<void>;
   handleTemplateChange: (content: any) => void;
   
   // Element operations
