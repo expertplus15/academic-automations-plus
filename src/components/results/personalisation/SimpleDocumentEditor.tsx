@@ -38,6 +38,7 @@ import {
 } from 'lucide-react';
 import { ElementMenuButton } from './ElementMenuButton';
 import { VariableSelector } from './VariableSelector';
+import { TemplateRenderer, getDefaultDataForTemplate } from '@/components/documents/templates/predefined/TemplateRenderer';
 
 interface DocumentElement {
   id: string;
@@ -229,12 +230,9 @@ export function SimpleDocumentEditor() {
     }
   }, [selectedTemplate, templates]);
 
-  // Phase 2: Dynamic variable replacement for preview
-  const replaceVariables = (content: string | any) => {
-    // Ensure content is a string before replacing
-    const stringContent = typeof content === 'string' ? content : String(content || '');
-    
-    return stringContent
+  // Simple variable replacement for preview
+  const replaceVariables = (content: string) => {
+    return content
       .replace(/{{student\.full_name}}/g, mockStudentData.full_name)
       .replace(/{{student\.student_number}}/g, mockStudentData.student_number)
       .replace(/{{student\.email}}/g, mockStudentData.email)

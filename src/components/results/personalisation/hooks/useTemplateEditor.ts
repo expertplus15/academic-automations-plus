@@ -4,6 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { EditorState, Template, TemplateEditorActions } from '../types';
 import { useElementManagement } from './useElementManagement';
 import { templateConverter } from '../utils/templateConverter';
+import { TemplateDataService } from '@/services/TemplateDataService';
 
 const initialState: EditorState = {
   selectedTemplate: '',

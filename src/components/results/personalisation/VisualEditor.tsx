@@ -3,9 +3,10 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Layers } from 'lucide-react';
 import { Template } from '@/services/TemplateService';
-import { TemplateRenderer, getDefaultDataForTemplate } from '@/components/documents/templates/predefined/TemplateRenderer';
+import { TemplateRenderer } from '@/components/documents/templates/predefined/TemplateRenderer';
 import { InteractiveTemplateEditor } from './InteractiveTemplateEditor';
 import { EnhancedVisualEditor } from './editor/EnhancedVisualEditor';
+import { TemplateDataService } from '@/services/TemplateDataService';
 
 interface VisualEditorProps {
   template?: Template;
@@ -31,7 +32,7 @@ export function VisualEditor({
 }: VisualEditorProps) {
   const templateData = useMemo(() => {
     if (!template) return {};
-    return getDefaultDataForTemplate(template.type) || {};
+    return TemplateDataService.getDataForTemplate(template.type);
   }, [template]);
 
   // Si pas de template sélectionné, afficher un placeholder
