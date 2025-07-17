@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useDocumentTemplates } from '@/hooks/useDocumentTemplates';
 import { useNavigate } from 'react-router-dom';
 import { SimpleDocumentGenerator } from '@/services/SimpleDocumentGenerator';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import { 
   Save,
   Eye,
@@ -25,7 +27,14 @@ import {
   Copy,
   Printer,
   ChevronRight,
-  Home
+  Home,
+  Image,
+  Table,
+  FileSignature,
+  QrCode,
+  Calendar,
+  Variable,
+  Trash2
 } from 'lucide-react';
 
 interface DocumentElement {
@@ -38,7 +47,16 @@ interface DocumentElement {
     fontWeight?: string;
     color?: string;
     textAlign?: string;
+    marginTop?: number;
+    marginBottom?: number;
+    paddingTop?: number;
+    paddingBottom?: number;
   };
+  // For specific element types
+  src?: string; // for images
+  width?: number;
+  height?: number;
+  borderStyle?: string;
 }
 
 const defaultElements: DocumentElement[] = [
@@ -74,7 +92,7 @@ const defaultElements: DocumentElement[] = [
 
 export function SimpleDocumentEditor() {
   const { toast } = useToast();
-  const { templates, loading, updateTemplate } = useDocumentTemplates();
+  const { templates, variables, loading, updateTemplate } = useDocumentTemplates();
   const navigate = useNavigate();
   
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
@@ -83,6 +101,8 @@ export function SimpleDocumentEditor() {
   const [hasChanges, setHasChanges] = useState(false);
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [isLoadingTemplate, setIsLoadingTemplate] = useState(false);
+  const [showElementMenu, setShowElementMenu] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   // Mock student data for preview
   const mockStudentData = {
@@ -92,6 +112,37 @@ export function SimpleDocumentEditor() {
     program_name: "Informatique",
     academic_year: "2024-2025"
   };
+
+  // Phase 2: Auto-save functionality
+  useEffect(() => {
+    if (hasChanges && selectedTemplate) {
+      const autoSaveTimer = setTimeout(() => {
+        saveTemplate().then(() => {
+          setLastSaved(new Date());
+          toast({
+            title: "Auto-sauvegarde",
+            description: "Template sauvegardé automatiquement.",
+          });
+        }).catch(() => {
+          // Silent fail for auto-save
+        });
+      }, 30000); // Auto-save after 30 seconds of inactivity
+
+      return () => clearTimeout(autoSaveTimer);
+    }
+  }, [hasChanges, selectedTemplate]);
+
+  // Close element menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showElementMenu) {
+        setShowElementMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showElementMenu]);
 
   // Phase 1: Improved template loading with proper waiting
   useEffect(() => {
@@ -219,6 +270,8 @@ export function SimpleDocumentEditor() {
   };
 
   // Phase 4: Template management functions
+  const { duplicateTemplate: duplicateTemplateHook } = useDocumentTemplates();
+  
   const duplicateTemplate = async () => {
     if (!selectedTemplate) return;
     
@@ -226,11 +279,15 @@ export function SimpleDocumentEditor() {
     if (!currentTemplate) return;
 
     try {
-      // This would need to be implemented in the useDocumentTemplates hook
-      toast({
-        title: "Fonctionnalité à venir",
-        description: "La duplication de templates sera bientôt disponible.",
-      });
+      // Use the hook function for real duplication
+      const newTemplate = await duplicateTemplateHook(selectedTemplate);
+      if (newTemplate) {
+        setSelectedTemplate(newTemplate.id);
+        toast({
+          title: "Template dupliqué",
+          description: `Le template "${newTemplate.name}" a été créé avec succès.`,
+        });
+      }
     } catch (error) {
       toast({
         title: "Erreur",
@@ -240,26 +297,89 @@ export function SimpleDocumentEditor() {
     }
   };
 
-  // Phase 5: Export functions
+  // Phase 5: Improved export functions using editor content
+  const generateDocumentHTML = () => {
+    return `
+      <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px; background: white;">
+        ${elements.map(element => {
+          const content = replaceVariables(element.content);
+          return `
+            <div style="
+              font-size: ${element.style.fontSize || 14}px;
+              font-weight: ${element.style.fontWeight || 'normal'};
+              color: ${element.style.color || '#374151'};
+              text-align: ${element.style.textAlign || 'left'};
+              margin-top: ${element.style.marginTop || 0}px;
+              margin-bottom: ${element.style.marginBottom || 16}px;
+              padding-top: ${element.style.paddingTop || 0}px;
+              padding-bottom: ${element.style.paddingBottom || 0}px;
+              white-space: pre-wrap;
+            ">
+              ${element.type === 'html' ? content : content.replace(/\n/g, '<br>')}
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  };
+
   const exportToPDF = async () => {
-    if (!selectedTemplate) return;
+    if (!elements.length) {
+      toast({
+        title: "Erreur",
+        description: "Aucun élément à exporter.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     try {
-      const blob = await SimpleDocumentGenerator.generatePDF(selectedTemplate, mockStudentData);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `document-${selectedTemplate}-${Date.now()}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const htmlContent = generateDocumentHTML();
+      
+      // Create temporary element for PDF generation
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = htmlContent;
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.width = '800px';
+      tempDiv.style.backgroundColor = 'white';
+      document.body.appendChild(tempDiv);
+
+      // Wait for rendering
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      const canvas = await html2canvas(tempDiv, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        width: 800,
+        height: tempDiv.scrollHeight
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210;
+      const pageHeight = 295;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let position = 0;
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+
+      // Clean up temporary element
+      document.body.removeChild(tempDiv);
+
+      const currentTemplate = templates.find(t => t.id === selectedTemplate);
+      const fileName = `${currentTemplate?.name || 'document'}-${Date.now()}.pdf`;
+      
+      pdf.save(fileName);
       
       toast({
         title: "PDF généré",
         description: "Le document PDF a été téléchargé avec succès.",
       });
     } catch (error) {
+      console.error('PDF generation error:', error);
       toast({
         title: "Erreur",
         description: "Impossible de générer le PDF.",
@@ -269,15 +389,51 @@ export function SimpleDocumentEditor() {
   };
 
   const printDocument = () => {
-    if (!selectedTemplate) return;
+    if (!elements.length) {
+      toast({
+        title: "Erreur",
+        description: "Aucun élément à imprimer.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     try {
-      SimpleDocumentGenerator.printDocument(selectedTemplate, mockStudentData);
+      const htmlContent = generateDocumentHTML();
+      
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Document</title>
+              <style>
+                body { margin: 0; padding: 20px; }
+                @media print {
+                  body { margin: 0; }
+                }
+              </style>
+            </head>
+            <body>
+              ${htmlContent}
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+        
+        // Wait then print
+        setTimeout(() => {
+          printWindow.print();
+        }, 1000);
+      }
+      
       toast({
         title: "Impression lancée",
         description: "Le document est en cours d'impression.",
       });
     } catch (error) {
+      console.error('Print error:', error);
       toast({
         title: "Erreur",
         description: "Impossible d'imprimer le document.",
@@ -286,17 +442,59 @@ export function SimpleDocumentEditor() {
     }
   };
 
-  const addNewElement = () => {
+  // Phase 2: Enhanced element creation with types
+  const addNewElement = (type: string = 'text') => {
+    const elementTypes = {
+      text: {
+        label: 'Texte',
+        content: 'Nouveau texte',
+        style: { fontSize: 14, fontWeight: 'normal', color: '#374151', textAlign: 'left' }
+      },
+      header: {
+        label: 'En-tête',
+        content: 'EN-TÊTE DU DOCUMENT',
+        style: { fontSize: 24, fontWeight: 'bold', color: '#1f2937', textAlign: 'center' }
+      },
+      title: {
+        label: 'Titre',
+        content: 'TITRE DU DOCUMENT',
+        style: { fontSize: 20, fontWeight: 'bold', color: '#1f2937', textAlign: 'center' }
+      },
+      variable: {
+        label: 'Variable',
+        content: '{{student.full_name}}',
+        style: { fontSize: 16, fontWeight: 'normal', color: '#374151', textAlign: 'left' }
+      },
+      signature: {
+        label: 'Zone de signature',
+        content: 'Signature et cachet\n\n_________________________',
+        style: { fontSize: 14, fontWeight: 'normal', color: '#374151', textAlign: 'right' }
+      },
+      date: {
+        label: 'Date',
+        content: '{{current_date}}',
+        style: { fontSize: 14, fontWeight: 'normal', color: '#6b7280', textAlign: 'right' }
+      },
+      separator: {
+        label: 'Séparateur',
+        content: '_______________________________________________',
+        style: { fontSize: 14, fontWeight: 'normal', color: '#6b7280', textAlign: 'center' }
+      }
+    };
+
+    const elementConfig = elementTypes[type as keyof typeof elementTypes] || elementTypes.text;
+    
     const newElement: DocumentElement = {
       id: `element_${Date.now()}`,
-      type: 'text',
-      label: 'Nouvel élément',
-      content: 'Contenu du nouvel élément',
-      style: { fontSize: 14, fontWeight: 'normal', color: '#374151', textAlign: 'left' }
+      type: type,
+      label: elementConfig.label,
+      content: elementConfig.content,
+      style: elementConfig.style
     };
     
     setElements(prev => [...prev, newElement]);
     setHasChanges(true);
+    setShowElementMenu(false);
   };
 
   const removeElement = (elementId: string) => {
@@ -429,10 +627,94 @@ export function SimpleDocumentEditor() {
             <TabsContent value="edit" className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-medium">Éléments du document</h2>
-                <Button onClick={addNewElement} variant="outline">
-                  <Type className="w-4 h-4 mr-2" />
-                  Ajouter un élément
-                </Button>
+                <div className="relative">
+                  <Button 
+                    onClick={() => setShowElementMenu(!showElementMenu)} 
+                    variant="outline"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Ajouter un élément
+                  </Button>
+                  
+                  {/* Enhanced element menu */}
+                  {showElementMenu && (
+                    <div className="absolute right-0 top-full mt-2 w-64 bg-card border border-border rounded-lg shadow-lg z-10 p-2">
+                      <div className="space-y-1">
+                        <h3 className="text-sm font-medium px-2 py-1 text-muted-foreground">Types d'éléments</h3>
+                        
+                        <Button 
+                          onClick={() => addNewElement('header')} 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full justify-start"
+                        >
+                          <Type className="w-4 h-4 mr-2" />
+                          En-tête
+                        </Button>
+                        
+                        <Button 
+                          onClick={() => addNewElement('title')} 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full justify-start"
+                        >
+                          <FileText className="w-4 h-4 mr-2" />
+                          Titre
+                        </Button>
+                        
+                        <Button 
+                          onClick={() => addNewElement('text')} 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full justify-start"
+                        >
+                          <Type className="w-4 h-4 mr-2" />
+                          Texte
+                        </Button>
+                        
+                        <Button 
+                          onClick={() => addNewElement('variable')} 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full justify-start"
+                        >
+                          <Variable className="w-4 h-4 mr-2" />
+                          Variable
+                        </Button>
+                        
+                        <Button 
+                          onClick={() => addNewElement('date')} 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full justify-start"
+                        >
+                          <Calendar className="w-4 h-4 mr-2" />
+                          Date
+                        </Button>
+                        
+                        <Button 
+                          onClick={() => addNewElement('signature')} 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full justify-start"
+                        >
+                          <FileSignature className="w-4 h-4 mr-2" />
+                          Signature
+                        </Button>
+                        
+                        <Button 
+                          onClick={() => addNewElement('separator')} 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full justify-start"
+                        >
+                          <Separator className="w-4 h-4 mr-2" />
+                          Séparateur
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="grid gap-4">
