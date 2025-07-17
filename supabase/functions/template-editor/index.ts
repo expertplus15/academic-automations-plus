@@ -191,15 +191,55 @@ function generatePreviewHTML(template: any, sampleData: any): string {
   // Parse template content and replace placeholders with sample data
   let html = template.content.html || '<p>Template en cours de développement</p>';
   
-  // Replace common placeholders
+  // Enhanced placeholders with more academic variables
   const placeholders = {
-    '{{student_name}}': sampleData?.studentName || 'Dupont Jean',
-    '{{student_number}}': sampleData?.studentNumber || 'STU001',
-    '{{program}}': sampleData?.program || 'Informatique',
+    // Variables étudiant
+    '{{nom}}': sampleData?.nom || 'DUPONT',
+    '{{prenom}}': sampleData?.prenom || 'Jean',
+    '{{student_name}}': sampleData?.studentName || 'DUPONT Jean',
+    '{{matricule}}': sampleData?.matricule || 'STU2024001',
+    '{{student_number}}': sampleData?.studentNumber || 'STU2024001',
+    '{{date_naissance}}': sampleData?.date_naissance || '15/05/1998',
+    '{{lieu_naissance}}': sampleData?.lieu_naissance || 'Paris',
+    '{{nationalite}}': sampleData?.nationalite || 'Française',
+    
+    // Variables académiques
+    '{{programme}}': sampleData?.programme || 'Licence Informatique',
+    '{{program}}': sampleData?.program || 'Licence Informatique',
+    '{{niveau}}': sampleData?.niveau || 'L3',
+    '{{classe}}': sampleData?.classe || 'L3 Informatique',
+    '{{semestre}}': sampleData?.semestre || 'Semestre 1',
     '{{semester}}': sampleData?.semester || 'Semestre 1',
-    '{{academic_year}}': sampleData?.academicYear || '2024-2025',
+    '{{annee_academique}}': sampleData?.annee_academique || '2023/2024',
+    '{{academic_year}}': sampleData?.academicYear || '2023/2024',
+    
+    // Variables notes et résultats
+    '{{moyenne_generale}}': sampleData?.moyenne_generale || '14.2',
+    '{{mention}}': sampleData?.mention || 'Bien',
+    '{{decision}}': sampleData?.decision || 'Admis',
+    '{{credits_obtenus}}': sampleData?.credits_obtenus || '30',
+    '{{total_credits}}': sampleData?.total_credits || '30',
+    '{{rang_classe}}': sampleData?.rang_classe || '5ème sur 28',
+    
+    // Variables institutionnelles
+    '{{republique}}': sampleData?.republique || 'République Française',
+    '{{ministere}}': sampleData?.ministere || 'Ministère de l\'Enseignement Supérieur',
+    '{{ecole}}': sampleData?.ecole || 'École Supérieure de Management',
+    '{{institution}}': sampleData?.institution || 'École Supérieure',
+    '{{directeur_general}}': sampleData?.directeur_general || 'LE DIRECTEUR GÉNÉRAL',
+    
+    // Variables de document
+    '{{numero_attestation}}': sampleData?.numero_attestation || 'ATT2024001',
+    '{{numero_bulletin}}': sampleData?.numero_bulletin || 'BUL2024001',
+    '{{numero_certificat}}': sampleData?.numero_certificat || 'CERT2024001',
+    '{{type_certificat}}': sampleData?.type_certificat || 'CERTIFICAT DE RÉUSSITE',
+    
+    // Variables de date et lieu
     '{{date}}': new Date().toLocaleDateString('fr-FR'),
-    '{{institution}}': 'École Supérieure'
+    '{{date_emission}}': sampleData?.date_emission || new Date().toLocaleDateString('fr-FR'),
+    '{{lieu_emission}}': sampleData?.lieu_emission || 'Paris',
+    '{{date_aujourd_hui}}': new Date().toLocaleDateString('fr-FR'),
+    '{{annee_courante}}': new Date().getFullYear().toString()
   };
 
   Object.entries(placeholders).forEach(([placeholder, value]) => {

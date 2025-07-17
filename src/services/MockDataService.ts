@@ -176,31 +176,57 @@ export class MockDataService {
     
     switch (templateType) {
       case 'emd_releve':
+      case 'transcript':
         return baseData;
         
       case 'bulletin':
         return {
           ...baseData,
-          periode: 'Trimestre 1',
-          classe: '3ème année Licence',
-          rang: '3ème sur 25'
+          periode: 'Semestre 1',
+          classe: 'L3 Sécurité Informatique',
+          rang_classe: '3ème sur 25',
+          numero_bulletin: 'BUL2024001',
+          moyenne_classe: 12.8,
+          total_coefficients: 12,
+          absences_justifiees: 1,
+          absences_non_justifiees: 0,
+          retards: 2,
+          directeur_pedagogique: 'Dr. Sarah MOHAMED',
+          professeur_principal: 'M. Omar ALI'
         };
         
       case 'attestation':
+      case 'attestation_scolarite':
         return {
           ...baseData,
+          numero_attestation: 'ATT2024001',
           type_attestation: 'Attestation de Scolarité',
           annee_inscription: '2023/2024',
-          statut: 'Régulièrement inscrit(e)'
+          statut_inscription: 'régulièrement inscrit(e)',
+          date_inscription: '15/09/2023',
+          responsable_scolarite: 'Mme. Khadija HASSAN'
         };
         
+      case 'certificat':
+      case 'certificate':
       case 'diplome':
         return {
           ...baseData,
+          numero_certificat: 'CERT2024001',
+          type_certificat: 'CERTIFICAT DE RÉUSSITE',
+          titre_formation: 'LICENCE EN SÉCURITÉ INFORMATIQUE',
           titre_diplome: 'Licence en Sécurité Informatique',
           date_obtention: '2024-07-15',
           numero_diplome: 'DIP2024001',
-          mention: 'Assez Bien'
+          specialisation: 'Cybersécurité et Réseaux',
+          duree_formation: '3 ans',
+          date_debut: '01/09/2021',
+          date_fin: '30/06/2024',
+          rang_promotion: '5',
+          taille_promotion: 32,
+          date_deliberation: '25/06/2024',
+          president_jury: 'Pr. Ahmed IBRAHIM',
+          numero_registre: 'REG2024001'
         };
         
       default:
