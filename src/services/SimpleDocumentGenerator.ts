@@ -453,8 +453,14 @@ export class SimpleDocumentGenerator {
       let position = 0;
       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
 
-      // Nettoyer l'élément temporaire
-      document.body.removeChild(tempDiv);
+      // Nettoyer l'élément temporaire de manière sécurisée
+      try {
+        if (document.body.contains(tempDiv)) {
+          document.body.removeChild(tempDiv);
+        }
+      } catch (error) {
+        console.warn('Erreur lors du nettoyage DOM:', error);
+      }
 
       return pdf.output('blob');
     } catch (error) {
