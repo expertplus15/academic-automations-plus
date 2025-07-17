@@ -103,12 +103,7 @@ export function TemplateToolbox({ onElementSelect, selectedElement }: TemplateTo
   };
 
   const handleElementClick = (elementId: string) => {
-    // Notification à l'éditeur de l'élément sélectionné
     onElementSelect(elementId);
-    
-    // Déclencher l'ajout de l'élément dans l'éditeur
-    // Cette logique sera connectée via le provider
-    console.log('Ajout d\'élément demandé:', elementId);
   };
 
   return (

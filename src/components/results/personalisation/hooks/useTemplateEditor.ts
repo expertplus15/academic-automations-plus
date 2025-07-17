@@ -160,11 +160,6 @@ export function useTemplateEditor() {
     toggleGrid: useCallback(() => {
       setState(prev => ({ ...prev, showGrid: !prev.showGrid }));
     }, []),
-
-    duplicateTemplate: useCallback(async () => {
-      // Placeholder for duplication functionality
-      console.log('Duplicate template requested');
-    }, []),
   };
 
   return {

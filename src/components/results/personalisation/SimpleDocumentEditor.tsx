@@ -1,232 +1,88 @@
-import React, { useState } from 'react';
-import { TemplateEditorProvider } from './providers/TemplateEditorProvider';
-import ModernEditorInterface from './core/ModernEditorInterface';
-import { SidebarToolbox } from './components/SidebarToolbox';
-import { TemplateToolbox } from './TemplateToolbox';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useDocumentTemplates } from '@/hooks/useDocumentTemplates';
 import { useNavigate } from 'react-router-dom';
 import { SimpleDocumentGenerator } from '@/services/SimpleDocumentGenerator';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Copy, Download, Printer, Save, Home, ChevronRight, FileText } from 'lucide-react';
+import { 
+  Save,
+  Eye,
+  Download,
+  FileText,
+  Type,
+  Settings,
+  ArrowLeft,
+  Plus,
+  Copy,
+  Printer,
+  ChevronRight,
+  Home
+} from 'lucide-react';
 
-// Interface unifiée avec TemplateElement
-import { TemplateElement, Template, TemplateContent } from './types';
+interface DocumentElement {
+  id: string;
+  type: string;
+  label: string;
+  content: string;
+  style: {
+    fontSize?: number;
+    fontWeight?: string;
+    color?: string;
+    textAlign?: string;
+  };
+}
 
-// Templates par défaut riches pour éviter l'état vide
-const createDefaultTemplates = (): Template[] => [
+const defaultElements: DocumentElement[] = [
   {
-    id: 'bulletin_default',
-    name: 'Bulletin de Notes Complet',
-    type: 'bulletin',
-    description: 'Template standard pour bulletin de notes avec toutes les sections',
-    content: {
-      elements: [
-        {
-          id: 'header_institution',
-          type: 'header',
-          x: 50,
-          y: 20,
-          width: 700,
-          height: 80,
-          content: { 
-            institution: 'ÉTABLISSEMENT SCOLAIRE D\'EXCELLENCE',
-            address: '123 Rue de l\'Éducation, 75001 Paris',
-            phone: '01.23.45.67.89'
-          },
-          style: { fontSize: 24, fontWeight: 'bold', color: '#1f2937', textAlign: 'center' }
-        },
-        {
-          id: 'document_title',
-          type: 'heading',
-          x: 50,
-          y: 120,
-          width: 700,
-          height: 60,
-          content: { text: 'BULLETIN DE NOTES', level: 1 },
-          style: { fontSize: 20, fontWeight: 'bold', color: '#1f2937', textAlign: 'center' }
-        },
-        {
-          id: 'student_info',
-          type: 'variable',
-          x: 50,
-          y: 200,
-          width: 350,
-          height: 120,
-          content: { 
-            name: 'student_info',
-            template: 'Nom: {{student.full_name}}\nNuméro étudiant: {{student.student_number}}\nClasse: {{student.class_name}}\nAnnée: {{academic_year}}'
-          },
-          style: { fontSize: 14, fontWeight: 'normal', color: '#374151', textAlign: 'left' }
-        },
-        {
-          id: 'current_date',
-          type: 'date',
-          x: 450,
-          y: 200,
-          width: 300,
-          height: 30,
-          content: { format: 'DD/MM/YYYY' },
-          style: { fontSize: 14, fontWeight: 'normal', color: '#6b7280', textAlign: 'right' }
-        },
-        {
-          id: 'grades_table',
-          type: 'table',
-          x: 50,
-          y: 350,
-          width: 700,
-          height: 300,
-          content: {
-            headers: ['Matière', 'Note', 'Coefficient', 'Moyenne Classe', 'Observation'],
-            rows: [
-              ['Mathématiques', '{{grades.math}}', '4', '12.5', 'Bon travail'],
-              ['Français', '{{grades.french}}', '4', '13.2', 'Peut mieux faire'],
-              ['Histoire-Géo', '{{grades.history}}', '3', '11.8', 'Satisfaisant']
-            ]
-          },
-          style: { fontSize: 12, borderColor: '#374151' }
-        },
-        {
-          id: 'signature_section',
-          type: 'signature',
-          x: 450,
-          y: 700,
-          width: 300,
-          height: 100,
-          content: { 
-            name: 'Le Directeur', 
-            title: 'Directeur de l\'Établissement',
-            date: '{{current_date}}'
-          },
-          style: { fontSize: 12, textAlign: 'center' }
-        }
-      ],
-      layout: { type: 'A4', orientation: 'portrait' },
-      styles: {
-        colors: { primary: '#1f2937', secondary: '#6b7280' },
-        fonts: { main: 'Arial', heading: 'Arial Bold' }
-      }
-    },
-    is_active: true,
-    is_default: true,
-    version: 1,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
+    id: 'header',
+    type: 'header',
+    label: 'En-tête du document',
+    content: 'ÉTABLISSEMENT SCOLAIRE',
+    style: { fontSize: 24, fontWeight: 'bold', color: '#1f2937', textAlign: 'center' }
   },
   {
-    id: 'certificate_default',
-    name: 'Certificat de Scolarité',
-    type: 'report',
-    description: 'Template pour certificat de scolarité officiel',
-    content: {
-      elements: [
-        {
-          id: 'logo_institution',
-          type: 'logo',
-          x: 50,
-          y: 50,
-          width: 100,
-          height: 100,
-          content: { url: '/logo-placeholder.png', alt: 'Logo établissement' },
-          style: {}
-        },
-        {
-          id: 'header_official',
-          type: 'header',
-          x: 200,
-          y: 50,
-          width: 500,
-          height: 100,
-          content: { 
-            institution: 'RÉPUBLIQUE FRANÇAISE',
-            subheading: 'Académie de Paris - Établissement d\'Enseignement Supérieur'
-          },
-          style: { fontSize: 16, fontWeight: 'bold', textAlign: 'center' }
-        },
-        {
-          id: 'certificate_title',
-          type: 'heading',
-          x: 50,
-          y: 200,
-          width: 700,
-          height: 60,
-          content: { text: 'CERTIFICAT DE SCOLARITÉ', level: 1 },
-          style: { fontSize: 24, fontWeight: 'bold', textAlign: 'center' }
-        },
-        {
-          id: 'certificate_text',
-          type: 'text',
-          x: 50,
-          y: 300,
-          width: 700,
-          height: 200,
-          content: { 
-            text: 'Je soussigné(e), {{director.name}}, {{director.title}} de l\'établissement {{institution.name}}, certifie que :\n\n{{student.title}} {{student.full_name}}\nNé(e) le {{student.birth_date}} à {{student.birth_place}}\n\nEst régulièrement inscrit(e) dans notre établissement pour l\'année universitaire {{academic_year}} en {{program.name}} ({{program.level}}).\n\nCe certificat est délivré à l\'intéressé(e) pour servir et valoir ce que de droit.'
-          },
-          style: { fontSize: 14, lineHeight: 1.6, textAlign: 'justify' }
-        },
-        {
-          id: 'issue_location',
-          type: 'text',
-          x: 450,
-          y: 550,
-          width: 300,
-          height: 30,
-          content: { text: 'Fait à {{institution.city}}, le {{current_date}}' },
-          style: { fontSize: 12, textAlign: 'right' }
-        },
-        {
-          id: 'official_signature',
-          type: 'signature',
-          x: 450,
-          y: 600,
-          width: 300,
-          height: 120,
-          content: { 
-            name: '{{director.name}}',
-            title: '{{director.title}}',
-            stamp: true
-          },
-          style: { fontSize: 12, textAlign: 'center' }
-        },
-        {
-          id: 'official_seal',
-          type: 'seal',
-          x: 500,
-          y: 650,
-          width: 80,
-          height: 80,
-          content: { type: 'official', text: 'SCEAU OFFICIEL' },
-          style: {}
-        }
-      ],
-      layout: { type: 'A4', orientation: 'portrait' },
-      styles: {
-        colors: { primary: '#000000', secondary: '#333333' },
-        fonts: { main: 'Times New Roman', heading: 'Times New Roman Bold' }
-      }
-    },
-    is_active: true,
-    is_default: false,
-    version: 1,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
+    id: 'student_name',
+    type: 'variable',
+    label: 'Nom de l\'étudiant',
+    content: '{{student.full_name}}',
+    style: { fontSize: 16, fontWeight: 'normal', color: '#374151', textAlign: 'left' }
+  },
+  {
+    id: 'document_title',
+    type: 'title',
+    label: 'Titre du document',
+    content: 'BULLETIN DE NOTES',
+    style: { fontSize: 20, fontWeight: 'bold', color: '#1f2937', textAlign: 'center' }
+  },
+  {
+    id: 'date',
+    type: 'variable',
+    label: 'Date',
+    content: '{{current_date}}',
+    style: { fontSize: 14, fontWeight: 'normal', color: '#6b7280', textAlign: 'right' }
   }
 ];
 
-// Interface moderne utilisant le système de provider unifié
-function ModernDocumentEditor() {
+export function SimpleDocumentEditor() {
   const { toast } = useToast();
-  const { templates, loading, updateTemplate, duplicateTemplate } = useDocumentTemplates();
+  const { templates, loading, updateTemplate } = useDocumentTemplates();
   const navigate = useNavigate();
   
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('');
+  const [elements, setElements] = useState<DocumentElement[]>([]);
+  const [activeTab, setActiveTab] = useState('edit');
+  const [hasChanges, setHasChanges] = useState(false);
   const [showExitDialog, setShowExitDialog] = useState(false);
-
-  // Templates par défaut si aucun template n'existe
-  const enrichedTemplates = templates.length === 0 ? createDefaultTemplates() : templates;
+  const [isLoadingTemplate, setIsLoadingTemplate] = useState(false);
 
   // Mock student data for preview
   const mockStudentData = {
@@ -237,12 +93,143 @@ function ModernDocumentEditor() {
     academic_year: "2024-2025"
   };
 
-  const handleDuplicateTemplate = async (templateId: string) => {
+  // Phase 1: Improved template loading with proper waiting
+  useEffect(() => {
+    if (templates.length > 0 && !selectedTemplate) {
+      setSelectedTemplate(templates[0].id);
+    }
+  }, [templates, selectedTemplate]);
+
+  // Phase 1: Enhanced template content loading - CORRECTED
+  useEffect(() => {
+    if (selectedTemplate && templates.length > 0) {
+      setIsLoadingTemplate(true);
+      const template = templates.find(t => t.id === selectedTemplate);
+      
+      if (template) {
+        // Check if template has stored content
+        if (template.template_content?.elements && Array.isArray(template.template_content.elements)) {
+          const templateElements = template.template_content.elements.map((el: any) => ({
+            id: el.id || `element_${Date.now()}`,
+            type: el.type || 'text',
+            label: el.content?.label || el.label || 'Élément',
+            content: el.content?.text || el.content || '',
+            style: el.style || { fontSize: 14, fontWeight: 'normal', color: '#374151', textAlign: 'left' }
+          }));
+          setElements(templateElements);
+        } else {
+          // Try to match with SimpleDocumentGenerator templates
+          const availableTemplates = SimpleDocumentGenerator.getAvailableTemplates();
+          const matchingTemplate = availableTemplates.find(t => 
+            template.name.toLowerCase().includes(t.name.toLowerCase()) ||
+            t.name.toLowerCase().includes(template.name.toLowerCase())
+          );
+          
+          if (matchingTemplate) {
+            try {
+              const generatedHtml = SimpleDocumentGenerator.generateHTML(matchingTemplate.id);
+              setElements([
+                {
+                  id: 'generated_content',
+                  type: 'html',
+                  label: 'Contenu généré',
+                  content: generatedHtml,
+                  style: { fontSize: 14, fontWeight: 'normal', color: '#374151', textAlign: 'left' }
+                }
+              ]);
+            } catch (error) {
+              console.log('Erreur génération:', error);
+              setElements(defaultElements);
+            }
+          } else {
+            // Use default elements with template name
+            setElements([
+              ...defaultElements,
+              {
+                id: 'template_title',
+                type: 'title',
+                label: 'Titre du template',
+                content: template.name,
+                style: { fontSize: 18, fontWeight: 'bold', color: '#1f2937', textAlign: 'center' }
+              }
+            ]);
+          }
+        }
+      }
+      
+      setHasChanges(false);
+      setIsLoadingTemplate(false);
+    }
+  }, [selectedTemplate, templates]);
+
+  // Phase 2: Dynamic variable replacement for preview
+  const replaceVariables = (content: string) => {
+    return content
+      .replace(/{{student\.full_name}}/g, mockStudentData.full_name)
+      .replace(/{{student\.student_number}}/g, mockStudentData.student_number)
+      .replace(/{{student\.email}}/g, mockStudentData.email)
+      .replace(/{{student\.program_name}}/g, mockStudentData.program_name)
+      .replace(/{{academic_year}}/g, mockStudentData.academic_year)
+      .replace(/{{current_date}}/g, new Date().toLocaleDateString('fr-FR'));
+  };
+
+  const updateElement = (elementId: string, updates: Partial<DocumentElement>) => {
+    setElements(prev => prev.map(el => 
+      el.id === elementId ? { ...el, ...updates } : el
+    ));
+    setHasChanges(true);
+  };
+
+  const updateElementStyle = (elementId: string, styleUpdates: any) => {
+    setElements(prev => prev.map(el => 
+      el.id === elementId 
+        ? { ...el, style: { ...el.style, ...styleUpdates } }
+        : el
+    ));
+    setHasChanges(true);
+  };
+
+  const saveTemplate = async () => {
+    if (!selectedTemplate) return;
+    
     try {
-      await duplicateTemplate(templateId);
+      await updateTemplate(selectedTemplate, {
+        template_content: {
+          elements: elements.map(el => ({
+            id: el.id,
+            type: el.type,
+            content: { text: el.content, label: el.label },
+            style: el.style
+          }))
+        }
+      });
+      
+      setHasChanges(false);
       toast({
-        title: "Template dupliqué",
-        description: "Le template a été copié avec succès.",
+        title: "Template sauvegardé",
+        description: "Vos modifications ont été enregistrées avec succès.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de sauvegarder le template.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Phase 4: Template management functions
+  const duplicateTemplate = async () => {
+    if (!selectedTemplate) return;
+    
+    const currentTemplate = templates.find(t => t.id === selectedTemplate);
+    if (!currentTemplate) return;
+
+    try {
+      // This would need to be implemented in the useDocumentTemplates hook
+      toast({
+        title: "Fonctionnalité à venir",
+        description: "La duplication de templates sera bientôt disponible.",
       });
     } catch (error) {
       toast({
@@ -253,13 +240,16 @@ function ModernDocumentEditor() {
     }
   };
 
-  const handleExportToPDF = async (templateId: string) => {
+  // Phase 5: Export functions
+  const exportToPDF = async () => {
+    if (!selectedTemplate) return;
+    
     try {
-      const blob = await SimpleDocumentGenerator.generatePDF(templateId, mockStudentData);
+      const blob = await SimpleDocumentGenerator.generatePDF(selectedTemplate, mockStudentData);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `document-${templateId}-${Date.now()}.pdf`;
+      a.download = `document-${selectedTemplate}-${Date.now()}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -278,9 +268,11 @@ function ModernDocumentEditor() {
     }
   };
 
-  const handlePrintDocument = (templateId: string) => {
+  const printDocument = () => {
+    if (!selectedTemplate) return;
+    
     try {
-      SimpleDocumentGenerator.printDocument(templateId, mockStudentData);
+      SimpleDocumentGenerator.printDocument(selectedTemplate, mockStudentData);
       toast({
         title: "Impression lancée",
         description: "Le document est en cours d'impression.",
@@ -294,7 +286,35 @@ function ModernDocumentEditor() {
     }
   };
 
+  const addNewElement = () => {
+    const newElement: DocumentElement = {
+      id: `element_${Date.now()}`,
+      type: 'text',
+      label: 'Nouvel élément',
+      content: 'Contenu du nouvel élément',
+      style: { fontSize: 14, fontWeight: 'normal', color: '#374151', textAlign: 'left' }
+    };
+    
+    setElements(prev => [...prev, newElement]);
+    setHasChanges(true);
+  };
+
+  const removeElement = (elementId: string) => {
+    setElements(prev => prev.filter(el => el.id !== elementId));
+    setHasChanges(true);
+  };
+
+  // Phase 3: Smart navigation with unsaved changes check
   const handleNavigation = () => {
+    if (hasChanges) {
+      setShowExitDialog(true);
+    } else {
+      navigate('/results');
+    }
+  };
+
+  const confirmExit = () => {
+    setShowExitDialog(false);
     navigate('/results');
   };
 
@@ -310,84 +330,284 @@ function ModernDocumentEditor() {
   }
 
   return (
-    <TemplateEditorProvider>
-      <div className="h-screen w-full bg-background flex flex-col overflow-hidden">
-        {/* Header amélioré avec breadcrumb */}
-        <div className="border-b bg-card/50 p-4">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-            <Button variant="ghost" size="sm" onClick={handleNavigation} className="p-0 h-auto font-normal">
-              <Home className="w-4 h-4 mr-1" />
-              Résultats
+    <div className="h-full flex flex-col bg-background">
+      {/* Phase 3: Improved header with breadcrumb */}
+      <div className="border-b bg-card/50 p-4">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+          <Button variant="ghost" size="sm" onClick={handleNavigation} className="p-0 h-auto font-normal">
+            <Home className="w-4 h-4 mr-1" />
+            Résultats
+          </Button>
+          <ChevronRight className="w-4 h-4" />
+          <span>Éditeur de Documents</span>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleNavigation}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Retour
             </Button>
-            <ChevronRight className="w-4 h-4" />
-            <span>Éditeur de Documents</span>
+            <div className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-primary" />
+              <h1 className="text-xl font-semibold">Éditeur de Documents</h1>
+            </div>
+            
+            <Select 
+              value={selectedTemplate} 
+              onValueChange={setSelectedTemplate}
+              disabled={isLoadingTemplate}
+            >
+              <SelectTrigger className="w-64">
+                <SelectValue placeholder="Sélectionner un template" />
+              </SelectTrigger>
+              <SelectContent>
+                {templates.map(template => (
+                  <SelectItem key={template.id} value={template.id}>
+                    {template.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleNavigation}
-                className="flex items-center gap-2"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Retour
-              </Button>
-              <div className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-primary" />
-                <h1 className="text-xl font-semibold">Éditeur de Documents Avancé</h1>
-              </div>
-            </div>
+          <div className="flex items-center gap-2">
+            {/* Phase 4: Template management buttons */}
+            <Button onClick={duplicateTemplate} variant="outline" size="sm">
+              <Copy className="w-4 h-4 mr-2" />
+              Dupliquer
+            </Button>
+            
+            {/* Phase 5: Export buttons */}
+            <Button onClick={printDocument} variant="outline" size="sm">
+              <Printer className="w-4 h-4 mr-2" />
+              Imprimer
+            </Button>
+            
+            <Button onClick={exportToPDF} variant="outline" size="sm">
+              <Download className="w-4 h-4 mr-2" />
+              PDF
+            </Button>
+
+            <Separator orientation="vertical" className="h-6" />
+            
+            {hasChanges && (
+              <Badge variant="outline" className="text-orange-600 border-orange-200">
+                Non sauvegardé
+              </Badge>
+            )}
+            <Button onClick={saveTemplate} disabled={!hasChanges}>
+              <Save className="w-4 h-4 mr-2" />
+              Sauvegarder
+            </Button>
           </div>
         </div>
-
-        {/* Interface moderne avec toolbox intégrée */}
-        <div className="flex-1 flex overflow-hidden">
-          {/* Sidebar avec TemplateToolbox */}
-          <div className="w-80 border-r bg-card/30 flex flex-col">
-            <div className="p-4 border-b">
-              <h2 className="font-semibold text-lg mb-3">Outils & Éléments</h2>
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <TemplateToolbox 
-                onElementSelect={(elementType) => {
-                  // Connexion avec le système d'ajout d'éléments
-                  console.log('Élément sélectionné:', elementType);
-                }}
-                selectedElement={null}
-              />
-            </div>
-          </div>
-
-          {/* Interface principale */}
-          <div className="flex-1 min-w-0">
-            <ModernEditorInterface />
-          </div>
-        </div>
-
-        {/* Dialog de confirmation de sortie */}
-        <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Modifications non sauvegardées</AlertDialogTitle>
-              <AlertDialogDescription>
-                Vous avez des modifications non sauvegardées. Voulez-vous vraiment quitter sans sauvegarder ?
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Annuler</AlertDialogCancel>
-              <AlertDialogAction onClick={() => navigate('/results')}>
-                Quitter sans sauvegarder
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
       </div>
-    </TemplateEditorProvider>
-  );
-}
 
-export function SimpleDocumentEditor() {
-  return <ModernDocumentEditor />;
+      {/* Content */}
+      <div className="flex-1 flex">
+        {/* Editor Panel */}
+        <div className="flex-1 p-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="mb-6">
+              <TabsTrigger value="edit" className="flex items-center gap-2">
+                <Settings className="w-4 h-4" />
+                Édition
+              </TabsTrigger>
+              <TabsTrigger value="preview" className="flex items-center gap-2">
+                <Eye className="w-4 h-4" />
+                Aperçu
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="edit" className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-medium">Éléments du document</h2>
+                <Button onClick={addNewElement} variant="outline">
+                  <Type className="w-4 h-4 mr-2" />
+                  Ajouter un élément
+                </Button>
+              </div>
+
+              <div className="grid gap-4">
+                {elements.map((element) => (
+                  <Card key={element.id}>
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-sm flex items-center gap-2">
+                          <Badge variant="secondary" className="text-xs">
+                            {element.type}
+                          </Badge>
+                          {element.label}
+                        </CardTitle>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeElement(element.id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          Supprimer
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid gap-4">
+                        <div className="space-y-2">
+                          <Label>Libellé</Label>
+                          <Input
+                            value={element.label}
+                            onChange={(e) => updateElement(element.id, { label: e.target.value })}
+                            placeholder="Libellé de l'élément"
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label>Contenu</Label>
+                          <Textarea
+                            value={element.content}
+                            onChange={(e) => updateElement(element.id, { content: e.target.value })}
+                            placeholder="Contenu de l'élément"
+                            rows={2}
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Taille de police</Label>
+                            <Input
+                              type="number"
+                              value={element.style.fontSize || 14}
+                              onChange={(e) => updateElementStyle(element.id, { fontSize: parseInt(e.target.value) })}
+                              min="8"
+                              max="72"
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label>Couleur</Label>
+                            <Input
+                              type="color"
+                              value={element.style.color || '#374151'}
+                              onChange={(e) => updateElementStyle(element.id, { color: e.target.value })}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Poids de police</Label>
+                            <Select 
+                              value={element.style.fontWeight || 'normal'}
+                              onValueChange={(value) => updateElementStyle(element.id, { fontWeight: value })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="normal">Normal</SelectItem>
+                                <SelectItem value="bold">Gras</SelectItem>
+                                <SelectItem value="lighter">Léger</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label>Alignement</Label>
+                            <Select 
+                              value={element.style.textAlign || 'left'}
+                              onValueChange={(value) => updateElementStyle(element.id, { textAlign: value })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="left">Gauche</SelectItem>
+                                <SelectItem value="center">Centre</SelectItem>
+                                <SelectItem value="right">Droite</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="preview">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Eye className="w-5 h-5" />
+                    Aperçu du document
+                    <Badge variant="outline" className="ml-2">
+                      Données de test
+                    </Badge>
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Aperçu avec les données de test de Jean Dupont
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  {/* Phase 2: Enhanced preview with variable replacement */}
+                  <div className="bg-white border shadow-lg p-8 max-w-[21cm] mx-auto">
+                    {isLoadingTemplate ? (
+                      <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full"></div>
+                        <span className="ml-2 text-muted-foreground">Chargement du template...</span>
+                      </div>
+                    ) : (
+                      elements.map((element) => (
+                        <div
+                          key={element.id}
+                          style={{
+                            fontSize: `${element.style.fontSize}px`,
+                            fontWeight: element.style.fontWeight,
+                            color: element.style.color,
+                            textAlign: element.style.textAlign as any,
+                            marginBottom: '1rem'
+                          }}
+                        >
+                          {element.type === 'html' ? (
+                            <div dangerouslySetInnerHTML={{ __html: replaceVariables(element.content) }} />
+                          ) : (
+                            replaceVariables(element.content)
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+
+      {/* Phase 3: Exit confirmation dialog */}
+      <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Modifications non sauvegardées</AlertDialogTitle>
+            <AlertDialogDescription>
+              Vous avez des modifications non sauvegardées. Voulez-vous vraiment quitter sans sauvegarder ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmExit} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Quitter sans sauvegarder
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
 }

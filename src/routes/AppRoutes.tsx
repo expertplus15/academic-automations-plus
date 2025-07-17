@@ -1,20 +1,18 @@
 
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { Suspense } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { FullPageLoader } from '@/components/LoadingSpinner';
 
-// Lazy loaded pages avec organisation améliorée
-import {
-  IndexPage,
-  LoginPage,
-  SignupPage,
-  ResetPasswordPage,
-  DashboardPage,
-  NotFoundPage,
-  UnauthorizedPage,
-} from '@/routes/lazy';
+// Auth pages
+import Login from '@/pages/Login';
+import Signup from '@/pages/Signup';
+import ResetPassword from '@/pages/ResetPassword';
+
+// Main pages
+import Index from '@/pages/Index';
+import Dashboard from '@/pages/Dashboard';
+import NotFound from '@/pages/NotFound';
+import Unauthorized from '@/pages/Unauthorized';
 
 // Module routes
 import { ModuleRoutes } from '@/routes/ModuleRoutes';
@@ -31,32 +29,30 @@ export default function AppRoutes() {
   }
 
   return (
-    <Suspense fallback={<FullPageLoader />}>
-      <Routes>
-        {/* Public routes */}
-        <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <IndexPage />} />
-        <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <LoginPage />} />
-        <Route path="/signup" element={user ? <Navigate to="/dashboard" replace /> : <SignupPage />} />
-        <Route path="/reset-password" element={user ? <Navigate to="/dashboard" replace /> : <ResetPasswordPage />} />
-        
-        {/* Protected routes */}
-        <Route path="/dashboard" element={
-          <ProtectedRoute>
-            <DashboardPage />
-          </ProtectedRoute>
-        } />
-        
-        {/* Module routes */}
-        <Route path="/*" element={
-          <ProtectedRoute>
-            <ModuleRoutes />
-          </ProtectedRoute>
-        } />
-        
-        {/* Error routes */}
-        <Route path="/unauthorized" element={<UnauthorizedPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </Suspense>
+    <Routes>
+      {/* Public routes */}
+      <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Index />} />
+      <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
+      <Route path="/signup" element={user ? <Navigate to="/dashboard" replace /> : <Signup />} />
+      <Route path="/reset-password" element={user ? <Navigate to="/dashboard" replace /> : <ResetPassword />} />
+      
+      {/* Protected routes */}
+      <Route path="/dashboard" element={
+        <ProtectedRoute>
+          <Dashboard />
+        </ProtectedRoute>
+      } />
+      
+      {/* Module routes */}
+      <Route path="/*" element={
+        <ProtectedRoute>
+          <ModuleRoutes />
+        </ProtectedRoute>
+      } />
+      
+      {/* Error routes */}
+      <Route path="/unauthorized" element={<Unauthorized />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
