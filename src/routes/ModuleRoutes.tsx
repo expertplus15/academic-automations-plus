@@ -47,6 +47,7 @@ const AcademicPathways = lazyLoad(() => import('@/pages/academic/Pathways'));
 const AcademicGroups = lazyLoad(() => import('@/pages/academic/Groups'));
 const AcademicLevels = lazyLoad(() => import('@/pages/academic/Levels'));
 const AcademicDepartments = lazyLoad(() => import('@/pages/academic/Departments'));
+const AcademicDutgeImport = lazyLoad(() => import('@/pages/academic/DutgeImport'));
 
 // Pages du module Résultats
 const ResultsGradingSystem = lazyLoad(() => import('@/pages/results/GradingSystem'));
@@ -129,6 +130,7 @@ export function ModuleRoutes() {
         <Route path="/academic/groups" element={<AcademicGroups />} />
         <Route path="/academic/levels" element={<AcademicLevels />} />
         <Route path="/academic/departments" element={<AcademicDepartments />} />
+        <Route path="/academic/dutge-import" element={<AcademicDutgeImport />} />
 
         {/* Module Résultats */}
         <Route path="/results" element={<Results />} />
