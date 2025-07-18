@@ -1,3 +1,4 @@
+
 import React, { Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { FullPageLoader } from '@/components/LoadingSpinner';
@@ -37,6 +38,7 @@ const StudentsProfiles = lazyLoad(() => import('@/pages/students/Profiles'));
 const StudentsTracking = lazyLoad(() => import('@/pages/students/Tracking'));
 const StudentsCards = lazyLoad(() => import('@/pages/students/Cards'));
 const StudentsAnalytics = lazyLoad(() => import('@/pages/students/Analytics'));
+const StudentsImport = lazyLoad(() => import('@/pages/students/Import'));
 
 // Pages du module Académique
 const AcademicPrograms = lazyLoad(() => import('@/pages/academic/Programs'));
@@ -118,6 +120,7 @@ export function ModuleRoutes() {
         <Route path="/students/tracking" element={<StudentsTracking />} />
         <Route path="/students/cards" element={<StudentsCards />} />
         <Route path="/students/analytics" element={<StudentsAnalytics />} />
+        <Route path="/students/import" element={<StudentsImport />} />
 
         {/* Module Académique */}
         <Route path="/academic" element={<Academic />} />
