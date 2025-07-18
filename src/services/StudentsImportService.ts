@@ -67,8 +67,10 @@ export class StudentsImportService {
   private async createAuthUser(studentData: DutgeStudentData) {
     const tempPassword = this.generateTempPassword();
     
+    const uniqueEmail = `${studentData.prenom.toLowerCase().replace(/\s+/g, '')}.${studentData.nom.toLowerCase().replace(/\s+/g, '')}.ge2024@univ.com`;
+    
     const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: studentData.email,
+      email: uniqueEmail,
       password: tempPassword,
       options: {
         emailRedirectTo: `${window.location.origin}/`,
