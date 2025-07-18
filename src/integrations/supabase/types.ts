@@ -7730,6 +7730,7 @@ export type Database = {
         Row: {
           created_at: string
           enrollment_date: string
+          group_id: string | null
           id: string
           profile_id: string
           program_id: string
@@ -7741,6 +7742,7 @@ export type Database = {
         Insert: {
           created_at?: string
           enrollment_date?: string
+          group_id?: string | null
           id?: string
           profile_id: string
           program_id: string
@@ -7752,6 +7754,7 @@ export type Database = {
         Update: {
           created_at?: string
           enrollment_date?: string
+          group_id?: string | null
           id?: string
           profile_id?: string
           program_id?: string
@@ -7761,6 +7764,13 @@ export type Database = {
           year_level?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "students_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "class_groups"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "students_profile_id_fkey"
             columns: ["profile_id"]

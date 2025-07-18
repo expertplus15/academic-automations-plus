@@ -58,6 +58,11 @@ export class StudentsImportService {
           error: error instanceof Error ? error.message : 'Erreur inconnue'
         });
       }
+
+      // Délai pour éviter le rate limiting (1.5 secondes entre chaque création)
+      if (i < totalStudents - 1) {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
     }
 
     onProgress?.(100);
