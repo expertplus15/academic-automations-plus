@@ -10,11 +10,9 @@ import {
   Building,
   Layers,
   Route,
-  School,
-  Download
+  School
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { QuickImportAccess } from './QuickImportAccess';
 
 const moduleCards = [
   {
@@ -80,62 +78,37 @@ export function AcademicModuleCards() {
 
   return (
     <div className="container mx-auto px-6 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Modules principaux */}
-        <div className="lg:col-span-3">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {moduleCards.map((module, index) => (
-              <Card 
-                key={index} 
-                className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-transparent hover:border-l-emerald-500"
-                onClick={() => navigate(module.route)}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${module.color} bg-opacity-10`}>
-                      <module.icon className={`w-5 h-5 text-emerald-600`} />
-                    </div>
-                    <CardTitle className="text-lg group-hover:text-emerald-600 transition-colors">
-                      {module.title}
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    {module.description}
-                  </p>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="mt-3 p-0 h-auto font-medium text-emerald-600 hover:text-emerald-700"
-                  >
-                    Accéder →
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Sidebar avec outils d'import */}
-        <div className="space-y-6">
-          <QuickImportAccess />
-          
-          {/* Carte d'aide */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Besoin d'aide ?</CardTitle>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {moduleCards.map((module, index) => (
+          <Card 
+            key={index} 
+            className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-transparent hover:border-l-emerald-500"
+            onClick={() => navigate(module.route)}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-lg ${module.color} bg-opacity-10`}>
+                  <module.icon className={`w-5 h-5 text-emerald-600`} />
+                </div>
+                <CardTitle className="text-lg group-hover:text-emerald-600 transition-colors">
+                  {module.title}
+                </CardTitle>
+              </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground mb-3">
-                Commencez par importer les étudiants DUTGE pour avoir des données de test.
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                {module.description}
               </p>
-              <Button variant="outline" size="sm" className="w-full">
-                Guide de démarrage
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="mt-3 p-0 h-auto font-medium text-emerald-600 hover:text-emerald-700"
+              >
+                Accéder →
               </Button>
             </CardContent>
           </Card>
-        </div>
+        ))}
       </div>
     </div>
   );

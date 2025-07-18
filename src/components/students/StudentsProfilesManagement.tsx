@@ -2,12 +2,10 @@
 import React from 'react';
 import { StudentsList } from './StudentsList';
 import { Button } from '@/components/ui/button';
-import { Download, Plus } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import { useStudentsData } from '@/hooks/students/useStudentsData';
 
 export function StudentsProfilesManagement() {
-  const navigate = useNavigate();
   const { students, loading } = useStudentsData();
 
   console.log('🔍 Rendering with students:', students);
@@ -20,7 +18,7 @@ export function StudentsProfilesManagement() {
     );
   }
 
-  // Si aucun étudiant n'est trouvé, proposer l'import DUTGE
+  // Si aucun étudiant n'est trouvé, proposer de créer de nouveaux profils
   if (students.length === 0) {
     return (
       <div className="space-y-6 animate-fade-in">
@@ -36,18 +34,10 @@ export function StudentsProfilesManagement() {
             <h3 className="text-lg font-semibold mb-4">Aucun étudiant inscrit</h3>
             <p className="text-muted-foreground mb-6">
               Il semble qu'aucun étudiant ne soit encore inscrit dans le système. 
-              Vous pouvez importer les étudiants DUTGE ou créer de nouveaux profils.
+              Vous pouvez commencer par créer de nouveaux profils étudiants.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button 
-                onClick={() => navigate('/academic/dutge-import')}
-                className="bg-emerald-600 hover:bg-emerald-700"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Importer les étudiants DUTGE
-              </Button>
-              
+            <div className="flex justify-center">
               <Button 
                 variant="outline"
                 onClick={() => {
@@ -62,8 +52,8 @@ export function StudentsProfilesManagement() {
             
             <div className="mt-6 p-4 bg-muted/50 rounded-lg">
               <p className="text-sm text-muted-foreground">
-                <strong>Info :</strong> L'import DUTGE ajoutera automatiquement 17 étudiants 
-                avec tous leurs profils complets dans le système.
+                <strong>Info :</strong> Utilisez le bouton ci-dessus pour ajouter 
+                manuellement des étudiants avec leurs profils complets.
               </p>
             </div>
           </div>
@@ -80,17 +70,6 @@ export function StudentsProfilesManagement() {
           <p className="text-muted-foreground">
             Gérez les informations personnelles et académiques des étudiants
           </p>
-        </div>
-        
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            onClick={() => navigate('/academic/dutge-import')}
-            size="sm"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Import DUTGE
-          </Button>
         </div>
       </div>
 
