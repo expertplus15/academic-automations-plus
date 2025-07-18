@@ -44,26 +44,26 @@ export const DutgeStudentImporter = () => {
       // Update progress
       setProgress(((index + 1) / DUTGE_STUDENTS.length) * 100);
 
-      // Create user account
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: studentData.email,
-        email_confirm: true,
-        user_metadata: {
+      // Générer un ID unique pour le profil
+      const profileId = crypto.randomUUID();
+
+      // Créer directement le profil
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: profileId,
+          email: studentData.email,
           full_name: `${studentData.prenom} ${studentData.nom}`,
           role: 'student'
-        }
-      });
+        });
 
-      if (authError) throw authError;
+      if (profileError) throw profileError;
 
-      // Wait for profile creation
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Create student record
+      // Créer l'étudiant
       const { data: student, error: studentError } = await supabase
         .from('students')
         .insert({
-          profile_id: authData.user.id,
+          profile_id: profileId,
           student_number: studentData.matricule,
           program_id: PROGRAM_ID,
           year_level: 2,
@@ -75,10 +75,7 @@ export const DutgeStudentImporter = () => {
 
       if (studentError) throw studentError;
 
-      // Note: Students are automatically associated with their program
-      // Group assignments will be handled separately after all students are created
-
-      return { success: true, student: studentData.nom };
+      return { success: true, student: studentData.nom, studentId: student.id };
     } catch (error) {
       console.error(`Error importing ${studentData.nom}:`, error);
       return { success: false, student: studentData.nom, error: error.message };
@@ -87,54 +84,59 @@ export const DutgeStudentImporter = () => {
 
   const createTDGroups = async () => {
     try {
-      // Create TD1-GE group (9 students)
-      const { data: td1Group, error: td1Error } = await supabase
+      // Vérifier si les groupes TD existent déjà
+      const { data: existingGroups } = await supabase
         .from('class_groups')
-        .insert({
-          name: 'TD1-GE',
-          code: 'TD1-GE-2324',
-          group_type: 'td',
-          program_id: PROGRAM_ID,
-          parent_group_id: CLASS_GROUP_ID,
-          max_students: 9
-        })
-        .select()
-        .single();
+        .select('id, name, code')
+        .in('code', ['TD1-GE', 'TD2-GE'])
+        .eq('program_id', PROGRAM_ID);
 
-      if (td1Error) throw td1Error;
+      const td1Exists = existingGroups?.find(g => g.code === 'TD1-GE');
+      const td2Exists = existingGroups?.find(g => g.code === 'TD2-GE');
 
-      // Create TD2-GE group (8 students)
-      const { data: td2Group, error: td2Error } = await supabase
-        .from('class_groups')
-        .insert({
-          name: 'TD2-GE',
-          code: 'TD2-GE-2324',
-          group_type: 'td',
-          program_id: PROGRAM_ID,
-          parent_group_id: CLASS_GROUP_ID,
-          max_students: 8
-        })
-        .select()
-        .single();
+      let td1Created = false;
+      let td2Created = false;
 
-      if (td2Error) throw td2Error;
+      // Créer TD1-GE si n'existe pas
+      if (!td1Exists) {
+        const { error: td1Error } = await supabase
+          .from('class_groups')
+          .insert({
+            name: 'TD1-GE',
+            code: 'TD1-GE',
+            group_type: 'td',
+            program_id: PROGRAM_ID,
+            max_students: 9,
+            current_students: 0
+          });
 
-      // Get students to assign to TD groups
-      const { data: students, error: studentsError } = await supabase
-        .from('students')
-        .select('id, student_number')
-        .eq('program_id', PROGRAM_ID)
-        .order('student_number');
+        if (td1Error) throw td1Error;
+        td1Created = true;
+      }
 
-      if (studentsError) throw studentsError;
+      // Créer TD2-GE si n'existe pas
+      if (!td2Exists) {
+        const { error: td2Error } = await supabase
+          .from('class_groups')
+          .insert({
+            name: 'TD2-GE',
+            code: 'TD2-GE',
+            group_type: 'td',
+            program_id: PROGRAM_ID,
+            max_students: 8,
+            current_students: 0
+          });
 
-      // Note: TD groups are created but student assignment will be handled 
-      // through the administration interface for now
-      console.log(`Created TD1-GE group with capacity for 9 students`);
-      console.log(`Created TD2-GE group with capacity for 8 students`);
-      console.log(`Found ${students.length} DUTGE students to potentially assign`);
+        if (td2Error) throw td2Error;
+        td2Created = true;
+      }
 
-      return { td1Count: 9, td2Count: 8 };
+      return { 
+        td1Created,
+        td2Created,
+        td1Exists: !!td1Exists,
+        td2Exists: !!td2Exists
+      };
     } catch (error) {
       console.error('Error creating TD groups:', error);
       throw error;
@@ -155,6 +157,8 @@ export const DutgeStudentImporter = () => {
         details: [] as string[]
       };
 
+      const createdStudentIds: string[] = [];
+
       // Import each student
       for (let i = 0; i < DUTGE_STUDENTS.length; i++) {
         const result = await createStudent(DUTGE_STUDENTS[i], i);
@@ -162,6 +166,9 @@ export const DutgeStudentImporter = () => {
         if (result.success) {
           results.success++;
           results.details.push(`✅ ${result.student} - Importé avec succès`);
+          if (result.studentId) {
+            createdStudentIds.push(result.studentId);
+          }
         } else {
           results.failed++;
           results.details.push(`❌ ${result.student} - Erreur: ${result.error}`);
@@ -171,8 +178,18 @@ export const DutgeStudentImporter = () => {
       // Create TD groups
       toast.info('Création des groupes TD...');
       const groupResults = await createTDGroups();
-      results.details.push(`✅ TD1-GE créé avec ${groupResults.td1Count} étudiants`);
-      results.details.push(`✅ TD2-GE créé avec ${groupResults.td2Count} étudiants`);
+      if (groupResults.td1Created) {
+        results.details.push(`✅ Groupe TD1-GE créé (capacité: 9 étudiants)`);
+      } else if (groupResults.td1Exists) {
+        results.details.push(`ℹ️ Groupe TD1-GE existe déjà`);
+      }
+      if (groupResults.td2Created) {
+        results.details.push(`✅ Groupe TD2-GE créé (capacité: 8 étudiants)`);
+      } else if (groupResults.td2Exists) {
+        results.details.push(`ℹ️ Groupe TD2-GE existe déjà`);
+      }
+      results.details.push(`📝 Affectation aux groupes TD à faire manuellement`);
+      results.details.push(`💡 9 premiers étudiants → TD1-GE, 8 derniers → TD2-GE`);
 
       setImportResults(results);
 
