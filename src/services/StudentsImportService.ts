@@ -181,19 +181,19 @@ export class StudentsImportService {
       {
         name: 'TD1-GE',
         code: 'TD1-GE',
-        description: 'Groupe TD1 - DUT Gestion des Entreprises',
+        group_type: 'TD',
         program_id: this.DUTGE_PROGRAM_ID,
         academic_year_id: this.ACADEMIC_YEAR_ID,
-        capacity: 30,
+        max_students: 30,
         current_students: 0
       },
       {
         name: 'TD2-GE',
         code: 'TD2-GE', 
-        description: 'Groupe TD2 - DUT Gestion des Entreprises',
+        group_type: 'TD',
         program_id: this.DUTGE_PROGRAM_ID,
         academic_year_id: this.ACADEMIC_YEAR_ID,
-        capacity: 30,
+        max_students: 30,
         current_students: 0
       }
     ];
