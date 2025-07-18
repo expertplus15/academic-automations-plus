@@ -1,124 +1,142 @@
+
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useNavigate } from 'react-router-dom';
-import { useAcademicStats } from '@/hooks/academic/useAcademicStats';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { 
-  GraduationCap, 
-  School, 
-  BarChart3, 
-  Users, 
   BookOpen, 
-  Building, 
-  Calendar,
-  MapPin
+  Calendar, 
+  Users, 
+  GraduationCap,
+  Building,
+  Layers,
+  Route,
+  School,
+  Download
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { QuickImportAccess } from './QuickImportAccess';
+
+const moduleCards = [
+  {
+    title: "Programmes",
+    description: "Gestion des programmes académiques et spécialisations",
+    icon: GraduationCap,
+    route: "/academic/programs",
+    color: "bg-blue-500"
+  },
+  {
+    title: "Matières",
+    description: "Configuration des matières et unités d'enseignement",
+    icon: BookOpen,
+    route: "/academic/subjects",
+    color: "bg-green-500"
+  },
+  {
+    title: "Emplois du temps",
+    description: "Planification et gestion des créneaux horaires",
+    icon: Calendar,
+    route: "/academic/timetables",
+    color: "bg-purple-500"
+  },
+  {
+    title: "Groupes de classes",
+    description: "Organisation des étudiants en groupes",
+    icon: Users,
+    route: "/academic/groups",
+    color: "bg-orange-500"
+  },
+  {
+    title: "Départements",
+    description: "Structure organisationnelle académique",
+    icon: Building,
+    route: "/academic/departments",
+    color: "bg-indigo-500"
+  },
+  {
+    title: "Niveaux",
+    description: "Configuration des niveaux d'études",
+    icon: Layers,
+    route: "/academic/levels",
+    color: "bg-teal-500"
+  },
+  {
+    title: "Parcours",
+    description: "Définition des parcours de formation",
+    icon: Route,
+    route: "/academic/pathways",
+    color: "bg-pink-500"
+  },
+  {
+    title: "Calendrier",
+    description: "Calendrier académique et événements",
+    icon: School,
+    route: "/academic/calendar",
+    color: "bg-red-500"
+  }
+];
 
 export function AcademicModuleCards() {
   const navigate = useNavigate();
-  const { stats, loading } = useAcademicStats();
-
-  const moduleCards = [
-    {
-      title: 'Programmes',
-      subtitle: loading ? 'Chargement...' : `${stats.programs} programmes`,
-      icon: GraduationCap,
-      color: 'bg-violet-500',
-      route: '/academic/programs',
-      badge: null
-    },
-    {
-      title: 'Filières',
-      subtitle: loading ? 'Chargement...' : `${stats.specializations} filières`,
-      icon: School,
-      color: 'bg-teal-500',
-      route: '/academic/pathways',
-      badge: null
-    },
-    {
-      title: 'Niveaux d\'Études',
-      subtitle: loading ? 'Chargement...' : `${stats.levels} niveaux`,
-      icon: BarChart3,
-      color: 'bg-orange-500',
-      route: '/academic/levels',
-      badge: null
-    },
-    {
-      title: 'Classes',
-      subtitle: loading ? 'Chargement...' : `${stats.classes} classes`,
-      icon: Users,
-      color: 'bg-academic',
-      route: '/academic/groups',
-      badge: 'Nouveau'
-    },
-    {
-      title: 'Cours',
-      subtitle: loading ? 'Chargement...' : `${stats.subjects} matières`,
-      icon: BookOpen,
-      color: 'bg-teal-500',
-      route: '/academic/subjects',
-      badge: null
-    },
-    {
-      title: 'Infrastructures',
-      subtitle: 'Salles & équipements',
-      icon: Building,
-      color: 'bg-orange-500',
-      route: '/academic/infrastructure',
-      badge: null
-    },
-    {
-      title: 'Emploi du Temps',
-      subtitle: 'Planning intelligent',
-      icon: Calendar,
-      color: 'bg-academic',
-      route: '/academic/timetables',
-      badge: 'Actif'
-    },
-    {
-      title: 'Départements',
-      subtitle: loading ? 'Chargement...' : `${stats.departments} départements`,
-      icon: MapPin,
-      color: 'bg-violet-500',
-      route: '/academic/departments',
-      badge: null
-    }
-  ];
 
   return (
-    <div className="grid grid-cols-4 gap-6 mx-6 mt-6 mb-8">
-      {moduleCards.map((card, index) => {
-        const Icon = card.icon;
-        return (
-          <Card 
-            key={index} 
-            className="cursor-pointer hover:shadow-lg transition-all duration-200 border-border/40 hover:border-border"
-            onClick={() => navigate(card.route)}
-          >
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className={`p-3 rounded-xl ${card.color}`}>
-                  <Icon className="w-6 h-6 text-white" />
-                </div>
-                {card.badge && (
-                  <Badge variant="secondary" className="text-xs">
-                    {card.badge}
-                  </Badge>
-                )}
-              </div>
-              
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">
-                  {card.title}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {card.subtitle}
-                </p>
-              </div>
+    <div className="container mx-auto px-6 py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Modules principaux */}
+        <div className="lg:col-span-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {moduleCards.map((module, index) => (
+              <Card 
+                key={index} 
+                className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 border-l-transparent hover:border-l-emerald-500"
+                onClick={() => navigate(module.route)}
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg ${module.color} bg-opacity-10`}>
+                      <module.icon className={`w-5 h-5 text-emerald-600`} />
+                    </div>
+                    <CardTitle className="text-lg group-hover:text-emerald-600 transition-colors">
+                      {module.title}
+                    </CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    {module.description}
+                  </p>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="mt-3 p-0 h-auto font-medium text-emerald-600 hover:text-emerald-700"
+                  >
+                    Accéder →
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Sidebar avec outils d'import */}
+        <div className="space-y-6">
+          <QuickImportAccess />
+          
+          {/* Carte d'aide */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Besoin d'aide ?</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-3">
+                Commencez par importer les étudiants DUTGE pour avoir des données de test.
+              </p>
+              <Button variant="outline" size="sm" className="w-full">
+                Guide de démarrage
+              </Button>
             </CardContent>
           </Card>
-        );
-      })}
+        </div>
+      </div>
     </div>
   );
 }
