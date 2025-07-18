@@ -6,6 +6,7 @@ import { ModulesGrid } from '@/components/dashboard/ModulesGrid';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { RecentActivity } from '@/components/dashboard/RecentActivity';
 import { EnhancedTestsPanel } from '@/components/debug/EnhancedTestsPanel';
+import { EvaluationsTestPanel } from '@/components/tests/EvaluationsTestPanel';
 import { useSyncTriggers } from '@/hooks/useSyncTriggers';
 
 export default function Dashboard() {
@@ -33,7 +34,12 @@ export default function Dashboard() {
         </div>
       </div>
       
-      {/* Panneau de tests (développement/debug) */}
+      {/* Panneau de tests DUTGE pour ÉTAPE 1 */}
+      <div className="mt-8">
+        <EvaluationsTestPanel />
+      </div>
+      
+      {/* Panneau de tests enrichis (développement/debug) */}
       <EnhancedTestsPanel />
     </MainDashboardLayout>
   );
