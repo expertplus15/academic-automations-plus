@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CheckCircle, XCircle, Download, RotateCcw, Users, GraduationCap } from 'lucide-react';
-import { ImportResult } from '@/pages/students/Import';
+import { ImportResult } from '@/components/students/import/ImportTab';
 import { useToast } from '@/hooks/use-toast';
 
 interface ImportResultsProps {

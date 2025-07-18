@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { DutgeStudentData, ImportResult } from '@/pages/students/Import';
+import { DutgeStudentData, ImportResult } from '@/components/students/import/ImportTab';
 
 export class StudentsImportService {
   private readonly DUTGE_PROGRAM_ID = 'ced83506-8666-487b-a310-f0b1a97b0c5c';

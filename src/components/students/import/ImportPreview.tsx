@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Users, Calendar, GraduationCap, CheckCircle, AlertCircle } from 'lucide-react';
-import { DutgeStudentData, ImportResult } from '@/pages/students/Import';
+import { DutgeStudentData, ImportResult } from '@/components/students/import/ImportTab';
 import { StudentsImportService } from '@/services/StudentsImportService';
 
 interface ImportPreviewProps {

@@ -38,7 +38,7 @@ const StudentsProfiles = lazyLoad(() => import('@/pages/students/Profiles'));
 const StudentsTracking = lazyLoad(() => import('@/pages/students/Tracking'));
 const StudentsCards = lazyLoad(() => import('@/pages/students/Cards'));
 const StudentsAnalytics = lazyLoad(() => import('@/pages/students/Analytics'));
-const StudentsImport = lazyLoad(() => import('@/pages/students/Import'));
+const StudentsConfiguration = lazyLoad(() => import('@/pages/students/registration/Configuration'));
 
 // Pages du module Académique
 const AcademicPrograms = lazyLoad(() => import('@/pages/academic/Programs'));
@@ -120,7 +120,8 @@ export function ModuleRoutes() {
         <Route path="/students/tracking" element={<StudentsTracking />} />
         <Route path="/students/cards" element={<StudentsCards />} />
         <Route path="/students/analytics" element={<StudentsAnalytics />} />
-        <Route path="/students/import" element={<StudentsImport />} />
+        <Route path="/students/registration/configuration" element={<StudentsConfiguration />} />
+        <Route path="/students/registration/settings" element={<StudentsConfiguration />} />
 
         {/* Module Académique */}
         <Route path="/academic" element={<Academic />} />

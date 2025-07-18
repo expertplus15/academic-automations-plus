@@ -41,7 +41,7 @@ export function StudentsProfilesManagement() {
             
             <div className="flex justify-center gap-4">
               <Button 
-                onClick={() => navigate('/students/import')}
+                onClick={() => navigate('/students/registration/configuration?tab=import')}
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 <Upload className="w-4 h-4 mr-2" />
@@ -83,7 +83,7 @@ export function StudentsProfilesManagement() {
         
         <div className="flex gap-2">
           <Button 
-            onClick={() => navigate('/students/import')}
+            onClick={() => navigate('/students/registration/configuration?tab=import')}
             variant="outline"
           >
             <Upload className="w-4 h-4 mr-2" />
