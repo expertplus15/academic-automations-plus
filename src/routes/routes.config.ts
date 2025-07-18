@@ -140,6 +140,11 @@ export const routesConfig: RouteConfig[] = [
         component: "AcademicCalendar",
         title: "Calendrier",
       },
+      {
+        path: "/academic/pathways",
+        component: "AcademicPathways",
+        title: "Filières",
+      },
     ],
   },
 

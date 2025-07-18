@@ -43,6 +43,7 @@ const AcademicPrograms = lazyLoad(() => import('@/pages/academic/Programs'));
 const AcademicSubjects = lazyLoad(() => import('@/pages/academic/Subjects'));
 const AcademicTimetables = lazyLoad(() => import('@/pages/academic/Timetables'));
 const AcademicCalendar = lazyLoad(() => import('@/pages/academic/Calendar'));
+const AcademicPathways = lazyLoad(() => import('@/pages/academic/Pathways'));
 
 // Pages du module Résultats
 const ResultsGradingSystem = lazyLoad(() => import('@/pages/results/GradingSystem'));
@@ -121,6 +122,7 @@ export function ModuleRoutes() {
         <Route path="/academic/subjects" element={<AcademicSubjects />} />
         <Route path="/academic/timetables" element={<AcademicTimetables />} />
         <Route path="/academic/calendar" element={<AcademicCalendar />} />
+        <Route path="/academic/pathways" element={<AcademicPathways />} />
 
         {/* Module Résultats */}
         <Route path="/results" element={<Results />} />
