@@ -145,6 +145,21 @@ export const routesConfig: RouteConfig[] = [
         component: "AcademicPathways",
         title: "Filières",
       },
+      {
+        path: "/academic/groups",
+        component: "AcademicGroups",
+        title: "Classes et Groupes",
+      },
+      {
+        path: "/academic/levels",
+        component: "AcademicLevels",
+        title: "Niveaux d'Études",
+      },
+      {
+        path: "/academic/departments",
+        component: "AcademicDepartments",
+        title: "Départements",
+      },
     ],
   },
 
