@@ -79,6 +79,8 @@ export function StudentsProfilesManagement() {
     );
   }
 
+  console.log('🔍 Rendering with students:', students);
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Statistics Cards */}

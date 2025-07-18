@@ -90,13 +90,16 @@ export function useStudentsData() {
         
         console.log('✅ Departments fetched:', departments);
         
-        const studentsWithDepartments = (data || []).map(student => ({
-          ...student,
-          programs: {
-            ...student.programs,
-            departments: departments?.find(d => d.id === student.programs.department_id) || { name: 'Non défini' }
-          }
-        }));
+        const studentsWithDepartments = (data || []).map(student => {
+          const department = departments?.find(d => d.id === student.programs.department_id);
+          return {
+            ...student,
+            programs: {
+              ...student.programs,
+              departments: department ? { name: department.name } : { name: 'Non défini' }
+            }
+          };
+        });
         
         console.log('✅ Final students data:', studentsWithDepartments);
         setStudents(studentsWithDepartments);
