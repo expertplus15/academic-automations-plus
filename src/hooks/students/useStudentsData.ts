@@ -52,6 +52,7 @@ export function useStudentsData() {
     try {
       setLoading(true);
       setError(null);
+      console.log('🔍 Fetching students...');
 
       const { data, error } = await supabase
         .from('students')
@@ -72,18 +73,33 @@ export function useStudentsData() {
             id,
             name,
             code,
-            departments!programs_department_id_fkey (
-              name
-            )
+            department_id
           )
         `)
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching students:', error);
+        console.error('❌ Error fetching students:', error);
         setError(error.message);
       } else {
-        setStudents(data || []);
+        console.log('✅ Students data fetched:', data);
+        // Fetch departments separately and merge
+        const { data: departments } = await supabase
+          .from('departments')
+          .select('id, name');
+        
+        console.log('✅ Departments fetched:', departments);
+        
+        const studentsWithDepartments = (data || []).map(student => ({
+          ...student,
+          programs: {
+            ...student.programs,
+            departments: departments?.find(d => d.id === student.programs.department_id) || { name: 'Non défini' }
+          }
+        }));
+        
+        console.log('✅ Final students data:', studentsWithDepartments);
+        setStudents(studentsWithDepartments);
       }
     } catch (err) {
       console.error('Unexpected error:', err);
