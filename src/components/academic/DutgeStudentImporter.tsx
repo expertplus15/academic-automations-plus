@@ -44,15 +44,26 @@ export const DutgeStudentImporter = () => {
       // Update progress
       setProgress(((index + 1) / DUTGE_STUDENTS.length) * 100);
 
-      // Générer un ID unique pour le profil
-      const profileId = crypto.randomUUID();
+      // Créer l'utilisateur d'abord dans auth.users
+      const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+        email: `${studentData.matricule}@student.edu.dj`, // Email unique basé sur le matricule
+        password: `${studentData.matricule}123`, // Mot de passe temporaire
+        email_confirm: true,
+        user_metadata: {
+          full_name: `${studentData.prenom} ${studentData.nom}`,
+          role: 'student'
+        }
+      });
 
-      // Créer directement le profil
+      if (authError) throw authError;
+      if (!authUser.user) throw new Error('User creation failed');
+
+      // Créer le profil avec l'ID de l'utilisateur créé
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
-          id: profileId,
-          email: studentData.email,
+          id: authUser.user.id,
+          email: `${studentData.matricule}@student.edu.dj`,
           full_name: `${studentData.prenom} ${studentData.nom}`,
           role: 'student'
         });
@@ -63,7 +74,7 @@ export const DutgeStudentImporter = () => {
       const { data: student, error: studentError } = await supabase
         .from('students')
         .insert({
-          profile_id: profileId,
+          profile_id: authUser.user.id,
           student_number: studentData.matricule,
           program_id: PROGRAM_ID,
           year_level: 2,
