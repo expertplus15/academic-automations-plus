@@ -201,6 +201,20 @@ export function useEnhancedModuleTests() {
             ]
           },
           {
+            id: 'evaluations-module',
+            name: 'Module Évaluations & Résultats',
+            route: '/results',
+            moduleType: 'functionality',
+            status: 'pending',
+            subTests: [
+              { id: 'results-dashboard', name: 'Dashboard Résultats', route: '/results', moduleType: 'functionality', status: 'pending' },
+              { id: 'grade-entry', name: 'Saisie des Notes', route: '/results/grade-entry', moduleType: 'functionality', status: 'pending' },
+              { id: 'grade-validation', name: 'Validation Notes', route: '/results/validation', moduleType: 'functionality', status: 'pending' },
+              { id: 'document-production', name: 'Production Documents', route: '/results/production', moduleType: 'functionality', status: 'pending' },
+              { id: 'document-personalization', name: 'Personnalisation Documents', route: '/results/personalisation', moduleType: 'functionality', status: 'pending' }
+            ]
+          },
+          {
             id: 'students-module',
             name: 'Module Étudiants',
             route: '/students',
@@ -859,6 +873,25 @@ export function useEnhancedModuleTests() {
     };
   }, [testSuites]);
 
+  // Fonctions manquantes
+  const selectSuite = toggleSuite;
+  const exportReport = useCallback(() => {
+    if (currentReport) {
+      const reportData = JSON.stringify(currentReport, null, 2);
+      const blob = new Blob([reportData], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `test-report-${currentReport.executionId}.json`;
+      link.click();
+    }
+  }, [currentReport]);
+  
+  const clearHistory = useCallback(() => {
+    setReportHistory([]);
+    setCurrentReport(null);
+  }, []);
+
   return {
     testSuites,
     selectedSuites,
@@ -873,8 +906,11 @@ export function useEnhancedModuleTests() {
     getSelectedTestsCount,
     runSingleTest,
     toggleSuite,
+    selectSuite,
     selectAllSuites,
     deselectAllSuites,
-    selectSuitesByCategory
+    selectSuitesByCategory,
+    exportReport,
+    clearHistory
   };
 }
