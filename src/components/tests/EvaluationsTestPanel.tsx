@@ -162,33 +162,34 @@ export function EvaluationsTestPanel({ className }: EvaluationsTestPanelProps) {
     <div className={cn("space-y-6", className)}>
       {/* En-tête */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Award className="h-5 w-5" />
-            Tests Module Évaluations & Résultats
+        <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/20">
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <Award className="h-6 w-6 text-primary" />
+            🎯 ÉTAPE 1 - Tests Module Évaluations & Résultats DUTGE
           </CardTitle>
-          <CardDescription>
-            Suite complète de tests pour valider le workflow DUTGE (Gestion des Entreprises)
+          <CardDescription className="text-base">
+            <strong>Exécution du Plan d'ÉTAPE 1 :</strong> Configuration complète de la structure académique pour le DUT Gestion des Entreprises (Programme, Département, 8 matières S3, Classes, Système de notation)
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-4">
+        <CardContent className="pt-6">
+          <div className="flex flex-wrap gap-4 mb-6 p-4 bg-muted/30 rounded-lg border">
             <Button 
               onClick={runAllTests} 
               disabled={isRunning}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-medium"
+              size="lg"
             >
-              <Play className="h-4 w-4" />
-              {isRunning ? 'Tests en cours...' : 'Lancer tous les tests'}
+              <Play className="h-5 w-5" />
+              {isRunning ? '🔄 Exécution ÉTAPE 1 en cours...' : '🚀 EXÉCUTER ÉTAPE 1 - Configuration DUTGE'}
             </Button>
             
             <Button 
-              variant="outline" 
+              variant="secondary" 
               onClick={downloadTestFiles}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 bg-blue-100 hover:bg-blue-200 text-blue-800"
             >
               <Download className="h-4 w-4" />
-              Télécharger fichiers test
+              📁 Télécharger Fichiers Test CSV
             </Button>
             
             <Button 
@@ -197,7 +198,7 @@ export function EvaluationsTestPanel({ className }: EvaluationsTestPanelProps) {
               className="flex items-center gap-2"
             >
               <RotateCcw className="h-4 w-4" />
-              Réinitialiser
+              🔄 Réinitialiser
             </Button>
           </div>
           
