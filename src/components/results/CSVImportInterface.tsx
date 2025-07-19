@@ -51,6 +51,49 @@ export function CSVImportInterface() {
     }
   }, [importer, toast]);
 
+  const handleAutoImport = async (semester: string) => {
+    try {
+      setSelectedSemester(semester);
+      
+      // Charger le fichier d'exemple correspondant au semestre
+      const fileName = `Notes_S${semester}_DUT2GE_Session1.csv`;
+      const response = await fetch(`/samples/${fileName}`);
+      
+      if (!response.ok) {
+        throw new Error(`Fichier ${fileName} non trouvé`);
+      }
+      
+      const content = await response.text();
+      const parsedData = importer.parseCSV(content);
+      setCsvData(parsedData);
+      
+      // Créer un objet File simulé pour l'affichage
+      const simulatedFile = new File([content], fileName, { type: 'text/csv' });
+      setFile(simulatedFile);
+      
+      if (parsedData.length > 0) {
+        const headers = Object.keys(parsedData[0]).filter(h => h !== 'matricule');
+        const generatedMappings = importer.createSubjectMappings(['matricule', ...headers]);
+        setMappings(generatedMappings);
+        
+        // Valider les données
+        const validationResult = await importer.validateData(parsedData, generatedMappings);
+        setValidation(validationResult);
+        
+        toast({
+          title: 'Données chargées',
+          description: `Fichier d'exemple Semestre ${semester} chargé avec succès`,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de charger les données d\'exemple',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleImport = async () => {
     if (!csvData || !mappings || !currentYear || !validation?.valid) return;
 
@@ -137,6 +180,32 @@ export function CSVImportInterface() {
                   <Input value={currentYear?.name || ''} disabled />
                 </div>
               </div>
+
+              {/* Import automatique */}
+              <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+                <CardHeader>
+                  <CardTitle className="text-blue-800 text-lg">Import automatique - Données d'exemple</CardTitle>
+                  <CardDescription className="text-blue-600">
+                    Utilisez les données d'exemple préremplies pour tester l'importation
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => handleAutoImport('3')}
+                    className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                  >
+                    Charger Semestre 3
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => handleAutoImport('4')}
+                    className="border-blue-300 text-blue-700 hover:bg-blue-100"
+                  >
+                    Charger Semestre 4
+                  </Button>
+                </CardContent>
+              </Card>
 
               <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
                 <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
