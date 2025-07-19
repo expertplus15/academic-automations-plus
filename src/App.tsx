@@ -9,13 +9,26 @@ import { AuthProvider } from "@/contexts/AuthContext";
 
 // Pages
 import Dashboard from "@/pages/Dashboard";
+
+// Students Module
 import StudentsLayout from "@/pages/students/StudentsLayout";
 import StudentsPage from "@/pages/students/StudentsPage";
+import StudentsProfiles from "@/pages/students/Profiles";
+import StudentsGroups from "@/pages/students/Groups";
+import StudentsAlerts from "@/pages/students/Alerts";
+
+// Exams Module  
 import ExamsLayout from "@/pages/exams/ExamsLayout";
 import ExamsPage from "@/pages/exams/ExamsPage";
 import SessionsPage from "@/pages/exams/SessionsPage";
+import ExamsPlanning from "@/pages/exams/Planning";
+import ExamsSupervision from "@/pages/exams/Supervision";
+
+// Academic Module
 import AcademicLayout from "@/pages/academic/AcademicLayout";
 import AcademicPage from "@/pages/academic/AcademicPage";
+
+// Results/Evaluation Module
 import ResultsLayout from "@/pages/results/ResultsLayout";
 import Results from "@/pages/Results";
 import GradeEntry from "@/pages/results/GradeEntry";
@@ -45,19 +58,29 @@ function App() {
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
             
+            {/* Students Management Module */}
             <Route path="/students" element={<StudentsLayout />}>
               <Route index element={<StudentsPage />} />
+              <Route path="profiles" element={<StudentsProfiles />} />
+              <Route path="new" element={<StudentsProfiles />} />
+              <Route path="groups" element={<StudentsGroups />} />
+              <Route path="alerts" element={<StudentsAlerts />} />
             </Route>
             
+            {/* Exams Management Module */}
             <Route path="/exams" element={<ExamsLayout />}>
               <Route index element={<ExamsPage />} />
               <Route path="sessions" element={<SessionsPage />} />
+              <Route path="planning" element={<ExamsPlanning />} />
+              <Route path="supervision" element={<ExamsSupervision />} />
             </Route>
             
+            {/* Academic Configuration Module */}
             <Route path="/academic" element={<AcademicLayout />}>
               <Route index element={<AcademicPage />} />
             </Route>
             
+            {/* Results/Evaluation Module */}
             <Route path="/results" element={<ResultsLayout />}>
               <Route index element={<Results />} />
               <Route path="grade-entry" element={<GradeEntry />} />
