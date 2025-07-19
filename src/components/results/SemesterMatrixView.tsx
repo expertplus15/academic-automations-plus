@@ -49,7 +49,7 @@ export function SemesterMatrixView({ selectedProgram, selectedGroup, selectedSem
         Object.entries(student.subjects).forEach(([subjectId, subjectData]) => {
           grades[subjectId] = {
             cc: subjectData.cc,
-            exam: subjectData.ef || subjectData.examen
+            exam: subjectData.ef
           };
         });
 

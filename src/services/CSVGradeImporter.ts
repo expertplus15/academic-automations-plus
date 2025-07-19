@@ -41,7 +41,7 @@ export class CSVGradeImporter {
       const values = lines[i].split(',').map(v => v.trim());
       if (values.length !== headers.length) continue;
 
-      const row: CSVGradeRow = {};
+      const row: CSVGradeRow = { matricule: '' };
       headers.forEach((header, index) => {
         if (header.toLowerCase() === 'matricule') {
           row.matricule = values[index];
