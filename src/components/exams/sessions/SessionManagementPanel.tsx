@@ -96,13 +96,13 @@ export function SessionManagementPanel({ academicYearId, programId }: SessionMan
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>{currentSession.session.name}</CardTitle>
+                  <CardTitle>{currentSession?.session?.name || 'Session DUT2-GE'}</CardTitle>
                   <p className="text-muted-foreground">
-                    Code: {currentSession.session.code}
+                    Code: {currentSession?.session?.code || 'S1-2324-DUTGE'}
                   </p>
                 </div>
-                <Badge variant={currentSession.session.status === 'active' ? 'default' : 'secondary'}>
-                  {currentSession.session.status}
+                <Badge variant={currentSession?.session?.status === 'active' ? 'default' : 'secondary'}>
+                  {currentSession?.session?.status || 'draft'}
                 </Badge>
               </div>
             </CardHeader>
