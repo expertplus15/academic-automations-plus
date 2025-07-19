@@ -1,8 +1,10 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Download } from 'lucide-react';
 import { Student, useStudentsData } from '@/hooks/students/useStudentsData';
+import { useAcademicYearContext } from '@/contexts/AcademicYearContext';
 import { StudentCard } from './StudentCard';
 import { StudentForm } from './StudentForm';
 import { StudentsSearch } from './StudentsSearch';
@@ -19,7 +21,8 @@ export function StudentsList({
   showActions = true, 
   className = '' 
 }: StudentsListProps) {
-  const { students, loading, createStudent, updateStudent } = useStudentsData();
+  const { selectedAcademicYear } = useAcademicYearContext();
+  const { students, loading, createStudent, updateStudent } = useStudentsData(selectedAcademicYear?.id);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -63,6 +66,9 @@ export function StudentsList({
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+        <span className="ml-2 text-muted-foreground">
+          Chargement des étudiants{selectedAcademicYear ? ` pour ${selectedAcademicYear.name}` : ''}...
+        </span>
       </div>
     );
   }
@@ -72,7 +78,14 @@ export function StudentsList({
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Liste des Étudiants ({filteredStudents.length})</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              Liste des Étudiants ({filteredStudents.length})
+              {selectedAcademicYear && (
+                <span className="text-sm font-normal text-muted-foreground">
+                  • {selectedAcademicYear.name}
+                </span>
+              )}
+            </CardTitle>
             {showActions && (
               <div className="flex gap-2">
                 <Button variant="outline" size="sm">
@@ -113,16 +126,23 @@ export function StudentsList({
 
           {filteredStudents.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-muted-foreground text-lg">Aucun étudiant trouvé</p>
+              <p className="text-muted-foreground text-lg">
+                {searchTerm || selectedStatus !== 'all' 
+                  ? 'Aucun étudiant trouvé avec ces critères'
+                  : selectedAcademicYear 
+                    ? `Aucun étudiant inscrit pour l'année ${selectedAcademicYear.name}`
+                    : 'Aucun étudiant trouvé'
+                }
+              </p>
               {searchTerm || selectedStatus !== 'all' ? (
                 <p className="text-sm text-muted-foreground mt-2">
                   Essayez de modifier vos critères de recherche
                 </p>
               ) : (
-                showActions && (
+                showActions && selectedAcademicYear && (
                   <Button onClick={handleCreateStudent} className="mt-4">
                     <Plus className="w-4 h-4 mr-2" />
-                    Créer le premier étudiant
+                    Créer le premier étudiant pour {selectedAcademicYear.name}
                   </Button>
                 )
               )}

@@ -10,15 +10,19 @@ import { useNavigate } from 'react-router-dom';
 
 export function StudentsProfilesManagement() {
   const { selectedAcademicYear } = useAcademicYearContext();
-  const { students, loading } = useStudentsData();
+  const { students, loading } = useStudentsData(selectedAcademicYear?.id);
   const navigate = useNavigate();
 
-  console.log('🔍 Rendering with students:', students);
+  console.log('🔍 Rendering with students for academic year:', selectedAcademicYear?.name, students);
+  console.log('📊 Students count:', students.length);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+        <span className="ml-2 text-muted-foreground">
+          Chargement des étudiants{selectedAcademicYear ? ` pour ${selectedAcademicYear.name}` : ''}...
+        </span>
       </div>
     );
   }
@@ -32,8 +36,8 @@ export function StudentsProfilesManagement() {
             <h2 className="text-2xl font-bold text-foreground">Gestion des Profils Étudiants</h2>
             <p className="text-muted-foreground">
               {selectedAcademicYear 
-                ? `Aucun étudiant trouvé pour l'année ${selectedAcademicYear.name}`
-                : 'Aucun étudiant trouvé dans le système'
+                ? `Aucun étudiant trouvé pour l'année académique ${selectedAcademicYear.name}`
+                : 'Veuillez sélectionner une année académique pour afficher les étudiants'
               }
             </p>
           </div>
@@ -42,38 +46,42 @@ export function StudentsProfilesManagement() {
 
         <div className="text-center py-12 bg-card rounded-lg border">
           <div className="max-w-md mx-auto">
-            <h3 className="text-lg font-semibold mb-4">Aucun étudiant inscrit</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              {selectedAcademicYear ? 'Aucun étudiant inscrit' : 'Sélectionner une année académique'}
+            </h3>
             <p className="text-muted-foreground mb-6">
               {selectedAcademicYear
-                ? `Il semble qu'aucun étudiant ne soit inscrit pour l'année académique ${selectedAcademicYear.name}.`
-                : "Il semble qu'aucun étudiant ne soit encore inscrit dans le système."
-              } Vous pouvez commencer par importer des étudiants ou créer de nouveaux profils.
+                ? `Il semble qu'aucun étudiant ne soit inscrit pour l'année académique ${selectedAcademicYear.name}. Vous pouvez commencer par importer des étudiants ou créer de nouveaux profils.`
+                : "Veuillez d'abord sélectionner une année académique pour voir les étudiants inscrits."
+              }
             </p>
             
-            <div className="flex justify-center gap-4">
-              <Button 
-                onClick={() => navigate('/students/import')}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                Importer des Étudiants
-              </Button>
-              
-              <Button 
-                variant="outline"
-                onClick={() => {
-                  console.log('Créer un nouvel étudiant');
-                }}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Créer un étudiant
-              </Button>
-            </div>
+            {selectedAcademicYear && (
+              <div className="flex justify-center gap-4">
+                <Button 
+                  onClick={() => navigate('/students/import')}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Importer des Étudiants
+                </Button>
+                
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    console.log('Créer un nouvel étudiant pour l\'année:', selectedAcademicYear.name);
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Créer un étudiant
+                </Button>
+              </div>
+            )}
             
             <div className="mt-6 p-4 bg-muted/50 rounded-lg">
               <p className="text-sm text-muted-foreground">
-                <strong>Info :</strong> Utilisez l'import CSV pour ajouter plusieurs étudiants rapidement, 
-                ou créez des profils individuels manuellement.
+                <strong>Info :</strong> Le filtrage par année académique permet de gérer les étudiants 
+                de façon organisée selon leur année d'inscription.
               </p>
             </div>
           </div>
@@ -89,7 +97,11 @@ export function StudentsProfilesManagement() {
           <h2 className="text-2xl font-bold text-foreground">Gestion des Profils Étudiants</h2>
           <p className="text-muted-foreground">
             Gérez les informations personnelles et académiques des étudiants
-            {selectedAcademicYear && ` • Année ${selectedAcademicYear.name}`}
+            {selectedAcademicYear && (
+              <span className="inline-flex items-center ml-2 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                {selectedAcademicYear.name} • {students.length} étudiant{students.length > 1 ? 's' : ''}
+              </span>
+            )}
           </p>
         </div>
         

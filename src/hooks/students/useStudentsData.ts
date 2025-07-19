@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -9,9 +10,12 @@ export interface Student {
   year_level: number;
   enrollment_date: string;
   created_at: string;
+  academic_year_id?: string;
   profiles: {
     id: string;
     full_name: string;
+    first_name?: string;
+    last_name?: string;
     email: string;
     phone?: string;
   };
@@ -42,7 +46,7 @@ export interface UpdateStudentData {
   status?: 'active' | 'suspended' | 'graduated' | 'dropped';
 }
 
-export function useStudentsData() {
+export function useStudentsData(academicYearId?: string) {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -52,9 +56,9 @@ export function useStudentsData() {
     try {
       setLoading(true);
       setError(null);
-      console.log('🔍 Fetching students...');
+      console.log('🔍 Fetching students for academic year:', academicYearId);
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('students')
         .select(`
           id,
@@ -63,9 +67,12 @@ export function useStudentsData() {
           year_level,
           enrollment_date,
           created_at,
+          academic_year_id,
           profiles!students_profile_id_fkey (
             id,
             full_name,
+            first_name,
+            last_name,
             email,
             phone
           ),
@@ -77,6 +84,13 @@ export function useStudentsData() {
           )
         `)
         .order('created_at', { ascending: false });
+
+      // Appliquer le filtre par année académique si spécifié
+      if (academicYearId) {
+        query = query.eq('academic_year_id', academicYearId);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('❌ Error fetching students:', error);
@@ -92,8 +106,29 @@ export function useStudentsData() {
         
         const studentsWithDepartments = (data || []).map(student => {
           const department = departments?.find(d => d.id === student.programs.department_id);
+          
+          // Parse first_name and last_name from full_name if they don't exist
+          let firstName = student.profiles.first_name;
+          let lastName = student.profiles.last_name;
+          
+          if (!firstName || !lastName) {
+            const nameParts = student.profiles.full_name?.split(' ') || [];
+            if (nameParts.length > 1) {
+              lastName = nameParts[0]; // Premier mot = nom de famille
+              firstName = nameParts.slice(1).join(' '); // Reste = prénom(s)
+            } else {
+              firstName = student.profiles.full_name || '';
+              lastName = '';
+            }
+          }
+          
           return {
             ...student,
+            profiles: {
+              ...student.profiles,
+              first_name: firstName,
+              last_name: lastName
+            },
             programs: {
               ...student.programs,
               departments: department ? { name: department.name } : { name: 'Non défini' }
@@ -101,7 +136,7 @@ export function useStudentsData() {
           };
         });
         
-        console.log('✅ Final students data:', studentsWithDepartments);
+        console.log('✅ Final students data with academic year filter:', studentsWithDepartments);
         setStudents(studentsWithDepartments);
       }
     } catch (err) {
@@ -305,7 +340,7 @@ export function useStudentsData() {
 
   useEffect(() => {
     fetchStudents();
-  }, []);
+  }, [academicYearId]); // Re-exécuter quand l'année académique change
 
   const refetch = () => {
     fetchStudents();
