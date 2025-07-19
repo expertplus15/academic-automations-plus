@@ -12,8 +12,8 @@ import { usePrograms } from '@/hooks/usePrograms';
 import { useSubjects } from '@/hooks/useSubjects';
 import { useAcademicYear } from '@/hooks/useAcademicYear';
 import { useEvaluationTypes } from '@/hooks/useEvaluationTypes';
-import { useSpecializations } from '@/hooks/useSupabase';
-import { useAcademicLevels } from '@/hooks/useSupabase';
+import { useSpecializations } from '@/hooks/useSpecializations';
+import { useAcademicLevels } from '@/hooks/academic/useAcademicData';
 import { GroupSelector } from '@/components/academic/timetable/GroupSelector';
 import { MoteurCalculAcademique, DEFAULT_GRADING_CONFIG } from '@/lib/gradingEngine';
 import { SemesterMatrixView } from './SemesterMatrixView';
@@ -35,7 +35,7 @@ export function MatrixGradeEntry() {
   
   const { toast } = useToast();
   const { programs, loading: programsLoading } = usePrograms();
-  const { data: specializations, loading: specializationsLoading } = useSpecializations();
+  const { data: specializations, loading: specializationsLoading } = useSpecializations(selectedProgram);
   const { data: academicLevels, loading: levelsLoading } = useAcademicLevels();
   const { subjects, loading: subjectsLoading } = useSubjects(selectedProgram);
   const { currentYear } = useAcademicYear();

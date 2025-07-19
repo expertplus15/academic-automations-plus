@@ -10,7 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { usePrograms, useSpecializations, useAcademicLevels } from '@/hooks/useSupabase';
+import { usePrograms } from '@/hooks/usePrograms';
+import { useSpecializations } from '@/hooks/useSpecializations';
+import { useAcademicLevels } from '@/hooks/academic/useAcademicData';
 
 const groupFormSchema = z.object({
   name: z.string().min(1, 'Le nom est requis'),
@@ -42,8 +44,8 @@ const groupTypeLabels = {
 export function GroupForm({ group, onSuccess, onCancel }: GroupFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const { data: programs, loading: programsLoading } = usePrograms();
-  const { data: specializations, loading: specializationsLoading } = useSpecializations();
+  const { programs, loading: programsLoading } = usePrograms();
+  const { data: specializations, loading: specializationsLoading } = useSpecializations('');
   const { data: levels, loading: levelsLoading } = useAcademicLevels();
 
   const form = useForm<GroupFormData>({
@@ -216,7 +218,7 @@ export function GroupForm({ group, onSuccess, onCancel }: GroupFormProps) {
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="none">Aucun programme spécifique</SelectItem>
-                        {!programsLoading && programs?.map((program) => (
+                        {!programsLoading && programs.map((program) => (
                           <SelectItem key={program.id} value={program.id}>
                             {program.name} ({program.code})
                           </SelectItem>

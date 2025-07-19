@@ -3,13 +3,13 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AcademicModuleLayout } from '@/components/layouts/AcademicModuleLayout';
 import { GroupsList } from '@/components/academic/GroupsList';
 import { GroupForm } from '@/components/academic/GroupForm';
-import { useClassGroups } from '@/hooks/useSupabase';
+import { useTable } from '@/hooks/useSupabase';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 
 export default function Groups() {
-  const { data: groups, loading, refetch } = useClassGroups();
+  const { data: groups, loading, refetch } = useTable('class_groups');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingGroup, setEditingGroup] = useState<any>(null);
 

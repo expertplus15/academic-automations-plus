@@ -3,13 +3,18 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AcademicModuleLayout } from '@/components/layouts/AcademicModuleLayout';
 import { PathwaysList } from '@/components/academic/PathwaysList';
 import { PathwayForm } from '@/components/academic/PathwayForm';
-import { useSpecializations } from '@/hooks/useSupabase';
+import { useSpecializations } from '@/hooks/useSpecializations';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 
 export default function Pathways() {
-  const { data: pathways, loading, refetch } = useSpecializations();
+  const { data: pathways, loading } = useSpecializations('');
+  
+  const refetch = () => {
+    // Refresh specializations data
+    window.location.reload();
+  };
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingPathway, setEditingPathway] = useState<any>(null);
 

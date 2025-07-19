@@ -16,7 +16,7 @@ export function useTable(tableName: string, select = '*', filters?: Record<strin
       
       console.log(`🔄 [DIAGNOSTIC] Fetching ${tableName}...`);
       
-      let query = supabase.from(tableName).select(select);
+      let query = (supabase as any).from(tableName).select(select);
       
       if (filters) {
         Object.entries(filters).forEach(([key, value]) => {

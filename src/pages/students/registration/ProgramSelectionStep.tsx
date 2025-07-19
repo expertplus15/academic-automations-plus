@@ -3,7 +3,8 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/comp
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UseFormReturn } from 'react-hook-form';
 import { RegistrationFormData } from './useRegistrationForm';
-import { useDepartments, usePrograms, useAcademicLevels } from '@/hooks/useSupabase';
+import { usePrograms } from '@/hooks/usePrograms';
+import { useDepartments, useAcademicLevels } from '@/hooks/academic/useAcademicData';
 import { useEffect } from 'react';
 
 interface ProgramSelectionStepProps {
@@ -12,7 +13,7 @@ interface ProgramSelectionStepProps {
 
 export function ProgramSelectionStep({ form }: ProgramSelectionStepProps) {
   const { data: departments } = useDepartments();
-  const { data: programs } = usePrograms();
+  const { programs } = usePrograms();
   const { data: levels } = useAcademicLevels();
 
   const selectedDepartment = form.watch('departmentId');

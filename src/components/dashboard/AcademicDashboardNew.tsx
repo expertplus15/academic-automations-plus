@@ -1,6 +1,8 @@
 import React from 'react';
 import { ModuleDashboard, DashboardWidget } from './ModuleDashboard';
-import { usePrograms, useSubjects, useDepartments } from '@/hooks/useSupabase';
+import { usePrograms } from '@/hooks/usePrograms';
+import { useSubjects } from '@/hooks/useSubjects';
+import { useDepartments } from '@/hooks/academic/useAcademicData';
 import { useNavigate } from 'react-router-dom';
 import { 
   GraduationCap, 
@@ -17,8 +19,8 @@ import {
 
 export function AcademicDashboardNew() {
   const navigate = useNavigate();
-  const { data: programs, loading: programsLoading } = usePrograms();
-  const { data: subjects, loading: subjectsLoading } = useSubjects();
+  const { programs, loading: programsLoading } = usePrograms();
+  const { subjects, loading: subjectsLoading } = useSubjects();
   const { data: departments } = useDepartments();
 
   const loading = programsLoading || subjectsLoading;

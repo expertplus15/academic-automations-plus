@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Brain, Calendar, AlertTriangle, Zap, BarChart3 } from 'lucide-react';
 import { useExams } from '@/hooks/useExams';
 import { useExamConflictDetection } from '@/hooks/useExamConflictDetection';
-import { usePrograms } from '@/hooks/useSupabase';
+import { usePrograms } from '@/hooks/usePrograms';
 import { ExamConflictResolver } from '@/components/exams/ExamConflictResolver';
 import { ExamScheduleGrid } from '@/components/exams/ExamScheduleGrid';
 import { toast } from 'sonner';
@@ -22,7 +22,7 @@ export default function Planning() {
     generateSchedule, 
     resolveConflict 
   } = useExamConflictDetection();
-  const { data: programs } = usePrograms();
+  const { programs } = usePrograms();
   
   const [selectedAcademicYear] = useState('2024-2025');
   const [selectedProgram, setSelectedProgram] = useState<string>('');

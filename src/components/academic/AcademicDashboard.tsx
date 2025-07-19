@@ -3,7 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { usePrograms, useSubjects, useDepartments, useTable } from '@/hooks/useSupabase';
+import { usePrograms } from '@/hooks/usePrograms';
+import { useSubjects } from '@/hooks/useSubjects';
+import { useDepartments } from '@/hooks/academic/useAcademicData';
 import { 
   GraduationCap, 
   BookOpen, 
@@ -21,8 +23,8 @@ import { ScheduleView } from './ScheduleView';
 import { DepartmentsList } from './DepartmentsList';
 
 export function AcademicDashboard() {
-  const { data: programs, loading: programsLoading } = usePrograms();
-  const { data: subjects, loading: subjectsLoading } = useSubjects();
+  const { programs, loading: programsLoading } = usePrograms();
+  const { subjects, loading: subjectsLoading } = useSubjects();
   const { data: departments } = useDepartments();
 
   const stats = [
@@ -196,7 +198,7 @@ export function AcademicDashboard() {
           </TabsContent>
 
           <TabsContent value="programs">
-            <ProgramsList programs={programs} loading={programsLoading} />
+            <ProgramsList programs={programs as any} loading={programsLoading} />
           </TabsContent>
 
           <TabsContent value="subjects">

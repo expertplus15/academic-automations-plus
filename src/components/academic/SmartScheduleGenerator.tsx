@@ -9,12 +9,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { Brain, Zap, AlertTriangle, CheckCircle, Clock, Users } from 'lucide-react';
 import { useScheduleGeneration, GenerationParameters } from '@/hooks/useScheduleGeneration';
-import { usePrograms } from '@/hooks/useSupabase';
+import { usePrograms } from '@/hooks/usePrograms';
 import { toast } from 'sonner';
 
 export function SmartScheduleGenerator() {
   const { generations, conflicts, loading, generateSchedule, detectConflicts } = useScheduleGeneration();
-  const { data: programs } = usePrograms();
+  const { programs } = usePrograms();
   const [selectedProgram, setSelectedProgram] = useState<string>('');
   const [selectedAcademicYear] = useState<string>('2024-2025'); // À remplacer par une sélection dynamique
   const [generationInProgress, setGenerationInProgress] = useState(false);
@@ -69,7 +69,7 @@ export function SmartScheduleGenerator() {
                   <SelectValue placeholder="Sélectionner un programme" />
                 </SelectTrigger>
                 <SelectContent>
-                  {programs?.map((program: any) => (
+                  {programs.map((program: any) => (
                     <SelectItem key={program.id} value={program.id}>
                       {program.name} ({program.code})
                     </SelectItem>

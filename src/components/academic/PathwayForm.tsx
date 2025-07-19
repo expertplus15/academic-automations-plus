@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { supabase } from '@/integrations/supabase/client';
-import { usePrograms } from '@/hooks/useSupabase';
+import { usePrograms } from '@/hooks/usePrograms';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -34,7 +34,7 @@ interface PathwayFormProps {
 
 export function PathwayForm({ pathway, onSuccess, onCancel }: PathwayFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { data: programs, loading: programsLoading } = usePrograms();
+  const { programs, loading: programsLoading } = usePrograms();
   const { toast } = useToast();
 
   const form = useForm<PathwayFormData>({
@@ -168,7 +168,7 @@ export function PathwayForm({ pathway, onSuccess, onCancel }: PathwayFormProps) 
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {programs?.map((program) => (
+                  {programs.map((program) => (
                     <SelectItem key={program.id} value={program.id}>
                       {program.name} ({program.code})
                     </SelectItem>
