@@ -2,13 +2,11 @@
 import React from 'react';
 import { StudentsList } from './StudentsList';
 import { Button } from '@/components/ui/button';
-import { Plus, Upload } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useStudentsData } from '@/hooks/students/useStudentsData';
-import { useNavigate } from 'react-router-dom';
 
 export function StudentsProfilesManagement() {
   const { students, loading } = useStudentsData();
-  const navigate = useNavigate();
 
   console.log('🔍 Rendering with students:', students);
 
@@ -36,18 +34,11 @@ export function StudentsProfilesManagement() {
             <h3 className="text-lg font-semibold mb-4">Aucun étudiant inscrit</h3>
             <p className="text-muted-foreground mb-6">
               Il semble qu'aucun étudiant ne soit encore inscrit dans le système. 
-              Vous pouvez commencer par importer des étudiants ou créer de nouveaux profils.
+              Vous pouvez commencer par créer de nouveaux profils ou utiliser la fonction d'import 
+              disponible dans la section Configuration.
             </p>
             
             <div className="flex justify-center gap-4">
-              <Button 
-                onClick={() => navigate('/students/registration/configuration?tab=import')}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                Importer des Étudiants
-              </Button>
-              
               <Button 
                 variant="outline"
                 onClick={() => {
@@ -61,8 +52,8 @@ export function StudentsProfilesManagement() {
             
             <div className="mt-6 p-4 bg-muted/50 rounded-lg">
               <p className="text-sm text-muted-foreground">
-                <strong>Info :</strong> Utilisez l'import CSV pour ajouter plusieurs étudiants rapidement, 
-                ou créez des profils individuels manuellement.
+                <strong>Info :</strong> Utilisez la section Configuration pour importer plusieurs étudiants 
+                via CSV, ou créez des profils individuels manuellement avec le bouton ci-dessus.
               </p>
             </div>
           </div>
@@ -82,14 +73,6 @@ export function StudentsProfilesManagement() {
         </div>
         
         <div className="flex gap-2">
-          <Button 
-            onClick={() => navigate('/students/registration/configuration?tab=import')}
-            variant="outline"
-          >
-            <Upload className="w-4 h-4 mr-2" />
-            Importer des Étudiants
-          </Button>
-          
           <Button>
             <Plus className="w-4 h-4 mr-2" />
             Nouvel Étudiant
