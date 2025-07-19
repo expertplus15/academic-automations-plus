@@ -1,61 +1,59 @@
 
-import React from 'react';
-import { Grid, FileSpreadsheet, Upload, GraduationCap } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MatrixGradeEntry } from '@/components/results/MatrixGradeEntry';
-import { ManualGradeEntryPage } from '@/components/results/ManualGradeEntryPage';
-import { CSVImportInterface } from '@/components/results/CSVImportInterface';
-import { DeliberationPanel } from '@/components/results/DeliberationPanel';
+import React, { useState } from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MatrixGradeEntry } from '../MatrixGradeEntry';
+import { ManualGradeEntryPage } from '../ManualGradeEntryPage';
+import { ExamGradeSync } from '../ExamGradeSync';
+import { 
+  Grid3X3, 
+  UserPlus, 
+  ArrowRightLeft,
+  Calculator
+} from 'lucide-react';
 
 export function GradeEntryTabs() {
+  const [activeTab, setActiveTab] = useState('sync');
+
   return (
-    <Tabs defaultValue="matrix" className="w-full h-full flex flex-col">
-      <TabsList className="grid w-full grid-cols-4 h-12 bg-muted/30">
-        <TabsTrigger 
-          value="matrix" 
-          className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground"
-        >
-          <Grid className="w-4 h-4" />
-          Saisie Matricielle
-        </TabsTrigger>
-        <TabsTrigger 
-          value="manual"
-          className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground"
-        >
-          <FileSpreadsheet className="w-4 h-4" />
-          Saisie Manuelle
-        </TabsTrigger>
-        <TabsTrigger 
-          value="import"
-          className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground"
-        >
-          <Upload className="w-4 h-4" />
-          Import CSV
-        </TabsTrigger>
-        <TabsTrigger 
-          value="deliberation"
-          className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground"
-        >
-          <GraduationCap className="w-4 h-4" />
-          Délibération
-        </TabsTrigger>
-      </TabsList>
+    <div className="h-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="sync" className="flex items-center gap-2">
+            <ArrowRightLeft className="w-4 h-4" />
+            Sync Examens
+          </TabsTrigger>
+          <TabsTrigger value="matrix" className="flex items-center gap-2">
+            <Grid3X3 className="w-4 h-4" />
+            Saisie Matricielle
+          </TabsTrigger>
+          <TabsTrigger value="manual" className="flex items-center gap-2">
+            <UserPlus className="w-4 h-4" />
+            Saisie Manuelle
+          </TabsTrigger>
+          <TabsTrigger value="calculator" className="flex items-center gap-2">
+            <Calculator className="w-4 h-4" />
+            Calculatrice
+          </TabsTrigger>
+        </TabsList>
 
-      <TabsContent value="matrix" className="flex-1 mt-6 focus-visible:outline-none">
-        <MatrixGradeEntry />
-      </TabsContent>
+        <TabsContent value="sync" className="flex-1 mt-6">
+          <ExamGradeSync />
+        </TabsContent>
 
-      <TabsContent value="manual" className="flex-1 mt-6 focus-visible:outline-none">
-        <ManualGradeEntryPage />
-      </TabsContent>
+        <TabsContent value="matrix" className="flex-1 mt-6">
+          <MatrixGradeEntry />
+        </TabsContent>
 
-      <TabsContent value="import" className="flex-1 mt-6 focus-visible:outline-none">
-        <CSVImportInterface />
-      </TabsContent>
+        <TabsContent value="manual" className="flex-1 mt-6">
+          <ManualGradeEntryPage />
+        </TabsContent>
 
-      <TabsContent value="deliberation" className="flex-1 mt-6 focus-visible:outline-none">
-        <DeliberationPanel />
-      </TabsContent>
-    </Tabs>
+        <TabsContent value="calculator" className="flex-1 mt-6">
+          <div className="flex items-center justify-center h-64 text-muted-foreground">
+            <p>Calculatrice de moyennes - À implémenter</p>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }
