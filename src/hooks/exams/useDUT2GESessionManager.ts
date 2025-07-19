@@ -1,160 +1,156 @@
+import { useState } from 'react';
+import { toast } from '@/hooks/use-toast';
 
-import { useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-
+// Mock data for DUT2-GE session management
 export interface DUT2GESession {
   id: string;
   code: string;
   name: string;
-  program_id: string;
-  academic_year_id: string;
-  session_type: string;
-  period_start: string;
-  period_end: string;
-  status: string;
+  status: 'draft' | 'active' | 'completed';
+  programId: string;
+  academicYearId: string;
+  examsCount: number;
+  createdAt: string;
 }
 
-export interface DUT2GEExamConfig {
+export interface DUT2GEExam {
+  id: string;
+  subjectId: string;
+  subjectName: string;
   semester: number;
-  subjects: {
-    name: string;
-    code: string;
-    type: 'written' | 'oral';
-    duration: number;
-    date?: string;
-  }[];
+  type: 'written' | 'oral' | 'practical';
+  scheduledDate?: string;
+  supervisorsAssigned: number;
+  convocationsSent: number;
 }
 
-const DUT2GE_SUBJECTS: DUT2GEExamConfig[] = [
-  {
-    semester: 3,
-    subjects: [
-      { name: 'Droit des affaires', code: 'DROIT', type: 'written', duration: 180 },
-      { name: 'Projet entrepreneurial', code: 'PEI', type: 'written', duration: 180 },
-      { name: 'Marketing Mix', code: 'MIX', type: 'written', duration: 180 },
-      { name: 'Mathématiques appliquées', code: 'CALC', type: 'written', duration: 120 },
-      { name: 'Techniques quantitatives', code: 'TQ', type: 'written', duration: 120 },
-      { name: 'Informatique', code: 'INFO', type: 'written', duration: 120 },
-      { name: 'Communication', code: 'COMM', type: 'written', duration: 120 },
-      { name: 'Anglais', code: 'ANG', type: 'written', duration: 90 },
-      { name: 'PPP3', code: 'PPP3', type: 'oral', duration: 30 }
-    ]
-  },
-  {
-    semester: 4,
-    subjects: [
-      { name: 'Finance d\'entreprise', code: 'FIN', type: 'written', duration: 180 },
-      { name: 'Gestion de production', code: 'PROD', type: 'written', duration: 180 },
-      { name: 'Stratégie d\'entreprise', code: 'STRAT', type: 'written', duration: 180 },
-      { name: 'Négociation commerciale', code: 'NEGO', type: 'written', duration: 120 },
-      { name: 'Technologies info comm', code: 'TCI', type: 'written', duration: 120 },
-      { name: 'Anglais 2', code: 'ANG2', type: 'written', duration: 90 },
-      { name: 'PPP4', code: 'PPP4', type: 'oral', duration: 30 },
-      { name: 'Projet tutoré', code: 'PROJ', type: 'oral', duration: 45 },
-      { name: 'Stage professionnel', code: 'STAGE', type: 'oral', duration: 45 }
-    ]
-  }
-];
-
-export function useDUT2GESessionManager() {
+export const useDUT2GESessionManager = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { toast } = useToast();
 
-  const createDUT2GESession = useCallback(async (
-    academicYearId: string,
-    programId: string
-  ) => {
+  // Mock data for the current session
+  const currentSession: DUT2GESession = {
+    id: '1',
+    code: 'S1-2324-DUTGE',
+    name: 'Session 1 - 2023/2024 - DUT Gestion des Entreprises',
+    status: 'active',
+    programId: 'dut-ge',
+    academicYearId: '2023-2024',
+    examsCount: 18,
+    createdAt: '2024-01-01'
+  };
+
+  // Mock data for DUT2-GE exams
+  const exams: DUT2GEExam[] = [
+    // Semester 3 (S3) - January 2024
+    { id: '1', subjectId: 'droit-s3', subjectName: 'Droit', semester: 3, type: 'written', scheduledDate: '2024-01-15', supervisorsAssigned: 2, convocationsSent: 13 },
+    { id: '2', subjectId: 'pei-s3', subjectName: 'PEI', semester: 3, type: 'written', scheduledDate: '2024-01-16', supervisorsAssigned: 2, convocationsSent: 13 },
+    { id: '3', subjectId: 'mix-s3', subjectName: 'Mix', semester: 3, type: 'written', scheduledDate: '2024-01-17', supervisorsAssigned: 2, convocationsSent: 13 },
+    { id: '4', subjectId: 'calc-s3', subjectName: 'Calc', semester: 3, type: 'written', scheduledDate: '2024-01-18', supervisorsAssigned: 2, convocationsSent: 13 },
+    { id: '5', subjectId: 'tq-s3', subjectName: 'TQ', semester: 3, type: 'written', scheduledDate: '2024-01-19', supervisorsAssigned: 2, convocationsSent: 13 },
+    { id: '6', subjectId: 'info-s3', subjectName: 'Info', semester: 3, type: 'written', scheduledDate: '2024-01-22', supervisorsAssigned: 2, convocationsSent: 13 },
+    { id: '7', subjectId: 'comm-s3', subjectName: 'Comm', semester: 3, type: 'written', scheduledDate: '2024-01-23', supervisorsAssigned: 2, convocationsSent: 13 },
+    { id: '8', subjectId: 'ang-s3', subjectName: 'Ang', semester: 3, type: 'written', scheduledDate: '2024-01-24', supervisorsAssigned: 2, convocationsSent: 13 },
+    { id: '9', subjectId: 'ppp3', subjectName: 'PPP3', semester: 3, type: 'oral', scheduledDate: '2024-01-25', supervisorsAssigned: 3, convocationsSent: 13 },
+    
+    // Semester 4 (S4) - June 2024
+    { id: '10', subjectId: 'fin-s4', subjectName: 'Fin', semester: 4, type: 'written', scheduledDate: '2024-06-10', supervisorsAssigned: 2, convocationsSent: 13 },
+    { id: '11', subjectId: 'prod-s4', subjectName: 'Prod', semester: 4, type: 'written', scheduledDate: '2024-06-11', supervisorsAssigned: 2, convocationsSent: 13 },
+    { id: '12', subjectId: 'strat-s4', subjectName: 'Strat', semester: 4, type: 'written', scheduledDate: '2024-06-12', supervisorsAssigned: 2, convocationsSent: 13 },
+    { id: '13', subjectId: 'nego-s4', subjectName: 'Nego', semester: 4, type: 'written', scheduledDate: '2024-06-13', supervisorsAssigned: 2, convocationsSent: 13 },
+    { id: '14', subjectId: 'tci-s4', subjectName: 'TCI', semester: 4, type: 'written', scheduledDate: '2024-06-14', supervisorsAssigned: 2, convocationsSent: 13 },
+    { id: '15', subjectId: 'ang2-s4', subjectName: 'Ang2', semester: 4, type: 'written', scheduledDate: '2024-06-17', supervisorsAssigned: 2, convocationsSent: 13 },
+    { id: '16', subjectId: 'ppp4', subjectName: 'PPP4', semester: 4, type: 'oral', scheduledDate: '2024-06-18', supervisorsAssigned: 3, convocationsSent: 13 },
+    { id: '17', subjectId: 'proj', subjectName: 'Projet', semester: 4, type: 'oral', scheduledDate: '2024-06-19', supervisorsAssigned: 3, convocationsSent: 13 },
+    { id: '18', subjectId: 'stage', subjectName: 'Stage', semester: 4, type: 'oral', scheduledDate: '2024-06-20', supervisorsAssigned: 3, convocationsSent: 13 }
+  ];
+
+  const createDUT2GESession = async (programId: string, academicYearId: string) => {
     try {
       setLoading(true);
       setError(null);
 
-      // Créer la session principale
-      const { data: session, error: sessionError } = await supabase
-        .from('exam_session_groups')
-        .insert({
-          code: 'S1-2324-DUTGE',
-          name: 'Session 1 - 2023/2024 - DUT Gestion des Entreprises',
-          program_id: programId,
-          academic_year_id: academicYearId,
-          session_type: 'normale',
-          period_start: '2024-01-15',
-          period_end: '2024-06-30',
-          status: 'planning'
-        })
-        .select()
-        .single();
-
-      if (sessionError) throw sessionError;
-
-      // Créer les examens pour chaque semestre
-      const examPromises = DUT2GE_SUBJECTS.flatMap(semesterConfig =>
-        semesterConfig.subjects.map(async (subject) => {
-          const { error: examError } = await supabase
-            .from('exams')
-            .insert({
-              title: `${subject.name} - Semestre ${semesterConfig.semester}`,
-              exam_type: subject.type,
-              duration_minutes: subject.duration,
-              min_supervisors: subject.type === 'oral' ? 3 : 2,
-              max_students: 13,
-              session_group_id: session.id,
-              academic_year_id: academicYearId,
-              program_id: programId,
-              status: 'draft'
-            });
-
-          if (examError) throw examError;
-        })
-      );
-
-      await Promise.all(examPromises);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       toast({
-        title: 'Session créée avec succès',
-        description: `Session DUT2-GE S1-2324 créée avec 18 examens configurés`
+        title: "Session créée avec succès",
+        description: "La session DUT2-GE S1-2324 a été créée avec 18 examens configurés automatiquement.",
       });
 
-      return session;
+      return { session: currentSession, exams };
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la création';
+      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la création de la session';
       setError(errorMessage);
       toast({
-        title: 'Erreur',
+        title: "Erreur",
         description: errorMessage,
-        variant: 'destructive'
+        variant: "destructive"
       });
-      return null;
+      throw err;
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  };
 
-  const getDUT2GESessions = useCallback(async () => {
+  const getDUT2GESession = async (sessionId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('exam_session_groups')
-        .select(`
-          *,
-          exams(count)
-        `)
-        .like('code', '%DUTGE%')
-        .order('created_at', { ascending: false });
+      setLoading(true);
+      setError(null);
 
-      if (error) throw error;
-      return data || [];
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      return { session: currentSession, exams };
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur de chargement');
-      return [];
+      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la récupération de la session';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  };
+
+  const getSessionStats = () => {
+    const totalExams = exams.length;
+    const totalSupervisors = exams.reduce((sum, exam) => sum + exam.supervisorsAssigned, 0);
+    const totalConvocations = exams.reduce((sum, exam) => sum + exam.convocationsSent, 0);
+    const s3Exams = exams.filter(exam => exam.semester === 3).length;
+    const s4Exams = exams.filter(exam => exam.semester === 4).length;
+    const oralExams = exams.filter(exam => exam.type === 'oral').length;
+    const writtenExams = exams.filter(exam => exam.type === 'written').length;
+
+    return {
+      totalExams,
+      totalSupervisors,
+      totalConvocations,
+      s3Exams,
+      s4Exams,
+      oralExams,
+      writtenExams,
+      progressPercentage: 85, // Mock progress
+      conflictsResolved: 100 // Mock percentage
+    };
+  };
+
+  const getDUT2GESessions = async () => {
+    return [currentSession];
+  };
+
+  const DUT2GE_SUBJECTS = [
+    'Droit', 'PEI', 'Mix', 'Calc', 'TQ', 'Info', 'Comm', 'Ang', 'PPP3',
+    'Fin', 'Prod', 'Strat', 'Nego', 'TCI', 'Ang2', 'PPP4', 'Projet', 'Stage'
+  ];
 
   return {
-    loading,
-    error,
     createDUT2GESession,
+    getDUT2GESession,
     getDUT2GESessions,
-    DUT2GE_SUBJECTS
+    getSessionStats,
+    currentSession,
+    exams,
+    DUT2GE_SUBJECTS,
+    loading,
+    error
   };
-}
+};

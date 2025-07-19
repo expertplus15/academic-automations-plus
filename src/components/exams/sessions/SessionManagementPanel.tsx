@@ -255,14 +255,7 @@ export function SessionManagementPanel({
         </TabsContent>
 
         <TabsContent value="create">
-          <SessionCreationWizard
-            academicYearId={academicYearId}
-            programId={programId}
-            onSessionCreated={(sessionId) => {
-              loadSessions();
-              setActiveTab('overview');
-            }}
-          />
+          <SessionCreationWizard />
         </TabsContent>
 
         <TabsContent value="planning">
