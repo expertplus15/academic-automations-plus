@@ -4,7 +4,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useCalendarSync } from '@/hooks/useCalendarSync';
-import { useWorkflowSystem } from '@/hooks/useWorkflowSystem';
 import { useExamGradeSync } from '@/hooks/useExamGradeSync';
 import { 
   Calendar,
@@ -21,20 +20,18 @@ import {
 
 export function UnifiedDashboard() {
   const { events, loadCalendarEvents, triggerAutomaticActions } = useCalendarSync();
-  const { workflows, loadWorkflows, executeAutomaticSteps } = useWorkflowSystem();
   const { examSessions, loadExamSessions } = useExamGradeSync();
 
   useEffect(() => {
     loadCalendarEvents();
-    loadWorkflows();
     loadExamSessions();
-  }, [loadCalendarEvents, loadWorkflows, loadExamSessions]);
+  }, [loadCalendarEvents, loadExamSessions]);
 
   // Statistiques en temps réel
   const stats = {
     totalExams: examSessions.length,
     pendingGrades: examSessions.filter(e => !e.gradesCreated).length,
-    activeWorkflows: workflows.filter(w => w.status === 'active').length,
+    activeWorkflows: examSessions.filter(e => !e.gradesCreated).length, // Simulé
     todayEvents: events.filter(e => e.date === new Date().toISOString().split('T')[0]).length
   };
 
@@ -44,12 +41,11 @@ export function UnifiedDashboard() {
     (e.date <= new Date().toISOString().split('T')[0] && e.status !== 'completed')
   );
 
-  // Workflows en cours
-  const activeWorkflows = workflows.filter(w => w.status === 'active').slice(0, 5);
+  // Sessions d'examens récentes comme workflows simulés
+  const recentSessions = examSessions.slice(0, 5);
 
   const handleAutoActions = async () => {
     await triggerAutomaticActions();
-    await executeAutomaticSteps();
   };
 
   return (
@@ -159,42 +155,40 @@ export function UnifiedDashboard() {
         </Card>
       )}
 
-      {/* Workflows en cours */}
+      {/* Sessions d'examens et calendrier */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Workflow className="h-5 w-5" />
-              Workflows Actifs
+              Sessions d'Examens Actives
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {activeWorkflows.map((workflow) => {
-                const completedSteps = workflow.steps.filter(s => s.status === 'completed').length;
-                const totalSteps = workflow.steps.length;
-                const progress = (completedSteps / totalSteps) * 100;
-                const currentStep = workflow.steps.find(s => s.id === workflow.currentStep);
-
-                return (
-                  <div key={workflow.id} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="font-medium">{workflow.examTitle}</div>
-                      <Badge variant="outline">{completedSteps}/{totalSteps}</Badge>
-                    </div>
-                    
-                    <Progress value={progress} className="h-2" />
-                    
-                    <div className="text-sm text-muted-foreground">
-                      Étape actuelle: {currentStep?.name || 'Terminé'}
-                    </div>
+              {recentSessions.map((session) => (
+                <div key={session.sessionId} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="font-medium">{session.examTitle}</div>
+                    <Badge variant={session.gradesCreated ? "default" : "secondary"}>
+                      {session.gradesCreated ? "Terminé" : "En cours"}
+                    </Badge>
                   </div>
-                );
-              })}
+                  
+                  <Progress 
+                    value={session.gradesCreated ? 100 : 50} 
+                    className="h-2" 
+                  />
+                  
+                  <div className="text-sm text-muted-foreground">
+                    {session.examDate} • {session.studentCount} étudiants
+                  </div>
+                </div>
+              ))}
 
-              {activeWorkflows.length === 0 && (
+              {recentSessions.length === 0 && (
                 <div className="text-center py-4 text-muted-foreground">
-                  Aucun workflow actif
+                  Aucune session d'examen récente
                 </div>
               )}
             </div>

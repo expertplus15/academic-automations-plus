@@ -88,6 +88,9 @@ export function useCalendarSync() {
 
         // Période de saisie des notes
         const gradeEntryStatus = await checkGradeEntryStatus(session.exams.subject_id, session.exams.academic_year_id);
+        const today = new Date().toISOString().split('T')[0];
+        const gradeEntryPriority = gradeEntryStatus === 'scheduled' && periods.gradeEntryEnd < today ? 'critical' : 'medium';
+        
         calendarEvents.push({
           id: `grade-entry-${session.id}`,
           type: 'grade_entry',
@@ -95,7 +98,7 @@ export function useCalendarSync() {
           date: periods.gradeEntryStart,
           status: gradeEntryStatus,
           relatedId: session.id,
-          priority: gradeEntryStatus === 'overdue' ? 'critical' : 'medium',
+          priority: gradeEntryPriority,
           metadata: { 
             sessionId: session.id, 
             endDate: periods.gradeEntryEnd,
@@ -105,6 +108,8 @@ export function useCalendarSync() {
 
         // Validation des notes
         const validationStatus = await checkValidationStatus(session.exams.subject_id, session.exams.academic_year_id);
+        const validationPriority = validationStatus === 'scheduled' && periods.validationDeadline < today ? 'critical' : 'medium';
+        
         calendarEvents.push({
           id: `validation-${session.id}`,
           type: 'validation',
@@ -112,7 +117,7 @@ export function useCalendarSync() {
           date: periods.validationDeadline,
           status: validationStatus,
           relatedId: session.id,
-          priority: validationStatus === 'overdue' ? 'critical' : 'medium',
+          priority: validationPriority,
           metadata: { sessionId: session.id, subjectId: session.exams.subject_id }
         });
 
@@ -199,12 +204,18 @@ export function useCalendarSync() {
     }
   }, [events]);
 
-  // Créer une notification
+  // Créer une notification avec la structure existante
   const createNotification = async (notificationData: any) => {
     try {
       const { error } = await supabase
         .from('notifications')
-        .insert(notificationData);
+        .insert({
+          notification_type: notificationData.type,
+          title: notificationData.title,
+          message: notificationData.message,
+          reference_id: notificationData.related_entity_id,
+          reference_type: notificationData.related_entity_type
+        });
 
       if (error) throw error;
     } catch (error) {

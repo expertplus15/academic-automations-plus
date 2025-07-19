@@ -127,21 +127,8 @@ export function useWorkflowSystem() {
         updatedAt: new Date().toISOString()
       };
 
-      // Sauvegarder dans Supabase
-      const { error } = await supabase
-        .from('workflow_instances')
-        .insert({
-          id: workflow.id,
-          exam_id: examId,
-          exam_title: examTitle,
-          current_step: workflow.currentStep,
-          status: workflow.status,
-          steps: workflow.steps,
-          created_at: workflow.createdAt,
-          updated_at: workflow.updatedAt
-        });
-
-      if (error) throw error;
+      // Sauvegarder localement (système de workflows simplifié)
+      // TODO: Intégrer avec une base de données dédiée pour les workflows
 
       setWorkflows(prev => [...prev, workflow]);
       
@@ -191,18 +178,8 @@ export function useWorkflowSystem() {
         updatedAt: new Date().toISOString()
       };
 
-      // Mettre à jour dans Supabase
-      const { error } = await supabase
-        .from('workflow_instances')
-        .update({
-          current_step: updatedWorkflow.currentStep,
-          status: updatedWorkflow.status,
-          steps: updatedWorkflow.steps,
-          updated_at: updatedWorkflow.updatedAt
-        })
-        .eq('id', workflowId);
-
-      if (error) throw error;
+      // Mettre à jour localement
+      // TODO: Persister les changements dans la base de données
 
       setWorkflows(prev => prev.map(w => w.id === workflowId ? updatedWorkflow : w));
 
@@ -232,50 +209,56 @@ export function useWorkflowSystem() {
     if (!step) return;
 
     try {
+      // Utiliser la structure existante des notifications
       await supabase
         .from('notifications')
         .insert({
-          type: 'workflow_step',
+          notification_type: 'workflow_step',
           title: `Nouvelle étape: ${step.name}`,
           message: `L'étape "${step.name}" pour l'examen "${workflow.examTitle}" est prête à être exécutée`,
-          severity: 'info',
-          related_entity_id: workflow.examId,
-          related_entity_type: 'exam',
-          scheduled_for: step.startDate ? new Date(step.startDate).toISOString() : new Date().toISOString(),
-          data: {
-            workflowId: workflow.id,
-            stepId: step.id,
-            automatable: step.metadata.automatable
-          }
+          reference_id: workflow.examId,
+          reference_type: 'exam'
         });
     } catch (error) {
       console.error('Error creating step notification:', error);
     }
   };
 
-  // Charger tous les workflows
+  // Charger tous les workflows (version simplifiée)
   const loadWorkflows = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('workflow_instances')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // Pour l'instant, utilisation d'un système de workflow simplifié
+      // Les workflows seront chargés depuis les examens existants
+      const { data: examSessions, error } = await supabase
+        .from('exam_sessions')
+        .select(`
+          id,
+          start_time,
+          status,
+          exams!inner(
+            id,
+            title
+          )
+        `)
+        .order('start_time', { ascending: false })
+        .limit(10);
 
       if (error) throw error;
 
-      const mappedWorkflows: WorkflowInstance[] = (data || []).map(item => ({
-        id: item.id,
-        examId: item.exam_id,
-        examTitle: item.exam_title,
-        currentStep: item.current_step,
-        status: item.status,
-        steps: item.steps,
-        createdAt: item.created_at,
-        updatedAt: item.updated_at
+      // Créer des workflows simulés basés sur les sessions d'examens
+      const mockWorkflows: WorkflowInstance[] = (examSessions || []).map(session => ({
+        id: `workflow-${session.id}`,
+        examId: session.exams.id,
+        examTitle: session.exams.title,
+        currentStep: session.status === 'completed' ? 'grade_entry' : 'exam_session',
+        status: 'active' as const,
+        steps: createWorkflowTemplate(session.exams.id, session.exams.title, session.start_time),
+        createdAt: session.start_time,
+        updatedAt: new Date().toISOString()
       }));
 
-      setWorkflows(mappedWorkflows);
+      setWorkflows(mockWorkflows);
     } catch (error) {
       console.error('Error loading workflows:', error);
       toast({
