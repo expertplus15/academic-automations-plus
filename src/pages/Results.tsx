@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ModuleLayout } from "@/components/layouts/ModuleLayout";
-import { ResultsDashboard } from '@/components/dashboard/ResultsDashboard';
+import { UnifiedDashboard } from '@/components/unified/UnifiedDashboard';
 import { DocumentsEvaluationInterface } from '@/components/results/documents/DocumentsEvaluationInterface';
 import { GradingSystemConfig } from '@/components/results/GradingSystemConfig';
 import { MatrixGradeEntry } from '@/components/results/MatrixGradeEntry';
@@ -84,16 +84,16 @@ export default function Results() {
     }
   }
 
-  // Default dashboard
+  // Default dashboard - redirect to unified interface
   return (
     <ProtectedRoute allowedRoles={['admin', 'teacher']}>
       <ModuleLayout 
-        title="Évaluations & Résultats" 
-        subtitle="Système de notation automatisé et interface matricielle collaborative"
+        title="Tableau de Bord Unifiée" 
+        subtitle="Vue d'ensemble des examens, notes et workflows automatisés"
         showHeader={true}
       >
-        <div className="p-6">
-          <ResultsDashboard />
+        <div className="p-6 animate-fade-in">
+          <UnifiedDashboard />
         </div>
       </ModuleLayout>
     </ProtectedRoute>
