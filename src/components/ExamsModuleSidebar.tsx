@@ -1,3 +1,4 @@
+
 import {
   Sidebar,
   SidebarContent,
@@ -30,10 +31,14 @@ import {
   PenTool,
   TrendingUp,
   Download,
-  Settings
+  Settings,
+  CalendarDays
 } from "lucide-react";
 
 const examsItems = [
+  // Gestion Sessions (nouveau)
+  { title: "Gestion Sessions", url: "/exams/sessions", icon: CalendarDays, group: "Sessions" },
+  
   // Gestion
   { title: "Création d'examen", url: "/exams/creation", icon: PenTool, group: "Gestion" },
   { title: "Planification examens", url: "/exams/planning", icon: Calendar, group: "Gestion" },
