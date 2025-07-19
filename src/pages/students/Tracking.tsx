@@ -286,7 +286,7 @@ export default function Tracking() {
                     <span className="text-sm font-medium">8 étudiants à risque</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Moyenne < 10/20 ou assiduité < 70%
+                    Moyenne &lt; 10/20 ou assiduité &lt; 70%
                   </p>
                 </div>
                 
