@@ -1,11 +1,13 @@
+
 import { Outlet } from "react-router-dom";
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 export default function ResultsLayout() {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6">
+    <ProtectedRoute allowedRoles={['admin', 'teacher']}>
+      <div className="min-h-screen bg-background">
         <Outlet />
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

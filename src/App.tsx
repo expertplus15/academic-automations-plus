@@ -1,3 +1,4 @@
+
 import React from 'react';
 import './index.css';
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
@@ -17,6 +18,13 @@ import AcademicLayout from "@/pages/academic/AcademicLayout";
 import AcademicPage from "@/pages/academic/AcademicPage";
 import ResultsLayout from "@/pages/results/ResultsLayout";
 import Results from "@/pages/Results";
+import GradeEntry from "@/pages/results/GradeEntry";
+import Calculations from "@/pages/results/Calculations";
+import Validation from "@/pages/results/Validation";
+import Documentation from "@/pages/results/Documentation";
+import RefactoredPersonalisation from "@/pages/results/RefactoredPersonalisation";
+import Production from "@/pages/results/Production";
+import Analytics from "@/pages/results/Analytics";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,6 +60,13 @@ function App() {
             
             <Route path="/results" element={<ResultsLayout />}>
               <Route index element={<Results />} />
+              <Route path="grade-entry" element={<GradeEntry />} />
+              <Route path="calculations" element={<Calculations />} />
+              <Route path="validation" element={<Validation />} />
+              <Route path="documentation" element={<Documentation />} />
+              <Route path="personalisation" element={<RefactoredPersonalisation />} />
+              <Route path="production" element={<Production />} />
+              <Route path="analytics" element={<Analytics />} />
             </Route>
           </Routes>
         </div>
