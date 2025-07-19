@@ -124,7 +124,7 @@ export function useStudentsData() {
         options: {
           emailRedirectTo: `${window.location.origin}/`,
           data: {
-            full_name: data.full_name,
+            full_name: data.full_name, // Utilise directement full_name comme fourni (déjà dans l'ordre Prénom Nom)
             role: 'student'
           }
         }

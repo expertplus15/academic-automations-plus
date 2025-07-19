@@ -80,7 +80,7 @@ export class StudentsImportService {
       options: {
         emailRedirectTo: `${window.location.origin}/`,
         data: {
-          full_name: `${studentData.prenom} ${studentData.nom}`,
+          full_name: `${studentData.prenom} ${studentData.nom}`, // Ordre: Prénom Nom
           role: 'student'
         }
       }
@@ -131,7 +131,7 @@ export class StudentsImportService {
     const { error } = await supabase
       .from('profiles')
       .update({
-        full_name: `${studentData.prenom} ${studentData.nom}`,
+        full_name: `${studentData.prenom} ${studentData.nom}`, // Ordre: Prénom Nom
         email: studentData.email,
         phone: studentData.telephone,
         role: 'student'

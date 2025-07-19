@@ -33,7 +33,7 @@ export function ProgramStudentsTable({ students, onSelectStudent }: ProgramStude
       <table className="w-full">
         <thead>
           <tr className="border-b">
-            <th className="text-left p-3 font-medium">Étudiant</th>
+            <th className="text-left p-3 font-medium">Étudiant (Prénom Nom)</th>
             <th className="text-center p-3 font-medium">N° Étudiant</th>
             <th className="text-center p-3 font-medium">Semestre 1</th>
             <th className="text-center p-3 font-medium">Semestre 2</th>

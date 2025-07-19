@@ -137,10 +137,10 @@ export function StudentForm({ open, onClose, student, onSave }: StudentFormProps
               name="full_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nom complet *</FormLabel>
+                  <FormLabel>Nom complet (Prénom Nom) *</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="Nom complet de l'étudiant"
+                      placeholder="Prénom Nom de l'étudiant"
                       {...field}
                     />
                   </FormControl>
