@@ -16,7 +16,7 @@ import SessionsPage from "@/pages/exams/SessionsPage";
 import AcademicLayout from "@/pages/academic/AcademicLayout";
 import AcademicPage from "@/pages/academic/AcademicPage";
 import ResultsLayout from "@/pages/results/ResultsLayout";
-import ResultsPage from "@/pages/results/ResultsPage";
+import Results from "@/pages/Results";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,7 +51,7 @@ function App() {
             </Route>
             
             <Route path="/results" element={<ResultsLayout />}>
-              <Route index element={<ResultsPage />} />
+              <Route index element={<Results />} />
             </Route>
           </Routes>
         </div>
