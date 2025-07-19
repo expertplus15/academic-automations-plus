@@ -58,7 +58,8 @@ export function useStudentsData(academicYearId?: string) {
       setError(null);
       console.log('🔍 Fetching students for academic year:', academicYearId);
 
-      let query = supabase
+      // Requête sans academic_year_id et first_name/last_name pour l'instant (en attendant la migration)
+      const { data, error } = await supabase
         .from('students')
         .select(`
           id,
@@ -67,12 +68,9 @@ export function useStudentsData(academicYearId?: string) {
           year_level,
           enrollment_date,
           created_at,
-          academic_year_id,
           profiles!students_profile_id_fkey (
             id,
             full_name,
-            first_name,
-            last_name,
             email,
             phone
           ),
@@ -84,13 +82,6 @@ export function useStudentsData(academicYearId?: string) {
           )
         `)
         .order('created_at', { ascending: false });
-
-      // Appliquer le filtre par année académique si spécifié
-      if (academicYearId) {
-        query = query.eq('academic_year_id', academicYearId);
-      }
-
-      const { data, error } = await query;
 
       if (error) {
         console.error('❌ Error fetching students:', error);
@@ -107,19 +98,17 @@ export function useStudentsData(academicYearId?: string) {
         const studentsWithDepartments = (data || []).map(student => {
           const department = departments?.find(d => d.id === student.programs.department_id);
           
-          // Parse first_name and last_name from full_name if they don't exist
-          let firstName = student.profiles.first_name;
-          let lastName = student.profiles.last_name;
+          // Parse first_name and last_name from full_name (migration pas encore appliquée)
+          const nameParts = student.profiles.full_name?.split(' ') || [];
+          let firstName: string;
+          let lastName: string;
           
-          if (!firstName || !lastName) {
-            const nameParts = student.profiles.full_name?.split(' ') || [];
-            if (nameParts.length > 1) {
-              lastName = nameParts[0]; // Premier mot = nom de famille
-              firstName = nameParts.slice(1).join(' '); // Reste = prénom(s)
-            } else {
-              firstName = student.profiles.full_name || '';
-              lastName = '';
-            }
+          if (nameParts.length > 1) {
+            lastName = nameParts[0]; // Premier mot = nom de famille
+            firstName = nameParts.slice(1).join(' '); // Reste = prénom(s)
+          } else {
+            firstName = student.profiles.full_name || '';
+            lastName = '';
           }
           
           return {
