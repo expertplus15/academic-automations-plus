@@ -1,4 +1,3 @@
-
 import React from 'react';
 import './index.css';
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
@@ -16,6 +15,16 @@ import StudentsPage from "@/pages/students/StudentsPage";
 import StudentsProfiles from "@/pages/students/Profiles";
 import StudentsGroups from "@/pages/students/Groups";
 import StudentsAlerts from "@/pages/students/Alerts";
+import Tracking from "@/pages/students/Tracking";
+import Documents from "@/pages/students/Documents";
+
+// Registration Module
+import Registration from "@/pages/students/Registration";
+import RegistrationDashboard from "@/pages/students/RegistrationDashboard";
+import RegistrationAnalytics from "@/pages/students/RegistrationAnalytics";
+import RegistrationApproval from "@/pages/students/RegistrationApproval";
+import RegistrationCards from "@/pages/students/RegistrationCards";
+import RegistrationConfiguration from "@/pages/students/RegistrationConfiguration";
 
 // Exams Module  
 import ExamsLayout from "@/pages/exams/ExamsLayout";
@@ -65,6 +74,16 @@ function App() {
               <Route path="new" element={<StudentsProfiles />} />
               <Route path="groups" element={<StudentsGroups />} />
               <Route path="alerts" element={<StudentsAlerts />} />
+              <Route path="tracking" element={<Tracking />} />
+              <Route path="documents" element={<Documents />} />
+              
+              {/* Registration sub-routes */}
+              <Route path="registration" element={<Registration />} />
+              <Route path="registration/dashboard" element={<RegistrationDashboard />} />
+              <Route path="registration/analytics" element={<RegistrationAnalytics />} />
+              <Route path="registration/approval" element={<RegistrationApproval />} />
+              <Route path="registration/cards" element={<RegistrationCards />} />
+              <Route path="registration/configuration" element={<RegistrationConfiguration />} />
             </Route>
             
             {/* Exams Management Module */}
