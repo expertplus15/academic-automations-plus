@@ -2,54 +2,47 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-type Tables = {
-  profiles: any;
-  students: any;
-  programs: any;
-  subjects: any;
-  departments: any;
-  academic_levels: any;
-  class_groups: any;
-  specializations: any;
-  rooms: any;
-  campuses: any;
-  sites: any;
-  academic_alerts: any;
-  document_templates: any;
-  document_requests: any;
-  generated_documents: any;
-  alert_configurations: any;
-};
-
-export function useTable<T extends keyof Tables>(
-  tableName: T,
-  select = '*',
-  filters?: any
-) {
+export function useTable(tableName: string, select = '*', filters?: Record<string, any>) {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<any>(null);
+
+  console.log(`🔍 [DIAGNOSTIC] useTable called for: ${tableName}`, { select, filters });
 
   const fetchData = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
+      console.log(`🔄 [DIAGNOSTIC] Fetching ${tableName}...`);
+      
       let query = supabase.from(tableName).select(select);
       
       if (filters) {
         Object.entries(filters).forEach(([key, value]) => {
-          query = query.eq(key as any, value);
+          query = query.eq(key, value);
         });
       }
+      
+      const { data: result, error: fetchError } = await query;
+      
+      console.log(`📊 [DIAGNOSTIC] Query result for ${tableName}:`, {
+        success: !fetchError,
+        dataCount: result?.length || 0,
+        error: fetchError,
+        sampleData: result?.[0]
+      });
 
-      const { data, error } = await query;
-
-      if (error) {
-        setError(error.message);
-      } else {
-        setData(data || []);
+      if (fetchError) {
+        console.error(`❌ [DIAGNOSTIC] Error fetching ${tableName}:`, fetchError);
+        throw fetchError;
       }
+
+      setData(result || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      console.error(`❌ [DIAGNOSTIC] Exception in useTable for ${tableName}:`, err);
+      setError(err);
+      setData([]);
     } finally {
       setLoading(false);
     }
@@ -61,55 +54,3 @@ export function useTable<T extends keyof Tables>(
 
   return { data, loading, error, refetch: fetchData };
 }
-
-// Hook spécialisé pour les étudiants
-export function useStudents() {
-  return useTable('students', `
-    *,
-    profiles!students_profile_id_fkey(*),
-    programs!students_program_id_fkey(*)
-  `);
-}
-
-// Hook spécialisé pour les programmes
-export function usePrograms() {
-  return useTable('programs', `
-    *,
-    departments!programs_department_id_fkey(*)
-  `);
-}
-
-// Hook spécialisé pour les départements
-export function useDepartments() {
-  return useTable('departments');
-}
-
-// Hook spécialisé pour les matières
-export function useSubjects() {
-  return useTable('subjects');
-}
-
-// Hook spécialisé pour les filières/spécialisations
-export function useSpecializations() {
-  return useTable('specializations', `
-    *,
-    programs!specializations_program_id_fkey(*)
-  `);
-}
-
-// Hook spécialisé pour les niveaux d'études
-export function useAcademicLevels() {
-  return useTable('academic_levels');
-}
-
-// Hook spécialisé pour les groupes/classes
-export function useClassGroups() {
-  return useTable('class_groups', `
-    *,
-    programs!class_groups_program_id_fkey(*)
-  `);
-}
-
-// Re-export des fonctions utilitaires pour l'inscription
-export { autoEnrollStudent, generateStudentNumber } from '@/services/studentEnrollmentService';
-export type { StudentEnrollmentData, EnrollmentResult } from '@/services/studentEnrollmentService';
