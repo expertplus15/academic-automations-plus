@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Eye, TrendingUp, TrendingDown } from "lucide-react";
 import { useStudentsPerformance } from "@/hooks/useStudentsPerformance";
+import { formatStudentName } from "@/utils/formatStudentName";
 
 export function StudentPerformanceTable() {
   const { students, loading, error } = useStudentsPerformance();
@@ -53,7 +54,7 @@ export function StudentPerformanceTable() {
               <TableRow key={student.id}>
                 <TableCell>
                   <div>
-                    <p className="font-medium">{student.profiles?.full_name || 'N/A'}</p>
+                    <p className="font-medium">{formatStudentName(student.profiles)}</p>
                     <p className="text-sm text-muted-foreground">{student.student_number}</p>
                   </div>
                 </TableCell>

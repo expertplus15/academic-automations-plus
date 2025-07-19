@@ -1,10 +1,16 @@
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Users } from 'lucide-react';
+import { formatStudentName } from '@/utils/formatStudentName';
 
 interface StudentData {
   id: string;
-  profile?: { full_name: string };
+  profile?: { 
+    full_name?: string;
+    first_name?: string;
+    last_name?: string;
+  };
   student_number: string;
   semester1Average: number;
   semester2Average: number;
@@ -48,7 +54,7 @@ export function ProgramStudentsTable({ students, onSelectStudent }: ProgramStude
           {students.map((student, index) => (
             <tr key={student.id} className={index % 2 === 0 ? 'bg-muted/20' : ''}>
               <td className="p-3 font-medium">
-                {student.profile?.full_name || 'Nom non renseigné'}
+                {formatStudentName(student.profile)}
               </td>
               <td className="p-3 text-center">{student.student_number}</td>
               <td className="p-3 text-center font-semibold">

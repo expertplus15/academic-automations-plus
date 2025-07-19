@@ -1,15 +1,15 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 export interface AcademicYear {
   id: string;
   name: string;
   start_date: string;
   end_date: string;
+  status: 'planning' | 'current' | 'completed';
   is_current: boolean;
-  status: string;
   created_at: string;
   updated_at: string;
 }
@@ -19,60 +19,34 @@ export function useAcademicYears() {
   const [currentYear, setCurrentYear] = useState<AcademicYear | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const fetchAcademicYears = async () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const { data, error } = await supabase
         .from('academic_years')
         .select('*')
         .order('start_date', { ascending: false });
 
       if (error) {
-        console.error('Academic years fetch error:', error);
-        throw error;
-      }
-
-      const years = data || [];
-      setAcademicYears(years);
-      
-      const currentYears = years.filter(year => year.is_current);
-      
-      // Détection et alerte pour multiple années courantes
-      if (currentYears.length > 1) {
-        console.error('Multiple current academic years detected:', currentYears);
+        console.error('Erreur lors de la récupération des années académiques:', error);
+        setError(error.message);
         toast({
-          title: "Erreur de configuration",
-          description: `${currentYears.length} années académiques marquées comme courantes. Contactez l'administrateur.`,
-          variant: "destructive",
+          title: "Erreur",
+          description: "Impossible de charger les années académiques",
+          variant: "destructive"
         });
+      } else {
+        setAcademicYears(data || []);
+        const current = data?.find(year => year.is_current) || null;
+        setCurrentYear(current);
       }
-      
-      setCurrentYear(currentYears[0] || null);
-      
-      if (currentYears.length === 0 && years.length > 0) {
-        console.warn('No current academic year found');
-        toast({
-          title: "Attention",
-          description: "Aucune année académique courante définie.",
-          variant: "destructive",
-        });
-      }
-      
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Une erreur est survenue lors du chargement des années académiques';
-      console.error('Academic years loading error:', err);
-      setError(message);
-      setAcademicYears([]);
-      setCurrentYear(null);
-      
-      toast({
-        title: "Erreur",
-        description: message,
-        variant: "destructive",
-      });
+      console.error('Erreur inattendue:', err);
+      setError('Une erreur inattendue est survenue');
     } finally {
       setLoading(false);
     }
@@ -82,11 +56,15 @@ export function useAcademicYears() {
     fetchAcademicYears();
   }, []);
 
+  const refetch = () => {
+    fetchAcademicYears();
+  };
+
   return { 
     academicYears, 
-    currentYear, 
+    currentYear,
     loading, 
     error, 
-    refetch: fetchAcademicYears 
+    refetch
   };
 }

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +14,7 @@ import {
   GraduationCap
 } from 'lucide-react';
 import { Student } from '@/hooks/students/useStudentsData';
+import { formatStudentName, getStudentInitials } from '@/utils/formatStudentName';
 
 interface StudentCardProps {
   student: Student;
@@ -42,15 +44,18 @@ export function StudentCard({ student, onView, onEdit, className = '' }: Student
     return new Date(dateString).toLocaleDateString('fr-FR');
   };
 
+  const formattedName = formatStudentName(student.profiles);
+  const initials = getStudentInitials(student.profiles);
+
   return (
     <Card className={`hover:shadow-lg transition-all duration-300 ${className}`}>
       <CardContent className="p-6">
         <div className="flex items-start gap-4">
           {/* Avatar */}
           <Avatar className="w-16 h-16">
-            <AvatarImage src="" alt={student.profiles.full_name} />
+            <AvatarImage src="" alt={formattedName} />
             <AvatarFallback className="bg-emerald-500 text-white text-lg">
-              {student.profiles.full_name?.[0] || 'E'}
+              {initials}
             </AvatarFallback>
           </Avatar>
 
@@ -60,7 +65,7 @@ export function StudentCard({ student, onView, onEdit, className = '' }: Student
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="font-semibold text-lg text-foreground">
-                  {student.profiles.full_name}
+                  {formattedName}
                 </h3>
                 <p className="text-sm text-muted-foreground font-mono">
                   {student.student_number}

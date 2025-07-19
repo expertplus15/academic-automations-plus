@@ -1,3 +1,4 @@
+
 import { AcademicModuleSidebar } from "@/components/AcademicModuleSidebar";
 import { StudentsModuleSidebar } from "@/components/StudentsModuleSidebar";
 import { ExamsModuleSidebar } from "@/components/ExamsModuleSidebar";
@@ -10,11 +11,12 @@ import { PartnershipsModuleSidebar } from "@/components/PartnershipsModuleSideba
 import { SettingsModuleSidebar } from "@/components/SettingsModuleSidebar";
 import { ServicesModuleSidebar } from "@/components/ServicesModuleSidebar";
 import { HealthModuleSidebar } from "@/components/HealthModuleSidebar";
-
 import { DocumentsModuleSidebar } from "@/components/DocumentsModuleSidebar";
 import { CommunicationModuleSidebar } from "@/components/CommunicationModuleSidebar";
+import { OrganizationModuleSidebar } from "@/components/OrganizationModuleSidebar";
 
 export const getSidebarForPath = (pathname: string) => {
+  if (pathname.startsWith('/organization')) return OrganizationModuleSidebar;
   if (pathname.startsWith('/academic')) return AcademicModuleSidebar;
   if (pathname.startsWith('/students')) return StudentsModuleSidebar;
   if (pathname.startsWith('/exams')) return ExamsModuleSidebar;
@@ -26,8 +28,7 @@ export const getSidebarForPath = (pathname: string) => {
   if (pathname.startsWith('/partnerships')) return PartnershipsModuleSidebar;
   if (pathname.startsWith('/settings')) return SettingsModuleSidebar;
   if (pathname.startsWith('/services')) return ServicesModuleSidebar;
-  if (pathname.startsWith('/health')) return HealthModuleSidebar;
-  
+  if (pathname.startsWith('/health')) return HealthModuleSidebar;  
   if (pathname.startsWith('/documents')) return DocumentsModuleSidebar;
   if (pathname.startsWith('/communication')) return CommunicationModuleSidebar;
   return null;

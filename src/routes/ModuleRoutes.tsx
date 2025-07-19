@@ -22,6 +22,11 @@ const Settings = lazyLoad(() => import('@/pages/Settings'));
 const Documents = lazyLoad(() => import('@/pages/Documents'));
 const Partnerships = lazyLoad(() => import('@/pages/Partnerships'));
 
+// Pages du module Organisation (nouveau)
+const Organization = lazyLoad(() => import('@/pages/Organization'));
+const OrganizationInfrastructure = lazyLoad(() => import('@/pages/organization/Infrastructure'));
+const OrganizationCalendar = lazyLoad(() => import('@/pages/organization/Calendar'));
+
 // Pages du module Finance
 const FinanceDashboard = lazyLoad(() => import('@/pages/finance/Dashboard'));
 const FinanceInvoices = lazyLoad(() => import('@/pages/finance/Invoices'));
@@ -60,7 +65,7 @@ const ResultsPersonalisation = lazyLoad(() => import('@/pages/results/Refactored
 const ResultsProduction = lazyLoad(() => import('@/pages/results/Production'));
 const ResultsAnalytics = lazyLoad(() => import('@/pages/results/Analytics'));
 
-// Pages du module Examens
+// Pages du module Examens (simplifiées)
 const ExamCreation = lazyLoad(() => import('@/pages/exams/creation'));
 const ExamsPlanning = lazyLoad(() => import('@/pages/exams/Planning'));
 const ExamsMonitoring = lazyLoad(() => import('@/pages/exams/Monitoring'));
@@ -102,6 +107,11 @@ export function ModuleRoutes() {
   return (
     <SuspenseWrapper>
       <Routes>
+        {/* Module Organisation (nouveau) */}
+        <Route path="/organization" element={<Organization />} />
+        <Route path="/organization/infrastructure" element={<OrganizationInfrastructure />} />
+        <Route path="/organization/calendar" element={<OrganizationCalendar />} />
+
         {/* Module Finance */}
         <Route path="/finance" element={<Finance />} />
         <Route path="/finance/dashboard" element={<FinanceDashboard />} />
@@ -144,7 +154,7 @@ export function ModuleRoutes() {
         <Route path="/results/production" element={<ResultsProduction />} />
         <Route path="/results/analytics" element={<ResultsAnalytics />} />
 
-        {/* Module Examens */}
+        {/* Module Examens (simplifié) */}
         <Route path="/exams" element={<Exams />} />
         <Route path="/exams/creation" element={<ExamCreation />} />
         <Route path="/exams/planning" element={<ExamsPlanning />} />
