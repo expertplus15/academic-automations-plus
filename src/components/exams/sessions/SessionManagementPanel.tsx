@@ -3,299 +3,237 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Calendar, 
-  BookOpen, 
-  Users, 
-  Mail, 
-  BarChart3,
-  Clock,
-  CheckCircle,
-  AlertTriangle,
-  Building,
-  FileText
-} from 'lucide-react';
-import { SessionCreationWizard } from './SessionCreationWizard';
+import { Separator } from '@/components/ui/separator';
 import { useDUT2GESessionManager } from '@/hooks/exams/useDUT2GESessionManager';
-
-// Données simulées pour les métriques DUT2-GE
-const DUT2GE_METRICS = {
-  sessions: {
-    total: 1,
-    active: 1,
-    completed: 0
-  },
-  exams: {
-    total: 18,
-    scheduled: 18,
-    pending: 0
-  },
-  supervisors: {
-    assigned: 36,
-    conflicts: 0,
-    coverage: 100
-  },
-  convocations: {
-    scheduled: 260,
-    sent: 260,
-    pending_reminders: 78
-  }
-};
+import { useIntelligentPlanning } from '@/hooks/exams/useIntelligentPlanning';
+import { Calendar, Users, Clock, FileText, AlertTriangle, CheckCircle, Brain, Zap } from 'lucide-react';
 
 interface SessionManagementPanelProps {
   academicYearId: string;
   programId: string;
 }
 
-export function SessionManagementPanel({ 
-  academicYearId, 
-  programId 
-}: SessionManagementPanelProps) {
-  const [activeTab, setActiveTab] = useState('overview');
-  const [sessions, setSessions] = useState<any[]>([]);
-  const { getDUT2GESessions, loading } = useDUT2GESessionManager();
+export function SessionManagementPanel({ academicYearId, programId }: SessionManagementPanelProps) {
+  const [currentSession, setCurrentSession] = useState<any>(null);
+  const [sessionStats, setSessionStats] = useState<any>(null);
+  
+  const { 
+    getDUT2GESession, 
+    getSessionStats, 
+    createDUT2GESession,
+    loading: sessionLoading 
+  } = useDUT2GESessionManager();
+  
+  const { 
+    generateAutoPlan, 
+    detectConflicts, 
+    conflicts, 
+    loading: planningLoading 
+  } = useIntelligentPlanning();
 
   useEffect(() => {
-    loadSessions();
-  }, []);
+    loadSessionData();
+  }, [academicYearId, programId]);
 
-  const loadSessions = async () => {
-    const data = await getDUT2GESessions();
-    setSessions(data);
+  const loadSessionData = async () => {
+    try {
+      const sessionData = await getDUT2GESession();
+      setCurrentSession(sessionData);
+      
+      const stats = await getSessionStats();
+      setSessionStats(stats);
+      
+      await detectConflicts();
+    } catch (error) {
+      console.error('Erreur chargement session:', error);
+    }
   };
 
-  const hasActiveSession = sessions.length > 0;
+  const handleCreateSession = async () => {
+    try {
+      await createDUT2GESession(programId, academicYearId);
+      await loadSessionData();
+    } catch (error) {
+      console.error('Erreur création session:', error);
+    }
+  };
+
+  const handleGeneratePlanning = async () => {
+    if (!currentSession?.session?.id) return;
+    
+    await generateAutoPlan(currentSession.session.id);
+    await loadSessionData();
+  };
+
+  if (sessionLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* En-tête avec métriques */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {!currentSession ? (
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{DUT2GE_METRICS.exams.total}</p>
-                <p className="text-sm text-muted-foreground">Examens planifiés</p>
-              </div>
-            </div>
+          <CardHeader>
+            <CardTitle>Créer une Session DUT2-GE</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">
+              Aucune session trouvée pour ce programme. Créez une nouvelle session pour commencer.
+            </p>
+            <Button onClick={handleCreateSession} disabled={sessionLoading}>
+              {sessionLoading ? 'Création...' : 'Créer Session S1-2324-DUTGE'}
+            </Button>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <Users className="w-5 h-5 text-green-600" />
+      ) : (
+        <>
+          {/* Informations de session */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>{currentSession.session.name}</CardTitle>
+                  <p className="text-muted-foreground">
+                    Code: {currentSession.session.code}
+                  </p>
+                </div>
+                <Badge variant={currentSession.session.status === 'active' ? 'default' : 'secondary'}>
+                  {currentSession.session.status}
+                </Badge>
               </div>
-              <div>
-                <p className="text-2xl font-bold">{DUT2GE_METRICS.supervisors.assigned}</p>
-                <p className="text-sm text-muted-foreground">Surveillants affectés</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Mail className="w-5 h-5 text-purple-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{DUT2GE_METRICS.convocations.sent}</p>
-                <p className="text-sm text-muted-foreground">Convocations envoyées</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                <BarChart3 className="w-5 h-5 text-orange-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{DUT2GE_METRICS.supervisors.coverage}%</p>
-                <p className="text-sm text-muted-foreground">Couverture surveillance</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Interface principale */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
-          <TabsTrigger value="create">Nouvelle Session</TabsTrigger>
-          <TabsTrigger value="planning">Planification</TabsTrigger>
-          <TabsTrigger value="monitoring">Suivi</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview">
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Sessions DUT2-GE Actives</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {hasActiveSession ? (
-                  <div className="space-y-4">
-                    {sessions.map((session) => (
-                      <div key={session.id} className="border rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <div>
-                            <h3 className="font-semibold">{session.name}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              Code: {session.code}
-                            </p>
-                          </div>
-                          <Badge variant="secondary">{session.status}</Badge>
-                        </div>
-                        
-                        <div className="grid grid-cols-3 gap-4 text-sm">
-                          <div>
-                            <p className="font-medium">Période</p>
-                            <p className="text-muted-foreground">
-                              {session.period_start} - {session.period_end}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="font-medium">Type</p>
-                            <p className="text-muted-foreground">{session.session_type}</p>
-                          </div>
-                          <div>
-                            <p className="font-medium">Examens</p>
-                            <p className="text-muted-foreground">18 configurés</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center">
+                  <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mb-2 mx-auto">
+                    <FileText className="w-6 h-6 text-primary" />
                   </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Calendar className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-medium mb-2">Aucune session active</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Créez votre première session DUT2-GE pour commencer
-                    </p>
-                    <Button onClick={() => setActiveTab('create')}>
-                      Créer une session
-                    </Button>
+                  <p className="text-sm text-muted-foreground">Examens</p>
+                  <p className="text-lg font-semibold">{sessionStats?.totalExams || 0}</p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg mb-2 mx-auto">
+                    <Calendar className="w-6 h-6 text-green-600" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">Planifiés</p>
+                  <p className="text-lg font-semibold">{sessionStats?.scheduledSessions || 0}</p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-lg mb-2 mx-auto">
+                    <AlertTriangle className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">Conflits</p>
+                  <p className="text-lg font-semibold">{conflicts.length}</p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg mb-2 mx-auto">
+                    <Users className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">Surveillants</p>
+                  <p className="text-lg font-semibold">{sessionStats?.totalSupervisors || 0}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Actions de planification */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="w-5 h-5 text-primary" />
+                Planification Intelligente
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-muted-foreground">
+                  Utilisez l'IA pour générer automatiquement les créneaux d'examens et résoudre les conflits.
+                </p>
+                
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={handleGeneratePlanning} 
+                    disabled={planningLoading}
+                  >
+                    <Zap className="w-4 h-4 mr-2" />
+                    {planningLoading ? 'Génération...' : 'Générer Planning IA'}
+                  </Button>
+                  
+                  <Button variant="outline" onClick={() => detectConflicts()}>
+                    <AlertTriangle className="w-4 h-4 mr-2" />
+                    Détecter Conflits
+                  </Button>
+                </div>
+
+                {conflicts.length > 0 && (
+                  <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-950 rounded-lg">
+                    <h4 className="font-medium text-orange-800 dark:text-orange-200 mb-2">
+                      Conflits détectés ({conflicts.length})
+                    </h4>
+                    <div className="space-y-2">
+                      {conflicts.slice(0, 3).map((conflict, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <AlertTriangle className="w-4 h-4 text-orange-600 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium">{conflict.title}</p>
+                            <p className="text-xs text-muted-foreground">{conflict.description}</p>
+                          </div>
+                        </div>
+                      ))}
+                      {conflicts.length > 3 && (
+                        <p className="text-sm text-muted-foreground">
+                          +{conflicts.length - 3} autres conflits...
+                        </p>
+                      )}
+                    </div>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-
-            {hasActiveSession && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5 text-green-500" />
-                      Statut Global
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span>Planification examens</span>
-                      <Badge className="bg-green-100 text-green-800">Complète</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Attribution surveillants</span>
-                      <Badge className="bg-green-100 text-green-800">100%</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Convocations</span>
-                      <Badge className="bg-blue-100 text-blue-800">Envoyées</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Conflits détectés</span>
-                      <Badge className="bg-green-100 text-green-800">Aucun</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Clock className="w-5 h-5 text-blue-500" />
-                      Prochaines Échéances
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="border-l-4 border-blue-500 pl-3">
-                      <p className="font-medium">Examens S3</p>
-                      <p className="text-sm text-muted-foreground">
-                        Démarrage: 15 janvier 2024
-                      </p>
-                    </div>
-                    <div className="border-l-4 border-orange-500 pl-3">
-                      <p className="font-medium">Rappels convocations</p>
-                      <p className="text-sm text-muted-foreground">
-                        78 à envoyer cette semaine
-                      </p>
-                    </div>
-                    <div className="border-l-4 border-green-500 pl-3">
-                      <p className="font-medium">Examens S4</p>
-                      <p className="text-sm text-muted-foreground">
-                        Démarrage: 1er juin 2024
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="create">
-          <SessionCreationWizard />
-        </TabsContent>
-
-        <TabsContent value="planning">
-          <Card>
-            <CardHeader>
-              <CardTitle>Planification Intelligente</CardTitle>
-              <p className="text-muted-foreground">
-                Gestion des créneaux, salles et surveillants pour les 18 examens DUT2-GE
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <Building className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">
-                  Interface de planification en cours de développement
-                </p>
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
 
-        <TabsContent value="monitoring">
+          {/* Répartition des examens */}
           <Card>
             <CardHeader>
-              <CardTitle>Suivi Temps Réel</CardTitle>
-              <p className="text-muted-foreground">
-                Monitoring des convocations, surveillances et logistique
-              </p>
+              <CardTitle>Répartition des Examens</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8">
-                <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">
-                  Dashboard de monitoring en cours de développement
-                </p>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-medium mb-3">Semestre 3</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm">Examens écrits</span>
+                      <Badge variant="outline">{sessionStats?.s3Exams || 0}</Badge>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="font-medium mb-3">Semestre 4</h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm">Examens écrits</span>
+                      <Badge variant="outline">{sessionStats?.s4Exams || 0}</Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm">Soutenances orales</span>
+                      <Badge variant="outline">{sessionStats?.oralExams || 0}</Badge>
+                    </div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+        </>
+      )}
     </div>
   );
 }

@@ -15,10 +15,12 @@ export interface ExamSlot {
 }
 
 export interface PlanningConflict {
-  type: 'room' | 'time' | 'supervisor';
-  severity: 'low' | 'medium' | 'high';
+  conflict_id: string;
+  conflict_type: string;
+  severity: string;
+  title: string;
   description: string;
-  affected_exams: string[];
+  affected_data: any;
 }
 
 export function useIntelligentPlanning() {
@@ -38,87 +40,49 @@ export function useIntelligentPlanning() {
 
       if (examsError) throw examsError;
 
-      // Récupérer les salles disponibles
-      const { data: rooms, error: roomsError } = await supabase
-        .from('rooms')
-        .select('*')
-        .eq('status', 'available')
-        .gte('capacity', 15);
-
-      if (roomsError) throw roomsError;
-
-      if (!rooms || rooms.length === 0) {
-        throw new Error('Aucune salle disponible trouvée');
+      if (!exams || exams.length === 0) {
+        throw new Error('Aucun examen trouvé pour cette session');
       }
 
-      // Créneaux de base pour examens
-      const timeSlots = [
-        { start: '08:00', end: '11:00' },
-        { start: '14:00', end: '17:00' }
-      ];
-
-      // Générer les sessions d'examen
-      const examSessions = [];
-      let currentDate = new Date('2024-01-15');
-      let roomIndex = 0;
-      let timeSlotIndex = 0;
-
-      for (const exam of exams || []) {
-        // Déterminer la période selon le titre de l'examen
-        const isSemester3 = exam.title.includes('Semestre 3');
-        const baseDate = isSemester3 ? new Date('2024-01-15') : new Date('2024-06-01');
-        
-        // Ajuster la date pour éviter les weekends
-        while (baseDate.getDay() === 0 || baseDate.getDay() === 6) {
-          baseDate.setDate(baseDate.getDate() + 1);
-        }
-
-        const timeSlot = timeSlots[timeSlotIndex % timeSlots.length];
-        const room = rooms[roomIndex % rooms.length];
-        
-        // Calculer end_time basé sur la durée de l'examen
-        const startTime = new Date(`${baseDate.toISOString().split('T')[0]}T${timeSlot.start}`);
-        const endTime = new Date(startTime.getTime() + exam.duration_minutes * 60000);
-
-        const sessionData = {
-          exam_id: exam.id,
-          room_id: room.id,
-          start_time: startTime.toISOString(),
-          end_time: endTime.toISOString(),
-          status: 'scheduled'
-        };
-
-        examSessions.push(sessionData);
-
-        // Avancer aux créneaux suivants
-        timeSlotIndex++;
-        if (timeSlotIndex % 2 === 0) {
-          roomIndex++;
-          baseDate.setDate(baseDate.getDate() + 1);
-          // Éviter les weekends
-          while (baseDate.getDay() === 0 || baseDate.getDay() === 6) {
-            baseDate.setDate(baseDate.getDate() + 1);
+      // Utiliser la fonction SQL pour générer le planning
+      const { data: generationId, error: planError } = await supabase
+        .rpc('generate_exam_schedule', {
+          p_academic_year_id: '550e8400-e29b-41d4-a716-446655440001',
+          p_program_id: '550e8400-e29b-41d4-a716-446655440002',
+          p_parameters: {
+            max_daily_hours: 6,
+            min_break_minutes: 30,
+            preferred_start_time: '08:00',
+            preferred_end_time: '17:00',
+            session_group_id: sessionGroupId
           }
-        }
-      }
+        });
 
-      // Insérer les sessions en base
-      const { error: insertError } = await supabase
+      if (planError) throw planError;
+
+      // Récupérer les sessions créées
+      const { data: sessions, error: sessionsError } = await supabase
         .from('exam_sessions')
-        .insert(examSessions);
+        .select(`
+          *,
+          exams!inner(title, session_group_id),
+          rooms(name)
+        `)
+        .eq('exams.session_group_id', sessionGroupId);
 
-      if (insertError) throw insertError;
+      if (sessionsError) throw sessionsError;
 
       // Détecter les conflits
       await detectConflicts(sessionGroupId);
 
       toast({
-        title: 'Planification générée',
-        description: `${examSessions.length} examens planifiés automatiquement`
+        title: 'Planification générée avec IA',
+        description: `${sessions?.length || 0} examens planifiés automatiquement avec résolution de conflits`
       });
 
-      return examSessions;
+      return sessions || [];
     } catch (err) {
+      console.error('Erreur planification:', err);
       toast({
         title: 'Erreur de planification',
         description: err instanceof Error ? err.message : 'Erreur inconnue',
@@ -130,41 +94,24 @@ export function useIntelligentPlanning() {
     }
   }, [toast]);
 
-  const detectConflicts = useCallback(async (sessionGroupId: string) => {
+  const detectConflicts = useCallback(async (sessionGroupId?: string) => {
     try {
-      const { data: sessions, error } = await supabase
-        .from('exam_sessions')
-        .select(`
-          *,
-          exams!inner(session_group_id, title),
-          rooms(name)
-        `)
-        .eq('exams.session_group_id', sessionGroupId);
+      // Utiliser la fonction SQL de détection de conflits
+      const { data: conflictsData, error } = await supabase
+        .rpc('detect_exam_conflicts', {
+          p_academic_year_id: '550e8400-e29b-41d4-a716-446655440001'
+        });
 
       if (error) throw error;
 
-      const detectedConflicts: PlanningConflict[] = [];
-      
-      // Détecter conflits de salles
-      const roomConflicts = new Map();
-      sessions?.forEach(session => {
-        const key = `${session.room_id}-${session.start_time}`;
-        if (!roomConflicts.has(key)) {
-          roomConflicts.set(key, []);
-        }
-        roomConflicts.get(key).push(session);
-      });
-
-      roomConflicts.forEach((conflictingSessions, key) => {
-        if (conflictingSessions.length > 1) {
-          detectedConflicts.push({
-            type: 'room',
-            severity: 'high',
-            description: `Conflit de salle : ${conflictingSessions[0].rooms?.name}`,
-            affected_exams: conflictingSessions.map((s: any) => s.exams.title)
-          });
-        }
-      });
+      const detectedConflicts: PlanningConflict[] = (conflictsData || []).map((conflict: any) => ({
+        conflict_id: conflict.conflict_id,
+        conflict_type: conflict.conflict_type,
+        severity: conflict.severity,
+        title: conflict.title,
+        description: conflict.description,
+        affected_data: conflict.affected_data
+      }));
 
       setConflicts(detectedConflicts);
       return detectedConflicts;
@@ -181,7 +128,12 @@ export function useIntelligentPlanning() {
     try {
       const { error } = await supabase
         .from('exam_sessions')
-        .update(updates)
+        .update({
+          room_id: updates.room_id,
+          start_time: updates.start_time,
+          end_time: updates.end_time,
+          status: updates.status
+        })
         .eq('id', sessionId);
 
       if (error) throw error;
@@ -202,11 +154,50 @@ export function useIntelligentPlanning() {
     }
   }, [toast]);
 
+  const optimizeSchedule = useCallback(async (sessionGroupId: string) => {
+    try {
+      setLoading(true);
+
+      // Récupérer les statistiques avant optimisation
+      const conflictsBefore = await detectConflicts(sessionGroupId);
+      
+      // Relancer la génération avec paramètres optimisés
+      await generateAutoPlan(sessionGroupId);
+      
+      // Vérifier l'amélioration
+      const conflictsAfter = await detectConflicts(sessionGroupId);
+      
+      const improvement = Math.max(0, conflictsBefore.length - conflictsAfter.length);
+      
+      toast({
+        title: 'Optimisation terminée',
+        description: `${improvement} conflit(s) résolu(s) par l'IA`
+      });
+
+      return {
+        conflictsResolved: improvement,
+        remainingConflicts: conflictsAfter.length,
+        optimizationRate: conflictsBefore.length > 0 ? 
+          Math.round((improvement / conflictsBefore.length) * 100) : 100
+      };
+    } catch (err) {
+      console.error('Erreur optimisation:', err);
+      return {
+        conflictsResolved: 0,
+        remainingConflicts: conflicts.length,
+        optimizationRate: 0
+      };
+    } finally {
+      setLoading(false);
+    }
+  }, [conflicts.length]);
+
   return {
     loading,
     conflicts,
     generateAutoPlan,
     detectConflicts,
-    updateExamSession
+    updateExamSession,
+    optimizeSchedule
   };
 }
