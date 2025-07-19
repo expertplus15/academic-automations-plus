@@ -2527,6 +2527,48 @@ export type Database = {
           },
         ]
       }
+      convocation_templates: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          reminder_days_before: number | null
+          send_days_before: number | null
+          subject: string
+          template_type: string
+          updated_at: string | null
+          variables: Json | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          reminder_days_before?: number | null
+          send_days_before?: number | null
+          subject: string
+          template_type: string
+          updated_at?: string | null
+          variables?: Json | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          reminder_days_before?: number | null
+          send_days_before?: number | null
+          subject?: string
+          template_type?: string
+          updated_at?: string | null
+          variables?: Json | null
+        }
+        Relationships: []
+      }
       course_categories: {
         Row: {
           code: string
@@ -3264,6 +3306,72 @@ export type Database = {
         }
         Relationships: []
       }
+      evaluation_modalities: {
+        Row: {
+          code: string
+          continuous_assessment_weight: number | null
+          created_at: string | null
+          evaluation_types: Json | null
+          final_exam_weight: number | null
+          has_retake_session: boolean | null
+          id: string
+          is_active: boolean | null
+          min_cc_evaluations: number | null
+          name: string
+          program_id: string | null
+          retake_date: string | null
+          subject_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          code: string
+          continuous_assessment_weight?: number | null
+          created_at?: string | null
+          evaluation_types?: Json | null
+          final_exam_weight?: number | null
+          has_retake_session?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          min_cc_evaluations?: number | null
+          name: string
+          program_id?: string | null
+          retake_date?: string | null
+          subject_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          code?: string
+          continuous_assessment_weight?: number | null
+          created_at?: string | null
+          evaluation_types?: Json | null
+          final_exam_weight?: number | null
+          has_retake_session?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          min_cc_evaluations?: number | null
+          name?: string
+          program_id?: string | null
+          retake_date?: string | null
+          subject_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evaluation_modalities_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evaluation_modalities_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       evaluation_types: {
         Row: {
           code: string
@@ -3461,6 +3569,76 @@ export type Database = {
         }
         Relationships: []
       }
+      exam_convocations: {
+        Row: {
+          convocation_data: Json | null
+          created_at: string | null
+          email_content: string | null
+          id: string
+          opened_at: string | null
+          reminded_at: string | null
+          sent_at: string | null
+          session_group_id: string | null
+          session_id: string | null
+          status: string | null
+          student_id: string | null
+          template_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          convocation_data?: Json | null
+          created_at?: string | null
+          email_content?: string | null
+          id?: string
+          opened_at?: string | null
+          reminded_at?: string | null
+          sent_at?: string | null
+          session_group_id?: string | null
+          session_id?: string | null
+          status?: string | null
+          student_id?: string | null
+          template_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          convocation_data?: Json | null
+          created_at?: string | null
+          email_content?: string | null
+          id?: string
+          opened_at?: string | null
+          reminded_at?: string | null
+          sent_at?: string | null
+          session_group_id?: string | null
+          session_id?: string | null
+          status?: string | null
+          student_id?: string | null
+          template_type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_convocations_session_group_id_fkey"
+            columns: ["session_group_id"]
+            isOneToOne: false
+            referencedRelation: "exam_sessions_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_convocations_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "exam_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_convocations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exam_registrations: {
         Row: {
           exam_id: string
@@ -3525,6 +3703,7 @@ export type Database = {
           id: string
           notes: string | null
           room_id: string | null
+          session_group_id: string | null
           start_time: string
           status: string
           updated_at: string | null
@@ -3537,6 +3716,7 @@ export type Database = {
           id?: string
           notes?: string | null
           room_id?: string | null
+          session_group_id?: string | null
           start_time: string
           status?: string
           updated_at?: string | null
@@ -3549,6 +3729,7 @@ export type Database = {
           id?: string
           notes?: string | null
           room_id?: string | null
+          session_group_id?: string | null
           start_time?: string
           status?: string
           updated_at?: string | null
@@ -3566,6 +3747,86 @@ export type Database = {
             columns: ["room_id"]
             isOneToOne: false
             referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_sessions_session_group_id_fkey"
+            columns: ["session_group_id"]
+            isOneToOne: false
+            referencedRelation: "exam_sessions_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exam_sessions_groups: {
+        Row: {
+          academic_year_id: string | null
+          code: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          level: string | null
+          name: string
+          program_id: string | null
+          semesters: Json | null
+          start_date: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          academic_year_id?: string | null
+          code: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          level?: string | null
+          name: string
+          program_id?: string | null
+          semesters?: Json | null
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          academic_year_id?: string | null
+          code?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          level?: string | null
+          name?: string
+          program_id?: string | null
+          semesters?: Json | null
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_sessions_groups_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_sessions_groups_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_sessions_groups_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
             referencedColumns: ["id"]
           },
         ]
@@ -7206,6 +7467,71 @@ export type Database = {
           },
         ]
       }
+      student_academic_enrollments: {
+        Row: {
+          academic_year_id: string
+          created_at: string | null
+          enrollment_date: string | null
+          enrollment_status: string | null
+          id: string
+          level_id: string | null
+          program_id: string | null
+          student_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          academic_year_id: string
+          created_at?: string | null
+          enrollment_date?: string | null
+          enrollment_status?: string | null
+          id?: string
+          level_id?: string | null
+          program_id?: string | null
+          student_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          academic_year_id?: string
+          created_at?: string | null
+          enrollment_date?: string | null
+          enrollment_status?: string | null
+          id?: string
+          level_id?: string | null
+          program_id?: string | null
+          student_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_academic_enrollments_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_academic_enrollments_level_id_fkey"
+            columns: ["level_id"]
+            isOneToOne: false
+            referencedRelation: "academic_levels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_academic_enrollments_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_academic_enrollments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_activities: {
         Row: {
           category: string
@@ -7730,6 +8056,7 @@ export type Database = {
         Row: {
           created_at: string
           enrollment_date: string
+          group_id: string | null
           id: string
           profile_id: string
           program_id: string
@@ -7741,6 +8068,7 @@ export type Database = {
         Insert: {
           created_at?: string
           enrollment_date?: string
+          group_id?: string | null
           id?: string
           profile_id: string
           program_id: string
@@ -7752,6 +8080,7 @@ export type Database = {
         Update: {
           created_at?: string
           enrollment_date?: string
+          group_id?: string | null
           id?: string
           profile_id?: string
           program_id?: string
@@ -7761,6 +8090,13 @@ export type Database = {
           year_level?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "students_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "class_groups"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "students_profile_id_fkey"
             columns: ["profile_id"]

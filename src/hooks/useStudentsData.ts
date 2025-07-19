@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -9,9 +8,12 @@ interface Student {
   year_level: number;
   enrollment_date: string;
   created_at: string;
+  academic_year_id?: string;
   profiles: {
     id: string;
     full_name: string;
+    first_name?: string;
+    last_name?: string;
     email: string;
     phone?: string;
   };
@@ -25,7 +27,7 @@ interface Student {
   };
 }
 
-export function useStudentsData() {
+export function useStudentsData(academicYearId?: string) {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +37,7 @@ export function useStudentsData() {
       setLoading(true);
       setError(null);
 
+      // Requête de base sans les nouveaux champs pour éviter les erreurs de types
       const { data, error } = await supabase
         .from('students')
         .select(`
@@ -65,7 +68,18 @@ export function useStudentsData() {
         console.error('Erreur lors de la récupération des étudiants:', error);
         setError(error.message);
       } else {
-        setStudents(data || []);
+        // Enrichir les données avec des champs vides pour first_name et last_name
+        const enrichedData = (data || []).map((student: any) => ({
+          ...student,
+          academic_year_id: undefined, // Sera ajouté une fois les types mis à jour
+          profiles: {
+            ...student.profiles,
+            first_name: undefined,
+            last_name: undefined
+          }
+        }));
+        
+        setStudents(enrichedData);
       }
     } catch (err) {
       console.error('Erreur inattendue:', err);
@@ -77,7 +91,7 @@ export function useStudentsData() {
 
   useEffect(() => {
     fetchStudents();
-  }, []);
+  }, [academicYearId]);
 
   const refetch = () => {
     fetchStudents();

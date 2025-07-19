@@ -48,7 +48,7 @@ export function DatabaseDocumentGenerator() {
   // Filter students based on search and selected program
   const filteredStudents = useMemo(() => {
     return students.filter(student => {
-      const matchesSearch = student.profile.full_name.toLowerCase().includes(studentSearch.toLowerCase()) ||
+      const matchesSearch = (student.profile.full_name || '').toLowerCase().includes(studentSearch.toLowerCase()) ||
                           student.student_number.toLowerCase().includes(studentSearch.toLowerCase());
       const matchesProgram = !form.programId || form.programId === 'all' || student.program_id === form.programId;
       return matchesSearch && matchesProgram;
@@ -79,7 +79,7 @@ export function DatabaseDocumentGenerator() {
         studentId,
         programId: student.program_id // Auto-select student's program
       }));
-      setStudentSearch(student.profile.full_name);
+      setStudentSearch(student.profile.full_name || '');
     }
   };
 
@@ -273,7 +273,7 @@ export function DatabaseDocumentGenerator() {
                       className="p-2 hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
                       onClick={() => handleStudentSelect(student.id)}
                     >
-                      <div className="font-medium">{student.profile.full_name}</div>
+                      <div className="font-medium">{student.profile.full_name || 'N/A'}</div>
                       <div className="text-sm text-gray-500">
                         {student.student_number} - {student.program.name}
                       </div>

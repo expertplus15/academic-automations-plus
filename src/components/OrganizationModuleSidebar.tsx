@@ -13,61 +13,50 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
-  FileText,
+  Building2,
   Calendar,
-  Building,
-  Users,
-  Mail,
-  Monitor,
-  AlertTriangle,
+  Clock,
+  Settings,
   ArrowLeft,
-  Bot,
-  MapPin,
-  MessageCircle,
-  BarChart3,
-  User,
   LayoutDashboard,
-  PenTool,
-  TrendingUp,
-  Download,
-  Settings
+  User,
+  MapPin,
+  Table
 } from "lucide-react";
 
-const examsItems = [
-  // Essentiels
-  { title: "Création d'examen", url: "/exams/creation", icon: PenTool, group: "Essentiels" },
-  { title: "Planification", url: "/exams/planning", icon: Calendar, group: "Essentiels" },
-  { title: "Calendrier", url: "/exams/calendar", icon: Calendar, group: "Essentiels" },
-  { title: "Gestion salles", url: "/exams/rooms", icon: Building, group: "Essentiels" },
+const organizationItems = [
+  // Infrastructure
+  { title: "Bâtiments & Salles", url: "/organization/infrastructure", icon: Building2, group: "Infrastructure" },
+  { title: "Emplois du temps", url: "/organization/timetables", icon: Table, group: "Infrastructure" },
   
-  // Surveillance
-  { title: "Surveillance temps réel", url: "/exams/monitoring", icon: Monitor, group: "Surveillance" },
-  { title: "Incidents", url: "/exams/incidents", icon: AlertTriangle, group: "Surveillance" },
+  // Calendrier
+  { title: "Calendrier académique", url: "/organization/calendar", icon: Calendar, group: "Calendrier" },
+  { title: "Horaires", url: "/organization/schedules", icon: Clock, group: "Calendrier" },
   
   // Administration
-  { title: "Paramètres", url: "/exams/settings", icon: Settings, group: "Administration" }
+  { title: "Paramètres", url: "/organization/settings", icon: Settings, group: "Administration" }
 ];
 
-const groupedItems = examsItems.reduce((groups, item) => {
+const groupedItems = organizationItems.reduce((groups, item) => {
   if (!groups[item.group]) {
     groups[item.group] = [];
   }
   groups[item.group].push(item);
   return groups;
-}, {} as Record<string, typeof examsItems>);
+}, {} as Record<string, typeof organizationItems>);
 
-export function ExamsModuleSidebar() {
+export function OrganizationModuleSidebar() {
   const location = useLocation();
 
   return (
     <Sidebar className="border-r-0">
       <SidebarHeader className="p-4 border-b border-sidebar-border/30">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-[#8b5cf6] rounded-xl flex items-center justify-center shadow-sm">
-            <FileText className="w-5 h-5 text-white" />
+          <div className="w-9 h-9 bg-[#059669] rounded-xl flex items-center justify-center shadow-sm">
+            <Building2 className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1">
-            <h1 className="text-lg font-semibold text-sidebar-foreground tracking-tight">Examens</h1>
+            <h1 className="text-lg font-semibold text-sidebar-foreground tracking-tight">Organisation</h1>
             <p className="text-xs text-sidebar-foreground/60 mt-0.5">Module actif</p>
           </div>
         </div>
@@ -80,20 +69,19 @@ export function ExamsModuleSidebar() {
             <span className="text-base text-sidebar-foreground">Retour au Dashboard</span>
           </Link>
           <Link 
-            to="/exams" 
+            to="/organization" 
             className={cn(
               "flex items-center gap-2 px-3 py-3 rounded-lg transition-colors w-full relative",
               "text-sidebar-foreground hover:bg-sidebar-accent",
-              location.pathname === "/exams" && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+              location.pathname === "/organization" && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
             )}
           >
-            {location.pathname === "/exams" && <div className="absolute left-0 w-1 h-6 bg-violet-500 rounded-r" />}
-            <LayoutDashboard className="w-4 h-4 text-violet-500" />
+            {location.pathname === "/organization" && <div className="absolute left-0 w-1 h-6 bg-emerald-600 rounded-r" />}
+            <LayoutDashboard className="w-4 h-4 text-emerald-600" />
             <span className="text-base text-sidebar-foreground">Tableau de Bord</span>
-            {location.pathname === "/exams" && <div className="w-2 h-2 bg-violet-500 rounded-full" />}
+            {location.pathname === "/organization" && <div className="w-2 h-2 bg-emerald-600 rounded-full" />}
           </Link>
         </div>
-        
         
         {Object.entries(groupedItems).map(([groupName, items]) => (
           <SidebarGroup key={groupName} className="py-2">
@@ -119,12 +107,12 @@ export function ExamsModuleSidebar() {
                             isActive && "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                           )}
                         >
-                          {isActive && <div className="absolute left-0 w-1 h-6 bg-violet-500 rounded-r" />}
-                          <ItemIcon className="w-4 h-4 text-violet-500" />
+                          {isActive && <div className="absolute left-0 w-1 h-6 bg-emerald-600 rounded-r" />}
+                          <ItemIcon className="w-4 h-4 text-emerald-600" />
                           <div className="flex-1 min-w-0">
                             <span className="text-base block truncate">{item.title}</span>
                           </div>
-                          {isActive && <div className="w-2 h-2 bg-violet-500 rounded-full" />}
+                          {isActive && <div className="w-2 h-2 bg-emerald-600 rounded-full" />}
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
