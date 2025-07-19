@@ -40,9 +40,8 @@ export const useConvocationScheduler = () => {
         .from('exam_sessions')
         .select(`
           *,
-          exams!inner(id, title, session_group_id)
+          exams!inner(id, title, exam_type)
         `)
-        .eq('exams.session_group_id', sessionGroupId)
         .in('exam_id', examIds);
 
       if (examError) throw examError;
@@ -72,9 +71,7 @@ export const useConvocationScheduler = () => {
 
       // Créer les convocations pour chaque étudiant et chaque examen
       for (const session of examSessions || []) {
-        const isOral = session.exams.title.includes('PPP') || 
-                      session.exams.title.includes('Projet') || 
-                      session.exams.title.includes('Stage');
+        const isOral = session.exams.exam_type === 'oral';
         
         const template = templates?.find(t => 
           isOral ? t.template_type === 'oral' : t.template_type === 'written'
@@ -88,11 +85,11 @@ export const useConvocationScheduler = () => {
           initialDate.setDate(initialDate.getDate() - (template.send_days_before || 15));
 
           convocationsToInsert.push({
-            exam_session_id: session.id,
+            session_id: session.id,
             student_id: student.id,
             template_id: template.id,
             scheduled_send_date: initialDate.toISOString(),
-            convocation_type: 'initial',
+            convocation_data: { type: 'initial' },
             status: 'scheduled'
           });
 
@@ -101,11 +98,11 @@ export const useConvocationScheduler = () => {
           reminderDate.setDate(reminderDate.getDate() - (template.reminder_days_before || 3));
 
           convocationsToInsert.push({
-            exam_session_id: session.id,
+            session_id: session.id,
             student_id: student.id,
             template_id: template.id,
             scheduled_send_date: reminderDate.toISOString(),
-            convocation_type: 'reminder',
+            convocation_data: { type: 'reminder' },
             status: 'scheduled'
           });
         }
@@ -200,8 +197,8 @@ export const useConvocationScheduler = () => {
       const scheduled = convocations?.filter(c => c.status === 'scheduled').length || 0;
       const delivered = convocations?.filter(c => c.status === 'delivered').length || 0;
       const failed = convocations?.filter(c => c.status === 'failed').length || 0;
-      const reminders = convocations?.filter(c => c.convocation_type === 'reminder').length || 0;
-      const initial = convocations?.filter(c => c.convocation_type === 'initial').length || 0;
+      const reminders = convocations?.filter(c => (c.convocation_data as any)?.type === 'reminder').length || 0;
+      const initial = convocations?.filter(c => (c.convocation_data as any)?.type === 'initial').length || 0;
 
       return {
         total,
@@ -213,7 +210,7 @@ export const useConvocationScheduler = () => {
         initial,
         successRate: total > 0 ? Math.round((delivered / total) * 100) : 0,
         pendingReminders: convocations?.filter(c => 
-          c.convocation_type === 'reminder' && c.status === 'scheduled'
+          (c.convocation_data as any)?.type === 'reminder' && c.status === 'scheduled'
         ).length || 0
       };
     } catch (err) {

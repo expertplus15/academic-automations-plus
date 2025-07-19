@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -41,37 +40,7 @@ export const useDUT2GESessionManager = () => {
       setLoading(true);
       setError(null);
 
-      // Vérifier si la session existe déjà
-      const { data: existingSession } = await supabase
-        .from('exam_session_groups')
-        .select('*')
-        .eq('code', 'S1-2324-DUTGE')
-        .single();
-
-      let sessionData;
-      
-      if (existingSession) {
-        sessionData = existingSession;
-        console.log('Session existante trouvée:', sessionData);
-      } else {
-        // Créer une nouvelle session
-        const { data: newSession, error: sessionError } = await supabase
-          .from('exam_session_groups')
-          .insert([{
-            code: 'S1-2324-DUTGE',
-            name: 'Session 1 - 2023/2024 - DUT Gestion des Entreprises',
-            status: 'active',
-            program_id: programId,
-            academic_year_id: academicYearId
-          }])
-          .select()
-          .single();
-
-        if (sessionError) throw sessionError;
-        sessionData = newSession;
-      }
-
-      // Créer les 18 examens DUT2-GE s'ils n'existent pas
+      // Créer les 18 examens DUT2-GE directement dans la table exams
       const examSubjects = [
         // Semestre 3 (S3)
         { name: 'Droit', code: 'droit-s3', semester: 3, type: 'written', duration: 180 },
@@ -102,8 +71,8 @@ export const useDUT2GESessionManager = () => {
           .from('exams')
           .select('*')
           .eq('title', `${subject.name} - Semestre ${subject.semester}`)
-          .eq('session_group_id', sessionData.id)
-          .single();
+          .eq('program_id', programId)
+          .maybeSingle();
 
         if (!existingExam) {
           return supabase
@@ -115,7 +84,6 @@ export const useDUT2GESessionManager = () => {
               status: 'draft',
               academic_year_id: academicYearId,
               program_id: programId,
-              session_group_id: sessionData.id,
               min_supervisors: subject.type === 'oral' ? 3 : 2,
               max_students: 13
             }])
@@ -126,14 +94,43 @@ export const useDUT2GESessionManager = () => {
       });
 
       const examResults = await Promise.all(examPromises);
-      const createdExams = examResults.filter(result => result.data).map(result => result.data);
+      const dbExams = examResults.filter(result => result.data).map(result => result.data);
+      
+      // Convertir en DUT2GEExam avec les données du subject
+      const createdExams: DUT2GEExam[] = dbExams.map((exam, index) => {
+        const subject = examSubjects[index];
+        return {
+          id: exam.id,
+          subjectId: exam.id,
+          subjectName: subject.name,
+          semester: subject.semester,
+          type: subject.type as 'written' | 'oral' | 'practical',
+          scheduledDate: undefined,
+          supervisorsAssigned: exam.min_supervisors || 2,
+          convocationsSent: 0,
+          status: exam.status,
+          duration_minutes: exam.duration_minutes
+        };
+      });
+
+      // Créer un objet session par défaut
+      const session: DUT2GESession = {
+        id: 'dut2ge-session',
+        code: 'S1-2324-DUTGE',
+        name: 'Session DUT2-GE 2024-25',
+        status: 'active',
+        programId: programId,
+        academicYearId: academicYearId,
+        examsCount: createdExams.length,
+        createdAt: new Date().toISOString()
+      };
 
       toast({
         title: "Session DUT2-GE configurée",
-        description: `Session ${sessionData.code} avec ${createdExams.length} examens configurés.`,
+        description: `${createdExams.length} examens DUT2-GE configurés.`,
       });
 
-      return { session: sessionData, exams: createdExams };
+      return { session, exams: createdExams };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la création de la session';
       setError(errorMessage);
@@ -148,63 +145,48 @@ export const useDUT2GESessionManager = () => {
     }
   };
 
-  const getDUT2GESession = async (sessionId?: string) => {
+  const getDUT2GESession = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Récupérer la session par code ou ID
-      let query = supabase.from('exam_session_groups').select(`
-        *,
-        exams (
-          id,
-          title,
-          exam_type,
-          duration_minutes,
-          status,
-          created_at
-        )
-      `);
+      // Récupérer les examens DUT2-GE
+      const { data: examsData, error: examsError } = await supabase
+        .from('exams')
+        .select('*')
+        .eq('program_id', PROGRAM_ID)
+        .order('title');
 
-      if (sessionId) {
-        query = query.eq('id', sessionId);
-      } else {
-        query = query.eq('code', 'S1-2324-DUTGE');
-      }
+      if (examsError) throw examsError;
 
-      const { data: sessionData, error: sessionError } = await query.single();
-
-      if (sessionError) {
-        if (sessionError.code === 'PGRST116') {
-          // Session n'existe pas, la créer
-          return await createDUT2GESession(PROGRAM_ID, ACADEMIC_YEAR_ID);
-        }
-        throw sessionError;
+      // S'il n'y a pas d'examens, les créer
+      if (!examsData || examsData.length === 0) {
+        return await createDUT2GESession(PROGRAM_ID, ACADEMIC_YEAR_ID);
       }
 
       // Transformer les données pour correspondre à l'interface
-      const exams: DUT2GEExam[] = (sessionData.exams || []).map((exam: any, index: number) => ({
+      const exams: DUT2GEExam[] = examsData.map((exam: any, index: number) => ({
         id: exam.id,
         subjectId: exam.id,
         subjectName: exam.title.split(' - ')[0],
         semester: exam.title.includes('Semestre 3') ? 3 : 4,
         type: exam.exam_type as 'written' | 'oral' | 'practical',
-        scheduledDate: undefined, // À récupérer depuis exam_sessions
-        supervisorsAssigned: exam.exam_type === 'oral' ? 3 : 2,
-        convocationsSent: 0, // À calculer depuis les données réelles
+        scheduledDate: undefined,
+        supervisorsAssigned: exam.min_supervisors || 2,
+        convocationsSent: 0,
         status: exam.status,
         duration_minutes: exam.duration_minutes
       }));
 
       const session: DUT2GESession = {
-        id: sessionData.id,
-        code: sessionData.code,
-        name: sessionData.name,
-        status: sessionData.status,
-        programId: sessionData.program_id,
-        academicYearId: sessionData.academic_year_id,
+        id: 'dut2ge-session',
+        code: 'S1-2324-DUTGE',
+        name: 'Session DUT2-GE 2024-25',
+        status: 'active',
+        programId: PROGRAM_ID,
+        academicYearId: ACADEMIC_YEAR_ID,
         examsCount: exams.length,
-        createdAt: sessionData.created_at
+        createdAt: new Date().toISOString()
       };
 
       return { session, exams };
@@ -221,6 +203,8 @@ export const useDUT2GESessionManager = () => {
     try {
       const { session, exams } = await getDUT2GESession();
       
+      if (!exams) return getDefaultStats();
+
       // Calculer les statistiques depuis les vraies données
       const totalExams = exams.length;
       const s3Exams = exams.filter(exam => exam.semester === 3).length;
@@ -231,8 +215,8 @@ export const useDUT2GESessionManager = () => {
       // Récupérer les sessions programmées
       const { data: scheduledSessions } = await supabase
         .from('exam_sessions')
-        .select('*, exams!inner(*)')
-        .eq('exams.session_group_id', session.id);
+        .select('exam_id')
+        .in('exam_id', exams.map(e => e.id));
 
       const scheduledCount = scheduledSessions?.length || 0;
       const progressPercentage = totalExams > 0 ? Math.round((scheduledCount / totalExams) * 100) : 0;
@@ -246,46 +230,32 @@ export const useDUT2GESessionManager = () => {
         oralExams,
         writtenExams,
         progressPercentage,
-        conflictsResolved: 100, // À calculer depuis detect_exam_conflicts
+        conflictsResolved: 100,
         scheduledSessions: scheduledCount
       };
     } catch (err) {
       console.error('Erreur calcul statistiques:', err);
-      return {
-        totalExams: 0,
-        totalSupervisors: 0,
-        totalConvocations: 0,
-        s3Exams: 0,
-        s4Exams: 0,
-        oralExams: 0,
-        writtenExams: 0,
-        progressPercentage: 0,
-        conflictsResolved: 0,
-        scheduledSessions: 0
-      };
+      return getDefaultStats();
     }
   };
 
+  const getDefaultStats = () => ({
+    totalExams: 0,
+    totalSupervisors: 0,
+    totalConvocations: 0,
+    s3Exams: 0,
+    s4Exams: 0,
+    oralExams: 0,
+    writtenExams: 0,
+    progressPercentage: 0,
+    conflictsResolved: 0,
+    scheduledSessions: 0
+  });
+
   const getDUT2GESessions = async () => {
     try {
-      const { data, error } = await supabase
-        .from('exam_session_groups')
-        .select('*')
-        .eq('program_id', PROGRAM_ID)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      return data.map(session => ({
-        id: session.id,
-        code: session.code,
-        name: session.name,
-        status: session.status,
-        programId: session.program_id,
-        academicYearId: session.academic_year_id,
-        examsCount: 18, // Valeur par défaut, à calculer si nécessaire
-        createdAt: session.created_at
-      }));
+      const { session } = await getDUT2GESession();
+      return [session];
     } catch (err) {
       console.error('Erreur récupération sessions:', err);
       return [];
