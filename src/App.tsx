@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { Toaster as Toaster2 } from "@/components/ui/toaster";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 // Pages
 import Dashboard from "@/pages/Dashboard";
@@ -28,7 +29,8 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
       <Router>
         <div className="min-h-screen bg-background">
           <Routes>
@@ -57,7 +59,8 @@ function App() {
         <Toaster />
         <Toaster2 />
       </Router>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </AuthProvider>
   );
 }
 
