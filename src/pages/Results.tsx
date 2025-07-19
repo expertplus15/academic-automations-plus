@@ -3,15 +3,14 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { UnifiedDashboard } from '@/components/unified/UnifiedDashboard';
-import { DocumentsEvaluationInterface } from '@/components/results/documents/DocumentsEvaluationInterface';
 import { GradingSystemConfig } from '@/components/results/GradingSystemConfig';
-import { MatrixGradeEntry } from '@/components/results/MatrixGradeEntry';
-import { GradeCalculations } from '@/components/results/GradeCalculations';
-import { ResultsAnalytics } from '@/components/results/ResultsAnalytics';
+import GradeEntry from "./results/GradeEntry";
+import Calculations from "./results/Calculations";
 import Validation from "./results/Validation";
 import Documentation from "./results/Documentation";
 import { default as RefactoredPersonalisation } from "./results/RefactoredPersonalisation";
 import Production from "./results/Production";
+import Analytics from "./results/Analytics";
 
 export default function Results() {
   const location = useLocation();
@@ -31,12 +30,12 @@ export default function Results() {
         '/results/grade-entry': {
           title: "Saisie des Notes",
           subtitle: "Interface matricielle collaborative pour la saisie des notes en temps réel",
-          component: <MatrixGradeEntry />
+          component: <GradeEntry />
         },
         '/results/calculations': {
           title: "Calculs & Moyennes",
           subtitle: "Moyennes, ECTS, compensations et mentions automatiques",
-          component: <GradeCalculations />
+          component: <Calculations />
         },
         '/results/validation': {
           title: "Validation",
@@ -61,7 +60,7 @@ export default function Results() {
         '/results/analytics': {
           title: "Analyse & Contrôle",
           subtitle: "Statistiques avancées et validation des données",
-          component: <ResultsAnalytics />
+          component: <Analytics />
         }
       };
 
