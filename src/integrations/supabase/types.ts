@@ -6577,8 +6577,10 @@ export type Database = {
           created_at: string
           department_id: string | null
           email: string
+          first_name: string | null
           full_name: string | null
           id: string
+          last_name: string | null
           phone: string | null
           role: Database["public"]["Enums"]["user_role"]
           updated_at: string
@@ -6588,8 +6590,10 @@ export type Database = {
           created_at?: string
           department_id?: string | null
           email: string
+          first_name?: string | null
           full_name?: string | null
           id: string
+          last_name?: string | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
@@ -6599,8 +6603,10 @@ export type Database = {
           created_at?: string
           department_id?: string | null
           email?: string
+          first_name?: string | null
           full_name?: string | null
           id?: string
+          last_name?: string | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
@@ -8054,6 +8060,7 @@ export type Database = {
       }
       students: {
         Row: {
+          academic_year_id: string | null
           created_at: string
           enrollment_date: string
           group_id: string | null
@@ -8066,6 +8073,7 @@ export type Database = {
           year_level: number
         }
         Insert: {
+          academic_year_id?: string | null
           created_at?: string
           enrollment_date?: string
           group_id?: string | null
@@ -8078,6 +8086,7 @@ export type Database = {
           year_level?: number
         }
         Update: {
+          academic_year_id?: string | null
           created_at?: string
           enrollment_date?: string
           group_id?: string | null
@@ -8090,6 +8099,13 @@ export type Database = {
           year_level?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "students_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "students_group_id_fkey"
             columns: ["group_id"]
