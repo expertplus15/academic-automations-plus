@@ -1,25 +1,23 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Save, Calculator, Users, Clock, CheckCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useMatrixGrades } from '@/hooks/useMatrixGrades';
-import { useSubjects } from '@/hooks/useSubjects';
+import { ImprovedGradeEntryHeader } from './grade-entry/ImprovedGradeEntryHeader';
 import { useAcademicYears } from '@/hooks/useAcademicYears';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function MatrixGradeEntry() {
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedSemester, setSelectedSemester] = useState<number>(1);
   const [selectedAcademicYear, setSelectedAcademicYear] = useState('');
+  const [selectedProgram, setSelectedProgram] = useState('');
+  const [selectedLevel, setSelectedLevel] = useState('');
   const [validationResults, setValidationResults] = useState<{ errors: string[]; warnings: string[] }>({ errors: [], warnings: [] });
 
-  const { subjects } = useSubjects();
   const { academicYears } = useAcademicYears();
   const currentAcademicYear = academicYears.find(ay => ay.is_current);
   
@@ -83,65 +81,25 @@ export function MatrixGradeEntry() {
 
   return (
     <div className="space-y-6">
-      {/* Configuration Panel */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calculator className="w-5 h-5" />
-            Interface Matricielle de Saisie
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Année académique</label>
-              <Select value={selectedAcademicYear} onValueChange={setSelectedAcademicYear}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner l'année" />
-                </SelectTrigger>
-                <SelectContent>
-                  {academicYears.map((year) => (
-                    <SelectItem key={year.id} value={year.id}>
-                      {year.name} {year.is_current && <Badge variant="default" className="ml-2">Actuelle</Badge>}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+      {/* Improved Header with synchronized selectors */}
+      <ImprovedGradeEntryHeader
+        selectedAcademicYear={selectedAcademicYear}
+        selectedProgram={selectedProgram}
+        selectedLevel={selectedLevel}
+        selectedSubject={selectedSubject}
+        selectedSemester={selectedSemester}
+        onAcademicYearChange={setSelectedAcademicYear}
+        onProgramChange={setSelectedProgram}
+        onLevelChange={setSelectedLevel}
+        onSubjectChange={setSelectedSubject}
+        onSemesterChange={setSelectedSemester}
+      />
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Matière</label>
-              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner la matière" />
-                </SelectTrigger>
-                <SelectContent>
-                  {subjects.map((subject) => (
-                    <SelectItem key={subject.id} value={subject.id}>
-                      {subject.name} ({subject.code})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Semestre</label>
-              <Select value={selectedSemester.toString()} onValueChange={(value) => setSelectedSemester(parseInt(value))}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">Semestre 1</SelectItem>
-                  <SelectItem value="2">Semestre 2</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Stats */}
-          {selectedSubject && (
-            <div className="flex items-center gap-6 p-4 bg-muted/50 rounded-lg">
+      {/* Stats Panel */}
+      {selectedSubject && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-blue-500" />
                 <span className="text-sm">{stats.totalStudents} étudiants</span>
@@ -165,9 +123,9 @@ export function MatrixGradeEntry() {
                 </Button>
               </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Validation Alerts */}
       {(validationResults.errors.length > 0 || validationResults.warnings.length > 0) && (
@@ -191,7 +149,7 @@ export function MatrixGradeEntry() {
       {selectedSubject && students.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Grille de Saisie - {subjects.find(s => s.id === selectedSubject)?.name}</CardTitle>
+            <CardTitle>Grille de Saisie</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -257,7 +215,7 @@ export function MatrixGradeEntry() {
               <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Aucun étudiant trouvé</h3>
               <p className="text-muted-foreground">
-                Aucun étudiant actif trouvé pour cette configuration.
+                Aucun étudiant inscrit pour cette configuration (année académique, programme, matière).
               </p>
             </div>
           </CardContent>

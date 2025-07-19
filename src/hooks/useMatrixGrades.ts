@@ -48,22 +48,26 @@ export function useMatrixGrades() {
       }));
       setEvaluationTypes(typesWithMaxGrade);
 
-      // Load students with their grades
-      const { data: studentsData, error: studentsError } = await supabase
-        .from('students')
+      // Load students enrolled for this academic year
+      const { data: enrollmentsData, error: enrollmentsError } = await supabase
+        .from('student_academic_enrollments')
         .select(`
-          id,
-          student_number,
-          status,
-          profiles!inner(
-            full_name,
-            email
+          student:students(
+            id,
+            student_number,
+            status,
+            profiles!inner(
+              full_name,
+              email
+            )
           )
         `)
-        .eq('status', 'active')
-        .order('student_number');
+        .eq('academic_year_id', academicYearId)
+        .eq('enrollment_status', 'active');
 
-      if (studentsError) throw studentsError;
+      if (enrollmentsError) throw enrollmentsError;
+
+      const studentsData = enrollmentsData?.map(enrollment => enrollment.student).filter(Boolean) || [];
 
       // Load existing grades for this subject/semester
       const { data: gradesData, error: gradesError } = await supabase

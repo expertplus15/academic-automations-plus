@@ -7467,6 +7467,71 @@ export type Database = {
           },
         ]
       }
+      student_academic_enrollments: {
+        Row: {
+          academic_year_id: string
+          created_at: string | null
+          enrollment_date: string | null
+          enrollment_status: string | null
+          id: string
+          level_id: string | null
+          program_id: string | null
+          student_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          academic_year_id: string
+          created_at?: string | null
+          enrollment_date?: string | null
+          enrollment_status?: string | null
+          id?: string
+          level_id?: string | null
+          program_id?: string | null
+          student_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          academic_year_id?: string
+          created_at?: string | null
+          enrollment_date?: string | null
+          enrollment_status?: string | null
+          id?: string
+          level_id?: string | null
+          program_id?: string | null
+          student_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_academic_enrollments_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_academic_enrollments_level_id_fkey"
+            columns: ["level_id"]
+            isOneToOne: false
+            referencedRelation: "academic_levels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_academic_enrollments_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_academic_enrollments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_activities: {
         Row: {
           category: string
