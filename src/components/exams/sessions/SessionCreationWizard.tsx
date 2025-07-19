@@ -178,7 +178,7 @@ export function SessionCreationWizard({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-3">
-            <steps[currentStep].icon className="w-5 h-5 text-exams" />
+            {React.createElement(steps[currentStep].icon, { className: "w-5 h-5 text-exams" })}
             {steps[currentStep].title}
           </CardTitle>
           <p className="text-muted-foreground">{steps[currentStep].description}</p>
