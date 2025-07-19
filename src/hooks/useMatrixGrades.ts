@@ -20,7 +20,7 @@ export interface EvaluationType {
   code: string;
   name: string;
   weight_percentage: number;
-  max_grade: number;
+  max_grade?: number; // Optional - defaults to 20
 }
 
 export function useMatrixGrades() {
@@ -37,12 +37,16 @@ export function useMatrixGrades() {
       // Load evaluation types
       const { data: evalTypes, error: evalError } = await supabase
         .from('evaluation_types')
-        .select('*')
+        .select('id, code, name, weight_percentage, description')
         .eq('is_active', true)
         .order('weight_percentage', { ascending: false });
 
       if (evalError) throw evalError;
-      setEvaluationTypes(evalTypes || []);
+      const typesWithMaxGrade = (evalTypes || []).map(type => ({
+        ...type,
+        max_grade: 20 // Default max grade
+      }));
+      setEvaluationTypes(typesWithMaxGrade);
 
       // Load students with their grades
       const { data: studentsData, error: studentsError } = await supabase
@@ -166,7 +170,7 @@ export function useMatrixGrades() {
                 subject_id: subjectId,
                 evaluation_type_id: evalType.id,
                 grade: grade,
-                max_grade: evalType.max_grade,
+                max_grade: evalType.max_grade || 20,
                 semester: semester,
                 academic_year_id: academicYearId,
                 is_published: false,
@@ -220,11 +224,12 @@ export function useMatrixGrades() {
       Object.entries(student.grades).forEach(([evalCode, grade]) => {
         if (grade !== null) {
           const evalType = evaluationTypes.find(et => et.code === evalCode);
-          if (evalType && (grade < 0 || grade > evalType.max_grade)) {
-            errors.push(`${student.full_name}: Note ${evalCode} invalide (${grade}/${evalType.max_grade})`);
+          const maxGrade = evalType?.max_grade || 20;
+          if (evalType && (grade < 0 || grade > maxGrade)) {
+            errors.push(`${student.full_name}: Note ${evalCode} invalide (${grade}/${maxGrade})`);
           }
-          if (evalType && grade < evalType.max_grade * 0.3) {
-            warnings.push(`${student.full_name}: Note ${evalCode} très basse (${grade}/${evalType.max_grade})`);
+          if (evalType && grade < maxGrade * 0.3) {
+            warnings.push(`${student.full_name}: Note ${evalCode} très basse (${grade}/${maxGrade})`);
           }
         }
       });
