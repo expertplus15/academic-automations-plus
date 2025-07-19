@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload, FileText, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { DutgeStudentData } from '@/components/students/import/ImportTab';
+import { DutgeStudentData } from '@/pages/students/Import';
 
 interface CSVUploaderProps {
   onCSVUploaded: (data: DutgeStudentData[]) => void;

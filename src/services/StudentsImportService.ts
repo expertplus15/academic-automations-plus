@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { DutgeStudentData, ImportResult } from '@/components/students/import/ImportTab';
+import { DutgeStudentData, ImportResult } from '@/pages/students/Import';
 
 export class StudentsImportService {
   private readonly DUTGE_PROGRAM_ID = 'ced83506-8666-487b-a310-f0b1a97b0c5c';
@@ -58,11 +58,6 @@ export class StudentsImportService {
           error: error instanceof Error ? error.message : 'Erreur inconnue'
         });
       }
-
-      // Délai pour éviter le rate limiting (1.5 secondes entre chaque création)
-      if (i < totalStudents - 1) {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-      }
     }
 
     onProgress?.(100);
@@ -72,15 +67,13 @@ export class StudentsImportService {
   private async createAuthUser(studentData: DutgeStudentData) {
     const tempPassword = this.generateTempPassword();
     
-    const uniqueEmail = `${studentData.prenom.toLowerCase().replace(/\s+/g, '')}.${studentData.nom.toLowerCase().replace(/\s+/g, '')}.ge2024@univ.com`;
-    
     const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: uniqueEmail,
+      email: studentData.email,
       password: tempPassword,
       options: {
         emailRedirectTo: `${window.location.origin}/`,
         data: {
-          full_name: `${studentData.prenom} ${studentData.nom}`, // Ordre: Prénom Nom
+          full_name: `${studentData.prenom} ${studentData.nom}`,
           role: 'student'
         }
       }
@@ -131,7 +124,7 @@ export class StudentsImportService {
     const { error } = await supabase
       .from('profiles')
       .update({
-        full_name: `${studentData.prenom} ${studentData.nom}`, // Ordre: Prénom Nom
+        full_name: `${studentData.prenom} ${studentData.nom}`,
         email: studentData.email,
         phone: studentData.telephone,
         role: 'student'

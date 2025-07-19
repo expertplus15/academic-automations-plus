@@ -44,7 +44,7 @@ const studentsItems = [
   { title: "Documents administratifs", url: "/students/documents", icon: FileText },
   
   // ADMINISTRATION
-  { title: "Configuration", url: "/students/registration/configuration", icon: Settings }
+  { title: "Configuration", url: "/students/registration/settings", icon: Settings }
 ];
 
 export function StudentsModuleSidebar() {
