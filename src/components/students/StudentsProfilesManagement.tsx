@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 
 export function StudentsProfilesManagement() {
   const { selectedAcademicYear } = useAcademicYearContext();
-  const { students, loading } = useStudentsData(selectedAcademicYear?.id);
+  const { students, loading } = useStudentsData();
   const navigate = useNavigate();
 
   console.log('🔍 Rendering with students:', students);

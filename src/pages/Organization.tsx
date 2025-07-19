@@ -50,7 +50,7 @@ export default function Organization() {
 
   return (
     <ModuleLayout 
-      sidebar={OrganizationModuleSidebar}
+      sidebar={<OrganizationModuleSidebar />}
       title="Organisation"
       subtitle="Gestion de l'infrastructure et de la planification"
     >

@@ -9,7 +9,7 @@ import { Calendar as CalendarIcon, Plus, Filter } from 'lucide-react';
 export default function Calendar() {
   return (
     <ModuleLayout 
-      sidebar={OrganizationModuleSidebar}
+      sidebar={<OrganizationModuleSidebar />}
       title="Calendrier"
       subtitle="Calendrier académique et événements"
     >

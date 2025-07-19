@@ -40,8 +40,8 @@ export function useAcademicYears() {
           variant: "destructive"
         });
       } else {
-        setAcademicYears(data || []);
-        const current = data?.find(year => year.is_current) || null;
+        setAcademicYears((data || []) as AcademicYear[]);
+        const current = (data?.find(year => year.is_current) || null) as AcademicYear | null;
         setCurrentYear(current);
       }
     } catch (err) {

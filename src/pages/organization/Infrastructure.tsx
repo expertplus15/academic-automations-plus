@@ -9,7 +9,7 @@ import { Building2, MapPin, Plus, Settings } from 'lucide-react';
 export default function Infrastructure() {
   return (
     <ModuleLayout 
-      sidebar={OrganizationModuleSidebar}
+      sidebar={<OrganizationModuleSidebar />}
       title="Infrastructure"
       subtitle="Gestion des bâtiments et salles"
     >
