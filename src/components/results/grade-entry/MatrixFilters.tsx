@@ -47,14 +47,16 @@ export function MatrixFilters({
   ];
 
   const handleLevelChange = (value: string) => {
-    onLevelChange(value);
+    const actualValue = value === 'all' ? '' : value;
+    onLevelChange(actualValue);
     // Reset dependent filters
     onProgramChange('');
     onClassChange('');
   };
 
   const handleProgramChange = (value: string) => {
-    onProgramChange(value);
+    const actualValue = value === 'all' ? '' : value;
+    onProgramChange(actualValue);
     // Reset dependent filters
     onClassChange('');
   };
@@ -79,7 +81,7 @@ export function MatrixFilters({
               <SelectValue placeholder="Sélectionner un niveau" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tous les niveaux</SelectItem>
+              <SelectItem value="all">Tous les niveaux</SelectItem>
               {academicLevels.map((level) => (
                 <SelectItem key={level.id} value={level.id}>
                   {level.name}
@@ -102,7 +104,7 @@ export function MatrixFilters({
               <SelectValue placeholder="Sélectionner un programme" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tous les programmes</SelectItem>
+              <SelectItem value="all">Tous les programmes</SelectItem>
               {filteredPrograms.map((program) => (
                 <SelectItem key={program.id} value={program.id}>
                   {program.name}
@@ -125,7 +127,7 @@ export function MatrixFilters({
               <SelectValue placeholder="Sélectionner une classe" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Toutes les classes</SelectItem>
+              <SelectItem value="all">Toutes les classes</SelectItem>
               {groups.map((group) => (
                 <SelectItem key={group.id} value={group.id}>
                   {group.name} ({group.current_students}/{group.max_students})
@@ -148,7 +150,7 @@ export function MatrixFilters({
               <SelectValue placeholder="Sélectionner une matière" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Toutes les matières</SelectItem>
+              <SelectItem value="all">Toutes les matières</SelectItem>
               {subjects.map((subject) => (
                 <SelectItem key={subject.id} value={subject.id}>
                   {subject.name}

@@ -57,7 +57,9 @@ export function useMatrixFilters() {
 
   const updateFilter = (key: keyof FilterState, value: string) => {
     setFilters(prev => {
-      const newFilters = { ...prev, [key]: value };
+      // Convert "all" to empty string for consistent handling
+      const actualValue = value === 'all' ? '' : value;
+      const newFilters = { ...prev, [key]: actualValue };
       
       // Reset dependent filters when parent changes
       if (key === 'level') {

@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -39,7 +38,7 @@ export function OptimizedMatrixGradeEntry() {
 
   // Fetch students data
   const { students, loading: studentsLoading } = useStudents();
-  const { data: dutgeData, loading: dutgeLoading } = useDUTGEData();
+  const dutgeData = useDUTGEData();
 
   // Filter students based on selected filters
   const filteredStudents = useMemo(() => {
@@ -48,24 +47,18 @@ export function OptimizedMatrixGradeEntry() {
     return students.filter(student => {
       // Filter by search term
       const matchesSearch = searchTerm === '' || 
-        student.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.profile.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.student_number?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      // Filter by level
-      const matchesLevel = selectedLevel === '' || student.level_id === selectedLevel;
+      // Filter by program - using the program relationship
+      const matchesProgram = selectedProgram === '' || student.program.id === selectedProgram;
 
-      // Filter by program
-      const matchesProgram = selectedProgram === '' || student.program_id === selectedProgram;
+      // Note: useStudents doesn't provide academic_year_id, so skip this filter for now
+      const matchesAcademicYear = true;
 
-      // Filter by class
-      const matchesClass = selectedClass === '' || student.class_group_id === selectedClass;
-
-      // Filter by academic year
-      const matchesAcademicYear = !selectedAcademicYear || student.academic_year_id === selectedAcademicYear.id;
-
-      return matchesSearch && matchesLevel && matchesProgram && matchesClass && matchesAcademicYear;
+      return matchesSearch && matchesProgram && matchesAcademicYear;
     });
-  }, [students, searchTerm, selectedLevel, selectedProgram, selectedClass, selectedAcademicYear]);
+  }, [students, searchTerm, selectedProgram, selectedAcademicYear]);
 
   // Create grade matrix
   const gradeMatrix = useMemo(() => {
@@ -74,7 +67,7 @@ export function OptimizedMatrixGradeEntry() {
       
       return {
         student_id: student.id,
-        student_name: student.profile?.full_name || 'N/A',
+        student_name: student.profile.full_name || 'N/A',
         student_number: student.student_number || 'N/A',
         grades: {
           cc1: studentGrades.cc1 || null,
@@ -160,7 +153,7 @@ export function OptimizedMatrixGradeEntry() {
     );
   };
 
-  if (studentsLoading || dutgeLoading) {
+  if (studentsLoading || dutgeData.loading) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="flex items-center gap-2">
