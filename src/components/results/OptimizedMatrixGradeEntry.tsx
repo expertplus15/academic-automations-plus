@@ -109,7 +109,7 @@ export const OptimizedMatrixGradeEntry = () => {
       // Create grade matrix with filtered students
       const filteredStudents = students.filter(student => 
         searchTerm === '' || 
-        student.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.student_number?.toLowerCase().includes(searchTerm.toLowerCase())
       );
 
@@ -118,7 +118,7 @@ export const OptimizedMatrixGradeEntry = () => {
         
         return {
           student_id: student.id,
-          student_name: student.profiles?.full_name || 'N/A',
+          student_name: student.profile?.full_name || 'N/A',
           student_number: student.student_number || 'N/A',
           grades: {
             cc1: studentGrades.find(g => g.evaluation_type_id === 'cc1')?.grade || null,

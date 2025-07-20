@@ -65,8 +65,8 @@ export function useDUTGEData() {
         id: student.id,
         student_number: student.student_number,
         profiles: student.profiles,
-        program: student.programs?.name || 'N/A',
-        level: student.academic_levels?.name || 'N/A',
+        program: Array.isArray(student.programs) ? student.programs[0]?.name || 'N/A' : student.programs?.name || 'N/A',
+        level: Array.isArray(student.academic_levels) ? student.academic_levels[0]?.name || 'N/A' : (student.academic_levels as any)?.name || 'N/A',
         status: student.status
       })) || [];
 
