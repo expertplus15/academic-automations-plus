@@ -40,6 +40,18 @@ export function OptimizedMatrixGradeEntry() {
   const { students, loading: studentsLoading } = useStudents();
   const dutgeData = useDUTGEData();
 
+  // Helper functions
+  const calculateAverage = (studentGrades: Record<string, number>) => {
+    const validGrades = Object.values(studentGrades).filter(grade => grade !== null && grade !== undefined);
+    if (validGrades.length === 0) return null;
+    return validGrades.reduce((sum, grade) => sum + grade, 0) / validGrades.length;
+  };
+
+  const getStatus = (average: number | null): 'pass' | 'fail' | 'pending' => {
+    if (average === null) return 'pending';
+    return average >= 10 ? 'pass' : 'fail';
+  };
+
   // Filter students based on selected filters
   const filteredStudents = useMemo(() => {
     if (!students) return [];
@@ -81,17 +93,6 @@ export function OptimizedMatrixGradeEntry() {
       } as GradeEntry;
     });
   }, [filteredStudents, grades]);
-
-  const calculateAverage = (studentGrades: Record<string, number>) => {
-    const validGrades = Object.values(studentGrades).filter(grade => grade !== null && grade !== undefined);
-    if (validGrades.length === 0) return null;
-    return validGrades.reduce((sum, grade) => sum + grade, 0) / validGrades.length;
-  };
-
-  const getStatus = (average: number | null): 'pass' | 'fail' | 'pending' => {
-    if (average === null) return 'pending';
-    return average >= 10 ? 'pass' : 'fail';
-  };
 
   const handleGradeChange = (studentId: string, gradeType: string, value: string) => {
     const numValue = value === '' ? null : parseFloat(value);
