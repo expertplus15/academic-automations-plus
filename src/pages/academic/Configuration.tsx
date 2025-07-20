@@ -1,11 +1,13 @@
+
 import React from 'react';
 import { AcademicModuleLayout } from '@/components/layouts/AcademicModuleLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { GraduationCap, Layers, Upload, Calculator } from 'lucide-react';
+import { GraduationCap, Layers, Upload, Calculator, Users } from 'lucide-react';
 import { ProgramsManager } from '@/components/academic/ProgramsManager';
 import { LevelsManager } from '@/components/academic/LevelsManager';
 import { ExcelImportManager } from '@/components/academic/ExcelImportManager';
 import { MatrixGradeEntry } from '@/components/academic/MatrixGradeEntry';
+import { DUTGEImportManager } from '@/components/academic/DUTGEImportManager';
 
 export default function AcademicConfiguration() {
   return (
@@ -19,7 +21,7 @@ export default function AcademicConfiguration() {
         </div>
 
         <Tabs defaultValue="programs" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="programs" className="flex items-center space-x-2">
               <GraduationCap className="w-4 h-4" />
               <span>Programmes</span>
@@ -31,6 +33,10 @@ export default function AcademicConfiguration() {
             <TabsTrigger value="import" className="flex items-center space-x-2">
               <Upload className="w-4 h-4" />
               <span>Import Excel</span>
+            </TabsTrigger>
+            <TabsTrigger value="dutge" className="flex items-center space-x-2">
+              <Users className="w-4 h-4" />
+              <span>Import DUTGE</span>
             </TabsTrigger>
             <TabsTrigger value="grades" className="flex items-center space-x-2">
               <Calculator className="w-4 h-4" />
@@ -48,6 +54,10 @@ export default function AcademicConfiguration() {
 
           <TabsContent value="import">
             <ExcelImportManager />
+          </TabsContent>
+
+          <TabsContent value="dutge">
+            <DUTGEImportManager />
           </TabsContent>
 
           <TabsContent value="grades">

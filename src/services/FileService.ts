@@ -114,7 +114,7 @@ export class FileService {
   }
 
   // Download template files
-  static async downloadTemplate(type: 'grades' | 'students' | 'ects'): Promise<string> {
+  static async downloadTemplate(type: 'grades' | 'students' | 'ects' | 'dutge-grades'): Promise<string> {
     // Generate CSV template based on type
     let csvContent = '';
     
@@ -124,6 +124,23 @@ export class FileService {
           'Numéro Étudiant,Matière,Type Évaluation,Note,Note Max,Date',
           'STU001,Mathématiques,Contrôle Continu,15,20,2024-01-15',
           'STU001,Physique,Examen Final,17,20,2024-01-20'
+        ].join('\n');
+        break;
+      case 'dutge-grades':
+        csvContent = [
+          'Matricule,Code_Matiere,CC1,CC2,TD,Examen_Final,Semestre',
+          'DUTGE001,COMPTA401,14,16,15,17,1',
+          'DUTGE001,GEST402,13,15,14,16,1',
+          'DUTGE002,COMPTA401,16,18,17,19,1',
+          'DUTGE002,GEST402,15,17,16,18,1',
+          '# Instructions:',
+          '# - Matricule: Numéro étudiant DUTGE (ex: DUTGE001, DUTGE002...)',
+          '# - Code_Matiere: Code de la matière (COMPTA401, GEST402, ECON403, MATH404...)',
+          '# - CC1, CC2: Contrôles continus (notes sur 20)',
+          '# - TD: Travaux dirigés (note sur 20)',
+          '# - Examen_Final: Note de l\'examen final (sur 20)',
+          '# - Semestre: 1 ou 2',
+          '# - Laissez vide les cases pour les notes non disponibles'
         ].join('\n');
         break;
       case 'students':
