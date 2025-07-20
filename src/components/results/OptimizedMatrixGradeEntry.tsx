@@ -13,13 +13,23 @@ export function OptimizedMatrixGradeEntry() {
   const { selectedAcademicYear } = useAcademicYearContext();
   const { filters } = useMatrixFilters();
   
-  // Utiliser les hooks avec l'année académique sélectionnée
-  const { students, loading: studentsLoading } = useStudents(selectedAcademicYear?.id);
+  // Construire les filtres pour useStudents
+  const studentFilters = {
+    academicYearId: selectedAcademicYear?.id,
+    programId: filters.program || undefined,
+    levelId: filters.level || undefined,
+    groupId: filters.class || undefined,
+    search: filters.search || undefined
+  };
+  
+  // Utiliser les hooks avec les filtres appropriés
+  const { students, loading: studentsLoading } = useStudents(studentFilters);
   const { stats: dutgeStats, loading: dutgeLoading } = useDUTGEData(selectedAcademicYear?.id);
 
   console.log('🔍 [OPTIMIZED_MATRIX] Current academic year:', selectedAcademicYear?.name);
   console.log('📊 [OPTIMIZED_MATRIX] Students count:', students.length);
   console.log('🎯 [OPTIMIZED_MATRIX] Active filters:', filters);
+  console.log('🔍 [OPTIMIZED_MATRIX] Student filters applied:', studentFilters);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -36,7 +46,7 @@ export function OptimizedMatrixGradeEntry() {
               )}
             </div>
             <div className="text-sm font-normal text-muted-foreground">
-              {students.length} étudiant{students.length > 1 ? 's' : ''} disponible{students.length > 1 ? 's' : ''}
+              {students.length} étudiant{students.length > 1 ? 's' : ''} {filters.program || filters.level || filters.class ? 'filtré' : 'disponible'}{students.length > 1 ? 's' : ''}
             </div>
           </CardTitle>
         </CardHeader>
@@ -57,6 +67,7 @@ export function OptimizedMatrixGradeEntry() {
         students={students}
         academicYearId={selectedAcademicYear?.id}
         isLoading={studentsLoading}
+        selectedSubjectId={filters.subject || undefined}
       />
     </div>
   );

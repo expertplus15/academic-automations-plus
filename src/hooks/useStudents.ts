@@ -7,6 +7,8 @@ export interface Student {
   student_number: string;
   program_id: string;
   academic_year_id?: string;
+  level_id?: string;
+  group_id?: string;
   profile: {
     full_name: string;
     email: string;
@@ -18,14 +20,22 @@ export interface Student {
   };
 }
 
-export function useStudents(academicYearId?: string) {
+interface UseStudentsFilters {
+  academicYearId?: string;
+  programId?: string;
+  levelId?: string;
+  groupId?: string;
+  search?: string;
+}
+
+export function useStudents(filters: UseStudentsFilters = {}) {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      console.log('🔍 [STUDENTS] Fetching students for academic year:', academicYearId);
+      console.log('🔍 [STUDENTS] Fetching students with filters:', filters);
       
       let query = supabase
         .from('students')
@@ -34,6 +44,8 @@ export function useStudents(academicYearId?: string) {
           student_number,
           program_id,
           academic_year_id,
+          level_id,
+          group_id,
           profile:profiles!inner (
             full_name,
             email
@@ -47,9 +59,21 @@ export function useStudents(academicYearId?: string) {
         .eq('status', 'active')
         .order('student_number');
 
-      // Filtrer par année académique si spécifiée
-      if (academicYearId) {
-        query = query.eq('academic_year_id', academicYearId);
+      // Appliquer tous les filtres
+      if (filters.academicYearId) {
+        query = query.eq('academic_year_id', filters.academicYearId);
+      }
+
+      if (filters.programId) {
+        query = query.eq('program_id', filters.programId);
+      }
+
+      if (filters.levelId) {
+        query = query.eq('level_id', filters.levelId);
+      }
+
+      if (filters.groupId) {
+        query = query.eq('group_id', filters.groupId);
       }
 
       const { data, error } = await query;
@@ -59,8 +83,20 @@ export function useStudents(academicYearId?: string) {
         throw error;
       }
       
-      console.log('✅ [STUDENTS] Successfully fetched', data?.length || 0, 'students');
-      setStudents(data || []);
+      let filteredData = data || [];
+
+      // Filtrage par recherche textuelle côté client
+      if (filters.search && filters.search.trim()) {
+        const searchTerm = filters.search.toLowerCase().trim();
+        filteredData = filteredData.filter(student => 
+          student.profile.full_name.toLowerCase().includes(searchTerm) ||
+          student.student_number.toLowerCase().includes(searchTerm) ||
+          student.profile.email.toLowerCase().includes(searchTerm)
+        );
+      }
+      
+      console.log('✅ [STUDENTS] Successfully fetched', filteredData.length, 'students with applied filters');
+      setStudents(filteredData);
     } catch (error) {
       console.error('💥 [STUDENTS] Unexpected error:', error);
       setStudents([]);
@@ -71,7 +107,7 @@ export function useStudents(academicYearId?: string) {
 
   useEffect(() => {
     fetchStudents();
-  }, [academicYearId]);
+  }, [filters.academicYearId, filters.programId, filters.levelId, filters.groupId, filters.search]);
 
   return {
     students,

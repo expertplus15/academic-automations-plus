@@ -7,6 +7,7 @@ interface AcademicLevel {
   name: string;
   code: string;
   order_index: number;
+  program_id?: string;
 }
 
 export function useAcademicLevels(programId?: string) {
@@ -20,38 +21,29 @@ export function useAcademicLevels(programId?: string) {
       setError('');
       
       try {
-        console.log('🔍 [LEVELS] Fetching academic levels for program:', programId);
+        console.log('🔍 [ACADEMIC_LEVELS] Fetching levels for program:', programId || 'ALL');
         
         let query = supabase
           .from('academic_levels')
-          .select('id, name, code, order_index')
+          .select('id, name, code, order_index, program_id')
           .order('order_index');
 
-        // Si on a un programme spécifique, on peut filtrer les niveaux
-        // Pour DUTGE, on ne garde que les niveaux DUT
+        // Filtrer par programme si spécifié
         if (programId) {
-          const { data: program } = await supabase
-            .from('programs')
-            .select('code')
-            .eq('id', programId)
-            .single();
-          
-          if (program?.code === 'DUTGE') {
-            query = query.ilike('code', 'DUT%GE');
-          }
+          query = query.or(`program_id.eq.${programId},program_id.is.null`);
         }
 
         const { data: levels, error } = await query;
 
         if (error) {
-          console.error('❌ [LEVELS] Error fetching levels:', error);
+          console.error('❌ [ACADEMIC_LEVELS] Error fetching levels:', error);
           throw error;
         }
         
-        console.log('✅ [LEVELS] Successfully fetched', levels?.length || 0, 'levels');
+        console.log('✅ [ACADEMIC_LEVELS] Successfully fetched', levels?.length || 0, 'levels for program:', programId || 'ALL');
         setData(levels || []);
       } catch (err) {
-        console.error('💥 [LEVELS] Unexpected error:', err);
+        console.error('💥 [ACADEMIC_LEVELS] Unexpected error:', err);
         setError('Erreur lors du chargement des niveaux');
         setData([]);
       } finally {

@@ -24,7 +24,10 @@ export function useSubjects(programId?: string, levelId?: string) {
         setLoading(true);
         setError(null);
         
-        console.log('🔍 [SUBJECTS] Fetching subjects for program:', programId, 'level:', levelId);
+        console.log('🔍 [SUBJECTS] Fetching subjects with filters:', {
+          programId,
+          levelId
+        });
         
         let query = supabase
           .from('subjects')
@@ -32,6 +35,7 @@ export function useSubjects(programId?: string, levelId?: string) {
           .eq('status', 'active')
           .order('name');
 
+        // Appliquer les filtres en cascade
         if (programId) {
           query = query.eq('program_id', programId);
         }
@@ -47,7 +51,7 @@ export function useSubjects(programId?: string, levelId?: string) {
           setError(error.message);
           setSubjects([]);
         } else {
-          console.log('✅ [SUBJECTS] Successfully fetched', data?.length || 0, 'subjects');
+          console.log('✅ [SUBJECTS] Successfully fetched', data?.length || 0, 'subjects with filters applied');
           setSubjects(data || []);
         }
       } catch (err) {

@@ -16,7 +16,7 @@ export function MatrixFilters() {
   const { filters, updateFilter, resetFilters, hasActiveFilters } = useMatrixFilters();
   const { selectedAcademicYear } = useAcademicYearContext();
   
-  // Hooks pour récupérer les données
+  // Hooks pour récupérer les données avec filtrage en cascade
   const { programs, loading: programsLoading } = usePrograms();
   const { data: levels, loading: levelsLoading } = useAcademicLevels(filters.program || undefined);
   const { groups, loading: groupsLoading } = useClassGroups(
@@ -30,7 +30,7 @@ export function MatrixFilters() {
   );
 
   console.log('🔍 [MATRIX_FILTERS] Current filters:', filters);
-  console.log('📊 [MATRIX_FILTERS] Data counts:', {
+  console.log('📊 [MATRIX_FILTERS] Data counts with cascade filtering:', {
     programs: programs.length,
     levels: levels.length,
     groups: groups.length,
@@ -91,7 +91,7 @@ export function MatrixFilters() {
               disabled={levelsLoading || !filters.program}
             >
               <SelectTrigger className="h-9 text-xs">
-                <SelectValue placeholder="Tous les niveaux" />
+                <SelectValue placeholder={!filters.program ? "Sélectionner un programme d'abord" : "Tous les niveaux"} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tous les niveaux</SelectItem>
@@ -115,7 +115,7 @@ export function MatrixFilters() {
               disabled={groupsLoading || !filters.program}
             >
               <SelectTrigger className="h-9 text-xs">
-                <SelectValue placeholder="Toutes les classes" />
+                <SelectValue placeholder={!filters.program ? "Sélectionner un programme d'abord" : "Toutes les classes"} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Toutes les classes</SelectItem>
@@ -139,7 +139,7 @@ export function MatrixFilters() {
               disabled={subjectsLoading || !filters.program}
             >
               <SelectTrigger className="h-9 text-xs">
-                <SelectValue placeholder="Toutes les matières" />
+                <SelectValue placeholder={!filters.program ? "Sélectionner un programme d'abord" : "Toutes les matières"} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Toutes les matières</SelectItem>
@@ -169,13 +169,21 @@ export function MatrixFilters() {
           </div>
         </div>
 
-        {/* Statistiques des filtres */}
+        {/* Statistiques des filtres avec indication de filtrage */}
         <div className="flex items-center justify-between pt-2 border-t border-border/30">
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span>Programmes: {programs.length}</span>
-            <span>Niveaux: {levels.length}</span>
-            <span>Classes: {groups.length}</span>
-            <span>Matières: {subjects.length}</span>
+            <span className={programs.length === 0 ? 'text-orange-500' : ''}>
+              Programmes: {programs.length}
+            </span>
+            <span className={levels.length === 0 && filters.program ? 'text-orange-500' : ''}>
+              Niveaux: {levels.length} {filters.program && levels.length === 0 ? '(aucun pour ce programme)' : ''}
+            </span>
+            <span className={groups.length === 0 && (filters.program || filters.level) ? 'text-orange-500' : ''}>
+              Classes: {groups.length} {(filters.program || filters.level) && groups.length === 0 ? '(aucune pour ces filtres)' : ''}
+            </span>
+            <span className={subjects.length === 0 && (filters.program || filters.level) ? 'text-orange-500' : ''}>
+              Matières: {subjects.length} {(filters.program || filters.level) && subjects.length === 0 ? '(aucune pour ces filtres)' : ''}
+            </span>
           </div>
           {selectedAcademicYear && (
             <div className="text-xs text-muted-foreground">
