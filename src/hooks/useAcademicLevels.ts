@@ -25,13 +25,10 @@ export function useAcademicLevels(programId?: string) {
         
         let query = supabase
           .from('academic_levels')
-          .select('id, name, code, order_index, program_id')
+          .select('id, name, code, order_index')
           .order('order_index');
 
-        // Filtrer par programme si spécifié
-        if (programId) {
-          query = query.or(`program_id.eq.${programId},program_id.is.null`);
-        }
+        // Note: academic_levels doesn't have program_id, so no filtering by program
 
         const { data: levels, error } = await query;
 

@@ -11,10 +11,9 @@ export interface ClassGroup {
   group_type: string;
   program_id?: string;
   academic_year_id?: string;
-  level_id?: string;
 }
 
-export function useClassGroups(programId?: string, academicYearId?: string, levelId?: string) {
+export function useClassGroups(programId?: string, academicYearId?: string) {
   const [groups, setGroups] = useState<ClassGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,13 +25,12 @@ export function useClassGroups(programId?: string, academicYearId?: string, leve
       
       console.log('🔍 [CLASS_GROUPS] Fetching class groups with filters:', {
         programId,
-        academicYearId,
-        levelId
+        academicYearId
       });
       
       let query = supabase
         .from('class_groups')
-        .select('id, name, code, max_students, current_students, group_type, program_id, academic_year_id, level_id')
+        .select('id, name, code, max_students, current_students, group_type, program_id, academic_year_id')
         .order('name');
 
       // Appliquer les filtres en cascade
@@ -44,9 +42,7 @@ export function useClassGroups(programId?: string, academicYearId?: string, leve
         query = query.eq('academic_year_id', academicYearId);
       }
 
-      if (levelId) {
-        query = query.eq('level_id', levelId);
-      }
+      // Note: class_groups doesn't have level_id column
 
       const { data, error } = await query;
 
@@ -70,7 +66,7 @@ export function useClassGroups(programId?: string, academicYearId?: string, leve
 
   useEffect(() => {
     refetch();
-  }, [programId, academicYearId, levelId]);
+  }, [programId, academicYearId]);
 
   return { 
     groups, 

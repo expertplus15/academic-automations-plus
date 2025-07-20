@@ -21,8 +21,7 @@ export function MatrixFilters() {
   const { data: levels, loading: levelsLoading } = useAcademicLevels(filters.program || undefined);
   const { groups, loading: groupsLoading } = useClassGroups(
     filters.program || undefined, 
-    selectedAcademicYear?.id,
-    filters.level || undefined
+    selectedAcademicYear?.id
   );
   const { subjects, loading: subjectsLoading } = useSubjects(
     filters.program || undefined,

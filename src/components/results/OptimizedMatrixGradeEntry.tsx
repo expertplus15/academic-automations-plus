@@ -17,7 +17,7 @@ export function OptimizedMatrixGradeEntry() {
   const studentFilters = {
     academicYearId: selectedAcademicYear?.id,
     programId: filters.program || undefined,
-    levelId: filters.level || undefined,
+    yearLevel: filters.level ? parseInt(filters.level) : undefined,
     groupId: filters.class || undefined,
     search: filters.search || undefined
   };
@@ -67,7 +67,6 @@ export function OptimizedMatrixGradeEntry() {
         students={students}
         academicYearId={selectedAcademicYear?.id}
         isLoading={studentsLoading}
-        selectedSubjectId={filters.subject || undefined}
       />
     </div>
   );

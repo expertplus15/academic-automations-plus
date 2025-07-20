@@ -7,7 +7,7 @@ export interface Student {
   student_number: string;
   program_id: string;
   academic_year_id?: string;
-  level_id?: string;
+  year_level?: number;
   group_id?: string;
   profile: {
     full_name: string;
@@ -23,7 +23,7 @@ export interface Student {
 interface UseStudentsFilters {
   academicYearId?: string;
   programId?: string;
-  levelId?: string;
+  yearLevel?: number;
   groupId?: string;
   search?: string;
 }
@@ -44,7 +44,7 @@ export function useStudents(filters: UseStudentsFilters = {}) {
           student_number,
           program_id,
           academic_year_id,
-          level_id,
+          year_level,
           group_id,
           profile:profiles!inner (
             full_name,
@@ -68,8 +68,8 @@ export function useStudents(filters: UseStudentsFilters = {}) {
         query = query.eq('program_id', filters.programId);
       }
 
-      if (filters.levelId) {
-        query = query.eq('level_id', filters.levelId);
+      if (filters.yearLevel) {
+        query = query.eq('year_level', filters.yearLevel);
       }
 
       if (filters.groupId) {
@@ -107,7 +107,7 @@ export function useStudents(filters: UseStudentsFilters = {}) {
 
   useEffect(() => {
     fetchStudents();
-  }, [filters.academicYearId, filters.programId, filters.levelId, filters.groupId, filters.search]);
+  }, [filters.academicYearId, filters.programId, filters.yearLevel, filters.groupId, filters.search]);
 
   return {
     students,
