@@ -178,6 +178,11 @@ export function useEvaluationTypes() {
     return evaluationTypes.find(type => type.id === id);
   }, [evaluationTypes]);
 
+  // Get evaluation type by code
+  const getEvaluationTypeByCode = useCallback((code: string): EvaluationType | undefined => {
+    return evaluationTypes.find(type => type.code === code);
+  }, [evaluationTypes]);
+
   // Get active evaluation types only
   const getActiveEvaluationTypes = useCallback((): EvaluationType[] => {
     return evaluationTypes.filter(type => type.is_active);
@@ -198,6 +203,7 @@ export function useEvaluationTypes() {
     toggleEvaluationType,
     deleteEvaluationType,
     getEvaluationTypeById,
+    getEvaluationTypeByCode,
     getActiveEvaluationTypes
   };
 }
