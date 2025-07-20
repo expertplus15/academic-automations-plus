@@ -177,6 +177,12 @@ export function OptimizedMatrixGradeEntry() {
         onProgramChange={setSelectedProgram}
         onClassChange={setSelectedClass}
         onSubjectChange={setSelectedSubject}
+        onReset={() => {
+          setSelectedLevel('');
+          setSelectedProgram('');
+          setSelectedClass('');
+          setSelectedSubject('');
+        }}
       />
 
       {/* Barre de recherche et actions */}
