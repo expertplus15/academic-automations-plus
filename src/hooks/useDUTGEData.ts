@@ -31,7 +31,7 @@ interface DUTGEStats {
   publishedGrades: number;
 }
 
-export function useDUTGEData() {
+export function useDUTGEData(academicYearId?: string) {
   const [students, setStudents] = useState<DUTGEStudent[]>([]);
   const [subjects, setSubjects] = useState<DUTGESubject[]>([]);
   const [stats, setStats] = useState<DUTGEStats>({
@@ -46,34 +46,47 @@ export function useDUTGEData() {
 
   const fetchDUTGEStudents = async () => {
     try {
-      const { data, error } = await supabase
+      console.log('🔍 [DUTGE] Fetching DUTGE students for academic year:', academicYearId);
+      
+      let query = supabase
         .from('students')
         .select(`
           id,
           student_number,
           status,
+          academic_year_id,
           profiles!inner(full_name, email),
-          programs!inner(name),
-          academic_levels!inner(name)
+          programs!inner(name, code)
         `)
         .ilike('student_number', 'DUTGE%')
         .eq('status', 'active');
 
-      if (error) throw error;
+      // Filtrer par année académique si spécifiée
+      if (academicYearId) {
+        query = query.eq('academic_year_id', academicYearId);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('❌ [DUTGE] Error fetching students:', error);
+        throw error;
+      }
 
       const dutgeStudents = data?.map(student => ({
         id: student.id,
         student_number: student.student_number,
         profiles: student.profiles,
         program: Array.isArray(student.programs) ? student.programs[0]?.name || 'N/A' : student.programs?.name || 'N/A',
-        level: Array.isArray(student.academic_levels) ? student.academic_levels[0]?.name || 'N/A' : (student.academic_levels as any)?.name || 'N/A',
+        level: 'DUT2-GE', // Niveau fixe pour DUTGE
         status: student.status
       })) || [];
 
+      console.log('✅ [DUTGE] Successfully fetched', dutgeStudents.length, 'DUTGE students');
       setStudents(dutgeStudents);
       return dutgeStudents;
     } catch (error) {
-      console.error('Error fetching DUTGE students:', error);
+      console.error('💥 [DUTGE] Error fetching students:', error);
       toast({
         title: "Erreur",
         description: "Impossible de charger les étudiants DUTGE",
@@ -85,13 +98,18 @@ export function useDUTGEData() {
 
   const fetchDUTGESubjects = async () => {
     try {
+      console.log('🔍 [DUTGE] Fetching DUTGE subjects...');
+      
       const { data, error } = await supabase
         .from('subjects')
-        .select('id, code, name, credits_ects, coefficient')
-        .or('code.ilike.%COMPTA%,code.ilike.%GEST%,code.ilike.%ECON%,code.ilike.%MATH%')
+        .select('id, code, name, credits_ects, coefficient, program_id')
+        .eq('program_id', (await supabase.from('programs').select('id').eq('code', 'DUTGE').single()).data?.id)
         .eq('status', 'active');
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ [DUTGE] Error fetching subjects:', error);
+        throw error;
+      }
 
       const dutgeSubjects = data?.map(subject => ({
         id: subject.id,
@@ -101,10 +119,11 @@ export function useDUTGEData() {
         coefficient: subject.coefficient || 1
       })) || [];
 
+      console.log('✅ [DUTGE] Successfully fetched', dutgeSubjects.length, 'DUTGE subjects');
       setSubjects(dutgeSubjects);
       return dutgeSubjects;
     } catch (error) {
-      console.error('Error fetching DUTGE subjects:', error);
+      console.error('💥 [DUTGE] Error fetching subjects:', error);
       toast({
         title: "Erreur",
         description: "Impossible de charger les matières DUTGE",
@@ -142,7 +161,7 @@ export function useDUTGEData() {
       });
 
     } catch (error) {
-      console.error('Error fetching DUTGE stats:', error);
+      console.error('💥 [DUTGE] Error fetching stats:', error);
     }
   };
 
@@ -161,7 +180,7 @@ export function useDUTGEData() {
     }
 
     // Check for typical DUTGE subjects
-    const requiredSubjects = ['COMPTA', 'GEST', 'ECON', 'MATH'];
+    const requiredSubjects = ['DROIT', 'ECO', 'MARK', 'COMPTA', 'MATH', 'INFO', 'COMM', 'LANG', 'PPP'];
     const missingSubjects = requiredSubjects.filter(req => 
       !subjectsData.some(sub => sub.code.includes(req))
     );
@@ -181,7 +200,7 @@ export function useDUTGEData() {
   useEffect(() => {
     setLoading(true);
     fetchDUTGEStats().finally(() => setLoading(false));
-  }, []);
+  }, [academicYearId]);
 
   return {
     students,

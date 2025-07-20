@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -5,6 +6,7 @@ export interface Student {
   id: string;
   student_number: string;
   program_id: string;
+  academic_year_id?: string;
   profile: {
     full_name: string;
     email: string;
@@ -16,19 +18,22 @@ export interface Student {
   };
 }
 
-export function useStudents() {
+export function useStudents(academicYearId?: string) {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      console.log('🔍 [STUDENTS] Fetching students for academic year:', academicYearId);
+      
+      let query = supabase
         .from('students')
         .select(`
           id,
           student_number,
           program_id,
+          academic_year_id,
           profile:profiles!inner (
             full_name,
             email
@@ -42,10 +47,23 @@ export function useStudents() {
         .eq('status', 'active')
         .order('student_number');
 
-      if (error) throw error;
+      // Filtrer par année académique si spécifiée
+      if (academicYearId) {
+        query = query.eq('academic_year_id', academicYearId);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('❌ [STUDENTS] Error fetching students:', error);
+        throw error;
+      }
+      
+      console.log('✅ [STUDENTS] Successfully fetched', data?.length || 0, 'students');
       setStudents(data || []);
     } catch (error) {
-      console.error('Error fetching students:', error);
+      console.error('💥 [STUDENTS] Unexpected error:', error);
+      setStudents([]);
     } finally {
       setLoading(false);
     }
@@ -53,7 +71,7 @@ export function useStudents() {
 
   useEffect(() => {
     fetchStudents();
-  }, []);
+  }, [academicYearId]);
 
   return {
     students,

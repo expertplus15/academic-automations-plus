@@ -13,7 +13,7 @@ export interface ClassGroup {
   academic_year_id?: string;
 }
 
-export function useClassGroups(programId?: string, academicYearId?: string) {
+export function useClassGroups(programId?: string, academicYearId?: string, levelId?: string) {
   const [groups, setGroups] = useState<ClassGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,6 +21,10 @@ export function useClassGroups(programId?: string, academicYearId?: string) {
   const refetch = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
+      console.log('🔍 [CLASS_GROUPS] Fetching class groups - Program:', programId, 'Academic Year:', academicYearId, 'Level:', levelId);
+      
       let query = supabase
         .from('class_groups')
         .select('id, name, code, max_students, current_students, group_type, program_id, academic_year_id')
@@ -29,6 +33,7 @@ export function useClassGroups(programId?: string, academicYearId?: string) {
       if (programId) {
         query = query.eq('program_id', programId);
       }
+      
       if (academicYearId) {
         query = query.eq('academic_year_id', academicYearId);
       }
@@ -36,13 +41,17 @@ export function useClassGroups(programId?: string, academicYearId?: string) {
       const { data, error } = await query;
 
       if (error) {
+        console.error('❌ [CLASS_GROUPS] Error fetching class groups:', error);
         setError(error.message);
         setGroups([]);
       } else {
+        console.log('✅ [CLASS_GROUPS] Successfully fetched', data?.length || 0, 'class groups');
         setGroups(data || []);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+      const message = err instanceof Error ? err.message : 'Une erreur est survenue';
+      console.error('💥 [CLASS_GROUPS] Unexpected error:', err);
+      setError(message);
       setGroups([]);
     } finally {
       setLoading(false);
@@ -51,7 +60,7 @@ export function useClassGroups(programId?: string, academicYearId?: string) {
 
   useEffect(() => {
     refetch();
-  }, [programId, academicYearId]);
+  }, [programId, academicYearId, levelId]);
 
   return { 
     groups, 
