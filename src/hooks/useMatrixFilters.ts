@@ -25,8 +25,8 @@ export function useMatrixFilters() {
     if (selectedAcademicYear) {
       setFilters(prev => ({
         ...prev,
-        level: '',
         program: '',
+        level: '',
         class: '',
         subject: ''
       }));
@@ -62,11 +62,15 @@ export function useMatrixFilters() {
       const newFilters = { ...prev, [key]: actualValue };
       
       // Reset dependent filters when parent changes
-      if (key === 'level') {
-        newFilters.program = '';
+      if (key === 'program') {
+        newFilters.level = '';
         newFilters.class = '';
-      } else if (key === 'program') {
+        newFilters.subject = '';
+      } else if (key === 'level') {
         newFilters.class = '';
+        newFilters.subject = '';
+      } else if (key === 'class') {
+        newFilters.subject = '';
       }
       
       return newFilters;
@@ -75,8 +79,8 @@ export function useMatrixFilters() {
 
   const resetFilters = () => {
     setFilters({
-      level: '',
       program: '',
+      level: '',
       class: '',
       subject: '',
       search: ''
