@@ -38,10 +38,11 @@ export function MatrixFilters({
   const { programs = [], loading: programsLoading } = usePrograms();
   const { groups = [], loading: groupsLoading } = useClassGroups(selectedProgram, selectedAcademicYear?.id);
 
-  // Filter programs by selected level
-  const filteredPrograms = programs.filter(program => 
-    selectedLevel === '' || program.level_id === selectedLevel
-  );
+  // Filter levels by selected program
+  const filteredLevels = academicLevels.filter(level => {
+    if (selectedProgram === '') return true;
+    return programs.some(program => program.id === selectedProgram && program.level_id === level.id);
+  });
 
   // Mock subjects for now - in a real app, these would come from a hook
   const subjects = [
@@ -53,17 +54,17 @@ export function MatrixFilters({
     { id: 'economics', name: 'Économie' }
   ];
 
-  const handleLevelChange = (value: string) => {
-    const actualValue = value === 'all' ? '' : value;
-    onLevelChange(actualValue);
-    // Reset dependent filters
-    onProgramChange('');
-    onClassChange('');
-  };
-
   const handleProgramChange = (value: string) => {
     const actualValue = value === 'all' ? '' : value;
     onProgramChange(actualValue);
+    // Reset dependent filters
+    onLevelChange('');
+    onClassChange('');
+  };
+
+  const handleLevelChange = (value: string) => {
+    const actualValue = value === 'all' ? '' : value;
+    onLevelChange(actualValue);
     // Reset dependent filters
     onClassChange('');
   };
@@ -78,8 +79,11 @@ export function MatrixFilters({
     onSubjectChange(actualValue);
   };
 
-  const hasActiveFilters = selectedLevel || selectedProgram || selectedClass || selectedSubject;
   const totalStudents = groups.reduce((sum, group) => sum + group.current_students, 0);
+  const availablePrograms = programs.length;
+  const availableLevels = filteredLevels.length;
+
+  const hasActiveFilters = selectedProgram || selectedLevel || selectedClass || selectedSubject;
 
   if (!selectedAcademicYear) {
     return (
@@ -123,46 +127,15 @@ export function MatrixFilters({
       <CardContent className="space-y-6">
         {/* Grille des filtres - responsive et optimisée */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Niveau académique */}
+          {/* Programme - EN PREMIER */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
-              Niveau académique
-            </label>
-            <Select 
-              value={selectedLevel || 'all'} 
-              onValueChange={handleLevelChange} 
-              disabled={levelsLoading}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Sélectionner un niveau" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">
-                  <span className="font-medium">Tous les niveaux</span>
-                </SelectItem>
-                {academicLevels.map((level) => (
-                  <SelectItem key={level.id} value={level.id}>
-                    {level.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {selectedLevel && (
-              <Badge variant="secondary" className="text-xs bg-blue-50 text-blue-700">
-                {academicLevels.find(l => l.id === selectedLevel)?.name}
-              </Badge>
-            )}
-          </div>
-
-          {/* Programme */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">
-              Programme
+              Programme <span className="text-primary">*</span>
             </label>
             <Select 
               value={selectedProgram || 'all'} 
               onValueChange={handleProgramChange} 
-              disabled={programsLoading || (!selectedLevel && academicLevels.length > 0)}
+              disabled={programsLoading}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Sélectionner un programme" />
@@ -171,7 +144,7 @@ export function MatrixFilters({
                 <SelectItem value="all">
                   <span className="font-medium">Tous les programmes</span>
                 </SelectItem>
-                {filteredPrograms.map((program) => (
+                {programs.map((program) => (
                   <SelectItem key={program.id} value={program.id}>
                     <div className="flex flex-col items-start">
                       <span>{program.name}</span>
@@ -188,7 +161,38 @@ export function MatrixFilters({
             )}
           </div>
 
-          {/* Classe */}
+          {/* Niveau académique - EN SECOND */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">
+              Niveau académique
+            </label>
+            <Select 
+              value={selectedLevel || 'all'} 
+              onValueChange={handleLevelChange} 
+              disabled={levelsLoading || (!selectedProgram && programs.length > 0)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Sélectionner un niveau" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  <span className="font-medium">Tous les niveaux</span>
+                </SelectItem>
+                {filteredLevels.map((level) => (
+                  <SelectItem key={level.id} value={level.id}>
+                    {level.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedLevel && (
+              <Badge variant="secondary" className="text-xs bg-blue-50 text-blue-700">
+                {academicLevels.find(l => l.id === selectedLevel)?.name}
+              </Badge>
+            )}
+          </div>
+
+          {/* Classe - EN TROISIÈME */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
               Classe
@@ -224,7 +228,7 @@ export function MatrixFilters({
             )}
           </div>
 
-          {/* Matière */}
+          {/* Matière - EN DERNIER */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">
               Matière
@@ -259,19 +263,25 @@ export function MatrixFilters({
         <div className="flex items-center justify-between pt-4 border-t bg-muted/20 rounded-lg p-3">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
               <span className="text-sm text-muted-foreground">
-                Programmes: <span className="font-semibold text-foreground">{filteredPrograms.length}</span>
+                Programmes: <span className="font-semibold text-foreground">{availablePrograms}</span>
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+              <span className="text-sm text-muted-foreground">
+                Niveaux: <span className="font-semibold text-foreground">{availableLevels}</span>
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-purple-500"></div>
               <span className="text-sm text-muted-foreground">
                 Classes: <span className="font-semibold text-foreground">{groups.length}</span>
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+              <div className="w-2 h-2 rounded-full bg-orange-500"></div>
               <span className="text-sm text-muted-foreground">
                 Étudiants: <span className="font-semibold text-foreground">{totalStudents}</span>
               </span>
