@@ -42,35 +42,35 @@ export function useResultsStats() {
       try {
         setLoading(true);
         
-        // Fetch total grades count
-        const { count: gradesCount } = await supabase
-          .from('student_grades')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_published', true);
-
-        // Fetch generated documents count
-        const { count: documentsCount } = await supabase
-          .from('generated_documents')
-          .select('*', { count: 'exact', head: true });
-
-        // Fetch pending grades count
-        const { count: pendingCount } = await supabase
-          .from('student_grades')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_published', false);
-
-        // Fetch available templates count
-        const { count: templatesCount } = await supabase
-          .from('document_templates')
-          .select('*', { count: 'exact', head: true })
-          .eq('is_active', true);
-
-        // Fetch recent activities from audit logs
-        const { data: recentLogs } = await supabase
-          .from('audit_logs')
-          .select('action, table_name, created_at')
-          .order('created_at', { ascending: false })
-          .limit(5);
+        // Fetch all data in parallel for better performance
+        const [
+          { count: gradesCount },
+          { count: documentsCount },
+          { count: pendingCount },
+          { count: templatesCount },
+          { data: recentLogs }
+        ] = await Promise.all([
+          supabase
+            .from('student_grades')
+            .select('*', { count: 'exact', head: true })
+            .eq('is_published', true),
+          supabase
+            .from('generated_documents')
+            .select('*', { count: 'exact', head: true }),
+          supabase
+            .from('student_grades')
+            .select('*', { count: 'exact', head: true })
+            .eq('is_published', false),
+          supabase
+            .from('document_templates')
+            .select('*', { count: 'exact', head: true })
+            .eq('is_active', true),
+          supabase
+            .from('audit_logs')
+            .select('action, table_name, created_at')
+            .order('created_at', { ascending: false })
+            .limit(5)
+        ]);
 
         const recentActivities = recentLogs?.map(log => ({
           title: getActivityTitle(log.action, log.table_name),
@@ -113,14 +113,19 @@ export function useResultsStats() {
 
     fetchStats();
 
+    // Debounced refresh to avoid too many calls
+    let refreshTimeout: NodeJS.Timeout;
+    const debouncedRefresh = () => {
+      clearTimeout(refreshTimeout);
+      refreshTimeout = setTimeout(fetchStats, 1000);
+    };
+
     // Set up real-time subscription for grades
     const gradesSubscription = supabase
       .channel('grades-changes')
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'student_grades' }, 
-        () => {
-          fetchStats(); // Refresh stats when grades change
-        }
+        debouncedRefresh
       )
       .subscribe();
 
@@ -129,9 +134,7 @@ export function useResultsStats() {
       .channel('documents-changes')
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'generated_documents' }, 
-        () => {
-          fetchStats(); // Refresh stats when documents change
-        }
+        debouncedRefresh
       )
       .subscribe();
 
