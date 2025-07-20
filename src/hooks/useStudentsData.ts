@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -37,6 +38,8 @@ export function useStudentsData(academicYearId?: string) {
       setLoading(true);
       setError(null);
 
+      console.log('🔍 [STUDENTS] Fetching students for academic year:', academicYearId);
+
       // Requête de base sans les nouveaux champs pour éviter les erreurs de types
       const { data, error } = await supabase
         .from('students')
@@ -65,13 +68,15 @@ export function useStudentsData(academicYearId?: string) {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Erreur lors de la récupération des étudiants:', error);
+        console.error('❌ [STUDENTS] Error fetching students:', error);
         setError(error.message);
       } else {
+        console.log('✅ [STUDENTS] Successfully fetched', data?.length || 0, 'students');
+        
         // Enrichir les données avec des champs vides pour first_name et last_name
         const enrichedData = (data || []).map((student: any) => ({
           ...student,
-          academic_year_id: undefined, // Sera ajouté une fois les types mis à jour
+          academic_year_id: academicYearId, // Associer l'année académique sélectionnée
           profiles: {
             ...student.profiles,
             first_name: undefined,
@@ -82,7 +87,7 @@ export function useStudentsData(academicYearId?: string) {
         setStudents(enrichedData);
       }
     } catch (err) {
-      console.error('Erreur inattendue:', err);
+      console.error('💥 [STUDENTS] Unexpected error:', err);
       setError('Une erreur inattendue est survenue');
     } finally {
       setLoading(false);
@@ -94,6 +99,7 @@ export function useStudentsData(academicYearId?: string) {
   }, [academicYearId]);
 
   const refetch = () => {
+    console.log('🔄 [STUDENTS] Refetching students data');
     fetchStudents();
   };
 

@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { StudentsList } from './StudentsList';
-import { AcademicYearFilter } from './AcademicYearFilter';
 import { Button } from '@/components/ui/button';
 import { Plus, Upload } from 'lucide-react';
 import { useStudentsData } from '@/hooks/students/useStudentsData';
@@ -41,7 +40,6 @@ export function StudentsProfilesManagement() {
               }
             </p>
           </div>
-          <AcademicYearFilter />
         </div>
 
         <div className="text-center py-12 bg-card rounded-lg border">
@@ -105,23 +103,19 @@ export function StudentsProfilesManagement() {
           </p>
         </div>
         
-        <div className="flex items-center gap-4">
-          <AcademicYearFilter />
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => navigate('/students/import')}
+            variant="outline"
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Importer des Étudiants
+          </Button>
           
-          <div className="flex gap-2">
-            <Button 
-              onClick={() => navigate('/students/import')}
-              variant="outline"
-            >
-              <Upload className="w-4 h-4 mr-2" />
-              Importer des Étudiants
-            </Button>
-            
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Nouvel Étudiant
-            </Button>
-          </div>
+          <Button>
+            <Plus className="w-4 h-4 mr-2" />
+            Nouvel Étudiant
+          </Button>
         </div>
       </div>
 

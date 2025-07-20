@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
@@ -8,6 +9,7 @@ import { GradingSystemConfig } from '@/components/results/GradingSystemConfig';
 import { MatrixGradeEntry } from '@/components/results/MatrixGradeEntry';
 import { GradeCalculations } from '@/components/results/GradeCalculations';
 import { ResultsAnalytics } from '@/components/results/ResultsAnalytics';
+import { AcademicYearProvider } from '@/contexts/AcademicYearContext';
 import Validation from "./results/Validation";
 import Documentation from "./results/Documentation";
 import { default as RefactoredPersonalisation } from "./results/RefactoredPersonalisation";
@@ -69,15 +71,17 @@ export default function Results() {
       if (route) {
         return (
           <ProtectedRoute allowedRoles={['admin', 'teacher']}>
-            <ModuleLayout 
-              title={route.title}
-              subtitle={route.subtitle}
-              showHeader={true}
-            >
-              <div className="p-6">
-                {route.component}
-              </div>
-            </ModuleLayout>
+            <AcademicYearProvider>
+              <ModuleLayout 
+                title={route.title}
+                subtitle={route.subtitle}
+                showHeader={true}
+              >
+                <div className="p-6">
+                  {route.component}
+                </div>
+              </ModuleLayout>
+            </AcademicYearProvider>
           </ProtectedRoute>
         );
       }
@@ -87,15 +91,17 @@ export default function Results() {
   // Default dashboard
   return (
     <ProtectedRoute allowedRoles={['admin', 'teacher']}>
-      <ModuleLayout 
-        title="Évaluations & Résultats" 
-        subtitle="Système de notation automatisé et interface matricielle collaborative"
-        showHeader={true}
-      >
-        <div className="p-6">
-          <ResultsDashboard />
-        </div>
-      </ModuleLayout>
+      <AcademicYearProvider>
+        <ModuleLayout 
+          title="Évaluations & Résultats" 
+          subtitle="Système de notation automatisé et interface matricielle collaborative"
+          showHeader={true}
+        >
+          <div className="p-6">
+            <ResultsDashboard />
+          </div>
+        </ModuleLayout>
+      </AcademicYearProvider>
     </ProtectedRoute>
   );
 }
