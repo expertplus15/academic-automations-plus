@@ -21,7 +21,6 @@ interface DUTGESubject {
   name: string;
   credits_ects: number;
   coefficient: number;
-  semester: number;
 }
 
 interface DUTGEStats {
@@ -54,8 +53,8 @@ export function useDUTGEData() {
           student_number,
           status,
           profiles!inner(full_name, email),
-          programs!inner(name, code),
-          academic_levels!inner(name, code)
+          programs!inner(name),
+          academic_levels!inner(name)
         `)
         .ilike('student_number', 'DUTGE%')
         .eq('status', 'active');
@@ -88,7 +87,7 @@ export function useDUTGEData() {
     try {
       const { data, error } = await supabase
         .from('subjects')
-        .select('*')
+        .select('id, code, name, credits_ects, coefficient')
         .or('code.ilike.%COMPTA%,code.ilike.%GEST%,code.ilike.%ECON%,code.ilike.%MATH%')
         .eq('status', 'active');
 
@@ -99,8 +98,7 @@ export function useDUTGEData() {
         code: subject.code,
         name: subject.name,
         credits_ects: subject.credits_ects || 0,
-        coefficient: subject.coefficient || 1,
-        semester: subject.semester || 1
+        coefficient: subject.coefficient || 1
       })) || [];
 
       setSubjects(dutgeSubjects);
