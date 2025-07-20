@@ -1,0 +1,94 @@
+
+import { useState, useEffect, useMemo } from 'react';
+import { useAcademicYearContext } from '@/contexts/AcademicYearContext';
+
+interface FilterState {
+  level: string;
+  program: string;
+  class: string;
+  subject: string;
+  search: string;
+}
+
+export function useMatrixFilters() {
+  const { selectedAcademicYear } = useAcademicYearContext();
+  const [filters, setFilters] = useState<FilterState>({
+    level: '',
+    program: '',
+    class: '',
+    subject: '',
+    search: ''
+  });
+
+  // Reset filters when academic year changes
+  useEffect(() => {
+    if (selectedAcademicYear) {
+      setFilters(prev => ({
+        ...prev,
+        level: '',
+        program: '',
+        class: '',
+        subject: ''
+      }));
+    }
+  }, [selectedAcademicYear]);
+
+  // Save filters to localStorage
+  useEffect(() => {
+    const filtersKey = `matrix-filters-${selectedAcademicYear?.id}`;
+    localStorage.setItem(filtersKey, JSON.stringify(filters));
+  }, [filters, selectedAcademicYear]);
+
+  // Load filters from localStorage
+  useEffect(() => {
+    if (selectedAcademicYear) {
+      const filtersKey = `matrix-filters-${selectedAcademicYear.id}`;
+      const savedFilters = localStorage.getItem(filtersKey);
+      if (savedFilters) {
+        try {
+          const parsedFilters = JSON.parse(savedFilters);
+          setFilters(prev => ({ ...prev, ...parsedFilters }));
+        } catch (error) {
+          console.error('Error parsing saved filters:', error);
+        }
+      }
+    }
+  }, [selectedAcademicYear]);
+
+  const updateFilter = (key: keyof FilterState, value: string) => {
+    setFilters(prev => {
+      const newFilters = { ...prev, [key]: value };
+      
+      // Reset dependent filters when parent changes
+      if (key === 'level') {
+        newFilters.program = '';
+        newFilters.class = '';
+      } else if (key === 'program') {
+        newFilters.class = '';
+      }
+      
+      return newFilters;
+    });
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      level: '',
+      program: '',
+      class: '',
+      subject: '',
+      search: ''
+    });
+  };
+
+  const hasActiveFilters = useMemo(() => {
+    return Object.values(filters).some(value => value !== '');
+  }, [filters]);
+
+  return {
+    filters,
+    updateFilter,
+    resetFilters,
+    hasActiveFilters
+  };
+}

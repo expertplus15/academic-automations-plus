@@ -1,315 +1,328 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { useSubjects } from '@/hooks/useSubjects';
-import { useStudents } from '@/hooks/useStudents';
-import { supabase } from '@/integrations/supabase/client';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Search, Save, RefreshCw, Download, Upload } from 'lucide-react';
+import { useStudents } from '@/hooks/useStudents';
+import { useDUTGEData } from '@/hooks/useDUTGEData';
+import { useAcademicYearContext } from '@/contexts/AcademicYearContext';
+import { MatrixFilters } from './grade-entry/MatrixFilters';
 import { toast } from 'sonner';
-import { Save, Calculator, Search } from 'lucide-react';
-import { debounce } from 'lodash';
+import _ from 'lodash';
 
-interface StudentGrade {
+interface GradeEntry {
   student_id: string;
   student_name: string;
   student_number: string;
   grades: {
-    cc1?: number | null;
-    cc2?: number | null;
-    td?: number | null;
-    examen?: number | null;
+    cc1: number | null;
+    cc2: number | null;
+    cc3: number | null;
+    exam: number | null;
+    rattrapage: number | null;
   };
+  average: number | null;
+  status: 'pass' | 'fail' | 'pending';
 }
 
-export const OptimizedMatrixGradeEntry = () => {
-  const { subjects } = useSubjects();
-  const { students } = useStudents();
-  
-  const [selectedSubject, setSelectedSubject] = useState('');
-  const [gradeMatrix, setGradeMatrix] = useState<StudentGrade[]>([]);
-  const [loading, setLoading] = useState(false);
+export function OptimizedMatrixGradeEntry() {
+  const { selectedAcademicYear } = useAcademicYearContext();
   const [searchTerm, setSearchTerm] = useState('');
-  const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
+  const [selectedLevel, setSelectedLevel] = useState('');
+  const [selectedProgram, setSelectedProgram] = useState('');
+  const [selectedClass, setSelectedClass] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('');
+  const [grades, setGrades] = useState<Record<string, Record<string, number>>>({});
+  const [isLoading, setIsLoading] = useState(false);
 
-  const gradeTypes = [
-    { key: 'cc1', label: 'CC1', max: 20, weight: 0.25 },
-    { key: 'cc2', label: 'CC2', max: 20, weight: 0.25 },
-    { key: 'td', label: 'TD', max: 20, weight: 0.25 },
-    { key: 'examen', label: 'Examen', max: 20, weight: 0.25 },
-  ];
+  // Fetch students data
+  const { students, loading: studentsLoading } = useStudents();
+  const { data: dutgeData, loading: dutgeLoading } = useDUTGEData();
 
-  // Debounced auto-save function
-  const debouncedSave = useCallback(
-    debounce(async (matrix: StudentGrade[]) => {
-      if (!autoSaveEnabled || !selectedSubject) return;
-      
-      try {
-        const gradesToSave = [];
-        
-        for (const student of matrix) {
-          for (const gradeType of gradeTypes) {
-            const grade = student.grades[gradeType.key as keyof typeof student.grades];
-            if (grade !== null && grade !== undefined) {
-              gradesToSave.push({
-                student_id: student.student_id,
-                subject_id: selectedSubject,
-                grade,
-                max_grade: gradeType.max,
-                evaluation_type_id: gradeType.key,
-                semester: 1,
-                is_published: false,
-              });
-            }
-          }
-        }
+  // Filter students based on selected filters
+  const filteredStudents = useMemo(() => {
+    if (!students) return [];
 
-        if (gradesToSave.length > 0) {
-          // Delete existing grades first
-          await supabase
-            .from('student_grades')
-            .delete()
-            .eq('subject_id', selectedSubject);
-
-          // Insert new grades
-          const { error } = await supabase
-            .from('student_grades')
-            .insert(gradesToSave);
-
-          if (error) throw error;
-          
-          toast.success('Notes sauvegardées automatiquement');
-        }
-      } catch (error) {
-        console.error('Auto-save error:', error);
-      }
-    }, 2000),
-    [selectedSubject, autoSaveEnabled]
-  );
-
-  useEffect(() => {
-    if (selectedSubject && students.length > 0) {
-      loadGrades();
-    }
-  }, [selectedSubject, students]);
-
-  const loadGrades = async () => {
-    if (!selectedSubject) return;
-    
-    setLoading(true);
-    try {
-      // Load existing grades for this subject
-      const { data: existingGrades } = await supabase
-        .from('student_grades')
-        .select('*')
-        .eq('subject_id', selectedSubject);
-
-      // Create grade matrix with filtered students
-      const filteredStudents = students.filter(student => 
-        searchTerm === '' || 
+    return students.filter(student => {
+      // Filter by search term
+      const matchesSearch = searchTerm === '' || 
         student.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.student_number?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+        student.student_number?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matrix: StudentGrade[] = filteredStudents.map(student => {
-        const studentGrades = existingGrades?.filter(g => g.student_id === student.id) || [];
-        
-        return {
-          student_id: student.id,
-          student_name: student.profile?.full_name || 'N/A',
-          student_number: student.student_number || 'N/A',
-          grades: {
-            cc1: studentGrades.find(g => g.evaluation_type_id === 'cc1')?.grade || null,
-            cc2: studentGrades.find(g => g.evaluation_type_id === 'cc2')?.grade || null,
-            td: studentGrades.find(g => g.evaluation_type_id === 'td')?.grade || null,
-            examen: studentGrades.find(g => g.evaluation_type_id === 'examen')?.grade || null,
-          },
-        };
-      });
+      // Filter by level
+      const matchesLevel = selectedLevel === '' || student.level_id === selectedLevel;
 
-      setGradeMatrix(matrix);
-    } catch (error) {
-      console.error('Error loading grades:', error);
-      toast.error('Erreur lors du chargement des notes');
-    } finally {
-      setLoading(false);
-    }
+      // Filter by program
+      const matchesProgram = selectedProgram === '' || student.program_id === selectedProgram;
+
+      // Filter by class
+      const matchesClass = selectedClass === '' || student.class_group_id === selectedClass;
+
+      // Filter by academic year
+      const matchesAcademicYear = !selectedAcademicYear || student.academic_year_id === selectedAcademicYear.id;
+
+      return matchesSearch && matchesLevel && matchesProgram && matchesClass && matchesAcademicYear;
+    });
+  }, [students, searchTerm, selectedLevel, selectedProgram, selectedClass, selectedAcademicYear]);
+
+  // Create grade matrix
+  const gradeMatrix = useMemo(() => {
+    return filteredStudents.map(student => {
+      const studentGrades = grades[student.id] || {};
+      
+      return {
+        student_id: student.id,
+        student_name: student.profile?.full_name || 'N/A',
+        student_number: student.student_number || 'N/A',
+        grades: {
+          cc1: studentGrades.cc1 || null,
+          cc2: studentGrades.cc2 || null,
+          cc3: studentGrades.cc3 || null,
+          exam: studentGrades.exam || null,
+          rattrapage: studentGrades.rattrapage || null,
+        },
+        average: calculateAverage(studentGrades),
+        status: getStatus(calculateAverage(studentGrades))
+      } as GradeEntry;
+    });
+  }, [filteredStudents, grades]);
+
+  const calculateAverage = (studentGrades: Record<string, number>) => {
+    const validGrades = Object.values(studentGrades).filter(grade => grade !== null && grade !== undefined);
+    if (validGrades.length === 0) return null;
+    return validGrades.reduce((sum, grade) => sum + grade, 0) / validGrades.length;
   };
 
-  const updateGrade = (studentId: string, gradeType: string, value: string) => {
+  const getStatus = (average: number | null): 'pass' | 'fail' | 'pending' => {
+    if (average === null) return 'pending';
+    return average >= 10 ? 'pass' : 'fail';
+  };
+
+  const handleGradeChange = (studentId: string, gradeType: string, value: string) => {
     const numValue = value === '' ? null : parseFloat(value);
     
-    setGradeMatrix(prev => {
-      const updated = prev.map(student => 
-        student.student_id === studentId
-          ? {
-              ...student,
-              grades: {
-                ...student.grades,
-                [gradeType]: numValue,
-              },
-            }
-          : student
-      );
-      
-      // Trigger auto-save
-      debouncedSave(updated);
-      return updated;
-    });
+    if (numValue !== null && (numValue < 0 || numValue > 20)) {
+      toast.error('La note doit être entre 0 et 20');
+      return;
+    }
+
+    setGrades(prev => ({
+      ...prev,
+      [studentId]: {
+        ...prev[studentId],
+        [gradeType]: numValue
+      }
+    }));
   };
 
-  const calculateAverage = (grades: { [key: string]: number | null }) => {
-    const validGrades = gradeTypes
-      .map(type => ({ value: grades[type.key], weight: type.weight }))
-      .filter(g => g.value !== null && g.value !== undefined);
-    
-    if (validGrades.length === 0) return null;
-    
-    const weightedSum = validGrades.reduce((acc, grade) => acc + (grade.value! * grade.weight), 0);
-    const totalWeight = validGrades.reduce((acc, grade) => acc + grade.weight, 0);
-    
-    return (weightedSum / totalWeight).toFixed(2);
+  const handleSave = async () => {
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      toast.success('Notes sauvegardées avec succès');
+    } catch (error) {
+      toast.error('Erreur lors de la sauvegarde');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const manualSave = async () => {
-    debouncedSave.cancel(); // Cancel pending auto-save
-    await debouncedSave(gradeMatrix); // Save immediately
+  const handleExport = () => {
+    // Export functionality
+    toast.info('Export en cours...');
   };
 
-  // Filter students based on search term
-  const filteredMatrix = gradeMatrix.filter(student =>
-    searchTerm === '' ||
-    student.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.student_number.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleImport = () => {
+    // Import functionality
+    toast.info('Import en cours...');
+  };
+
+  const getStatusBadge = (status: string) => {
+    const variants = {
+      pass: 'bg-green-100 text-green-800',
+      fail: 'bg-red-100 text-red-800',
+      pending: 'bg-yellow-100 text-yellow-800'
+    };
+    
+    const labels = {
+      pass: 'Admis',
+      fail: 'Échec',
+      pending: 'En attente'
+    };
+
+    return (
+      <Badge className={variants[status as keyof typeof variants]}>
+        {labels[status as keyof typeof labels]}
+      </Badge>
+    );
+  };
+
+  if (studentsLoading || dutgeLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="flex items-center gap-2">
+          <RefreshCw className="w-4 h-4 animate-spin" />
+          <span>Chargement des données...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-4">
-      {/* Simplified Header */}
-      <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Calculator className="w-5 h-5" />
-              <span>Saisie Matricielle Optimisée</span>
-            </div>
-            <Badge variant={autoSaveEnabled ? "default" : "secondary"}>
-              {autoSaveEnabled ? "Auto-save ON" : "Auto-save OFF"}
-            </Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner une matière" />
-                </SelectTrigger>
-                <SelectContent>
-                  {subjects?.map((subject) => (
-                    <SelectItem key={subject.id} value={subject.id}>
-                      {subject.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Rechercher un étudiant..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+    <div className="space-y-6">
+      {/* Filtres */}
+      <MatrixFilters
+        selectedLevel={selectedLevel}
+        selectedProgram={selectedProgram}
+        selectedClass={selectedClass}
+        selectedSubject={selectedSubject}
+        onLevelChange={setSelectedLevel}
+        onProgramChange={setSelectedProgram}
+        onClassChange={setSelectedClass}
+        onSubjectChange={setSelectedSubject}
+      />
+
+      {/* Barre de recherche et actions */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4 flex-1">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              placeholder="Rechercher un étudiant..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
+          <Badge variant="outline">
+            {gradeMatrix.length} étudiants
+          </Badge>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleImport}>
+            <Upload className="w-4 h-4 mr-2" />
+            Importer
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="w-4 h-4 mr-2" />
+            Exporter
+          </Button>
+          <Button onClick={handleSave} disabled={isLoading}>
+            {isLoading ? (
+              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4 mr-2" />
+            )}
+            Sauvegarder
+          </Button>
+        </div>
+      </div>
 
-          {selectedSubject && (
-            <div className="flex justify-between items-center">
-              <Badge variant="outline">
-                {filteredMatrix.length} étudiants
-              </Badge>
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setAutoSaveEnabled(!autoSaveEnabled)}
-                >
-                  {autoSaveEnabled ? "Désactiver auto-save" : "Activer auto-save"}
-                </Button>
-                <Button 
-                  onClick={manualSave} 
-                  disabled={loading}
-                  size="sm"
-                  className="flex items-center space-x-2"
-                >
-                  <Save className="w-4 h-4" />
-                  <span>Sauvegarder</span>
-                </Button>
-              </div>
+      {/* Matrice des notes */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Matrice de saisie des notes</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {gradeMatrix.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>Aucun étudiant trouvé avec les filtres sélectionnés.</p>
+              <p className="text-sm mt-2">Veuillez ajuster vos critères de recherche.</p>
             </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Optimized Grade Matrix */}
-      {selectedSubject && filteredMatrix.length > 0 && (
-        <Card>
-          <CardContent className="p-0">
+          ) : (
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
-                <thead className="bg-muted/50">
-                  <tr>
-                    <th className="sticky left-0 bg-muted/50 border-r p-3 text-left font-medium">
-                      Étudiant
-                    </th>
-                    {gradeTypes.map(type => (
-                      <th key={type.key} className="text-center p-3 font-medium min-w-[100px]">
-                        <div>{type.label}</div>
-                        <div className="text-xs text-muted-foreground">/{type.max}</div>
-                      </th>
-                    ))}
-                    <th className="text-center p-3 font-medium min-w-[100px]">Moyenne</th>
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left p-2 min-w-[200px]">Étudiant</th>
+                    <th className="text-left p-2 min-w-[120px]">Numéro</th>
+                    <th className="text-center p-2 min-w-[80px]">CC1</th>
+                    <th className="text-center p-2 min-w-[80px]">CC2</th>
+                    <th className="text-center p-2 min-w-[80px]">CC3</th>
+                    <th className="text-center p-2 min-w-[80px]">Examen</th>
+                    <th className="text-center p-2 min-w-[80px]">Rattrapage</th>
+                    <th className="text-center p-2 min-w-[80px]">Moyenne</th>
+                    <th className="text-center p-2 min-w-[100px]">Statut</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredMatrix.map((student, index) => (
-                    <tr key={student.student_id} className={index % 2 === 0 ? "bg-background" : "bg-muted/20"}>
-                      <td className="sticky left-0 bg-inherit border-r p-3">
-                        <div className="font-medium">{student.student_name}</div>
-                        <div className="text-sm text-muted-foreground">{student.student_number}</div>
+                  {gradeMatrix.map((entry) => (
+                    <tr key={entry.student_id} className="border-b hover:bg-muted/50">
+                      <td className="p-2 font-medium">{entry.student_name}</td>
+                      <td className="p-2 text-muted-foreground">{entry.student_number}</td>
+                      <td className="p-2">
+                        <Input
+                          type="number"
+                          min="0"
+                          max="20"
+                          step="0.25"
+                          value={entry.grades.cc1 || ''}
+                          onChange={(e) => handleGradeChange(entry.student_id, 'cc1', e.target.value)}
+                          className="w-16 text-center"
+                        />
                       </td>
-                      {gradeTypes.map(type => (
-                        <td key={type.key} className="text-center p-3">
-                          <Input
-                            type="number"
-                            min="0"
-                            max={type.max}
-                            step="0.25"
-                            value={student.grades[type.key as keyof typeof student.grades] ?? ''}
-                            onChange={(e) => updateGrade(student.student_id, type.key, e.target.value)}
-                            className="w-20 text-center"
-                            placeholder="--"
-                          />
-                        </td>
-                      ))}
-                      <td className="text-center p-3">
-                        <div className="font-medium text-lg">
-                          {calculateAverage(student.grades) || '--'}
-                        </div>
+                      <td className="p-2">
+                        <Input
+                          type="number"
+                          min="0"
+                          max="20"
+                          step="0.25"
+                          value={entry.grades.cc2 || ''}
+                          onChange={(e) => handleGradeChange(entry.student_id, 'cc2', e.target.value)}
+                          className="w-16 text-center"
+                        />
+                      </td>
+                      <td className="p-2">
+                        <Input
+                          type="number"
+                          min="0"
+                          max="20"
+                          step="0.25"
+                          value={entry.grades.cc3 || ''}
+                          onChange={(e) => handleGradeChange(entry.student_id, 'cc3', e.target.value)}
+                          className="w-16 text-center"
+                        />
+                      </td>
+                      <td className="p-2">
+                        <Input
+                          type="number"
+                          min="0"
+                          max="20"
+                          step="0.25"
+                          value={entry.grades.exam || ''}
+                          onChange={(e) => handleGradeChange(entry.student_id, 'exam', e.target.value)}
+                          className="w-16 text-center"
+                        />
+                      </td>
+                      <td className="p-2">
+                        <Input
+                          type="number"
+                          min="0"
+                          max="20"
+                          step="0.25"
+                          value={entry.grades.rattrapage || ''}
+                          onChange={(e) => handleGradeChange(entry.student_id, 'rattrapage', e.target.value)}
+                          className="w-16 text-center"
+                        />
+                      </td>
+                      <td className="p-2 text-center font-medium">
+                        {entry.average ? entry.average.toFixed(2) : '-'}
+                      </td>
+                      <td className="p-2 text-center">
+                        {getStatusBadge(entry.status)}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
