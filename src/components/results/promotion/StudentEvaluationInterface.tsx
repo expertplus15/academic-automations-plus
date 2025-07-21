@@ -35,19 +35,26 @@ export function StudentEvaluationInterface() {
       let query = supabase
         .from('students')
         .select(`
-          *,
-          profile:profiles(full_name, email),
-          program:programs(name),
-          level:academic_levels(name),
-          current_academic_year:academic_years!current_academic_year_id(name)
+          id,
+          student_number,
+          status,
+          program_id,
+          current_academic_year_id,
+          profiles!inner(
+            full_name,
+            email
+          ),
+          programs(
+            name
+          ),
+          academic_years!current_academic_year_id(
+            name
+          )
         `)
         .eq('status', 'active');
 
       if (filterProgram) {
         query = query.eq('program_id', filterProgram);
-      }
-      if (filterLevel) {
-        query = query.eq('level_id', filterLevel);
       }
       if (searchTerm) {
         query = query.ilike('student_number', `%${searchTerm}%`);
@@ -73,18 +80,8 @@ export function StudentEvaluationInterface() {
     }
   });
 
-  const { data: levels } = useQuery({
-    queryKey: ['academic-levels'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('academic_levels')
-        .select('id, name')
-        .order('name');
-      
-      if (error) throw error;
-      return data;
-    }
-  });
+  // Supprimer la requête levels pour simplifier
+  const levels: any[] = [];
 
   const evaluateStudentsMutation = useMutation({
     mutationFn: async (studentIds: string[]) => {
@@ -150,13 +147,13 @@ export function StudentEvaluationInterface() {
               <div>
                 <CardTitle className="flex items-center gap-2">
                   <User className="h-4 w-4" />
-                  {student.profile?.full_name}
+                  {student.profiles?.full_name || 'Nom non disponible'}
                   <Badge variant={promotionStatus.variant}>
                     {promotionStatus.label}
                   </Badge>
                 </CardTitle>
                 <CardDescription>
-                  {student.student_number} • {student.program?.name} • {student.level?.name}
+                  {student.student_number} • {student.programs?.name || 'Programme non défini'}
                 </CardDescription>
               </div>
             </div>
@@ -185,7 +182,7 @@ export function StudentEvaluationInterface() {
             <div>
               <p className="font-medium">Année</p>
               <p className="text-muted-foreground">
-                {student.current_academic_year?.name}
+                {student.academic_years?.name || 'Non définie'}
               </p>
             </div>
           </div>
@@ -259,26 +256,13 @@ export function StudentEvaluationInterface() {
               </SelectContent>
             </Select>
 
-            <Select value={filterLevel} onValueChange={setFilterLevel}>
-              <SelectTrigger>
-                <SelectValue placeholder="Tous les niveaux" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Tous les niveaux</SelectItem>
-                {levels?.map((level) => (
-                  <SelectItem key={level.id} value={level.id}>
-                    {level.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {/* Niveau filter removed for simplification */}
 
             <Button
               variant="outline"
               onClick={() => {
                 setSearchTerm('');
                 setFilterProgram('');
-                setFilterLevel('');
               }}
             >
               Réinitialiser
