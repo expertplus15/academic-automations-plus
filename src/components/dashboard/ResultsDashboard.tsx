@@ -1,270 +1,182 @@
 import React from 'react';
-import { ModuleDashboard, DashboardWidget } from './ModuleDashboard';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate } from 'react-router-dom';
-import { useResultsStats } from '@/hooks/useResultsStats';
 import { 
-  BarChart3, 
+  Grid, 
   Calculator, 
-  FileText, 
-  Award, 
-  TrendingUp, 
-  Grid,
-  Zap,
-  Clock,
+  FileCheck, 
+  BarChart3, 
+  Settings,
+  TrendingUp,
   Users,
-  CheckCircle,
-  Sparkles
-} from 'lucide-react';
+  BookOpen,
+  ChevronRight
+} from "lucide-react";
+import { ResultsQuickActions } from '@/components/results/ResultsQuickActions';
 
 export function ResultsDashboard() {
   const navigate = useNavigate();
-  const { stats, loading, error } = useResultsStats();
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center text-red-600 p-4">
-        <p>Erreur lors du chargement: {error}</p>
-      </div>
-    );
-  }
-
-  const widgets: DashboardWidget[] = [
-    // Stats widgets
+  const quickStatsCards = [
     {
-      id: 'total-grades',
-      type: 'stat',
-      title: 'Notes Saisies',
-      value: stats.totalGrades,
-      icon: BarChart3,
-      change: 'Aucune note saisie',
-      changeType: 'neutral',
-      description: 'Interface matricielle',
-      priority: 1
+      title: "Étudiants Actifs",
+      value: "1,247",
+      change: "+12%",
+      icon: Users,
+      color: "text-blue-600"
     },
     {
-      id: 'generated-reports',
-      type: 'stat',
-      title: 'Bulletins Générés',
-      value: stats.generatedReports,
-      icon: FileText,
-      change: 'Aucun bulletin généré',
-      changeType: 'neutral',
-      description: 'Génération ultra-rapide',
-      priority: 2
+      title: "Notes Saisies",
+      value: "8,945",
+      change: "+23%", 
+      icon: Grid,
+      color: "text-green-600"
     },
     {
-      id: 'auto-calculations',
-      type: 'stat',
-      title: 'Calculs Automatiques',
-      value: `${stats.autoCalculations}%`,
+      title: "Moyennes Calculées", 
+      value: "2,134",
+      change: "+8%",
       icon: Calculator,
-      change: 'Système prêt',
-      changeType: 'neutral',
-      description: 'ECTS, moyennes, compensations',
-      priority: 3
+      color: "text-purple-600"
     },
     {
-      id: 'matrix-sessions',
-      type: 'stat',
-      title: 'Sessions Matricielles',
-      value: stats.matrixSessions,
-      icon: Grid,
-      change: 'Aucune session active',
-      changeType: 'neutral',
-      description: 'Édition collaborative',
-      priority: 4
-    },
-
-    // Matrix interface widget
-    {
-      id: 'matrix-interface',
-      type: 'action',
-      title: '⚡ Interface Matricielle Express',
-      description: 'Saisie collaborative type Google Sheets - Édition simultanée',
-      icon: Sparkles,
-      actions: [
-        {
-          label: 'Ouvrir Interface Matricielle',
-          onClick: () => navigate('/results/matrix'),
-          variant: 'default' as const
-        },
-        {
-          label: 'Nouvelle Session',
-          onClick: () => navigate('/results/matrix?new=true'),
-          variant: 'outline' as const
-        }
-      ],
-      priority: 5
-    },
-
-    // Quick generation widget
-    {
-      id: 'quick-generation',
-      type: 'action',
-      title: '🚀 Génération Express',
-      description: 'Bulletins personnalisables en moins de 5 secondes',
-      icon: Zap,
-      actions: [
-        {
-          label: 'Générer Bulletins',
-          onClick: () => navigate('/results/reports'),
-          variant: 'default' as const
-        },
-        {
-          label: 'Aperçu Modèles',
-          onClick: () => navigate('/results/reports?tab=templates'),
-          variant: 'outline' as const
-        }
-      ],
-      priority: 6
-    },
-
-    // Recent activities widget
-    {
-      id: 'recent-activities',
-      type: 'list',
-      title: 'Activités Récentes',
-      value: 0,
-      description: 'Aucune activité récente',
-      icon: Clock,
-      data: [
-        ...stats.recentActivities
-      ],
-      actions: [
-        {
-          label: 'Voir historique complet',
-          onClick: () => navigate('/results/history'),
-          variant: 'outline' as const
-        }
-      ],
-      priority: 7
-    },
-
-    // Performance metrics widget
-    {
-      id: 'performance-metrics',
-      type: 'list',
-      title: 'Métriques de Performance',
-      description: 'Indicateurs temps réel du système',
-      icon: TrendingUp,
-      data: [
-        {
-          title: 'Temps de génération moyen',
-          subtitle: 'Bulletins personnalisables',
-          badge: `${stats.averageGenerationTime}s`
-        },
-        {
-          title: 'Utilisateurs simultanés',
-          subtitle: 'Interface matricielle',
-          badge: `${stats.realTimeUsers}`
-        },
-        {
-          title: 'Fiabilité des calculs',
-          subtitle: 'Moyennes et ECTS',
-          badge: 'Prêt'
-        },
-        {
-          title: 'Sessions actives',
-          subtitle: 'Interface collaborative',
-          badge: `${stats.matrixSessions}`
-        }
-      ],
-      priority: 8
-    },
-
-    // Quick actions widget
-    {
-      id: 'quick-actions',
-      type: 'action',
-      title: 'Actions Rapides',
-      description: 'Gestion quotidienne des évaluations',
-      icon: CheckCircle,
-      actions: [
-        {
-          label: 'Saisie Notes Rapide',
-          onClick: () => navigate('/results/matrix'),
-          variant: 'default' as const
-        },
-        {
-          label: 'Interface Matricielle',
-          onClick: () => navigate('/results/matrix'),
-          variant: 'outline' as const
-        },
-        {
-          label: 'Relevés Standards',
-          onClick: () => navigate('/results/transcripts'),
-          variant: 'outline' as const
-        }
-      ],
-      priority: 9
+      title: "Validations Effectuées",
+      value: "456",
+      change: "+15%",
+      icon: FileCheck,
+      color: "text-orange-600"
     }
   ];
 
-  // Add pending grades alert if any
-  if (stats.pendingGrades > 0) {
-    widgets.push({
-      id: 'pending-grades-alert',
-      type: 'alert',
-      title: 'Notes en Attente',
-      description: `${stats.pendingGrades} notes en attente de validation`,
-      color: 'warning',
-      icon: Clock,
-      actions: [
-        {
-          label: 'Valider Maintenant',
-          onClick: () => navigate('/results/validation'),
-          variant: 'default' as const
-        }
-      ],
-      priority: 10
-    });
-  }
-
-  const quickActions = [
+  const moduleActions = [
     {
-      label: 'Interface Matricielle',
+      title: "Saisie des Notes",
+      description: "Interface matricielle collaborative",
       icon: Grid,
-      onClick: () => navigate('/results/matrix'),
-      variant: 'default' as const
+      href: "/results/grade-entry",
+      color: "bg-blue-500"
     },
     {
-      label: 'Générer Bulletins',
-      icon: FileText,
-      onClick: () => navigate('/results/reports'),
-      variant: 'outline' as const
+      title: "Calculs & Moyennes", 
+      description: "Moyennes automatiques et ECTS",
+      icon: Calculator,
+      href: "/results/calculations",
+      color: "bg-green-500"
     },
     {
-      label: 'Analytics',
-      icon: TrendingUp,
-      onClick: () => navigate('/results/analytics-insights'),
-      variant: 'outline' as const
+      title: "Validation",
+      description: "Consultation et validation", 
+      icon: FileCheck,
+      href: "/results/validation",
+      color: "bg-purple-500"
+    },
+    {
+      title: "Analytics",
+      description: "Analyse et statistiques",
+      icon: BarChart3,
+      href: "/results/analytics", 
+      color: "bg-orange-500"
     }
   ];
 
-  const alerts = stats.pendingGrades > 0 ? [
-    {
-      type: 'warning' as const,
-      title: 'Notes en attente',
-      message: `${stats.pendingGrades} notes en attente de validation`,
-    }
-  ] : [];
+  const handleRefresh = () => {
+    window.location.reload();
+  };
 
   return (
-    <ModuleDashboard
-      title="Tableau de Bord Évaluations"
-      subtitle="Interface matricielle collaborative et génération ultra-rapide"
-      widgets={widgets}
-      moduleColor="139 92 246" // results color from index.css
-      quickActions={quickActions}
-      alerts={alerts}
-    />
+    <div className="p-6 space-y-6 max-w-6xl mx-auto">
+      <ResultsQuickActions
+        onRefresh={handleRefresh}
+        onSettings={() => navigate('/results/grading-system')}
+        pendingActions={3}
+      />
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {quickStatsCards.map((stat, index) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={index} className="hover-scale">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
+                    <p className="text-2xl font-bold">{stat.value}</p>
+                    <p className={`text-xs ${stat.color}`}>{stat.change}</p>
+                  </div>
+                  <Icon className={`w-8 h-8 ${stat.color}`} />
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Module Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {moduleActions.map((action, index) => {
+          const Icon = action.icon;
+          return (
+            <Card 
+              key={index} 
+              className="hover-scale cursor-pointer transition-all duration-200 hover:shadow-lg"
+              onClick={() => navigate(action.href)}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-4">
+                    <div className={`w-10 h-10 rounded-lg ${action.color} flex items-center justify-center`}>
+                      <Icon className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground">{action.title}</h3>
+                      <p className="text-sm text-muted-foreground mt-1">{action.description}</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            Activité Récente
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between py-2">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-sm">Notes saisies pour DUTGE L1 - Mathématiques</span>
+              </div>
+              <Badge variant="outline">Il y a 2h</Badge>
+            </div>
+            <div className="flex items-center justify-between py-2">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span className="text-sm">Calculs moyennes automatiques - Semestre 1</span>
+              </div>
+              <Badge variant="outline">Il y a 4h</Badge>
+            </div>
+            <div className="flex items-center justify-between py-2">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                <span className="text-sm">Validation bulletins DUTGE L2</span>
+              </div>
+              <Badge variant="outline">Hier</Badge>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

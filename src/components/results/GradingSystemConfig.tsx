@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings, Calculator, Award, Scale, Save, Plus, Edit2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { DEFAULT_GRADING_CONFIG, GradingConfig } from '@/lib/gradingEngine';
+import { ResultsQuickActions } from '@/components/results/ResultsQuickActions';
 
 export function GradingSystemConfig() {
   const [config, setConfig] = useState<GradingConfig>(DEFAULT_GRADING_CONFIG);
@@ -37,24 +38,13 @@ export function GradingSystemConfig() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header with quick actions */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">Système de Notation</h2>
-          <p className="text-muted-foreground">Configuration complète du barème et des règles de calcul</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Edit2 className="w-4 h-4 mr-2" />
-            Templates
-          </Button>
-          <Button onClick={handleSaveConfig} disabled={loading} size="sm">
-            <Save className="w-4 h-4 mr-2" />
-            Sauvegarder
-          </Button>
-        </div>
-      </div>
+    <div className="p-6 space-y-6 max-w-6xl mx-auto">
+      {/* Quick Actions */}
+      <ResultsQuickActions
+        onRefresh={() => window.location.reload()}
+        onSettings={() => console.log('Settings')}
+        pendingActions={0}
+      />
 
       <Tabs defaultValue="general" className="w-full">
         <TabsList className="grid w-full grid-cols-5">
