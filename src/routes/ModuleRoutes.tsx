@@ -96,6 +96,10 @@ const Announcements = lazyLoad(() => import('@/pages/communication/Announcements
 const SettingsGeneral = lazyLoad(() => import('@/pages/settings/General'));
 const SettingsUsers = lazyLoad(() => import('@/pages/settings/Users'));
 const SettingsAcademic = lazyLoad(() => import('@/pages/settings/AcademicManagement'));
+const SettingsInstitutions = lazyLoad(() => import('@/pages/settings/Institutions'));
+const SettingsCustomization = lazyLoad(() => import('@/pages/settings/Customization'));
+const SettingsIntegrations = lazyLoad(() => import('@/pages/settings/Integrations'));
+const SettingsMonitoring = lazyLoad(() => import('@/pages/settings/Monitoring'));
 
 // Composant de chargement
 const SuspenseWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -193,6 +197,10 @@ export function ModuleRoutes() {
         <Route path="/settings/general" element={<SettingsGeneral />} />
         <Route path="/settings/users" element={<SettingsUsers />} />
         <Route path="/settings/academic" element={<SettingsAcademic />} />
+        <Route path="/settings/institutions" element={<SettingsInstitutions />} />
+        <Route path="/settings/customization" element={<SettingsCustomization />} />
+        <Route path="/settings/integrations" element={<SettingsIntegrations />} />
+        <Route path="/settings/monitoring" element={<SettingsMonitoring />} />
 
         {/* Autres modules */}
         <Route path="/documents" element={<Documents />} />
