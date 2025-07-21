@@ -35,12 +35,13 @@ export function useSubjects(programId?: string, levelId?: string) {
           .eq('status', 'active')
           .order('name');
 
-        // Appliquer les filtres en cascade
-        if (programId) {
+        // Appliquer les filtres en cascade - programme est prioritaire
+        if (programId && programId !== 'all' && programId !== '') {
           query = query.eq('program_id', programId);
         }
 
-        if (levelId) {
+        // Niveau seulement si programme est sélectionné
+        if (levelId && levelId !== 'all' && levelId !== '' && programId && programId !== 'all' && programId !== '') {
           query = query.eq('level_id', levelId);
         }
 

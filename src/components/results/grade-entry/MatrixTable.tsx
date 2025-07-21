@@ -1,303 +1,224 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Loader2, Settings, Users, BookOpen, Save, Eye, EyeOff } from "lucide-react";
-import { Student } from '@/hooks/useStudents';
-import { useSubjects } from '@/hooks/useSubjects';
-import { useEvaluationTypes } from '@/hooks/useEvaluationTypes';
-import { useMatrixFilters } from '@/hooks/useMatrixFilters';
+import { ChevronDown, ChevronUp, Settings, BookOpen, Users, AlertCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useMatrixConfiguration } from '@/hooks/useMatrixConfiguration';
 
 interface MatrixTableProps {
-  students: Student[];
+  students: any[];
   academicYearId?: string;
   isLoading: boolean;
 }
 
 export function MatrixTable({ students, academicYearId, isLoading }: MatrixTableProps) {
-  const { filters } = useMatrixFilters();
+  const [isConfigurationOpen, setIsConfigurationOpen] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<string>('');
   const [selectedEvaluationType, setSelectedEvaluationType] = useState<string>('');
-  const [isConfigurationVisible, setIsConfigurationVisible] = useState(true);
-  
-  // Hooks pour récupérer les données de configuration
-  const { subjects, loading: subjectsLoading } = useSubjects(
-    filters.program || undefined,
-    filters.level || undefined
-  );
-  const { evaluationTypes, loading: evaluationTypesLoading } = useEvaluationTypes();
 
-  console.log('🔍 [MATRIX_TABLE] Current configuration:', {
+  const {
+    subjects,
+    loading: subjectsLoading,
+    error: subjectsError,
+    isConfigurationAvailable,
+    configurationMessage,
+    filters,
+    filterParams
+  } = useMatrixConfiguration();
+
+  console.log('🔍 [MATRIX_TABLE] Configuration state:', {
+    isConfigurationAvailable,
+    subjectsCount: subjects.length,
+    filterParams,
     selectedSubject,
-    selectedEvaluationType,
-    studentsCount: students.length,
-    subjectsCount: subjects.length
+    selectedEvaluationType
   });
 
-  // Fonction pour rendre la section de configuration
-  const renderConfiguration = () => (
-    <Card className="border-border/50">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base text-foreground flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Settings className="w-4 h-4" />
-            Configuration de la saisie
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsConfigurationVisible(!isConfigurationVisible)}
-            className="h-8 px-2"
-          >
-            {isConfigurationVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-          </Button>
-        </CardTitle>
-      </CardHeader>
-      {isConfigurationVisible && (
-        <CardContent className="pt-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Sélection de la matière */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">
-                Matière *
-              </label>
-              <Select
-                value={selectedSubject}
-                onValueChange={setSelectedSubject}
-                disabled={subjectsLoading || !filters.program}
-              >
-                <SelectTrigger className="h-10">
-                  <SelectValue placeholder={!filters.program ? "Sélectionner un programme d'abord" : "Choisir une matière"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {subjects.map((subject) => (
-                    <SelectItem key={subject.id} value={subject.id}>
-                      {subject.code} - {subject.name} ({subject.credits_ects} ECTS)
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {subjects.length === 0 && filters.program && (
-                <p className="text-xs text-orange-500">
-                  Aucune matière disponible pour ce programme
-                </p>
-              )}
-            </div>
+  const evaluationTypes = [
+    { id: 'cc', name: 'Contrôle Continu', weight: 40 },
+    { id: 'td', name: 'Travaux Dirigés', weight: 30 },
+    { id: 'exam', name: 'Examen Final', weight: 30 }
+  ];
 
-            {/* Sélection du type d'évaluation */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">
-                Type d'évaluation *
-              </label>
-              <Select
-                value={selectedEvaluationType}
-                onValueChange={setSelectedEvaluationType}
-                disabled={evaluationTypesLoading || !selectedSubject}
-              >
-                <SelectTrigger className="h-10">
-                  <SelectValue placeholder={!selectedSubject ? "Sélectionner une matière d'abord" : "Choisir un type d'évaluation"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {evaluationTypes.map((type) => (
-                    <SelectItem key={type.id} value={type.id}>
-                      {type.name} - {type.weight_percentage}%
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Informations sur la configuration */}
-          <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Users className="w-4 h-4" />
-                <span>{students.length} étudiant{students.length > 1 ? 's' : ''}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <BookOpen className="w-4 h-4" />
-                <span>{subjects.length} matière{subjects.length > 1 ? 's' : ''}</span>
-              </div>
-              {selectedSubject && selectedEvaluationType && (
-                <Badge variant="secondary" className="text-xs">
-                  Configuration prête
-                </Badge>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      )}
-    </Card>
-  );
-
-  // Fonction pour rendre le tableau matriciel
-  const renderMatrixTable = () => {
-    if (!selectedSubject || !selectedEvaluationType) {
-      return (
-        <Card className="border-border/50">
-          <CardContent className="p-8 text-center">
-            <div className="space-y-4">
-              <div className="flex justify-center">
-                <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center">
-                  <Settings className="w-8 h-8 text-muted-foreground" />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-lg font-medium text-foreground">
-                  Configuration requise
-                </h3>
-                <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                  Veuillez sélectionner une matière et un type d'évaluation dans la configuration ci-dessus pour commencer la saisie des notes.
-                </p>
-              </div>
-              <div className="flex justify-center gap-2">
-                {!selectedSubject && (
-                  <Badge variant="outline" className="text-xs">
-                    Matière requise
-                  </Badge>
-                )}
-                {!selectedEvaluationType && (
-                  <Badge variant="outline" className="text-xs">
-                    Type d'évaluation requis
-                  </Badge>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      );
-    }
-
-    if (students.length === 0) {
-      return (
-        <Card className="border-border/50">
-          <CardContent className="p-8 text-center">
-            <div className="space-y-4">
-              <div className="flex justify-center">
-                <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center">
-                  <Users className="w-8 h-8 text-muted-foreground" />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-lg font-medium text-foreground">
-                  Aucun étudiant trouvé
-                </h3>
-                <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                  Aucun étudiant ne correspond aux filtres sélectionnés. Veuillez ajuster les filtres ou vérifier les inscriptions.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      );
-    }
-
-    // Tableau matriciel effectif
-    return (
-      <Card className="border-border/50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base text-foreground flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4" />
-              Saisie matricielle des notes
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="text-xs">
-                {students.length} étudiant{students.length > 1 ? 's' : ''}
-              </Badge>
-              <Button size="sm" className="h-8">
-                <Save className="w-4 h-4 mr-1" />
-                Sauvegarder
-              </Button>
-            </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left p-2 text-sm font-medium text-foreground">
-                    N° Étudiant
-                  </th>
-                  <th className="text-left p-2 text-sm font-medium text-foreground">
-                    Nom complet
-                  </th>
-                  <th className="text-left p-2 text-sm font-medium text-foreground">
-                    Programme
-                  </th>
-                  <th className="text-center p-2 text-sm font-medium text-foreground">
-                    Note / 20
-                  </th>
-                  <th className="text-center p-2 text-sm font-medium text-foreground">
-                    Statut
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {students.map((student, index) => (
-                  <tr key={student.id} className={index % 2 === 0 ? 'bg-muted/20' : ''}>
-                    <td className="p-2 text-sm font-mono">
-                      {student.student_number}
-                    </td>
-                    <td className="p-2 text-sm font-medium">
-                      {student.profile.full_name}
-                    </td>
-                    <td className="p-2 text-sm text-muted-foreground">
-                      {student.program.code}
-                    </td>
-                    <td className="p-2 text-center">
-                      <Input
-                        type="number"
-                        min="0"
-                        max="20"
-                        step="0.25"
-                        className="w-20 h-8 text-center text-sm"
-                        placeholder="--"
-                      />
-                    </td>
-                    <td className="p-2 text-center">
-                      <Badge variant="outline" className="text-xs">
-                        À saisir
-                      </Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
-
-  if (isLoading) {
-    return (
-      <Card className="border-border/50">
-        <CardContent className="p-8 text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
-          <p className="text-sm text-muted-foreground">
-            Chargement des données...
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
+  const canStartGrading = isConfigurationAvailable && selectedSubject && selectedEvaluationType;
 
   return (
-    <div className="space-y-4">
-      {/* Section de configuration */}
-      {renderConfiguration()}
-      
-      <Separator />
-      
-      {/* Section tableau matriciel */}
-      {renderMatrixTable()}
+    <div className="space-y-6">
+      {/* Configuration Section */}
+      <Card className="border-border/50">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg text-foreground flex items-center gap-2">
+              <Settings className="w-5 h-5" />
+              Configuration de la Saisie
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsConfigurationOpen(!isConfigurationOpen)}
+              className="hover-scale"
+            >
+              {isConfigurationOpen ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
+        </CardHeader>
+        
+        {isConfigurationOpen && (
+          <CardContent className="pt-0">
+            <div className="space-y-4">
+              {/* Message d'information */}
+              <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg">
+                {isConfigurationAvailable ? (
+                  <BookOpen className="w-4 h-4 text-success" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 text-warning" />
+                )}
+                <span className="text-sm text-muted-foreground">
+                  {configurationMessage}
+                </span>
+              </div>
+
+              {/* Filtres appliqués */}
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="outline" className="text-xs">
+                  Programme: {filters.program ? 'Sélectionné' : 'Non sélectionné'}
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  Niveau: {filters.level ? 'Sélectionné' : 'Non sélectionné'}
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  Classe: {filters.class ? 'Sélectionnée' : 'Non sélectionnée'}
+                </Badge>
+              </div>
+
+              {/* Configuration des matières */}
+              {isConfigurationAvailable && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground">
+                      Matière à évaluer
+                    </label>
+                    <Select 
+                      value={selectedSubject} 
+                      onValueChange={setSelectedSubject}
+                      disabled={subjectsLoading}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner une matière" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {subjects.map((subject) => (
+                          <SelectItem key={subject.id} value={subject.id}>
+                            {subject.code} - {subject.name} ({subject.credits_ects} ECTS)
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-foreground">
+                      Type d'évaluation
+                    </label>
+                    <Select 
+                      value={selectedEvaluationType} 
+                      onValueChange={setSelectedEvaluationType}
+                      disabled={!selectedSubject}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner un type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {evaluationTypes.map((type) => (
+                          <SelectItem key={type.id} value={type.id}>
+                            {type.name} ({type.weight}%)
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Tableau de saisie */}
+      <Card className="border-border/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg text-foreground flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            Saisie des Notes
+            {canStartGrading && (
+              <Badge variant="secondary" className="ml-2">
+                {students.length} étudiant(s)
+              </Badge>
+            )}
+          </CardTitle>
+        </CardHeader>
+        
+        <CardContent>
+          {!canStartGrading ? (
+            <div className="text-center py-8">
+              <AlertCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">
+                Veuillez configurer la saisie en sélectionnant un programme, une matière et un type d'évaluation.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* En-tête du tableau */}
+              <div className="grid grid-cols-4 gap-4 p-3 bg-muted/30 rounded-lg text-sm font-medium">
+                <div>Étudiant</div>
+                <div>Programme</div>
+                <div>Note / 20</div>
+                <div>Actions</div>
+              </div>
+
+              {/* Lignes des étudiants */}
+              {students.map((student) => (
+                <div key={student.id} className="grid grid-cols-4 gap-4 p-3 border border-border/30 rounded-lg">
+                  <div className="flex flex-col">
+                    <span className="font-medium text-foreground">{student.profile.full_name}</span>
+                    <span className="text-sm text-muted-foreground">{student.student_number}</span>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {student.program.code}
+                  </div>
+                  <div>
+                    <input
+                      type="number"
+                      min="0"
+                      max="20"
+                      step="0.5"
+                      className="w-20 px-2 py-1 border border-border rounded text-sm"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  <div>
+                    <Button size="sm" variant="outline" className="text-xs">
+                      Sauvegarder
+                    </Button>
+                  </div>
+                </div>
+              ))}
+
+              {students.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  Aucun étudiant trouvé avec les filtres appliqués.
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

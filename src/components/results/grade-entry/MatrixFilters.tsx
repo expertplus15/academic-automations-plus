@@ -4,7 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, RefreshCcw } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Search, RefreshCcw, AlertCircle } from "lucide-react";
 import { useMatrixFilters } from '@/hooks/useMatrixFilters';
 import { usePrograms } from '@/hooks/usePrograms';
 import { useAcademicLevels } from '@/hooks/useAcademicLevels';
@@ -27,8 +28,11 @@ export function MatrixFilters() {
   console.log('📊 [MATRIX_FILTERS] Data counts with cascade filtering:', {
     programs: programs.length,
     levels: levels.length,
-    groups: groups.length
+    groups: groups.length,
+    selectedAcademicYear: selectedAcademicYear?.id
   });
+
+  const hasClassIssue = filters.program && groups.length === 0 && !groupsLoading;
 
   return (
     <Card className="border-border/50">
@@ -138,6 +142,20 @@ export function MatrixFilters() {
           </div>
         </div>
 
+        {/* Alerte pour les classes manquantes */}
+        {hasClassIssue && (
+          <div className="flex items-center gap-2 p-3 bg-warning/10 border border-warning/20 rounded-lg">
+            <AlertCircle className="w-4 h-4 text-warning" />
+            <div className="text-sm">
+              <p className="font-medium text-warning">Aucune classe trouvée</p>
+              <p className="text-muted-foreground">
+                Il n'y a pas de classes configurées pour ce programme dans l'année académique {selectedAcademicYear?.name}.
+                Vous pouvez continuer la saisie sans filtre de classe.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Statistiques des filtres avec indication de filtrage */}
         <div className="flex items-center justify-between pt-2 border-t border-border/30">
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
@@ -147,13 +165,20 @@ export function MatrixFilters() {
             <span className={levels.length === 0 && filters.program ? 'text-orange-500' : ''}>
               Niveaux: {levels.length} {filters.program && levels.length === 0 ? '(aucun pour ce programme)' : ''}
             </span>
-            <span className={groups.length === 0 && (filters.program || filters.level) ? 'text-orange-500' : ''}>
-              Classes: {groups.length} {(filters.program || filters.level) && groups.length === 0 ? '(aucune pour ces filtres)' : ''}
+            <span className={groups.length === 0 && filters.program ? 'text-orange-500' : ''}>
+              Classes: {groups.length} {filters.program && groups.length === 0 ? '(aucune pour ce programme)' : ''}
             </span>
           </div>
           {selectedAcademicYear && (
-            <div className="text-xs text-muted-foreground">
-              Année: {selectedAcademicYear.name}
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-xs">
+                {selectedAcademicYear.name}
+              </Badge>
+              {hasActiveFilters && (
+                <Badge variant="secondary" className="text-xs">
+                  Filtres actifs
+                </Badge>
+              )}
             </div>
           )}
         </div>
