@@ -39,7 +39,7 @@ export function useMatrixConfiguration() {
 
   // Déterminer si la configuration est disponible
   const isConfigurationAvailable = useMemo(() => {
-    const available = !!(filterParams.programId && subjects.length > 0);
+    const available = !!(filterParams.programId && !subjectsLoading && subjects.length > 0);
     console.info('🔍 [MATRIX_CONFIG] Configuration check:', { 
       programId: filterParams.programId,
       programIdType: typeof filterParams.programId,
