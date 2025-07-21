@@ -90,7 +90,9 @@ export function StudentPromotionDialog({ trigger }: StudentPromotionDialogProps)
     );
   };
 
-  const validatedYears = academicYears.filter(year => year.validation_status === 'validated');
+  const validatedYears = academicYears.filter(year => 
+    year.validation_status === 'validated' || year.validation_status === 'archived'
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
