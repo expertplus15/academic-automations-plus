@@ -8,8 +8,8 @@ export function useMatrixConfiguration() {
   
   // Convertir les filtres pour les hooks
   const filterParams = useMemo(() => ({
-    programId: filters.program && filters.program !== 'all' ? filters.program : undefined,
-    levelId: filters.level && filters.level !== 'all' ? filters.level : undefined,
+    programId: filters.program && filters.program !== 'all' && filters.program !== '' ? filters.program : undefined,
+    levelId: filters.level && filters.level !== 'all' && filters.level !== '' ? filters.level : undefined,
   }), [filters.program, filters.level]);
 
   const { subjects, loading: subjectsLoading, error: subjectsError } = useSubjects(
