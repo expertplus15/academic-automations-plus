@@ -30,6 +30,13 @@ export function useMatrixConfiguration() {
     filterParams.levelId
   );
 
+  console.info('🔍 [MATRIX_CONFIG] useSubjects called with:', {
+    programId: filterParams.programId,
+    levelId: filterParams.levelId,
+    subjectsCount: subjects.length,
+    subjectsLoading
+  });
+
   // Déterminer si la configuration est disponible
   const isConfigurationAvailable = useMemo(() => {
     const available = !!(filterParams.programId && subjects.length > 0);
