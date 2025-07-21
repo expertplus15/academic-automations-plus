@@ -14,7 +14,9 @@ export function useMatrixConfiguration() {
     console.info('🔍 [MATRIX_CONFIG] Converting filters:', { 
       filters, 
       programId, 
-      levelId 
+      levelId,
+      programSelected: !!programId,
+      levelSelected: !!levelId
     });
     
     return {
@@ -33,11 +35,13 @@ export function useMatrixConfiguration() {
     const available = !!(filterParams.programId && subjects.length > 0);
     console.info('🔍 [MATRIX_CONFIG] Configuration check:', { 
       programId: filterParams.programId,
+      programIdType: typeof filterParams.programId,
       subjectsCount: subjects.length,
+      subjectsLoading,
       available
     });
     return available;
-  }, [filterParams.programId, subjects.length]);
+  }, [filterParams.programId, subjects.length, subjectsLoading]);
 
   // Messages d'aide pour l'utilisateur
   const configurationMessage = useMemo(() => {
