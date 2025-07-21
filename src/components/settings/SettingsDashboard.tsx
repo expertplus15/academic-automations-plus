@@ -14,11 +14,14 @@ import {
   AlertTriangle,
   CheckCircle,
   Plus,
-  FileText
+  FileText,
+  Calendar,
+  BookOpen
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { AcademicSystemSettings } from './AcademicSystemSettings';
 
 const systemStats = [
   {
@@ -94,6 +97,7 @@ export function SettingsDashboard() {
       return;
     }
   };
+
   return (
     <div className="space-y-6">
       {/* System Stats */}
@@ -124,6 +128,22 @@ export function SettingsDashboard() {
           );
         })}
       </div>
+
+      {/* Academic System Management */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="h-5 w-5 text-blue-500" />
+            Système Académique
+          </CardTitle>
+          <CardDescription>
+            Gestion des années académiques et données étudiantes
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AcademicSystemSettings />
+        </CardContent>
+      </Card>
 
       {/* Quick Actions */}
       <Card>

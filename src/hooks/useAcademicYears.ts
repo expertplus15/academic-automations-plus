@@ -18,6 +18,12 @@ export interface AcademicYear {
   validated_by?: string;
   archived_at?: string;
   archived_by?: string;
+  validated_by_profile?: {
+    full_name: string;
+  };
+  archived_by_profile?: {
+    full_name: string;
+  };
 }
 
 export function useAcademicYears() {
@@ -32,31 +38,69 @@ export function useAcademicYears() {
       setLoading(true);
       setError(null);
 
-      const { data, error } = await supabase
+      // Récupérer les années académiques sans jointures complexes
+      const { data: yearsData, error: yearsError } = await supabase
         .from('academic_years')
-        .select(`
-          *,
-          validated_by_profile:validated_by(full_name),
-          archived_by_profile:archived_by(full_name)
-        `)
+        .select('*')
         .order('start_date', { ascending: false });
 
-      if (error) {
-        console.error('Erreur lors de la récupération des années académiques:', error);
-        setError(error.message);
+      if (yearsError) {
+        console.error('Erreur lors de la récupération des années académiques:', yearsError);
+        setError(yearsError.message);
         toast({
           title: "Erreur",
           description: "Impossible de charger les années académiques",
           variant: "destructive"
         });
-      } else {
-        setAcademicYears((data || []) as AcademicYear[]);
-        const current = (data?.find(year => year.is_current) || null) as AcademicYear | null;
-        setCurrentYear(current);
+        return;
       }
+
+      // Récupérer les profils des validateurs/archiveurs si nécessaire
+      const validatorIds = new Set();
+      const archiverIds = new Set();
+
+      yearsData?.forEach(year => {
+        if (year.validated_by) validatorIds.add(year.validated_by);
+        if (year.archived_by) archiverIds.add(year.archived_by);
+      });
+
+      const allUserIds = [...validatorIds, ...archiverIds];
+      let profilesData: any[] = [];
+
+      if (allUserIds.length > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, full_name')
+          .in('id', allUserIds);
+
+        if (!profilesError) {
+          profilesData = profiles || [];
+        }
+      }
+
+      // Combiner les données
+      const enrichedYears = yearsData?.map(year => ({
+        ...year,
+        validated_by_profile: year.validated_by 
+          ? profilesData.find(p => p.id === year.validated_by)
+          : null,
+        archived_by_profile: year.archived_by 
+          ? profilesData.find(p => p.id === year.archived_by)
+          : null
+      })) || [];
+
+      setAcademicYears(enrichedYears as AcademicYear[]);
+      const current = enrichedYears.find(year => year.is_current) || null;
+      setCurrentYear(current as AcademicYear | null);
+
     } catch (err) {
       console.error('Erreur inattendue:', err);
       setError('Une erreur inattendue est survenue');
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les données académiques",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
