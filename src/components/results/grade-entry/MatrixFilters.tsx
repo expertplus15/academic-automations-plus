@@ -9,7 +9,6 @@ import { useMatrixFilters } from '@/hooks/useMatrixFilters';
 import { usePrograms } from '@/hooks/usePrograms';
 import { useAcademicLevels } from '@/hooks/useAcademicLevels';
 import { useClassGroups } from '@/hooks/useClassGroups';
-import { useSubjects } from '@/hooks/useSubjects';
 import { useAcademicYearContext } from '@/contexts/AcademicYearContext';
 
 export function MatrixFilters() {
@@ -23,17 +22,12 @@ export function MatrixFilters() {
     filters.program || undefined, 
     selectedAcademicYear?.id
   );
-  const { subjects, loading: subjectsLoading } = useSubjects(
-    filters.program || undefined,
-    filters.level || undefined
-  );
 
   console.log('🔍 [MATRIX_FILTERS] Current filters:', filters);
   console.log('📊 [MATRIX_FILTERS] Data counts with cascade filtering:', {
     programs: programs.length,
     levels: levels.length,
-    groups: groups.length,
-    subjects: subjects.length
+    groups: groups.length
   });
 
   return (
@@ -54,7 +48,7 @@ export function MatrixFilters() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Programme - PREMIER */}
           <div className="space-y-1">
             <label className="text-xs font-medium text-muted-foreground">
@@ -127,30 +121,6 @@ export function MatrixFilters() {
             </Select>
           </div>
 
-          {/* Matière */}
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">
-              Matière
-            </label>
-            <Select
-              value={filters.subject}
-              onValueChange={(value) => updateFilter('subject', value)}
-              disabled={subjectsLoading || !filters.program}
-            >
-              <SelectTrigger className="h-9 text-xs">
-                <SelectValue placeholder={!filters.program ? "Sélectionner un programme d'abord" : "Toutes les matières"} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toutes les matières</SelectItem>
-                {subjects.map((subject) => (
-                  <SelectItem key={subject.id} value={subject.id}>
-                    {subject.code} - {subject.name} ({subject.credits_ects} ECTS)
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           {/* Recherche */}
           <div className="space-y-1">
             <label className="text-xs font-medium text-muted-foreground">
@@ -179,9 +149,6 @@ export function MatrixFilters() {
             </span>
             <span className={groups.length === 0 && (filters.program || filters.level) ? 'text-orange-500' : ''}>
               Classes: {groups.length} {(filters.program || filters.level) && groups.length === 0 ? '(aucune pour ces filtres)' : ''}
-            </span>
-            <span className={subjects.length === 0 && (filters.program || filters.level) ? 'text-orange-500' : ''}>
-              Matières: {subjects.length} {(filters.program || filters.level) && subjects.length === 0 ? '(aucune pour ces filtres)' : ''}
             </span>
           </div>
           {selectedAcademicYear && (

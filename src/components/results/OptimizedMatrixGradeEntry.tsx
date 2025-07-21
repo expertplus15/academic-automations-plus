@@ -14,12 +14,13 @@ export function OptimizedMatrixGradeEntry() {
   const { selectedAcademicYear } = useAcademicYearContext();
   const { filters } = useMatrixFilters();
   
-  // Construire les filtres pour useStudents
+  // Construire les filtres pour useStudents - corriger le filtrage par programme
   const studentFilters = {
     academicYearId: selectedAcademicYear?.id,
-    programId: filters.program || undefined,
-    yearLevel: filters.level ? parseInt(filters.level) : undefined,
-    groupId: filters.class || undefined,
+    // Convertir "all" et chaînes vides en undefined pour le filtrage correct
+    programId: filters.program && filters.program !== 'all' ? filters.program : undefined,
+    yearLevel: filters.level && filters.level !== 'all' ? parseInt(filters.level) : undefined,
+    groupId: filters.class && filters.class !== 'all' ? filters.class : undefined,
     search: filters.search || undefined
   };
   
@@ -35,6 +36,7 @@ export function OptimizedMatrixGradeEntry() {
     id: s.id,
     name: s.profile.full_name,
     student_number: s.student_number,
+    program_id: s.program_id,
     current_academic_year_id: s.current_academic_year_id,
     academic_year_id: s.academic_year_id
   })));

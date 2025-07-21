@@ -6,7 +6,6 @@ interface FilterState {
   level: string;
   program: string;
   class: string;
-  subject: string;
   search: string;
 }
 
@@ -16,7 +15,6 @@ export function useMatrixFilters() {
     level: '',
     program: '',
     class: '',
-    subject: '',
     search: ''
   });
 
@@ -27,8 +25,7 @@ export function useMatrixFilters() {
         ...prev,
         program: '',
         level: '',
-        class: '',
-        subject: ''
+        class: ''
       }));
     }
   }, [selectedAcademicYear]);
@@ -65,12 +62,8 @@ export function useMatrixFilters() {
       if (key === 'program') {
         newFilters.level = '';
         newFilters.class = '';
-        newFilters.subject = '';
       } else if (key === 'level') {
         newFilters.class = '';
-        newFilters.subject = '';
-      } else if (key === 'class') {
-        newFilters.subject = '';
       }
       
       return newFilters;
@@ -82,7 +75,6 @@ export function useMatrixFilters() {
       program: '',
       level: '',
       class: '',
-      subject: '',
       search: ''
     });
   };
