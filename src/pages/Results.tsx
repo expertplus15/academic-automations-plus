@@ -6,7 +6,7 @@ import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { ResultsDashboard } from '@/components/dashboard/ResultsDashboard';
 import { DocumentsEvaluationInterface } from '@/components/results/documents/DocumentsEvaluationInterface';
 import { GradingSystemConfig } from '@/components/results/GradingSystemConfig';
-import { MatrixGradeEntry } from '@/components/results/MatrixGradeEntry';
+import { MatrixGradeEntryPage } from '@/components/results/grade-entry/MatrixGradeEntryPage';
 import { GradeCalculations } from '@/components/results/GradeCalculations';
 import { ResultsAnalytics } from '@/components/results/ResultsAnalytics';
 import { AcademicYearManagement } from '@/components/academic/AcademicYearManagement';
@@ -34,7 +34,7 @@ export default function Results() {
         '/results/grade-entry': {
           title: "Saisie des Notes",
           subtitle: "Interface matricielle collaborative pour la saisie des notes en temps réel",
-          component: <MatrixGradeEntry />
+          component: <MatrixGradeEntryPage />
         },
         '/results/calculations': {
           title: "Calculs & Moyennes",

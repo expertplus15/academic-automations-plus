@@ -13,10 +13,10 @@ export function GradeEntryHeader() {
 
   const getStatusBadge = (status: string) => {
     const variants = {
-      current: "bg-green-100 text-green-700 border-green-200",
-      planning: "bg-blue-100 text-blue-700 border-blue-200",
-      archived: "bg-gray-100 text-gray-700 border-gray-200",
-      closed: "bg-red-100 text-red-700 border-red-200"
+      current: "bg-success/10 text-success border-success/20",
+      planning: "bg-primary/10 text-primary border-primary/20",
+      archived: "bg-muted text-muted-foreground border-border",
+      closed: "bg-destructive/10 text-destructive border-destructive/20"
     };
 
     const labels = {

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Grid, FileSpreadsheet, Upload } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MatrixGradeEntry } from '@/components/results/MatrixGradeEntry';
+import { MatrixGradeEntryPage } from './MatrixGradeEntryPage';
 import { ManualGradeEntryPage } from '@/components/results/ManualGradeEntryPage';
 import { GradeImportTab } from './GradeImportTab';
 
@@ -38,7 +38,7 @@ export function GradeEntryTabs() {
       </TabsContent>
 
       <TabsContent value="matrix" className="flex-1 mt-6 focus-visible:outline-none">
-        <MatrixGradeEntry />
+        <MatrixGradeEntryPage />
       </TabsContent>
 
       <TabsContent value="manual" className="flex-1 mt-6 focus-visible:outline-none">
