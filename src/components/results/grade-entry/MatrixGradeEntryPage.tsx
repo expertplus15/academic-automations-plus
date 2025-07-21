@@ -1,7 +1,7 @@
+
 import React from 'react';
 import { MatrixGradeHeader } from './MatrixGradeHeader';
-import { MatrixFilters } from './MatrixFilters';
-import { MatrixTable } from './MatrixTable';
+import { StreamlinedGradeEntry } from './StreamlinedGradeEntry';
 import { useMatrixGradeData } from '@/hooks/useMatrixGradeData';
 
 export function MatrixGradeEntryPage() {
@@ -23,13 +23,7 @@ export function MatrixGradeEntryPage() {
         isLoading={isLoading}
       />
       
-      <MatrixFilters />
-      
-      <MatrixTable 
-        students={students}
-        academicYearId={selectedAcademicYear?.id}
-        isLoading={isLoading}
-      />
+      <StreamlinedGradeEntry />
     </div>
   );
 }
