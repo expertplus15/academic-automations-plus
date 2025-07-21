@@ -56,15 +56,15 @@ export function useAcademicYears() {
       }
 
       // Récupérer les profils des validateurs/archiveurs si nécessaire
-      const validatorIds = new Set();
-      const archiverIds = new Set();
+      const validatorIds = new Set<string>();
+      const archiverIds = new Set<string>();
 
       yearsData?.forEach(year => {
         if (year.validated_by) validatorIds.add(year.validated_by);
         if (year.archived_by) archiverIds.add(year.archived_by);
       });
 
-      const allUserIds = [...validatorIds, ...archiverIds];
+      const allUserIds: string[] = [...validatorIds, ...archiverIds];
       let profilesData: any[] = [];
 
       if (allUserIds.length > 0) {
