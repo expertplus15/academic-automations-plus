@@ -28,19 +28,36 @@ export function AcademicYearFilter() {
           }
         }}
       >
-        <SelectTrigger className="w-52">
+        <SelectTrigger className="w-60">
           <SelectValue placeholder="Sélectionner une année" />
         </SelectTrigger>
         <SelectContent>
           {academicYears.map((year) => (
             <SelectItem key={year.id} value={year.id}>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between w-full gap-2">
                 <span>{year.name}</span>
-                {year.is_current && (
-                  <Badge variant="secondary" className="text-xs">
-                    Actuelle
-                  </Badge>
-                )}
+                <div className="flex items-center gap-1">
+                  {year.status === 'completed' && (
+                    <Badge variant="outline" className="text-xs bg-muted">
+                      Terminée
+                    </Badge>
+                  )}
+                  {year.status === 'current' && (
+                    <Badge variant="default" className="text-xs">
+                      En cours
+                    </Badge>
+                  )}
+                  {year.status === 'planning' && (
+                    <Badge variant="secondary" className="text-xs">
+                      Planifiée
+                    </Badge>
+                  )}
+                  {year.is_current && (
+                    <Badge variant="destructive" className="text-xs">
+                      Actuelle
+                    </Badge>
+                  )}
+                </div>
               </div>
             </SelectItem>
           ))}
