@@ -9,6 +9,7 @@ import { GradingSystemConfig } from '@/components/results/GradingSystemConfig';
 import { MatrixGradeEntry } from '@/components/results/MatrixGradeEntry';
 import { GradeCalculations } from '@/components/results/GradeCalculations';
 import { ResultsAnalytics } from '@/components/results/ResultsAnalytics';
+import { AcademicYearManagement } from '@/components/academic/AcademicYearManagement';
 import { AcademicYearProvider } from '@/contexts/AcademicYearContext';
 import Validation from "./results/Validation";
 import Documentation from "./results/Documentation";
@@ -64,6 +65,11 @@ export default function Results() {
           title: "Analyse & Contrôle",
           subtitle: "Statistiques avancées et validation des données",
           component: <ResultsAnalytics />
+        },
+        '/results/academic-year-management': {
+          title: "Gestion des Années Académiques",
+          subtitle: "Validation, archivage et promotion des étudiants",
+          component: <AcademicYearManagement />
         }
       };
 

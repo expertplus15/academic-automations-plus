@@ -12,6 +12,12 @@ export interface AcademicYear {
   is_current: boolean;
   created_at: string;
   updated_at: string;
+  validation_status: 'draft' | 'validated' | 'archived';
+  is_archived: boolean;
+  validated_at?: string;
+  validated_by?: string;
+  archived_at?: string;
+  archived_by?: string;
 }
 
 export function useAcademicYears() {
@@ -28,7 +34,11 @@ export function useAcademicYears() {
 
       const { data, error } = await supabase
         .from('academic_years')
-        .select('*')
+        .select(`
+          *,
+          validated_by_profile:validated_by(full_name),
+          archived_by_profile:archived_by(full_name)
+        `)
         .order('start_date', { ascending: false });
 
       if (error) {

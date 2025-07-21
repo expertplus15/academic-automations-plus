@@ -302,34 +302,52 @@ export type Database = {
       }
       academic_years: {
         Row: {
+          archived_at: string | null
+          archived_by: string | null
           created_at: string | null
           end_date: string
           id: string
+          is_archived: boolean | null
           is_current: boolean | null
           name: string
           start_date: string
           status: string | null
           updated_at: string | null
+          validated_at: string | null
+          validated_by: string | null
+          validation_status: string | null
         }
         Insert: {
+          archived_at?: string | null
+          archived_by?: string | null
           created_at?: string | null
           end_date: string
           id?: string
+          is_archived?: boolean | null
           is_current?: boolean | null
           name: string
           start_date: string
           status?: string | null
           updated_at?: string | null
+          validated_at?: string | null
+          validated_by?: string | null
+          validation_status?: string | null
         }
         Update: {
+          archived_at?: string | null
+          archived_by?: string | null
           created_at?: string | null
           end_date?: string
           id?: string
+          is_archived?: boolean | null
           is_current?: boolean | null
           name?: string
           start_date?: string
           status?: string | null
           updated_at?: string | null
+          validated_at?: string | null
+          validated_by?: string | null
+          validation_status?: string | null
         }
         Relationships: []
       }
@@ -8062,7 +8080,9 @@ export type Database = {
         Row: {
           academic_year_id: string | null
           created_at: string
+          current_academic_year_id: string | null
           enrollment_date: string
+          enrollment_year_id: string | null
           group_id: string | null
           id: string
           profile_id: string
@@ -8075,7 +8095,9 @@ export type Database = {
         Insert: {
           academic_year_id?: string | null
           created_at?: string
+          current_academic_year_id?: string | null
           enrollment_date?: string
+          enrollment_year_id?: string | null
           group_id?: string | null
           id?: string
           profile_id: string
@@ -8088,7 +8110,9 @@ export type Database = {
         Update: {
           academic_year_id?: string | null
           created_at?: string
+          current_academic_year_id?: string | null
           enrollment_date?: string
+          enrollment_year_id?: string | null
           group_id?: string | null
           id?: string
           profile_id?: string
@@ -8102,6 +8126,20 @@ export type Database = {
           {
             foreignKeyName: "students_academic_year_id_fkey"
             columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "students_current_academic_year_id_fkey"
+            columns: ["current_academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "students_enrollment_year_id_fkey"
+            columns: ["enrollment_year_id"]
             isOneToOne: false
             referencedRelation: "academic_years"
             referencedColumns: ["id"]
@@ -9490,6 +9528,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      archive_academic_year: {
+        Args: { p_year_id: string }
+        Returns: undefined
+      }
       calculate_dropout_risk_score: {
         Args: { p_student_id: string }
         Returns: number
@@ -9625,6 +9667,10 @@ export type Database = {
           description: string
         }[]
       }
+      promote_students_to_next_year: {
+        Args: { p_from_year_id: string; p_to_year_id: string }
+        Returns: number
+      }
       record_calculation_complete: {
         Args: {
           history_id: string
@@ -9652,6 +9698,14 @@ export type Database = {
           p_sync_data?: Json
         }
         Returns: string
+      }
+      unarchive_academic_year: {
+        Args: { p_year_id: string }
+        Returns: undefined
+      }
+      validate_academic_year: {
+        Args: { p_year_id: string }
+        Returns: undefined
       }
       validate_grade_entry: {
         Args: {

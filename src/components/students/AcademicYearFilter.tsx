@@ -44,19 +44,19 @@ export function AcademicYearFilter() {
               <div className="flex items-center justify-between w-full gap-2">
                 <span>{year.name}</span>
                 <div className="flex items-center gap-1">
-                  {year.status === 'completed' && (
+                  {year.validation_status === 'archived' && (
                     <Badge variant="outline" className="text-xs bg-muted">
-                      Terminée
+                      Archivée
                     </Badge>
                   )}
-                  {year.status === 'active' && (
+                  {year.validation_status === 'validated' && (
                     <Badge variant="default" className="text-xs">
-                      En cours
+                      Validée
                     </Badge>
                   )}
-                  {year.status === 'planning' && (
+                  {year.validation_status === 'draft' && (
                     <Badge variant="secondary" className="text-xs">
-                      Planifiée
+                      Brouillon
                     </Badge>
                   )}
                   {year.is_current && (
