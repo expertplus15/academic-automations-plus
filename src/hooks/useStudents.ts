@@ -6,6 +6,7 @@ export interface Student {
   id: string;
   student_number: string;
   program_id: string;
+  current_academic_year_id?: string;
   academic_year_id?: string;
   year_level?: number;
   group_id?: string;
@@ -43,6 +44,7 @@ export function useStudents(filters: UseStudentsFilters = {}) {
           id,
           student_number,
           program_id,
+          current_academic_year_id,
           academic_year_id,
           year_level,
           group_id,
@@ -59,9 +61,9 @@ export function useStudents(filters: UseStudentsFilters = {}) {
         .eq('status', 'active')
         .order('student_number');
 
-      // Appliquer tous les filtres
+      // Filtrer par année académique courante (après promotion)
       if (filters.academicYearId) {
-        query = query.eq('academic_year_id', filters.academicYearId);
+        query = query.eq('current_academic_year_id', filters.academicYearId);
       }
 
       if (filters.programId) {
@@ -96,6 +98,7 @@ export function useStudents(filters: UseStudentsFilters = {}) {
       }
       
       console.log('✅ [STUDENTS] Successfully fetched', filteredData.length, 'students with applied filters');
+      console.log('🔍 [STUDENTS] Filter applied: current_academic_year_id =', filters.academicYearId);
       setStudents(filteredData);
     } catch (error) {
       console.error('💥 [STUDENTS] Unexpected error:', error);

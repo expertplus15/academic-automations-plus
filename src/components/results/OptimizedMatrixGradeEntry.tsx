@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MatrixFilters } from './grade-entry/MatrixFilters';
 import { MatrixTable } from './grade-entry/MatrixTable';
 import { MatrixStats } from './grade-entry/MatrixStats';
+import { StudentSyncStatus } from './grade-entry/StudentSyncStatus';
 import { useAcademicYearContext } from '@/contexts/AcademicYearContext';
 import { useMatrixFilters } from '@/hooks/useMatrixFilters';
 import { useStudents } from '@/hooks/useStudents';
@@ -30,6 +31,13 @@ export function OptimizedMatrixGradeEntry() {
   console.log('📊 [OPTIMIZED_MATRIX] Students count:', students.length);
   console.log('🎯 [OPTIMIZED_MATRIX] Active filters:', filters);
   console.log('🔍 [OPTIMIZED_MATRIX] Student filters applied:', studentFilters);
+  console.log('👥 [OPTIMIZED_MATRIX] Students details:', students.map(s => ({
+    id: s.id,
+    name: s.profile.full_name,
+    student_number: s.student_number,
+    current_academic_year_id: s.current_academic_year_id,
+    academic_year_id: s.academic_year_id
+  })));
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -51,11 +59,21 @@ export function OptimizedMatrixGradeEntry() {
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
-          <MatrixStats 
-            studentsCount={students.length}
-            isLoading={studentsLoading || dutgeLoading}
-            dutgeStats={dutgeStats}
-          />
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            <div className="lg:col-span-3">
+              <MatrixStats 
+                studentsCount={students.length}
+                isLoading={studentsLoading || dutgeLoading}
+                dutgeStats={dutgeStats}
+              />
+            </div>
+            <div className="lg:col-span-1">
+              <StudentSyncStatus 
+                students={students}
+                loading={studentsLoading}
+              />
+            </div>
+          </div>
         </CardContent>
       </Card>
 
