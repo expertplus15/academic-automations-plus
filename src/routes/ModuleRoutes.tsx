@@ -95,6 +95,7 @@ const Announcements = lazyLoad(() => import('@/pages/communication/Announcements
 // Pages du module Paramètres
 const SettingsGeneral = lazyLoad(() => import('@/pages/settings/General'));
 const SettingsUsers = lazyLoad(() => import('@/pages/settings/Users'));
+const SettingsAcademic = lazyLoad(() => import('@/pages/settings/AcademicManagement'));
 
 // Composant de chargement
 const SuspenseWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -191,6 +192,7 @@ export function ModuleRoutes() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/settings/general" element={<SettingsGeneral />} />
         <Route path="/settings/users" element={<SettingsUsers />} />
+        <Route path="/settings/academic" element={<SettingsAcademic />} />
 
         {/* Autres modules */}
         <Route path="/documents" element={<Documents />} />
