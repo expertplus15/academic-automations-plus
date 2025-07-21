@@ -12,11 +12,13 @@ export function useMatrixConfiguration() {
     const levelId = filters.level && filters.level !== 'all' && filters.level !== '' ? filters.level : undefined;
     
     console.info('🔍 [MATRIX_CONFIG] Converting filters:', { 
-      filters, 
+      original_filters: filters, 
       programId, 
       levelId,
-      programSelected: !!programId,
-      levelSelected: !!levelId
+      programType: typeof filters.program,
+      levelType: typeof filters.level,
+      programEmpty: filters.program === '',
+      levelEmpty: filters.level === ''
     });
     
     return {
