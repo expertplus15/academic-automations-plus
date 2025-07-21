@@ -7,10 +7,21 @@ export function useMatrixConfiguration() {
   const { filters } = useMatrixFilters();
   
   // Convertir les filtres pour les hooks
-  const filterParams = useMemo(() => ({
-    programId: filters.program && filters.program !== 'all' && filters.program !== '' ? filters.program : undefined,
-    levelId: filters.level && filters.level !== 'all' && filters.level !== '' ? filters.level : undefined,
-  }), [filters.program, filters.level]);
+  const filterParams = useMemo(() => {
+    const programId = filters.program && filters.program !== 'all' && filters.program !== '' ? filters.program : undefined;
+    const levelId = filters.level && filters.level !== 'all' && filters.level !== '' ? filters.level : undefined;
+    
+    console.info('🔍 [MATRIX_CONFIG] Converting filters:', { 
+      filters, 
+      programId, 
+      levelId 
+    });
+    
+    return {
+      programId,
+      levelId
+    };
+  }, [filters.program, filters.level]);
 
   const { subjects, loading: subjectsLoading, error: subjectsError } = useSubjects(
     filterParams.programId,
@@ -19,7 +30,13 @@ export function useMatrixConfiguration() {
 
   // Déterminer si la configuration est disponible
   const isConfigurationAvailable = useMemo(() => {
-    return !!(filterParams.programId && subjects.length > 0);
+    const available = !!(filterParams.programId && subjects.length > 0);
+    console.info('🔍 [MATRIX_CONFIG] Configuration check:', { 
+      programId: filterParams.programId,
+      subjectsCount: subjects.length,
+      available
+    });
+    return available;
   }, [filterParams.programId, subjects.length]);
 
   // Messages d'aide pour l'utilisateur

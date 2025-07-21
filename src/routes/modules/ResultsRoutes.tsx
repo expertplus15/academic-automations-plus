@@ -1,22 +1,23 @@
-
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ModuleLayout } from "@/components/layouts/ModuleLayout";
 import { AcademicYearProvider } from '@/contexts/AcademicYearContext';
 
-// Lazy loading des composants
+// Components
 import { ResultsDashboard } from '@/components/dashboard/ResultsDashboard';
 import { GradingSystemConfig } from '@/components/results/GradingSystemConfig';
-import GradeEntry from './results/GradeEntry';
+import { GradeEntryContent } from '@/components/results/grade-entry/GradeEntryContent';
 import { GradeCalculations } from '@/components/results/GradeCalculations';
 import { ResultsAnalytics } from '@/components/results/ResultsAnalytics';
-import Validation from "./results/Validation";
-import Documentation from "./results/Documentation";
-import { default as RefactoredPersonalisation } from "./results/RefactoredPersonalisation";
-import Production from "./results/Production";
 
-export default function Results() {
+// Pages
+import Validation from '@/pages/results/Validation';
+import Documentation from '@/pages/results/Documentation';
+import RefactoredPersonalisation from '@/pages/results/RefactoredPersonalisation';
+import Production from '@/pages/results/Production';
+
+export default function ResultsRoutes() {
   return (
     <ProtectedRoute allowedRoles={['admin', 'teacher']}>
       <AcademicYearProvider>
@@ -57,7 +58,7 @@ export default function Results() {
                 subtitle="Interface matricielle collaborative et saisie manuelle des notes"
                 showHeader={true}
               >
-                <GradeEntry />
+                <GradeEntryContent />
               </ModuleLayout>
             } 
           />

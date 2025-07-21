@@ -15,7 +15,7 @@ import NotFound from '@/pages/NotFound';
 import Unauthorized from '@/pages/Unauthorized';
 
 // Module routes
-import { ModuleRoutes } from '@/routes/ModuleRoutes';
+import { ModuleRouter } from '@/routes/ModuleRouter';
 
 export default function AppRoutes() {
   const { user, loading } = useAuth();
@@ -46,7 +46,7 @@ export default function AppRoutes() {
       {/* Module routes */}
       <Route path="/*" element={
         <ProtectedRoute>
-          <ModuleRoutes />
+          <ModuleRouter />
         </ProtectedRoute>
       } />
       
