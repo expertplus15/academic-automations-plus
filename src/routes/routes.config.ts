@@ -163,54 +163,61 @@ export const routesConfig: RouteConfig[] = [
     ],
   },
 
-  // Module Résultats et Évaluations  
+  // Module Évaluations & Résultats  
   {
     path: "/results",
     component: "Results",
-    title: "Résultats",
+    title: "Évaluations & Résultats",
     icon: "BarChart3",
     protected: true,
     children: [
       {
         path: "/results/grading-system",
-        component: "ResultsGradingSystem",
+        component: "GradingSystem",
         title: "Système de Notation",
+        description: "Configuration du barème, pondération et règles de calcul"
       },
       {
         path: "/results/grade-entry",
-        component: "ResultsGradeEntry",
-        title: "Saisie des notes",
+        component: "GradeEntry",
+        title: "Saisie des Notes",
+        description: "Interface matricielle collaborative et saisie manuelle"
       },
       {
         path: "/results/calculations",
-        component: "ResultsCalculations",
+        component: "Calculations",
         title: "Calculs & Moyennes",
+        description: "Moyennes, ECTS, compensations et mentions automatiques"
       },
       {
         path: "/results/validation",
-        component: "ResultsValidation",
+        component: "Validation",
         title: "Validation",
+        description: "Consultation et validation des résultats"
       },
       {
         path: "/results/documentation",
-        component: "ResultsDocumentation",
+        component: "Documentation",
         title: "Documentation",
-        description: "Gestion des types de documents d'évaluation",
+        description: "Création et gestion des types de documents d'évaluation"
       },
       {
         path: "/results/personalisation",
-        component: "ResultsPersonalisation",
+        component: "Personalisation",
         title: "Personnalisation",
+        description: "Studio de création des templates"
       },
       {
         path: "/results/production",
-        component: "ResultsProduction",
+        component: "Production",
         title: "Production",
+        description: "Centre de production et export en masse"
       },
       {
         path: "/results/analytics",
-        component: "ResultsAnalytics",
+        component: "Analytics",
         title: "Analyse & Contrôle",
+        description: "Statistiques avancées et validation des données"
       },
     ],
   },

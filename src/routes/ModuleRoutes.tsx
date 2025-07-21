@@ -149,15 +149,7 @@ export function ModuleRoutes() {
         <Route path="/academic/departments" element={<AcademicDepartments />} />
         
         {/* Module Résultats */}
-        <Route path="/results" element={<Results />} />
-        <Route path="/results/grading-system" element={<ResultsGradingSystem />} />
-        <Route path="/results/grade-entry" element={<ResultsGradeEntry />} />
-        <Route path="/results/calculations" element={<ResultsCalculations />} />
-        <Route path="/results/validation" element={<ResultsValidation />} />
-        <Route path="/results/documentation" element={<ResultsDocumentation />} />
-        <Route path="/results/personalisation" element={<ResultsPersonalisation />} />
-        <Route path="/results/production" element={<ResultsProduction />} />
-        <Route path="/results/analytics" element={<ResultsAnalytics />} />
+        <Route path="/results/*" element={<Results />} />
 
         {/* Module Examens (simplifié) */}
         <Route path="/exams" element={<Exams />} />
