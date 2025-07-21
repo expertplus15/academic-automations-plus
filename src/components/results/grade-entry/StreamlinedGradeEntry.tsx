@@ -260,13 +260,13 @@ export function StreamlinedGradeEntry() {
         </CardContent>
       </Card>
 
-      {/* Grade Entry Table */}
-      {canStartGrading && (
+      {/* Students Preview and Grade Entry */}
+      {filters.program && (
         <Card className="border-border/50">
           <CardHeader className="pb-3">
             <CardTitle className="text-base text-foreground flex items-center gap-2">
-              <ClipboardCheck className="w-4 h-4" />
-              Saisie des Notes
+              <Users className="w-4 h-4" />
+              {canStartGrading ? 'Saisie des Notes' : 'Étudiants'}
               <Badge variant="secondary" className="ml-2 text-xs">
                 {students.length} étudiant{students.length > 1 ? 's' : ''}
               </Badge>
@@ -279,9 +279,9 @@ export function StreamlinedGradeEntry() {
                 <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>Aucun étudiant trouvé avec les filtres appliqués.</p>
               </div>
-            ) : (
+            ) : canStartGrading ? (
               <div className="space-y-3">
-                {/* En-tête du tableau */}
+                {/* En-tête du tableau de saisie */}
                 <div className="grid grid-cols-4 gap-4 p-3 bg-muted/30 rounded-lg text-xs font-medium">
                   <div>Étudiant</div>
                   <div>Programme</div>
@@ -289,7 +289,7 @@ export function StreamlinedGradeEntry() {
                   <div>Actions</div>
                 </div>
 
-                {/* Lignes des étudiants */}
+                {/* Lignes de saisie des étudiants */}
                 <div className="max-h-96 overflow-y-auto space-y-2">
                   {students.map((student) => (
                     <div key={student.id} className="grid grid-cols-4 gap-4 p-3 border border-border/30 rounded-lg hover:bg-muted/10 transition-colors">
@@ -314,6 +314,26 @@ export function StreamlinedGradeEntry() {
                         <Button size="sm" variant="outline" className="text-xs h-7 px-2">
                           Sauvegarder
                         </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {/* Liste simple des étudiants en preview */}
+                <p className="text-xs text-muted-foreground mb-3">
+                  Sélectionnez une matière et un type d'évaluation pour commencer la saisie.
+                </p>
+                <div className="max-h-64 overflow-y-auto space-y-2">
+                  {students.map((student) => (
+                    <div key={student.id} className="flex items-center justify-between p-2 border border-border/30 rounded text-xs">
+                      <div className="flex flex-col">
+                        <span className="font-medium text-foreground">{student.profile.full_name}</span>
+                        <span className="text-muted-foreground">{student.student_number}</span>
+                      </div>
+                      <div className="text-muted-foreground">
+                        {student.program.code} - Niveau {student.year_level}
                       </div>
                     </div>
                   ))}
