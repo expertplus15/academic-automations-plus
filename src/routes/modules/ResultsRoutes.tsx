@@ -15,6 +15,7 @@ import Validation from '@/pages/results/Validation';
 import Documentation from '@/pages/results/Documentation';
 import RefactoredPersonalisation from '@/pages/results/RefactoredPersonalisation';
 import Production from '@/pages/results/Production';
+import { PromotionManagement } from '@/components/results/promotion/PromotionManagement';
 
 // Route configuration with metadata
 const resultsRoutes = [
@@ -79,6 +80,13 @@ const resultsRoutes = [
     title: 'Analyse & Contrôle',
     subtitle: 'Statistiques avancées et validation des données',
     component: ResultsAnalytics,
+    showHeader: true
+  },
+  {
+    path: 'promotion',
+    title: 'Promotion des Étudiants',
+    subtitle: 'Gestion intelligente des promotions d\'année et critères d\'évaluation',
+    component: PromotionManagement,
     showHeader: true
   }
 ];

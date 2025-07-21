@@ -6735,6 +6735,170 @@ export type Database = {
           },
         ]
       }
+      promotion_campaigns: {
+        Row: {
+          campaign_date: string
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          name: string
+          source_academic_year_id: string | null
+          status: string
+          target_academic_year_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          campaign_date?: string
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          name: string
+          source_academic_year_id?: string | null
+          status?: string
+          target_academic_year_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          campaign_date?: string
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          source_academic_year_id?: string | null
+          status?: string
+          target_academic_year_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promotion_campaigns_source_academic_year_id_fkey"
+            columns: ["source_academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promotion_campaigns_target_academic_year_id_fkey"
+            columns: ["target_academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "academic_years"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      promotion_criteria: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          criteria_type: string
+          description: string | null
+          id: string
+          is_active: boolean
+          is_mandatory: boolean
+          level_id: string | null
+          name: string
+          program_id: string | null
+          threshold_value: number | null
+          updated_at: string
+          weight: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          criteria_type: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_mandatory?: boolean
+          level_id?: string | null
+          name: string
+          program_id?: string | null
+          threshold_value?: number | null
+          updated_at?: string
+          weight?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          criteria_type?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_mandatory?: boolean
+          level_id?: string | null
+          name?: string
+          program_id?: string | null
+          threshold_value?: number | null
+          updated_at?: string
+          weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promotion_criteria_level_id_fkey"
+            columns: ["level_id"]
+            isOneToOne: false
+            referencedRelation: "academic_levels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promotion_criteria_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      promotion_reports: {
+        Row: {
+          campaign_id: string
+          content: Json
+          file_url: string | null
+          generated_at: string
+          generated_by: string | null
+          id: string
+          report_type: string
+          title: string
+        }
+        Insert: {
+          campaign_id: string
+          content: Json
+          file_url?: string | null
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          report_type: string
+          title: string
+        }
+        Update: {
+          campaign_id?: string
+          content?: Json
+          file_url?: string | null
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          report_type?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promotion_reports_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "promotion_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       properties: {
         Row: {
           acquisition_cost: number | null
@@ -8072,6 +8236,78 @@ export type Database = {
             columns: ["subject_id"]
             isOneToOne: false
             referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_promotion_evaluations: {
+        Row: {
+          attendance_rate: number | null
+          calculated_average: number | null
+          campaign_id: string
+          created_at: string
+          criteria_met: Json | null
+          decision_reason: string | null
+          ects_earned: number | null
+          ects_required: number | null
+          id: string
+          manual_override: boolean | null
+          override_reason: string | null
+          promotion_decision: string
+          student_id: string
+          updated_at: string
+          validated_at: string | null
+          validated_by: string | null
+        }
+        Insert: {
+          attendance_rate?: number | null
+          calculated_average?: number | null
+          campaign_id: string
+          created_at?: string
+          criteria_met?: Json | null
+          decision_reason?: string | null
+          ects_earned?: number | null
+          ects_required?: number | null
+          id?: string
+          manual_override?: boolean | null
+          override_reason?: string | null
+          promotion_decision?: string
+          student_id: string
+          updated_at?: string
+          validated_at?: string | null
+          validated_by?: string | null
+        }
+        Update: {
+          attendance_rate?: number | null
+          calculated_average?: number | null
+          campaign_id?: string
+          created_at?: string
+          criteria_met?: Json | null
+          decision_reason?: string | null
+          ects_earned?: number | null
+          ects_required?: number | null
+          id?: string
+          manual_override?: boolean | null
+          override_reason?: string | null
+          promotion_decision?: string
+          student_id?: string
+          updated_at?: string
+          validated_at?: string | null
+          validated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_promotion_evaluations_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "promotion_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_promotion_evaluations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
@@ -9560,6 +9796,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      calculate_student_promotion_eligibility: {
+        Args: {
+          p_student_id: string
+          p_academic_year_id: string
+          p_criteria_ids?: string[]
+        }
+        Returns: Json
+      }
       detect_exam_conflicts: {
         Args: { p_academic_year_id?: string }
         Returns: {
@@ -9666,6 +9910,10 @@ export type Database = {
           category: string
           description: string
         }[]
+      }
+      process_promotion_campaign: {
+        Args: { p_campaign_id: string; p_auto_promote?: boolean }
+        Returns: Json
       }
       promote_students_to_next_year: {
         Args: { p_from_year_id: string; p_to_year_id: string }

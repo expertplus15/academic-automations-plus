@@ -24,7 +24,8 @@ import {
   ArrowLeft,
   Settings,
   Layout,
-  FileOutput
+  FileOutput,
+  GraduationCap
 } from "lucide-react";
 
 const resultsItems = [
@@ -35,7 +36,8 @@ const resultsItems = [
   { title: "Documentation", url: "/results/documentation", icon: FileText },
   { title: "Personnalisation", url: "/results/personalisation", icon: Palette },
   { title: "Production", url: "/results/production", icon: Factory },
-  { title: "Analyse & Contrôle", url: "/results/analytics", icon: BarChart3 }
+  { title: "Analyse & Contrôle", url: "/results/analytics", icon: BarChart3 },
+  { title: "Promotion des Étudiants", url: "/results/promotion", icon: GraduationCap }
 ];
 
 export function ResultsModuleSidebar() {
