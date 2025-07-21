@@ -8,7 +8,7 @@ export interface AcademicYear {
   name: string;
   start_date: string;
   end_date: string;
-  status: 'planning' | 'current' | 'completed';
+  status: 'planning' | 'active' | 'completed';
   is_current: boolean;
   created_at: string;
   updated_at: string;

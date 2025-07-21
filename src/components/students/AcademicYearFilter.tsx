@@ -6,6 +6,13 @@ import { Badge } from "@/components/ui/badge";
 export function AcademicYearFilter() {
   const { selectedAcademicYear, setSelectedAcademicYear, academicYears, loading } = useAcademicYearContext();
 
+  // Sort academic years: current first, then by newest start date  
+  const sortedAcademicYears = [...academicYears].sort((a, b) => {
+    if (a.is_current && !b.is_current) return -1;
+    if (!a.is_current && b.is_current) return 1;
+    return new Date(b.start_date).getTime() - new Date(a.start_date).getTime();
+  });
+
   if (loading) {
     return (
       <div className="flex items-center gap-2">
@@ -32,7 +39,7 @@ export function AcademicYearFilter() {
           <SelectValue placeholder="Sélectionner une année" />
         </SelectTrigger>
         <SelectContent>
-          {academicYears.map((year) => (
+          {sortedAcademicYears.map((year) => (
             <SelectItem key={year.id} value={year.id}>
               <div className="flex items-center justify-between w-full gap-2">
                 <span>{year.name}</span>
@@ -42,7 +49,7 @@ export function AcademicYearFilter() {
                       Terminée
                     </Badge>
                   )}
-                  {year.status === 'current' && (
+                  {year.status === 'active' && (
                     <Badge variant="default" className="text-xs">
                       En cours
                     </Badge>
