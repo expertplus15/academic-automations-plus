@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from '@/hooks/use-toast';
 import { useAcademicYears } from '@/hooks/useAcademicYears';
 import { supabase } from '@/integrations/supabase/client';
+import { StudentPromotionDialog } from './StudentPromotionDialog';
 import { 
   Calendar, 
   CheckCircle, 
@@ -72,34 +72,6 @@ export function AcademicSystemSettings() {
       toast({
         title: "Erreur",
         description: error.message || "Erreur lors de l'archivage",
-        variant: "destructive"
-      });
-    } finally {
-      setProcessingAction(null);
-    }
-  };
-
-  const handlePromoteStudents = async (fromYearId: string, toYearId: string) => {
-    try {
-      setProcessingAction(`promote-${fromYearId}-${toYearId}`);
-      const { data, error } = await supabase.rpc('promote_students_to_next_year', {
-        p_from_year_id: fromYearId,
-        p_to_year_id: toYearId
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      toast({
-        title: "Promotion réussie",
-        description: `${data} étudiants ont été promus vers la nouvelle année académique`,
-      });
-      refetch();
-    } catch (error: any) {
-      toast({
-        title: "Erreur",
-        description: error.message || "Erreur lors de la promotion",
         variant: "destructive"
       });
     } finally {
@@ -290,33 +262,14 @@ export function AcademicSystemSettings() {
               <p className="text-sm text-muted-foreground mb-3">
                 Transférer automatiquement les étudiants vers la nouvelle année académique
               </p>
-              <Dialog>
-                <DialogTrigger asChild>
+              <StudentPromotionDialog
+                trigger={
                   <Button variant="outline" className="gap-2">
                     <TrendingUp className="w-4 h-4" />
                     Promouvoir les étudiants
                   </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Promotion des étudiants</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <AlertCircle className="w-4 h-4 text-yellow-600" />
-                        <span className="text-sm font-medium text-yellow-800">
-                          Action irréversible
-                        </span>
-                      </div>
-                      <p className="text-sm text-yellow-700 mt-1">
-                        Cette action va déplacer tous les étudiants actifs vers la nouvelle année académique.
-                      </p>
-                    </div>
-                    {/* Logique de sélection des années à implémenter */}
-                  </div>
-                </DialogContent>
-              </Dialog>
+                }
+              />
             </div>
           </div>
         </CardContent>
