@@ -58,7 +58,7 @@ export function useStreamlinedGradeEntry() {
   const studentFilters = useMemo(() => ({
     academicYearId: selectedAcademicYear?.id,
     programId: filters.program || undefined,
-    yearLevel: selectedLevel?.order_index || undefined,
+    // Temporairement désactivé pour debug: yearLevel: selectedLevel?.order_index || undefined,
     groupId: filters.class || undefined,
     search: filters.search || undefined
   }), [selectedAcademicYear?.id, filters, selectedLevel]);
