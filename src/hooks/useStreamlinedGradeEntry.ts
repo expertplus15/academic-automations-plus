@@ -54,13 +54,14 @@ export function useStreamlinedGradeEntry() {
   );
 
   // Students data
+  const selectedLevel = levels.find(level => level.id === filters.level);
   const studentFilters = useMemo(() => ({
     academicYearId: selectedAcademicYear?.id,
     programId: filters.program || undefined,
-    yearLevel: filters.level ? parseInt(filters.level) : undefined,
+    yearLevel: selectedLevel?.order_index || undefined,
     groupId: filters.class || undefined,
     search: filters.search || undefined
-  }), [selectedAcademicYear?.id, filters]);
+  }), [selectedAcademicYear?.id, filters, selectedLevel]);
 
   const { students, loading: studentsLoading } = useStudents(studentFilters);
 
